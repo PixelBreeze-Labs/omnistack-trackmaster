@@ -16,7 +16,7 @@ const Header = () => {
           <Link href="/" className="flex items-center">
             <Image
               src={theme === 'dark' ? logoLight : logo}
-              alt="SnapFood Admin"
+              alt="TrackMaster"
               className="w-[60%] h-auto"
               priority
             />
@@ -24,7 +24,7 @@ const Header = () => {
           <div className="flex items-center gap-2">
             <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
             <span className="text-sm font-medium bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full">
-              Admin Hub
+              CRM Hub
             </span>
           </div>
         </div>

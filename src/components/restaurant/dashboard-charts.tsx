@@ -42,8 +42,8 @@ export function DashboardCharts() {
                                 <Line
                                     type="monotone"
                                     dataKey="amount"
-                                    stroke="#50B7ED"
-                                    fill="#50B7ED"
+                                    stroke="#2A8E9E"
+                                    fill="#2A8E9E"
                                     strokeWidth={2}
                                 />
                             </LineChart>
@@ -69,7 +69,7 @@ export function DashboardCharts() {
                                 <Tooltip />
                                 <Bar
                                     dataKey="orders"
-                                    fill="#50B7ED"
+                                    fill="#2A8E9E"
                                     radius={[4, 4, 0, 0]}
                                 />
                             </BarChart>
