@@ -97,6 +97,37 @@ const DUMMY_CUSTOMERS: Customer[] = [
     registrationDate: "2023-02-01",
     totalSpent: 125000,
   },
+  {
+    id: "3",
+    firstName: "Jane",
+    lastName: "Smith",
+    email: "jane@example.com",
+    phone: "+355697654321",
+    status: "ACTIVE",
+    type: "VIP",
+    loyaltyTier: "GOLD",
+    orders: 45,
+    lastOrder: "2024-01-20",
+    firstOrder: "2023-02-10",
+    registrationDate: "2023-02-01",
+    totalSpent: 125000,
+  },
+  {
+    id: "4",
+    firstName: "Jane",
+    lastName: "Smith",
+    email: "jane@example.com",
+    phone: "+355697654321",
+    status: "ACTIVE",
+    type: "VIP",
+    loyaltyTier: "GOLD",
+    orders: 45,
+    lastOrder: "2024-01-20",
+    firstOrder: "2023-02-10",
+    registrationDate: "2023-02-01",
+    totalSpent: 125000,
+  },
+  
   // Add more dummy data...
 ]
 
@@ -120,7 +151,7 @@ const [type, setType] = useState("all")
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -274,7 +305,7 @@ const [type, setType] = useState("all")
 </Card>
 
         {/* Customers Table */}
-        <Card>
+        <Card className="mb-8">
           <CardContent className="p-0">
             <Table>
               <TableHeader>

@@ -99,7 +99,7 @@ export function Members() {
     }
   
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 mb-8">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
@@ -250,7 +250,7 @@ export function Members() {
         </Card>
   
         {/* Members Table Card */}
-        <Card>
+        <Card className="mb-8">
           <CardContent className="p-0">
             <Table>
               <TableHeader>

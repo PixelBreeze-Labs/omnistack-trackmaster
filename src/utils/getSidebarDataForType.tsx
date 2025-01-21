@@ -90,7 +90,7 @@ import {
             {
               id: "5-1",
               title: "All Orders",
-              path: `/crm/${clientType}/orders/all`,
+              path: `/crm/${clientType}/orders`,
               icon: <Package className="w-4 h-4"/>
             },
             {
