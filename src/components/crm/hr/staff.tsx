@@ -28,6 +28,7 @@ import {
   Phone,
   Calendar
 } from "lucide-react";
+import InputSelect from '@/components/Common/InputSelect';
 
 const STAFF_MEMBERS = [
   {
@@ -137,25 +138,61 @@ export function StaffContent() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search staff members..." 
-                className="pl-9 w-full"
+     <Card>
+        <CardHeader>
+          <div className="mb-1">
+            <h3 className="font-medium">Filter Staff</h3>
+            <p className="text-sm text-muted-foreground">
+              Search and filter through your team members
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 pt-0">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex items-center flex-1 gap-2 w-full">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search by name, role, or location..." 
+                  className="pl-9 w-full"
+                />
+              </div>
+              <InputSelect
+                name="location"
+                label=""
+                value="all"
+                onChange={() => {}}
+                options={[
+                  { value: "all", label: "All Locations" },
+                  { value: "main", label: "Main Street Store" },
+                  { value: "downtown", label: "Downtown Branch" },
+                  { value: "mall", label: "Shopping Mall" }
+                ]}
               />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="sm:w-auto">
-                <Store className="h-4 w-4 mr-2" />
-                Location
-              </Button>
-              <Button variant="outline" className="sm:w-auto">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
+              <InputSelect
+                name="role"
+                label=""
+                value="all"
+                onChange={() => {}}
+                options={[
+                  { value: "all", label: "All Roles" },
+                  { value: "manager", label: "Store Manager" },
+                  { value: "sales", label: "Sales Associate" },
+                  { value: "support", label: "Support Staff" }
+                ]}
+              />
+              <InputSelect
+                name="status"
+                label=""
+                value="all"
+                onChange={() => {}}
+                options={[
+                  { value: "all", label: "All Status" },
+                  { value: "active", label: "Active" },
+                  { value: "on_leave", label: "On Leave" },
+                  { value: "inactive", label: "Inactive" }
+                ]}
+              />
             </div>
           </div>
         </CardContent>
