@@ -1,10 +1,23 @@
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  // Get the current user with client info
+  const user = await getCurrentUser();
 
-  // TODO: redirect based on login
-  redirect('/crm/ecommerece/dashboard');
+  if (user) {
+    // Check user role and client type
+    const userRole = user.role;
+    const clientType = user.client?.type;
 
-  // This won't be rendered due to redirect
+    // Replicate middleware logic for redirection
+    if (userRole === "ADMIN") {
+      redirect("/crm/ecommerce/dashboard");
+    } else if (clientType) {
+      redirect(`/crm/${clientType.toLowerCase()}/dashboard`);
+    }
+  }
+
+  // If no user or redirection, render login page
   return null;
 }
