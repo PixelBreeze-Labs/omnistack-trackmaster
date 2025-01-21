@@ -26,6 +26,7 @@ import {
   RefreshCcw,
   Store
 } from "lucide-react";
+import InputSelect from '@/components/Common/InputSelect';
 
 const TRANSACTIONS = [
   {
@@ -130,43 +131,85 @@ export function TransactionsContent() {
                   <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                   <h3 className="text-2xl font-bold mt-2">{stat.value}</h3>
                 </div>
-                <Badge 
-                  variant="secondary" 
-                  className={`flex items-center ${
-                    stat.trend === "up" ? "text-green-600" : "text-red-600"
+                <div
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    stat.trend === "up" 
+                      ? "bg-green-50 text-green-700" 
+                      : "bg-red-50 text-red-700"
                   }`}
                 >
                   {stat.trend === "up" ? 
-                    <ArrowUpRight className="h-4 w-4 mr-1" /> : 
-                    <ArrowDownRight className="h-4 w-4 mr-1" />
+                    <ArrowUpRight className="h-3 w-3 mr-1" /> : 
+                    <ArrowDownRight className="h-3 w-3 mr-1" />
                   }
                   {stat.change}
-                </Badge>
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search transactions..." 
-                className="pl-9 w-full"
+       {/* Filters */}
+       <Card>
+        <CardHeader>
+          <div className="mb-1">
+            <h3 className="font-medium">Filter Transactions</h3>
+            <p className="text-sm text-muted-foreground">
+              Search and filter through your transaction history
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 pt-0">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex items-center flex-1 gap-2 w-full">
+              <div className="relative mt-3 flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search by ID, customer, or location..." 
+                  className="pl-9 w-full"
+                />
+              </div>
+              <InputSelect
+                name="type"
+                label=""
+                value="all"
+                onChange={() => {}}
+                options={[
+                  { value: "all", label: "All Types" },
+                  { value: "sale", label: "Sales" },
+                  { value: "refund", label: "Refunds" }
+                ]}
               />
+              <InputSelect
+                name="method"
+                label=""
+                value="all"
+                onChange={() => {}}
+                options={[
+                  { value: "all", label: "All Methods" },
+                  { value: "credit_card", label: "Credit Card" },
+                  { value: "wallet", label: "Wallet" },
+                  { value: "cash", label: "Cash" }
+                ]}
+              />
+              <InputSelect
+                name="status"
+                label=""
+                value="all"
+                onChange={() => {}}
+                options={[
+                  { value: "all", label: "All Status" },
+                  { value: "completed", label: "Completed" },
+                  { value: "processed", label: "Processed" },
+                  { value: "pending", label: "Pending" }
+                ]}
+              />
+              <Button variant="outline" className="mt-2 shrink-0">
+                <Calendar className="h-4 w-4 mr-2" />
+                Date Range
+              </Button>
             </div>
-            <Button variant="outline" className="sm:w-auto">
-              <Calendar className="h-4 w-4 mr-2" />
-              Date Range
-            </Button>
-            <Button variant="outline" className="sm:w-auto">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
           </div>
         </CardContent>
       </Card>

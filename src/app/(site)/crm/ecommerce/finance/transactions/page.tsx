@@ -3,8 +3,8 @@ import { Metadata } from "next"
 import { TransactionsContent } from "@/components/crm/finance/transactions"
 
 export const metadata: Metadata = {
-    title: "HR Staff - TrackMaster CRM",
-    description: "Manage your Staff",
+    title: "Finance Transactions - TrackMaster CRM",
+    description: "Manage your Finance Transactions",
 }
 
 export default function TransactionsPage() {
