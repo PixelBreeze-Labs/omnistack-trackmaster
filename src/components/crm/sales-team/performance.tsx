@@ -118,45 +118,35 @@ export function SalesPerformance() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Performance Analytics</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            Monitor sales team performance and key metrics
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="soft" size="sm">
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
-          <Button variant="default" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
-
-      {/* Period Selector */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <InputSelect
-                name="period"
-                label=""
-                value={period}
-                onChange={(e) => setPeriod(e.target.value)}
-                options={[
-                  { value: "current", label: "Current Month" },
-                  { value: "last", label: "Last Month" },
-                  { value: "quarter", label: "This Quarter" },
-                  { value: "year", label: "Year to Date" }
-                ]}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+  <div>
+    <h2 className="text-2xl font-bold tracking-tight">Performance Analytics</h2>
+    <p className="text-sm text-muted-foreground mt-2">
+      Monitor sales team performance and key metrics
+    </p>
+  </div>
+  <div className="flex items-center gap-2">
+    <InputSelect
+      name="period"
+      label=""
+      value={period}
+      onChange={(e) => setPeriod(e.target.value)}
+      options={[
+        { value: "current", label: "Current Month" },
+        { value: "last", label: "Last Month" },
+        { value: "quarter", label: "This Quarter" },
+        { value: "year", label: "Year to Date" }
+      ]}
+    />
+    <Button className="mt-2" variant="soft" size="sm">
+      <RefreshCcw className="mr-2 h-4 w-4" />
+      Refresh
+    </Button>
+    <Button className="mt-2" variant="default" size="sm">
+      <Download className="mr-2 h-4 w-4" />
+      Export
+    </Button>
+  </div>
+</div>
 
       {/* Team Overview Stats */}
       <div className="grid gap-4 md:grid-cols-4">
