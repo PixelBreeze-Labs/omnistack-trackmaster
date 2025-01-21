@@ -127,7 +127,7 @@ export function SalesTeam() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -221,8 +221,8 @@ export function SalesTeam() {
 
       {/* Filters and Actions */}
       <Card>
-        <CardContent className="p-4">
-          <div className="mb-4">
+        <CardContent className="p-0">
+          <div className="mb-2">
             <h3 className="font-medium">Sales Staff</h3>
             <p className="text-sm text-muted-foreground">
               Manage team members and monitor their performance metrics
@@ -230,7 +230,7 @@ export function SalesTeam() {
           </div>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center flex-1 gap-2 max-w-3xl">
-              <div className="relative flex-1">
+              <div className="relative mt-2 flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search staff by name, email, or phone..."
@@ -239,6 +239,7 @@ export function SalesTeam() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+              <div>
               <InputSelect
                 name="position"
                 label=""
@@ -251,6 +252,7 @@ export function SalesTeam() {
                   { value: "junior", label: "Junior Associate" }
                 ]}
               />
+              </div>
               <InputSelect
                 name="status"
                 label=""
@@ -263,6 +265,7 @@ export function SalesTeam() {
                   { value: "on_leave", label: "On Leave" }
                 ]}
               />
+             
             </div>
             <div className="flex items-center gap-2">
               <Button>
@@ -275,7 +278,7 @@ export function SalesTeam() {
       </Card>
 
       {/* Staff Table */}
-      <Card>
+      <Card className="mb-8">
         <CardContent className="p-0">
           <Table>
             <TableHeader>

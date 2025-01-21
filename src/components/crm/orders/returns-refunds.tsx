@@ -203,7 +203,7 @@ export function ReturnsAndRefunds() {
       {/* Filters and Actions */}
       <Card>
         <CardHeader>
-          <div className="mb-2">
+          <div className="mb-1">
             <h3 className="font-medium">Returns Management</h3>
             <p className="text-sm text-muted-foreground">
               Process and manage return requests and refunds
@@ -211,9 +211,9 @@ export function ReturnsAndRefunds() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="flex items-center justify-between gap-4 p-4">
+          <div className="flex items-center justify-between gap-4 p-0">
             <div className="flex items-center flex-1 gap-2 max-w-3xl">
-              <div className="relative flex-1">
+              <div className="relative mt-2 flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by order number or customer..."
@@ -246,7 +246,7 @@ export function ReturnsAndRefunds() {
                   { value: "refund", label: "Refunds" }
                 ]}
               />
-              <Button variant="outline" size="icon">
+              <Button variant="outline" className={"mt-2"} size="icon">
                 <CalendarDays className="h-4 w-4" />
               </Button>
             </div>
@@ -255,8 +255,8 @@ export function ReturnsAndRefunds() {
       </Card>
 
       {/* Returns Table */}
-      <Card className="mb-6">
-        <CardContent className="p-0">
+      <Card>
+        <CardContent className="mb-4 p-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -366,6 +366,8 @@ export function ReturnsAndRefunds() {
             </div>
           </CardContent>
         </Card>
+        {/* Add empty space div at the bottom */}
+        <div className="h-4"></div>
 </div>
 )
 }

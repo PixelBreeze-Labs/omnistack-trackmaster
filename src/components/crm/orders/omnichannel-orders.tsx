@@ -62,7 +62,7 @@ export function OmnichannelOrders() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-8">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Omnichannel Overview</h2>
@@ -199,7 +199,7 @@ export function OmnichannelOrders() {
         </Card>
 
         {/* Weekly Trends */}
-        <Card className="md:col-span-2">
+        <Card className="mb-8 md:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Weekly Channel Performance</CardTitle>
           </CardHeader>
@@ -231,6 +231,7 @@ export function OmnichannelOrders() {
             </div>
           </CardContent>
         </Card>
+         
       </div>
     </div>
   );

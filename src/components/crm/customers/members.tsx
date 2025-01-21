@@ -193,8 +193,8 @@ export function Members() {
   
         {/* Filters and Actions */}
         <Card>
-          <CardContent className="p-4">
-            <div className="mb-4">
+          <CardContent className="p-0">
+            <div className="mb-1">
               <h3 className="font-medium">Manage Members</h3>
               <p className="text-sm text-muted-foreground">
                 Search, filter, and manage club members and their loyalty benefits
@@ -202,7 +202,7 @@ export function Members() {
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center flex-1 gap-2 max-w-3xl">
-                <div className="relative flex-1">
+                <div className="relative mt-2 flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search members by name, email, or phone..."
