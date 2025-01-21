@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Download,
-  Filter,
   Search,
   Calendar,
   CreditCard,
@@ -27,6 +26,9 @@ import {
   Store
 } from "lucide-react";
 import InputSelect from '@/components/Common/InputSelect';
+import { PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Pagination } from '@/components/ui/pagination';
+import { PaginationContent } from '@/components/ui/pagination';
 
 const TRANSACTIONS = [
   {
@@ -99,6 +101,14 @@ const getMethodIcon = (method: string) => {
 };
 
 export function TransactionsContent() {
+
+    const [pageSize, setPageSize] = useState(10);
+    const [page, setPage] = useState(1);
+
+    // Calculate pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const displayedTransactions = TRANSACTIONS.slice(startIndex, endIndex);
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -219,7 +229,7 @@ export function TransactionsContent() {
         <CardHeader>
           <CardTitle>Recent Transactions</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -268,6 +278,57 @@ export function TransactionsContent() {
               ))}
             </TableBody>
           </Table>
+          {/* Add this right after your </Table> */}
+          <div className="border-t px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => setPageSize(parseInt(e.target.value))}
+          options={[
+            { value: "10", label: "10 rows" },
+            { value: "20", label: "20 rows" },
+            { value: "50", label: "50 rows" }
+          ]}
+        />
+        
+        <div className="flex-1 flex items-center justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1} 
+                />
+              </PaginationItem>
+              {[...Array(Math.min(5, Math.ceil(TRANSACTIONS.length / pageSize)))].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setPage(p => Math.min(Math.ceil(TRANSACTIONS.length / pageSize), p + 1))}
+                  disabled={page === Math.ceil(TRANSACTIONS.length / pageSize)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+
+        <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+          Showing <span className="font-medium">{displayedTransactions.length}</span> of{" "}
+          <span className="font-medium">{TRANSACTIONS.length}</span> transactions
+        </p>
+      </div>
+    </div>
+   
         </CardContent>
       </Card>
     </div>
