@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+
 export default function LoginPage() {
     const router = useRouter()
     const [error, setError] = useState<string>("")
@@ -39,7 +40,19 @@ export default function LoginPage() {
                 return
             }
 
-            router.push("/admin/dashboard")
+            // Get user data to determine redirect
+            const userResponse = await fetch('/api/auth/me')
+            const userData = await userResponse.json()
+
+            // Redirect based on role and client type
+            if (userData.role === 'ADMIN') {
+                router.push("/crm/ecommerce/dashboard")
+            } else if (userData.role === 'SALES' || userData.role === 'MARKETING') {
+                // Redirect to appropriate CRM section based on client type
+                router.push(`/crm/${userData.clientType.toLowerCase()}/dashboard`)
+            } else {
+                setError("Insufficient permissions")
+            }
         } catch (error) {
             setError("Something went wrong")
         } finally {
@@ -48,49 +61,46 @@ export default function LoginPage() {
     }
 
     return (
-        <>
-            
-            <div className="flex min-h-screen items-center justify-center px-4">
-                <Card className="w-full max-w-[400px]">
-                    <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email Address</Label>
-                                <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    placeholder="admin@snapfood.com"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
-                            {error && (
-                                <p className="text-sm text-red-500">{error}</p>
-                            )}
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Signing in..." : "Sign In"}
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
-        </>
+        <div className="flex min-h-screen items-center justify-center px-4">
+            <Card className="w-full max-w-[400px]">
+                <CardHeader className="space-y-1">
+                    <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email Address</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="email@company.com"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
+                        {error && (
+                            <p className="text-sm text-red-500">{error}</p>
+                        )}
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Signing in..." : "Sign In"}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     )
 }
