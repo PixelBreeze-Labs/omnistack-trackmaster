@@ -248,7 +248,7 @@ const [type, setType] = useState("all")
       {/* Filters and Actions */}
 <Card>
   <CardHeader>
-  <div className="mb-4">
+  <div className="mb-1">
       <h3 className="font-medium">Filter Customers</h3>
       <p className="text-sm text-muted-foreground">
         Filter and search through your customer base
@@ -258,7 +258,7 @@ const [type, setType] = useState("all")
   <CardContent className="p-0">
     <div className="flex items-center justify-between gap-4">
       <div className="flex items-center flex-1 gap-2 max-w-3xl">
-        <div className="relative flex-1">
+        <div className="relative mt-2 flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search customers by name, email, or phone..."

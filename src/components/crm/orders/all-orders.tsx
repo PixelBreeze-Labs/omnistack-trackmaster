@@ -203,7 +203,7 @@ export function AllOrders() {
       <div className="flex flex-col gap-4">
         <Card>
           <CardHeader>
-            <div className="mb-2">
+            <div className="mb-1">
               <h3 className="font-medium">Filter Orders</h3>
               <p className="text-sm text-muted-foreground">
               Filter, search, and manage orders across all your sales channels
@@ -213,7 +213,7 @@ export function AllOrders() {
           <CardContent className="p-0">
             <div className="flex items-center justify-between gap-4 p-0">
               <div className="flex items-center flex-1 gap-2 max-w-3xl">
-                <div className="relative flex-1 mt-3">
+                <div className="relative flex-1 mt-2">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search orders by ID, customer name or email..."
