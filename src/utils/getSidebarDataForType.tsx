@@ -278,7 +278,7 @@ import {
         {
           id: 19,
           title: "Help Center",
-          path: `/crm/${clientType}/help`,
+          path: `/crm/${clientType}/help-center`,
           icon: <HelpCircle className="w-5 h-5"/>,
         },
         {

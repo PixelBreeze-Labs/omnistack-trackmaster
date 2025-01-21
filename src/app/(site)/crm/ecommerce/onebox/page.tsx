@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function OneBoxPage() {
     return (
-        <div className="px-5">
+        <div className="px-3">
             <OneBox />
         </div>
     )
