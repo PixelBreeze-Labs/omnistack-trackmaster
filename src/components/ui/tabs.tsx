@@ -65,7 +65,7 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
     return (
       <button
         ref={ref}
-        className={`px-4 py-2 text-sm font-medium rounded-lg ${
+        className={`px-4 py-2 text-sm font-medium rounded-lg inline-flex items-center justify-center gap-2 ${
           value === activeTab
             ? "bg-primary text-white"
             : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
