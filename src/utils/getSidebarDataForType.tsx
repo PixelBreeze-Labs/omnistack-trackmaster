@@ -1,185 +1,310 @@
-// src/utils/getSidebarDataForType.tsx
 import { 
-    Users, 
-    ShoppingBag, 
-    Star, 
-    BarChart2, 
-    Settings, 
-    UserCog, 
-    Mail,
-    Tags,
-    Gift,
-    TrendingUp,
-    MessageSquare,
-    UserPlus,
+    LayoutDashboard,
+    BarChart3,
+    CircleDollarSign,
+    Users,
+    ShoppingBag,
+    UserCog,
     Store,
-    Megaphone
+    Gift,
+    MessageSquare,
+    Star,
+    Megaphone,
+    Receipt,
+    History,
+    UserCircle,
+    Heart,
+    MessagesSquare,
+    Headphones,
+    ScrollText,
+    Package,
+    Tags,
+    BadgePercent,
+    CalendarDays,
+    LayoutTemplate,
+    UsersRound,
+    Boxes,
+    Contact,
+    HelpCircle,
+    BookOpen,
+    Wallet,
+    Building2,
+    UserPlus
   } from 'lucide-react';
-  import { Sidebar } from "@/types/sidebar";
   
-  export const getSidebarDataForType = (clientType: string | undefined): Sidebar[] => {
-    // If no client type, return empty array
-    if (!clientType) return [];
+  export const getSidebarDataForType = (clientType: string | undefined): { 
+    mainMenu: Sidebar[],
+    sales: Sidebar[],
+    crm: Sidebar[],
+    marketing: Sidebar[],
+    loyalty: Sidebar[],
+    communication: Sidebar[],
+    finance: Sidebar[],
+    hr: Sidebar[]
+  } => {
+    if (!clientType) return { 
+      mainMenu: [], 
+      sales: [], 
+      crm: [], 
+      marketing: [], 
+      loyalty: [], 
+      communication: [],
+      finance: [],
+      hr: []
+    };
   
-    // Return the sidebar data with updated paths
-    return [
-      {
-        id: 1,
-        title: "Dashboard",
-        path: `/crm/${clientType}/dashboard`,
-        icon: <BarChart2 className="w-6 h-6"/>,
-      },
-      {
-        id: 2,
-        title: "Customers",
-        path: `/crm/${clientType}/customers`,
-        icon: <Users className="w-6 h-6"/>,
-        children: [
-          {
-            id: "2-1",
-            title: "All Customers",
-            path: `/crm/${clientType}/customers`,
-            icon: <Users className="w-4 h-4"/>
-          },
-          {
-            id: "2-2",
-            title: "Customer Journey",
-            path: `/crm/${clientType}/customers/journey`,
-            icon: <TrendingUp className="w-4 h-4"/>
-          },
-          {
-            id: "2-3",
-            title: "Customer Segments",
-            path: `/crm/${clientType}/customers/segments`,
-            icon: <Tags className="w-4 h-4"/>
-          }
-        ]
-      },
-      {
-        id: 3,
-        title: "Sales Associates",
-        path: `/crm/${clientType}/sales-associates`,
-        icon: <UserCog className="w-6 h-6"/>,
-        children: [
-          {
-            id: "3-1",
-            title: "Team Members",
-            path: `/crm/${clientType}/sales-associates`,
-            icon: <UserCog className="w-4 h-4"/>
-          },
-          {
-            id: "3-2",
-            title: "Performance",
-            path: `/crm/${clientType}/sales-associates/performance`,
-            icon: <TrendingUp className="w-4 h-4"/>
-          }
-        ]
-      },
-      {
-        id: 4,
-        title: "Loyalty Program",
-        path: `/crm/${clientType}/loyalty`,
-        icon: <Star className="w-6 h-6"/>,
-        children: [
-          {
-            id: "4-1",
-            title: "Program Overview",
-            path: `/crm/${clientType}/loyalty`,
-            icon: <Star className="w-4 h-4"/>
-          },
-          {
-            id: "4-2",
-            title: "Points & Rewards",
-            path: `/crm/${clientType}/loyalty/rewards`,
-            icon: <Gift className="w-4 h-4"/>
-          },
-          {
-            id: "4-3",
-            title: "Tiers",
-            path: `/crm/${clientType}/loyalty/tiers`,
-            icon: <TrendingUp className="w-4 h-4"/>
-          }
-        ]
-      },
-      {
-        id: 5,
-        title: "Orders",
-        path: `/crm/${clientType}/orders`,
-        icon: <ShoppingBag className="w-6 h-6"/>,
-      },
-      {
-        id: 6,
-        title: "Communications",
-        path: `/crm/${clientType}/communications`,
-        icon: <Mail className="w-6 h-6"/>,
-        children: [
-          {
-            id: "6-1",
-            title: "Email Campaigns",
-            path: `/crm/${clientType}/communications/email`,
-            icon: <Mail className="w-4 h-4"/>
-          },
-          {
-            id: "6-2",
-            title: "Chat",
-            path: `/crm/${clientType}/communications/chat`,
-            icon: <MessageSquare className="w-4 h-4"/>
-          },
-          {
-            id: "6-3",
-            title: "Marketing",
-            path: `/crm/${clientType}/communications/marketing`,
-            icon: <Megaphone className="w-4 h-4"/>
-          }
-        ]
-      },
-      {
-        id: 7,
-        title: "Lead Management",
-        path: `/crm/${clientType}/leads`,
-        icon: <UserPlus className="w-6 h-6"/>,
-        children: [
-          {
-            id: "7-1",
-            title: "All Leads",
-            path: `/crm/${clientType}/leads`,
-            icon: <UserPlus className="w-4 h-4"/>
-          },
-          {
-            id: "7-2",
-            title: "Lead Sources",
-            path: `/crm/${clientType}/leads/sources`,
-            icon: <Store className="w-4 h-4"/>
-          }
-        ]
-      },
-      {
-        id: 8,
-        title: "Settings",
-        path: `/crm/${clientType}/settings`,
-        icon: <Settings className="w-6 h-6"/>,
-        children: [
-          {
-            id: "8-1",
-            title: "General Settings",
-            path: `/crm/${clientType}/settings`,
-            icon: <Settings className="w-4 h-4"/>
-          },
-          {
-            id: "8-2",
-            title: "Loyalty Config",
-            path: `/crm/${clientType}/settings/loyalty`,
-            icon: <Star className="w-4 h-4"/>
-          },
-          {
-            id: "8-3",
-            title: "Communication Templates",
-            path: `/crm/${clientType}/settings/templates`,
-            icon: <Mail className="w-4 h-4"/>
-          }
-        ]
-      }
-    ];
+    return {
+      mainMenu: [
+        {
+          id: 1,
+          title: "Dashboard",
+          path: `/crm/${clientType}/dashboard`,
+          icon: <LayoutDashboard className="w-5 h-5"/>,
+        },
+        {
+          id: 2,
+          title: "Analytics",
+          path: `/crm/${clientType}/analytics`,
+          icon: <BarChart3 className="w-5 h-5"/>,
+        },
+        {
+          id: 3,
+          title: "Sales",
+          path: `/crm/${clientType}/sales-overview`,
+          icon: <CircleDollarSign className="w-5 h-5"/>,
+        },
+        {
+          id: 4,
+          title: "Marketing",
+          path: `/crm/${clientType}/marketing-overview`,
+          icon: <Megaphone className="w-5 h-5"/>,
+        }
+      ],
+      sales: [
+        {
+          id: 5,
+          title: "Orders",
+          path: `/crm/${clientType}/orders`,
+          icon: <ShoppingBag className="w-5 h-5"/>,
+          children: [
+            {
+              id: "5-1",
+              title: "All Orders",
+              path: `/crm/${clientType}/orders/all`,
+              icon: <Package className="w-4 h-4"/>
+            },
+            {
+              id: "5-2",
+              title: "Omni-channel Orders",
+              path: `/crm/${clientType}/orders/omnichannel`,
+              icon: <Store className="w-4 h-4"/>
+            },
+            {
+              id: "5-3",
+              title: "Returns & Refunds",
+              path: `/crm/${clientType}/orders/returns`,
+              icon: <Receipt className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 6,
+          title: "Sales Associates",
+          path: `/crm/${clientType}/sales-team`,
+          icon: <UserCog className="w-5 h-5"/>,
+          children: [
+            {
+              id: "6-1",
+              title: "Team",
+              path: `/crm/${clientType}/sales-team/members`,
+              icon: <Users className="w-4 h-4"/>
+            },
+            {
+              id: "6-2",
+              title: "Performance",
+              path: `/crm/${clientType}/sales-team/performance`,
+              icon: <BarChart3 className="w-4 h-4"/>
+            },
+            {
+              id: "6-3",
+              title: "Customer Assignment",
+              path: `/crm/${clientType}/sales-team/assignments`,
+              icon: <UserCircle className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      crm: [
+        {
+          id: 7,
+          title: "Customers",
+          path: `/crm/${clientType}/customers`,
+          icon: <Users className="w-5 h-5"/>,
+          children: [
+            {
+              id: "7-1",
+              title: "All Customers",
+              path: `/crm/${clientType}/customers/all`,
+              icon: <Users className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 8,
+          title: "Members",
+          path: `/crm/${clientType}/members`,
+          icon: <UsersRound className="w-5 h-5"/>,
+        },
+        {
+          id: 9,
+          title: "Family Accounts",
+          path: `/crm/${clientType}/family-accounts`,
+          icon: <Users className="w-5 h-5"/>,
+        },
+        {
+          id: 10,
+          title: "Gifts Advisory",
+          path: `/crm/${clientType}/gifts`,
+          icon: <Gift className="w-5 h-5"/>,
+        },
+        {
+          id: 11,
+          title: "Customer Feedback",
+          path: `/crm/${clientType}/feedback`,
+          icon: <Heart className="w-5 h-5"/>,
+        }
+      ],
+      marketing: [
+        {
+          id: 12,
+          title: "Promotions",
+          path: `/crm/${clientType}/promotions`,
+          icon: <Tags className="w-5 h-5"/>,
+          children: [
+            {
+              id: "12-1",
+              title: "List",
+              path: `/crm/${clientType}/promotions/list`,
+              icon: <ScrollText className="w-4 h-4"/>
+            },
+            {
+              id: "12-2",
+              title: "Discounts",
+              path: `/crm/${clientType}/promotions/discounts`,
+              icon: <BadgePercent className="w-4 h-4"/>
+            },
+            {
+              id: "12-3",
+              title: "Coupons",
+              path: `/crm/${clientType}/promotions/coupons`,
+              icon: <Tags className="w-4 h-4"/>
+            },
+            {
+              id: "12-4",
+              title: "Calendar",
+              path: `/crm/${clientType}/promotions/calendar`,
+              icon: <CalendarDays className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 13,
+          title: "Campaigns",
+          path: `/crm/${clientType}/campaigns`,
+          icon: <Megaphone className="w-5 h-5"/>,
+          children: [
+            {
+              id: "13-1",
+              title: "List",
+              path: `/crm/${clientType}/campaigns/list`,
+              icon: <ScrollText className="w-4 h-4"/>
+            },
+            {
+              id: "13-2",
+              title: "Create",
+              path: `/crm/${clientType}/campaigns/create`,
+              icon: <LayoutTemplate className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 14,
+          title: "Landing",
+          path: `/crm/${clientType}/landing`,
+          icon: <LayoutTemplate className="w-5 h-5"/>,
+          children: [
+            {
+              id: "14-1",
+              title: "Registration",
+              path: `/crm/${clientType}/landing/registration`,
+              icon: <UserPlus className="w-4 h-4"/>
+            },
+            {
+              id: "14-2",
+              title: "My Club",
+              path: `/crm/${clientType}/landing/myclub`,
+              icon: <Star className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      loyalty: [
+        {
+          id: 15,
+          title: "Manage Programs",
+          path: `/crm/${clientType}/loyalty/programs`,
+          icon: <Boxes className="w-5 h-5"/>,
+        },
+        {
+          id: 16,
+          title: "Points & Rewards",
+          path: `/crm/${clientType}/loyalty/points`,
+          icon: <Star className="w-5 h-5"/>,
+        },
+        {
+          id: 17,
+          title: "Benefits",
+          path: `/crm/${clientType}/loyalty/benefits`,
+          icon: <Gift className="w-5 h-5"/>,
+        }
+      ],
+      communication: [
+        {
+          id: 18,
+          title: "OneBox",
+          path: `/crm/${clientType}/onebox`,
+          icon: <MessageSquare className="w-5 h-5"/>,
+        },
+        {
+          id: 19,
+          title: "Help Center",
+          path: `/crm/${clientType}/help`,
+          icon: <HelpCircle className="w-5 h-5"/>,
+        },
+        {
+          id: 20,
+          title: "Resources",
+          path: `/crm/${clientType}/resources`,
+          icon: <BookOpen className="w-5 h-5"/>,
+        }
+      ],
+      finance: [
+        {
+          id: 21,
+          title: "Transactions",
+          path: `/crm/${clientType}/transactions`,
+          icon: <Wallet className="w-5 h-5"/>,
+        }
+      ],
+      hr: [
+        {
+          id: 22,
+          title: "Staff",
+          path: `/crm/${clientType}/staff`,
+          icon: <Building2 className="w-5 h-5"/>,
+        }
+      ]
+    };
   };
   
   export default getSidebarDataForType;
