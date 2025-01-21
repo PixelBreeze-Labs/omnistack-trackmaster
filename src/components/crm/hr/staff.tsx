@@ -1,9 +1,18 @@
 "use client"
 
 import React from 'react';
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -16,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Search,
-  Filter,
   Plus,
   Store,
   MapPin,
@@ -99,6 +107,13 @@ const getPerformanceColor = (score: number) => {
 };
 
 export function StaffContent() {
+    const [pageSize, setPageSize] = useState(10);
+    const [page, setPage] = useState(1);
+    
+    // Calculate pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const displayedStaff = STAFF_MEMBERS.slice(startIndex, endIndex);
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -119,7 +134,7 @@ export function StaffContent() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {DEPARTMENT_STATS.map((stat) => (
           <Card key={stat.title}>
-            <CardContent className="p-6">
+            <CardContent className="p-0">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
@@ -292,6 +307,56 @@ export function StaffContent() {
               ))}
             </TableBody>
           </Table>
+          {/* Pagination */}
+          <div className="border-t px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <InputSelect
+                name="pageSize"
+                label=""
+                value={pageSize.toString()}
+                onChange={(e) => setPageSize(parseInt(e.target.value))}
+                options={[
+                  { value: "10", label: "10 rows" },
+                  { value: "20", label: "20 rows" },
+                  { value: "50", label: "50 rows" }
+                ]}
+              />
+              
+              <div className="flex-1 flex items-center justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1} 
+                      />
+                    </PaginationItem>
+                    {[...Array(Math.min(5, Math.ceil(STAFF_MEMBERS.length / pageSize)))].map((_, i) => (
+                      <PaginationItem key={i + 1}>
+                        <PaginationLink
+                          isActive={page === i + 1}
+                          onClick={() => setPage(i + 1)}
+                        >
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setPage(p => Math.min(Math.ceil(STAFF_MEMBERS.length / pageSize), p + 1))}
+                        disabled={page === Math.ceil(STAFF_MEMBERS.length / pageSize)}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+
+              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                Showing <span className="font-medium">{displayedStaff.length}</span> of{" "}
+                <span className="font-medium">{STAFF_MEMBERS.length}</span> staff members
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
