@@ -144,7 +144,7 @@ import {
             {
               id: "7-1",
               title: "All Customers",
-              path: `/crm/${clientType}/customers/all`,
+              path: `/crm/${clientType}/customers`,
               icon: <Users className="w-4 h-4"/>
             }
           ]
