@@ -1,17 +1,16 @@
-// app/admin/dashboard/page.tsx
-import { DashboardContent } from "@/components/admin/dashboard/dashboard-content"
-import { Metadata } from "next";
+// src/app/crm/ecommerce/dashboard/page.tsx
+import { Metadata } from "next"
+import { DashboardContent } from "@/components/crm/dashboard/dashboard-content"
 
 export const metadata: Metadata = {
     title: "Dashboard - TrackMaster CRM",
-    description: "Admin dashboard for managing restaurants, orders, and platform analytics.",
-};
+    description: "E-commerce dashboard for managing sales, customers, and analytics.",
+}
 
 export default function DashboardPage() {
     return (
-        <div  className="px-5">
-            CRM
-            {/* <DashboardContent /> */}
+        <div className="px-3">
+            <DashboardContent />
         </div>
     )
 }
