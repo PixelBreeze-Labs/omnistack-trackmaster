@@ -7,7 +7,7 @@ import Header from "@/components/dashboard/header"
 import { usePathname } from "next/navigation"
 import getSidebarDataForType from "@/utils/getSidebarDataForType"
 
-const CRMLayout = ({ children }: { children: React.ReactNode }) => {
+const CRMEcommerceLayout = ({ children }: { children: React.ReactNode }) => {
   const [openSidebar, setOpenSidebar] = useState(false)
   const pathname = usePathname()
   
@@ -53,4 +53,4 @@ const CRMLayout = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export default CRMLayout
+export default CRMEcommerceLayout

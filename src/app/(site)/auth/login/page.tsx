@@ -24,14 +24,10 @@ export default function LoginPage() {
         setError("")
         setIsLoading(true)
 
-        const formData = new FormData(e.currentTarget)
-        const email = formData.get("email") as string
-        const password = formData.get("password") as string
-
         try {
             const result = await signIn("credentials", {
-                email,
-                password,
+                email: e.currentTarget.email.value,
+                password: e.currentTarget.password.value,
                 redirect: false,
             })
 
@@ -40,18 +36,10 @@ export default function LoginPage() {
                 return
             }
 
-            // Get user data to determine redirect
-            const userResponse = await fetch('/api/auth/me')
-            const userData = await userResponse.json()
-
-            // Redirect based on role and client type
-            if (userData.role === 'ADMIN') {
+            if (result?.ok) {
+                // Refresh the page to get the new session
                 router.push("/crm/ecommerce/dashboard")
-            } else if (userData.role === 'SALES' || userData.role === 'MARKETING') {
-                // Redirect to appropriate CRM section based on client type
-                router.push(`/crm/${userData.clientType.toLowerCase()}/dashboard`)
-            } else {
-                setError("Insufficient permissions")
+                router.refresh()
             }
         } catch (error) {
             setError("Something went wrong")
