@@ -292,7 +292,7 @@ import {
         {
           id: 21,
           title: "Transactions",
-          path: `/crm/${clientType}/transactions`,
+          path: `/crm/${clientType}/finance/transactions`,
           icon: <Wallet className="w-5 h-5"/>,
         }
       ],
@@ -300,7 +300,7 @@ import {
         {
           id: 22,
           title: "Staff",
-          path: `/crm/${clientType}/staff`,
+          path: `/crm/${clientType}/hr/staff`,
           icon: <Building2 className="w-5 h-5"/>,
         }
       ]
