@@ -1,31 +1,24 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare,
   Search,
-  MoreVertical,
   Send,
   Users,
-  User,
   UserCircle,
-  Store,
   Filter,
   PlusCircle,
   MessagesSquare 
 } from "lucide-react"
+import InputSelect from '@/components/Common/InputSelect'
 
 // Dummy data
 const DUMMY_CHATS = {
@@ -207,18 +200,31 @@ export function OneBox() {
                     <Button variant="ghost" size="icon">
                       <MessagesSquare className="h-4 w-4" />
                     </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Mark as Unread</DropdownMenuItem>
-                        <DropdownMenuItem>Mute Notifications</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <InputSelect
+                      name="actions"
+                      label=""
+                      value=""
+                      onChange={(e) => {
+                        // Handle different actions
+                        switch(e.target.value) {
+                          case "profile":
+                            // Handle view profile
+                            break;
+                          case "unread":
+                            // Handle mark as unread
+                            break;
+                          case "mute":
+                            // Handle mute notifications
+                            break;
+                        }
+                      }}
+                      options={[
+                        { value: "", label: "Actions" },
+                        { value: "profile", label: "View Profile" },
+                        { value: "unread", label: "Mark as Unread" },
+                        { value: "mute", label: "Mute Notifications" }
+                      ]}
+                    />
                   </div>
                 </div>
               </CardHeader>
