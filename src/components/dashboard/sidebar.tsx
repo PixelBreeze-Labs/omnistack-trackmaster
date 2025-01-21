@@ -45,8 +45,8 @@ export default function Sidebar({
             src={"/images/logo/logo-light.svg"}
             alt="logo"
             className="hidden dark:block"
-            width={300}
-            height={60} // Slightly larger logo
+            width={200}
+            height={30} // Slightly larger logo
           />
         </Link>
         <div className="mb-6">

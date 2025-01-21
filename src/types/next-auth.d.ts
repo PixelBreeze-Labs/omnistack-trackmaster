@@ -6,7 +6,8 @@ declare module "next-auth" {
         id: string;
         role: "ADMIN" | "SALES" | "MARKETING";
         clientId?: string;
-        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL";
+        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER";
+        supabaseId: string;
     }
 
     interface Session {
@@ -14,7 +15,8 @@ declare module "next-auth" {
             id: string;
             role: "ADMIN" | "SALES" | "MARKETING";
             clientId?: string;
-            clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL";
+            clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER";
+            supabaseId: string;
         } & DefaultSession["user"]
     }
 }
@@ -24,6 +26,7 @@ declare module "next-auth/jwt" {
         id: string;
         role: "ADMIN" | "SALES" | "MARKETING";
         clientId?: string;
-        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL";
+        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER";
+        supabaseId: string;
     }
 }

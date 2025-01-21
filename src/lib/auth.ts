@@ -1,28 +1,32 @@
-import { getServerSession } from "next-auth"
-import { DefaultSession, NextAuthOptions } from "next-auth"
-import { authOptions as nextAuthOptions } from "@/app/api/auth/[...nextauth]/route"
+// lib/auth.ts
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
-// Type assertion for authOptions since it's properly typed in the route file
-export const authOptions = nextAuthOptions as NextAuthOptions
-export const getAuthSession = () => getServerSession(authOptions)
-
-declare module "next-auth" {
-    interface User {
-        role?: string
-        id?: string
-    }
-
-    interface Session {
-        user: {
-            role?: string
-            id?: string
-        } & DefaultSession["user"]
-    }
+export async function getSession() {
+  return await getServerSession(authOptions)
 }
 
-declare module "next-auth/jwt" {
-    interface JWT {
-        role?: string
-        id?: string
+export async function getCurrentUser() {
+  const session = await getSession()
+  
+  if (!session?.user?.id) {
+    return null
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id
+    },
+    include: {
+      client: {
+        select: {
+          name: true,
+          type: true,
+          status: true
+        }
+      }
     }
+  })
+
+  return user
 }
