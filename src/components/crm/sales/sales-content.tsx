@@ -301,37 +301,35 @@ export function SalesContent() {
         </Card>
 
         {/* Orders Overview */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Order Management</CardTitle>
-              <div className="flex gap-2">
-                <Badge variant="default">{RECENT_ORDERS.length} new orders</Badge>
-                <Button variant="ghost" size="icon">
-                  <BellRing className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span className="text-sm text-green-700">12 completed today</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-yellow-50">
-                  <Clock className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm text-yellow-700">5 pending</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-red-50">
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
-                  <span className="text-sm text-red-700">2 flagged</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+<Card>
+  <CardHeader className="pb-2">
+    <div className="flex items-center justify-between">
+      <CardTitle>Order Management</CardTitle>
+      <div className="flex items-center gap-2">
+        <Badge variant="default">{RECENT_ORDERS.length} new orders</Badge>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <BellRing className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  </CardHeader>
+  <CardContent>
+    <div className="flex flex-wrap gap-2">
+      <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-green-50">
+        <CheckCircle2 className="h-4 w-4 text-green-500" />
+        <span className="text-sm text-green-700">12 completed today</span>
+      </div>
+      <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-yellow-50">
+        <Clock className="h-4 w-4 text-yellow-500" />
+        <span className="text-sm text-yellow-700">5 pending</span>
+      </div>
+      <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-red-50">
+        <AlertTriangle className="h-4 w-4 text-red-500" />
+        <span className="text-sm text-red-700">2 flagged</span>
+      </div>
+    </div>
+  </CardContent>
+</Card>
       </div>
 
       {/* Recent Orders */}
