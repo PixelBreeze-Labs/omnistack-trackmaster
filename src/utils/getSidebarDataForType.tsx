@@ -212,7 +212,7 @@ import {
             {
               id: "13-1",
               title: "List",
-              path: `/crm/${clientType}/campaigns/list`,
+              path: `/crm/${clientType}/campaigns`,
               icon: <ScrollText className="w-4 h-4"/>
             },
             {
@@ -232,7 +232,7 @@ import {
             {
               id: "14-1",
               title: "Registration",
-              path: `/crm/${clientType}/landing/registration`,
+              path: `/crm/${clientType}/landing/list`,
               icon: <UserPlus className="w-4 h-4"/>
             },
             {
