@@ -180,15 +180,15 @@ export function LoyaltyProgramsContent() {
 
       {/* Membership Tiers */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Membership Tiers</CardTitle>
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Configure Tiers
-            </Button>
-          </div>
-        </CardHeader>
+
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <CardTitle className="text-xl font-semibold">Membership Tiers</CardTitle>
+   <Button variant="outline" size="sm" className="self-start">
+   <Settings className="h-4 w-4 mr-2" />
+   Configure Tiers
+   </Button>
+ </CardHeader>
+
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {TIERS_OVERVIEW.map((tier) => (

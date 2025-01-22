@@ -385,7 +385,8 @@ export function CampaignsList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                   <InputSelect
+                    N/A
+                   {/* <InputSelect
                     name="action"
                     label=""
                     value={tableActions[campaign.id] || "select"}
@@ -402,7 +403,7 @@ export function CampaignsList() {
                     { value: "pause", label: "Pause" },
                     { value: "delete", label: "Delete" }
                     ]}
-                    />
+                    /> */}
                   </TableCell>
                 </TableRow>
               ))}
