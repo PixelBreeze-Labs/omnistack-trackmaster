@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm install --legacy-peer-deps && npx prisma generate && npx prisma db push && npx prisma db seed && next build ",
+    "build": "npm install && npx prisma generate && next build && npx prisma db push",
     "start": "next start",
     "lint": "next lint",
     "db:seed": "prisma db seed"
