@@ -158,16 +158,14 @@ export function AnalyticsContent() {
 
       {/* Revenue & Customer Growth */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Revenue & Customer Growth</CardTitle>
-            <div className="flex gap-2">
-              <Badge variant="secondary">Revenue</Badge>
-              <Badge variant="outline">Customers</Badge>
-              <Badge variant="outline">Orders</Badge>
-            </div>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+        <CardTitle className="text-xl font-semibold">Revenue & Customer Growth</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary">Revenue</Badge>
+          <Badge variant="outline">Customers</Badge>
+          <Badge variant="outline">Orders</Badge>
+        </div>
+      </CardHeader>
         <CardContent>
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -279,15 +277,13 @@ export function AnalyticsContent() {
 
       {/* Geographic Distribution */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Geographic Distribution</CardTitle>
-            <Button variant="outline" size="sm">
-              <Map className="h-4 w-4 mr-2" />
-              View Map
-            </Button>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+        <CardTitle className="text-xl font-semibold">Geographic Distribution</CardTitle>
+        <Button variant="outline" size="sm" className="self-start">
+          <Map className="h-4 w-4 mr-2" />
+          View Map
+        </Button>
+      </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {GEOGRAPHIC_DATA.map((location) => (

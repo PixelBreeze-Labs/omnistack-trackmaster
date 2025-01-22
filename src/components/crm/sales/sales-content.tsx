@@ -220,15 +220,13 @@ export function SalesContent() {
 
       {/* Sales Chart */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Sales Performance</CardTitle>
-            <div className="flex gap-2">
-              <Badge variant="secondary">Revenue</Badge>
-              <Badge variant="outline">Orders</Badge>
-            </div>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+        <CardTitle className="text-xl font-semibold">Sales Performance</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary">Revenue</Badge>
+          <Badge variant="outline">Orders</Badge>
+        </div>
+      </CardHeader>
         <CardContent>
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -268,15 +266,13 @@ export function SalesContent() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Sales Channels */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Sales Channels</CardTitle>
-              <Button variant="outline" size="sm">
-                <Store className="h-4 w-4 mr-2" />
-                Manage
-              </Button>
-            </div>
-          </CardHeader>
+        <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+    <CardTitle className="text-xl font-semibold">Sales Channels</CardTitle>
+    <Button variant="outline" size="sm" className="self-start">
+      <Store className="h-4 w-4 mr-2" />
+      Manage
+    </Button>
+  </CardHeader>
           <CardContent>
             <div className="space-y-6">
               {SALES_CHANNELS.map((channel) => (
@@ -302,15 +298,13 @@ export function SalesContent() {
 
         {/* Orders Overview */}
 <Card>
-  <CardHeader className="pb-2">
-    <div className="flex items-center justify-between">
-      <CardTitle>Order Management</CardTitle>
-      <div className="flex items-center gap-2">
-        <Badge variant="default">{RECENT_ORDERS.length} new orders</Badge>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <BellRing className="h-4 w-4" />
-        </Button>
-      </div>
+<CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0 pb-2">
+    <CardTitle className="text-xl font-semibold">Order Management</CardTitle>
+    <div className="flex items-center space-x-2">
+      <Badge variant="default">{RECENT_ORDERS.length} new orders</Badge>
+      <Button variant="ghost" size="icon" className="h-8 w-8">
+        <BellRing className="h-4 w-4" />
+      </Button>
     </div>
   </CardHeader>
   <CardContent>
@@ -334,34 +328,32 @@ export function SalesContent() {
 
       {/* Recent Orders */}
       <Card>
-        <CardHeader>
-          <div className="flex justify-between">
-            <CardTitle>Recent Orders</CardTitle>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search orders..." 
-                    className="pl-8 w-[250px]"
-                  />
-                </div>
-                <InputSelect
-                  name="status"
-                  label=""
-                  value="all"
-                  onChange={() => {}}
-                  options={[
-                    { value: "all", label: "All Status" },
-                    { value: "processing", label: "Processing" },
-                    { value: "shipped", label: "Shipped" },
-                    { value: "delivered", label: "Delivered" }
-                  ]}
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+    <CardTitle className="text-xl font-semibold">Recent Orders</CardTitle>
+    <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2">
+        <div className="relative mt-2 flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search orders..." 
+            className="pl-8 w-[250px]"
+          />
+        </div>
+        <InputSelect
+          name="status"
+          label=""
+          value="all"
+          onChange={() => {}}
+          options={[
+            { value: "all", label: "All Status" },
+            { value: "processing", label: "Processing" },
+            { value: "shipped", label: "Shipped" },
+            { value: "delivered", label: "Delivered" }
+          ]}
+        />
+      </div>
+    </div>
+  </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {RECENT_ORDERS.map((order) => (

@@ -182,38 +182,35 @@ export function DashboardContent() {
         ))}
       </div>
 
-      {/* Sales Chart */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Sales Overview</CardTitle>
-            <div className="flex gap-2">
-              <Badge variant="secondary">Sales</Badge>
-              <Badge variant="outline">Orders</Badge>
-              <Badge variant="outline">Customers</Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#5FC4D0" 
-                  strokeWidth={2} 
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
+    {/* Sales Chart */}
+<Card>
+  <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+    <CardTitle className="text-xl font-semibold">Sales Overview</CardTitle>
+    <div className="flex items-center space-x-2">
+      <Badge variant="secondary">Sales</Badge>
+      <Badge variant="outline">Orders</Badge>
+      <Badge variant="outline">Customers</Badge>
+    </div>
+  </CardHeader>
+  <CardContent>
+    <div className="h-[300px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={salesData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <Tooltip />
+          <Line 
+            type="monotone" 
+            dataKey="sales" 
+            stroke="#5FC4D0" 
+            strokeWidth={2} 
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  </CardContent>
+</Card>
       {/* Sales Channels & Recent Orders */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -246,44 +243,43 @@ export function DashboardContent() {
           </CardContent>
         </Card>
 
+      
         <Card>
-          <CardHeader>
+  <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+    <CardTitle className="text-xl font-semibold">Recent Orders</CardTitle>
+    <Button variant="ghost" size="sm" className="self-start">
+      View All
+      <ArrowRight className="ml-2 h-4 w-4" />
+    </Button>
+  </CardHeader>
+  <CardContent>
+    <div className="space-y-4">
+      {RECENT_ORDERS.map((order) => (
+        <Card key={order.id}>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
-              <CardTitle>Recent Orders</CardTitle>
-              <Button variant="ghost" size="sm">
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {RECENT_ORDERS.map((order) => (
-                <Card key={order.id}>
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Package className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{order.customer}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {order.id} • {order.items} items
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{order.total}</div>
-                        <Badge variant="secondary">{order.status}</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              <div className="flex items-center gap-4">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Package className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <div className="font-medium">{order.customer}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {order.id} • {order.items} items
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-medium">{order.total}</div>
+                <Badge variant="secondary">{order.status}</Badge>
+              </div>
             </div>
           </CardContent>
         </Card>
+      ))}
+    </div>
+  </CardContent>
+</Card>
       </div>
 
       {/* Quick Actions */}
