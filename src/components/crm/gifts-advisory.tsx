@@ -26,12 +26,18 @@ import {
   RefreshCcw,
   Filter,
   ChevronRight,
-  User,
   Clock,
-  Heart,
   Star
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 // Dummy data for recommendations
 const DUMMY_RECOMMENDATIONS = Array.from({ length: 10 }, (_, i) => ({
@@ -82,6 +88,8 @@ export function GiftsAdvisory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
+  const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -184,7 +192,7 @@ export function GiftsAdvisory() {
           <TabsContent value="recommendations" className="m-0 border-t">
             <div className="p-4 border-b">
               <div className="flex items-center gap-2">
-                <div className="relative flex-1">
+                <div className="relative mt-3 flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search recommendations..."
@@ -217,10 +225,10 @@ export function GiftsAdvisory() {
                     { value: "high", label: "Over 50K" }
                   ]}
                 />
-                <Button variant="outline" size="icon">
+                <Button className='mt-2' variant="outline" size="icon">
                   <Filter className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button className='mt-2' variant="outline" size="icon">
                   <RefreshCcw className="h-4 w-4" />
                 </Button>
               </div>
@@ -308,12 +316,63 @@ export function GiftsAdvisory() {
                 ))}
               </TableBody>
             </Table>
+            {/* Pagination */}
+  <div className="border-t px-4 py-3">
+    <div className="flex items-center justify-between gap-4">
+      <InputSelect
+        name="pageSize"
+        label=""
+        value={pageSize.toString()}
+        onChange={(e) => setPageSize(parseInt(e.target.value))}
+        options={[
+          { value: "10", label: "10 rows" },
+          { value: "20", label: "20 rows" },
+          { value: "50", label: "50 rows" }
+        ]}
+      />
+      
+      <div className="flex-1 flex items-center justify-center">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1} 
+              />
+            </PaginationItem>
+            {[...Array(Math.min(5, Math.ceil(DUMMY_RECOMMENDATIONS.length / pageSize)))].map((_, i) => (
+              <PaginationItem key={i + 1}>
+                <PaginationLink
+                  isActive={page === i + 1}
+                  onClick={() => setPage(i + 1)}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setPage(p => Math.min(Math.ceil(DUMMY_RECOMMENDATIONS.length / pageSize), p + 1))}
+                disabled={page === Math.ceil(DUMMY_RECOMMENDATIONS.length / pageSize)}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+
+      <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+        Showing <span className="font-medium">{pageSize}</span> of{" "}
+        <span className="font-medium">{DUMMY_RECOMMENDATIONS.length}</span> recommendations
+      </p>
+    </div>
+  </div>
+
           </TabsContent>
 
           <TabsContent value="trending" className="m-0 border-t">
             <div className="p-4 border-b">
               <div className="flex items-center gap-2">
-                <div className="relative flex-1">
+                <div className="relative mt-3 flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search trending gifts..."
@@ -372,7 +431,7 @@ export function GiftsAdvisory() {
           <TabsContent value="occasions" className="m-0 border-t">
             <div className="p-4 border-b">
               <div className="flex items-center gap-2">
-                <div className="relative flex-1">
+                <div className="relative mt-3 flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search upcoming occasions..."

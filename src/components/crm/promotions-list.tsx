@@ -42,6 +42,15 @@ import {
   BarChart3,
   Eye
 } from "lucide-react";
+import InputSelect from "../Common/InputSelect";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination";
 
 interface Promotion {
   id: string;
@@ -125,6 +134,8 @@ export function PromotionsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -220,51 +231,63 @@ export function PromotionsList() {
         </Card>
       </div>
 
-      {/* Filters and Table */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Promotion Campaigns</CardTitle>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search promotions..."
-                  className="pl-8 w-[250px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="ended">Ended</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="discount">Discount</SelectItem>
-                  <SelectItem value="coupon">Coupon</SelectItem>
-                  <SelectItem value="bogo">BOGO</SelectItem>
-                  <SelectItem value="bundle">Bundle</SelectItem>
-                  <SelectItem value="flash_sale">Flash Sale</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
+  <CardHeader>
+    <div className="mb-1">
+      <h3 className="font-medium">Filter Promotions</h3>
+      <p className="text-sm text-muted-foreground">
+        Search and filter through your promotional campaigns
+      </p>
+    </div>
+  </CardHeader>
+  <CardContent className="p-0">
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center flex-1 gap-2 max-w-3xl">
+        <div className="relative mt-2 flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search promotions..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <InputSelect
+          name="status"
+          label=""
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          options={[
+            { value: "all", label: "All Status" },
+            { value: "active", label: "Active" },
+            { value: "scheduled", label: "Scheduled" },
+            { value: "ended", label: "Ended" },
+            { value: "draft", label: "Draft" }
+          ]}
+        />
+        <InputSelect
+          name="type"
+          label=""
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          options={[
+            { value: "all", label: "All Types" },
+            { value: "discount", label: "Discount" },
+            { value: "coupon", label: "Coupon" },
+            { value: "bogo", label: "BOGO" },
+            { value: "bundle", label: "Bundle" },
+            { value: "flash_sale", label: "Flash Sale" }
+          ]}
+        />
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
+{/* Table Card */}
+<Card>
+  <CardContent>
+  <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[300px]">Promotion</TableHead>
@@ -366,8 +389,62 @@ export function PromotionsList() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+    
+    {/* Pagination */}
+    <div className="border-t px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => setPageSize(parseInt(e.target.value))}
+          options={[
+            { value: "10", label: "10 rows" },
+            { value: "20", label: "20 rows" },
+            { value: "50", label: "50 rows" }
+          ]}
+        />
+        
+        <div className="flex-1 flex items-center justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1} 
+                />
+              </PaginationItem>
+              {[...Array(Math.min(5, Math.ceil(promotions.length / pageSize)))].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setPage(p => Math.min(Math.ceil(promotions.length / pageSize), p + 1))}
+                  disabled={page === Math.ceil(promotions.length / pageSize)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+
+        <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+          Showing <span className="font-medium">{pageSize}</span> of{" "}
+          <span className="font-medium">{promotions.length}</span> promotions
+        </p>
+      </div>
+    </div>
+  </CardContent>
+  
+</Card>
+  {/* Add empty space div at the bottom */}
+  <div className="h-8"></div>
     </div>
   );
 }

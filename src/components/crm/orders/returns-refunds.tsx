@@ -202,58 +202,60 @@ export function ReturnsAndRefunds() {
 
       {/* Filters and Actions */}
       <Card>
-        <CardHeader>
-          <div className="mb-1">
-            <h3 className="font-medium">Returns Management</h3>
-            <p className="text-sm text-muted-foreground">
-              Process and manage return requests and refunds
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="flex items-center justify-between gap-4 p-0">
-            <div className="flex items-center flex-1 gap-2 max-w-3xl">
-              <div className="relative mt-2 flex-1">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by order number or customer..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <InputSelect
-                name="status"
-                label=""
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                options={[
-                  { value: "all", label: "All Status" },
-                  { value: "pending", label: "Pending" },
-                  { value: "approved", label: "Approved" },
-                  { value: "rejected", label: "Rejected" },
-                  { value: "completed", label: "Completed" }
-                ]}
-              />
-              <InputSelect
-                name="type"
-                label=""
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                options={[
-                  { value: "all", label: "All Types" },
-                  { value: "return", label: "Returns" },
-                  { value: "refund", label: "Refunds" }
-                ]}
-              />
-              <Button variant="outline" className={"mt-2"} size="icon">
-                <CalendarDays className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
+  <CardHeader>
+    <div className="mb-1">
+      <h3 className="font-medium">Returns Management</h3>
+      <p className="text-sm text-muted-foreground">
+        Process and manage return requests and refunds
+      </p>
+    </div>
+  </CardHeader>
+  <CardContent className="p-0">
+    <div className="flex items-center justify-between gap-4 p-0">
+      {/* Search field - taking up main space */}
+      <div className="relative mt-3 flex-1">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by order number or customer..."
+          className="pl-8"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      
+      {/* Action buttons group on the right */}
+      <div className="flex items-center gap-2">
+        <InputSelect
+          name="status"
+          label=""
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          options={[
+            { value: "all", label: "All Status" },
+            { value: "pending", label: "Pending" },
+            { value: "approved", label: "Approved" },
+            { value: "rejected", label: "Rejected" },
+            { value: "completed", label: "Completed" }
+          ]}
+        />
+        <InputSelect
+          name="type"
+          label=""
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          options={[
+            { value: "all", label: "All Types" },
+            { value: "return", label: "Returns" },
+            { value: "refund", label: "Refunds" }
+          ]}
+        />
+        <Button className="mt-2" variant="outline" size="icon">
+          <CalendarDays className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  </CardContent>
+</Card>
       {/* Returns Table */}
       <Card>
         <CardContent className="mb-4 p-0">

@@ -154,7 +154,7 @@ export function FamilyAccounts() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <div className="mb-2">
+          <div className="mb-1">
             <h3 className="font-medium">Family Management</h3>
             <p className="text-sm text-muted-foreground">
               Search and manage family accounts
@@ -162,8 +162,8 @@ export function FamilyAccounts() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="p-4 flex items-center gap-2">
-            <div className="relative flex-1">
+          <div className="p-0 flex items-center gap-2">
+            <div className="relative mt-3 flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by account name, email or phone..."
@@ -183,10 +183,10 @@ export function FamilyAccounts() {
                 { value: "inactive", label: "Inactive" }
               ]}
             />
-            <Button variant="outline" size="icon">
+            <Button className='mt-2' variant="outline" size="icon">
               <Filter className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon">
+            <Button className='mt-2' variant="outline" size="icon">
               <RefreshCcw className="h-4 w-4" />
             </Button>
           </div>
