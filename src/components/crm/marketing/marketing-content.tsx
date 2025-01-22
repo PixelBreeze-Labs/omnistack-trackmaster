@@ -228,16 +228,14 @@ export function MarketingContent() {
 
       {/* Campaign Performance Chart */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Campaign Performance</CardTitle>
-            <div className="flex gap-2">
-              <Badge variant="secondary">Reach</Badge>
-              <Badge variant="outline">Engagement</Badge>
-              <Badge variant="outline">Conversions</Badge>
-            </div>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+  <CardTitle className="text-xl font-semibold">Campaign Performance</CardTitle>
+  <div className="flex items-center space-x-2">
+    <Badge variant="secondary">Reach</Badge>
+    <Badge variant="outline">Engagement</Badge>
+    <Badge variant="outline">Conversions</Badge>
+  </div>
+</CardHeader>
         <CardContent>
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -274,15 +272,13 @@ export function MarketingContent() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Active Campaigns */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Active Campaigns</CardTitle>
-              <Button variant="outline" size="sm">
-                <Megaphone className="h-4 w-4 mr-2" />
-                Manage
-              </Button>
-            </div>
-          </CardHeader>
+        <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+  <CardTitle className="text-xl font-semibold">Active Campaigns</CardTitle>
+  <Button variant="outline" size="sm" className="self-start">
+    <Megaphone className="h-4 w-4 mr-2" />
+    Manage
+  </Button>
+</CardHeader>
           <CardContent>
             <div className="space-y-4">
               {ACTIVE_CAMPAIGNS.map((campaign) => (
@@ -322,15 +318,13 @@ export function MarketingContent() {
 
         {/* Active Promotions */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Active Promotions</CardTitle>
-              <Button variant="outline" size="sm">
-                <BadgePercent className="h-4 w-4 mr-2" />
-                Manage
-              </Button>
-            </div>
-          </CardHeader>
+        <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+  <CardTitle className="text-xl font-semibold">Active Promotions</CardTitle>
+  <Button variant="outline" size="sm" className="self-start">
+    <BadgePercent className="h-4 w-4 mr-2" />
+    Manage
+  </Button>
+</CardHeader>
           <CardContent>
             <div className="space-y-4">
               {PROMOTIONS.map((promo) => (
@@ -367,42 +361,41 @@ export function MarketingContent() {
 
       {/* Channel Performance */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Channel Performance</CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share Report
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+    <CardTitle className="text-xl font-semibold">Channel Performance</CardTitle>
+    <div className="flex items-center space-x-2">
+      <Button variant="outline" size="sm">
+        <Share2 className="h-4 w-4 mr-2" />
+        Share Report
+      </Button>
+      <Button variant="outline" size="sm">
+        <Download className="h-4 w-4 mr-2" />
+        Export
+      </Button>
+    </div>
+  </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
             {CHANNEL_PERFORMANCE.map((channel) => (
               <Card key={channel.channel}>
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {channel.channel === "Email" ? (
-                          <Mail className="h-4 w-4 text-primary" />
-                        ) : channel.channel === "Social Media" ? (
-                          <Share2 className="h-4 w-4 text-primary" />
-                        ) : (
-                          <Globe className="h-4 w-4 text-primary" />
-                        )}
-                        <h4 className="font-medium">{channel.channel}</h4>
-                      </div>
-                      <Badge variant="secondary" className="text-green-600">
-                        {channel.growth}
-                      </Badge>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {channel.channel === "Email" ? (
+                        <Mail className="h-4 w-4 text-primary" />
+                      ) : channel.channel === "Social Media" ? (
+                        <Share2 className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Globe className="h-4 w-4 text-primary" />
+                      )}
+                      <h4 className="font-medium">{channel.channel}</h4>
                     </div>
+                    {/* Fixed badge styling */}
+                    <Badge variant="outline" className="text-green-600">
+                      {channel.growth}
+                    </Badge>
+                  </div>
                     <div className="space-y-2">
                       {Object.entries(channel.metrics).map(([key, value]) => (
                         <div key={key} className="flex justify-between text-sm">
