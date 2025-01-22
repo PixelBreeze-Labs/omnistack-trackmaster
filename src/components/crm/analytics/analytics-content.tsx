@@ -306,6 +306,8 @@ export function AnalyticsContent() {
           </div>
         </CardContent>
       </Card>
+       {/* Add bottom spacing */}
+       <div className="h-8"></div>
     </div>
   );
 }
