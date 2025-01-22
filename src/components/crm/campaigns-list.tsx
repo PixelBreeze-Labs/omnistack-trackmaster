@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,13 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +37,15 @@ import {
   Mail,
   Share2
 } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import InputSelect from "@/components/Common/InputSelect";
 
 interface Campaign {
   id: string;
@@ -117,7 +119,31 @@ export function CampaignsList() {
   const [campaigns] = useState<Campaign[]>(DUMMY_CAMPAIGNS);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [tableActions, setTableActions] = useState<Record<string, string>>({});
   const [typeFilter, setTypeFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Filter campaigns based on search term and filters
+  const filteredCampaigns = useMemo(() => {
+    return campaigns.filter(campaign => {
+      const matchesSearch = 
+        campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || campaign.status === statusFilter;
+      const matchesType = typeFilter === "all" || campaign.type === typeFilter;
+
+      return matchesSearch && matchesStatus && matchesType;
+    });
+  }, [campaigns, searchTerm, statusFilter, typeFilter]);
+
+  // Calculate pagination
+  const paginatedCampaigns = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    return filteredCampaigns.slice(start, end);
+  }, [filteredCampaigns, page, pageSize]);
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -181,7 +207,9 @@ export function CampaignsList() {
             <Megaphone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">
+              {campaigns.filter(c => c.status === "running").length}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">Currently running</p>
           </CardContent>
         </Card>
@@ -192,7 +220,9 @@ export function CampaignsList() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45.2K</div>
+            <div className="text-2xl font-bold">
+              {(campaigns.reduce((sum, c) => sum + c.reach, 0) / 1000).toFixed(1)}K
+            </div>
             <p className="text-xs text-muted-foreground mt-1">Audience reached</p>
           </CardContent>
         </Card>
@@ -203,7 +233,9 @@ export function CampaignsList() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4.8%</div>
+            <div className="text-2xl font-bold">
+              {(campaigns.reduce((sum, c) => sum + c.conversion, 0) / campaigns.length).toFixed(1)}%
+            </div>
             <p className="text-xs text-muted-foreground mt-1">Across campaigns</p>
           </CardContent>
         </Card>
@@ -214,54 +246,70 @@ export function CampaignsList() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">68.4%</div>
+            <div className="text-2xl font-bold">
+              {((campaigns.reduce((sum, c) => sum + c.spent, 0) / 
+                campaigns.reduce((sum, c) => sum + c.budget, 0)) * 100).toFixed(1)}%
+            </div>
             <p className="text-xs text-muted-foreground mt-1">Of total budget</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Campaigns Table */}
+      {/* Filter Card */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>All Campaigns</CardTitle>
-            <div className="flex items-center gap-4">
-              <div className="relative">
+          <div className="mb-1">
+            <h3 className="font-medium">Filter Campaigns</h3>
+            <p className="text-sm text-muted-foreground">
+              Search and filter through your marketing campaigns
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center flex-1 gap-2 max-w-3xl">
+              <div className="relative mt-2 flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search campaigns..."
-                  className="pl-8 w-[250px]"
+                  className="pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="running">Running</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="social">Social Media</SelectItem>
-                  <SelectItem value="display">Display Ads</SelectItem>
-                  <SelectItem value="referral">Referral</SelectItem>
-                </SelectContent>
-              </Select>
+              <InputSelect
+                name="status"
+                label=""
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                options={[
+                  { value: "all", label: "All Status" },
+                  { value: "draft", label: "Draft" },
+                  { value: "running", label: "Running" },
+                  { value: "paused", label: "Paused" },
+                  { value: "completed", label: "Completed" }
+                ]}
+              />
+              <InputSelect
+                name="type"
+                label=""
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                options={[
+                  { value: "all", label: "All Types" },
+                  { value: "email", label: "Email" },
+                  { value: "social", label: "Social Media" },
+                  { value: "display", label: "Display Ads" },
+                  { value: "referral", label: "Referral" }
+                ]}
+              />
             </div>
           </div>
-        </CardHeader>
+        </CardContent>
+      </Card>
+
+      {/* Campaigns Table */}
+      <Card>
         <CardContent>
           <Table>
             <TableHeader>
@@ -337,47 +385,83 @@ export function CampaignsList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <BarChart3 className="mr-2 h-4 w-4" />
-                          Analytics
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Copy className="mr-2 h-4 w-4" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Ban className="mr-2 h-4 w-4" />
-                          Pause
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                   <InputSelect
+                    name="action"
+                    label=""
+                    value={tableActions[campaign.id] || "select"}
+                    onChange={(e) => setTableActions(prev => ({
+                      ...prev,
+                      [campaign.id]: e.target.value
+                    }))}
+                    options={[
+                    { value: "select", label: "Select Action" },
+                    { value: "view", label: "View Details" }, 
+                    { value: "analytics", label: "Analytics" },
+                    { value: "edit", label: "Edit" },
+                    { value: "duplicate", label: "Duplicate" },
+                    { value: "pause", label: "Pause" },
+                    { value: "delete", label: "Delete" }
+                    ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+            {/* Pagination */}
+    <div className="border-t px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => setPageSize(parseInt(e.target.value))}
+          options={[
+            { value: "10", label: "10 rows" },
+            { value: "20", label: "20 rows" },
+            { value: "50", label: "50 rows" }
+          ]}
+        />
+        
+        <div className="flex-1 flex items-center justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1} 
+                />
+              </PaginationItem>
+              {[...Array(Math.min(5, Math.ceil(campaigns.length / pageSize)))].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setPage(p => Math.min(Math.ceil(campaigns.length / pageSize), p + 1))}
+                  disabled={page === Math.ceil(campaigns.length / pageSize)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+
+        <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+          Showing <span className="font-medium">{pageSize}</span> of{" "}
+          <span className="font-medium">{campaigns.length}</span> discounts
+        </p>
+      </div>
+      </div>
         </CardContent>
       </Card>
+       {/* Add empty space div at the bottom */}
+  <div className="h-8"></div>
     </div>
   );
 }

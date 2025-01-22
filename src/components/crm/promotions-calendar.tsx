@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
 import React, { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { PromoCalendar } from "@/components/ui/promo-calendar";
 import {
   Select,
   SelectContent,
@@ -12,11 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   CalendarPlus,
   CalendarRange,
@@ -68,84 +63,37 @@ const DUMMY_EVENTS: PromotionEvent[] = [
   }
 ];
 
+const EVENT_TYPES = [
+  { type: "flash_sale", label: "Flash Sales", color: "bg-red-500" },
+  { type: "seasonal", label: "Seasonal", color: "bg-amber-500" },
+  { type: "coupon", label: "Coupons", color: "bg-green-500" },
+  { type: "discount", label: "Discounts", color: "bg-blue-500" },
+  { type: "bundle", label: "Bundles", color: "bg-purple-500" }
+];
+
 export function PromotionsCalendar() {
   const [date, setDate] = useState<Date>(new Date());
   const [events] = useState<PromotionEvent[]>(DUMMY_EVENTS);
-  const [view, setView] = useState<"month" | "week">("month");
   const [typeFilter, setTypeFilter] = useState("all");
 
-  const getEventTypeColor = (type: string) => {
-    const colors = {
-      discount: "bg-blue-100 text-blue-800 border-blue-300",
-      coupon: "bg-green-100 text-green-800 border-green-300",
-      flash_sale: "bg-red-100 text-red-800 border-red-300",
-      seasonal: "bg-amber-100 text-amber-800 border-amber-300",
-      bundle: "bg-purple-100 text-purple-800 border-purple-300"
-    };
-    return colors[type] || "bg-gray-100 text-gray-800 border-gray-300";
+  const handleEventClick = (event: PromotionEvent) => {
+    // Handle event click
+    console.log('Event clicked:', event);
   };
 
-  const getDayContent = (day: Date) => {
-    const dayEvents = events.filter(event => {
-      const eventStart = new Date(event.startDate);
-      const eventEnd = new Date(event.endDate);
-      return day >= eventStart && day <= eventEnd;
-    });
-
-    if (dayEvents.length === 0) return null;
-
-    return (
-      <Popover>
-        <PopoverTrigger asChild>
-          <div className="absolute bottom-0 left-0 right-0 p-1">
-            <div className="flex flex-wrap gap-0.5">
-              {dayEvents.map(event => (
-                <div
-                  key={event.id}
-                  className={`w-2 h-2 rounded-full ${
-                    event.type === 'flash_sale' ? 'bg-red-500' :
-                    event.type === 'seasonal' ? 'bg-amber-500' :
-                    event.type === 'coupon' ? 'bg-green-500' :
-                    'bg-blue-500'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className="w-80" align="start">
-          <div className="space-y-2">
-            <h4 className="font-medium">
-              {day.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-            </h4>
-            <div className="space-y-1">
-              {dayEvents.map(event => (
-                <div
-                  key={event.id}
-                  className={`p-2 rounded-md border ${getEventTypeColor(event.type)}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{event.name}</span>
-                    <Badge variant="outline" className="capitalize">
-                      {event.type.replace('_', ' ')}
-                    </Badge>
-                  </div>
-                  <div className="text-sm mt-1 flex items-center gap-2">
-                    <CircleDollarSign className="h-3 w-3" />
-                    {event.value}
-                  </div>
-                  <div className="text-xs mt-1 flex items-center gap-2">
-                    <Clock className="h-3 w-3" />
-                    {event.startDate.toLocaleDateString()} - {event.endDate.toLocaleDateString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
-    );
+  const handleEventEdit = (event: PromotionEvent) => {
+    // Handle event edit
+    console.log('Edit event:', event);
   };
+
+  const handleEventDelete = (event: PromotionEvent) => {
+    // Handle event delete
+    console.log('Delete event:', event);
+  };
+
+  const filteredEvents = typeFilter === 'all' 
+    ? events 
+    : events.filter(event => event.type === typeFilter);
 
   return (
     <div className="space-y-6">
@@ -221,68 +169,39 @@ export function PromotionsCalendar() {
       </div>
 
       {/* Calendar Card */}
-      <Card>
-        <CardHeader className="space-y-0">
-          <div className="flex items-center justify-between space-y-2">
-            <CardTitle>Calendar View</CardTitle>
-            <div className="flex items-center gap-4">
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Events</SelectItem>
-                  <SelectItem value="discount">Discounts</SelectItem>
-                  <SelectItem value="coupon">Coupons</SelectItem>
-                  <SelectItem value="flash_sale">Flash Sales</SelectItem>
-                  <SelectItem value="seasonal">Seasonal</SelectItem>
-                  <SelectItem value="bundle">Bundles</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon">
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="font-medium">
-                  {date.toLocaleString('default', { month: 'long', year: 'numeric' })}
-                </div>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2 mt-2">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <span className="text-sm">Flash Sales</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-amber-500" />
-              <span className="text-sm">Seasonal</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="text-sm">Coupons</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-sm">Discounts</span>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md border"
-            components={{
-              DayContent: ({ date }) => getDayContent(date)
-            }}
-          />
-        </CardContent>
-      </Card>
+<Card>
+
+  <CardContent className="p-0 mb-2 flex justify-between">
+    <div className=" items-center justify-between gap-4">
+    <div className="mb-1">
+      <h3 className="font-medium">Filter Events</h3>
+      <p className="text-sm text-muted-foreground">
+        Search and filter through promotional events
+      </p>
+    </div>
+    </div>
+    <div className="flex items-center justify-end gap-6 p-4">
+      {EVENT_TYPES.map(({ type, label, color }) => (
+        <div key={type} className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${color}`} />
+          <span className="text-sm text-muted-foreground">{label}</span>
+        </div>
+      ))}
+    </div>
+  </CardContent>
+  <CardContent>
+    {/* // TODO: solution for this */}
+    {/* <PromoCalendar
+      mode="single"
+      selected={date}
+      onSelect={setDate}
+      className="rounded-md border"
+      events={filteredEvents}
+      onEventClick={handleEventClick}
+    /> */}
+  </CardContent>
+</Card>
+
     </div>
   );
 }
