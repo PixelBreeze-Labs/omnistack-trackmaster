@@ -180,7 +180,7 @@ import {
             {
               id: "12-1",
               title: "List",
-              path: `/crm/${clientType}/promotions/list`,
+              path: `/crm/${clientType}/promotions`,
               icon: <ScrollText className="w-4 h-4"/>
             },
             {
