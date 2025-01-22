@@ -27,6 +27,15 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination";
 import { 
   Search, 
   Users, 
@@ -42,6 +51,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import InputSelect from "../Common/InputSelect";
 
 interface LandingUser {
   id: string;
@@ -96,6 +106,10 @@ export function LandingList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
+  const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
+const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>({});
+
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -175,46 +189,57 @@ export function LandingList() {
         </Card>
       </div>
 
+{/* Filters and Table */}
+<Card>
+  <CardHeader>
+    <div className="mb-1">
+      <h3 className="font-medium">Filter Registrations</h3>
+      <p className="text-sm text-muted-foreground">
+        Search and filter through landing page registrations
+      </p>
+    </div>
+  </CardHeader>
+  <CardContent className="p-0">
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center flex-1 gap-2 max-w-3xl">
+        <div className="relative mt-2 flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search users..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="converted">Converted</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Source" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sources</SelectItem>
+            <SelectItem value="facebook">Facebook</SelectItem>
+            <SelectItem value="google">Google</SelectItem>
+            <SelectItem value="direct">Direct</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
       {/* Filters and Table */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>All Registrations</CardTitle>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search users..."
-                  className="pl-8 w-[250px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="converted">Converted</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Source" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  <SelectItem value="facebook">Facebook</SelectItem>
-                  <SelectItem value="google">Google</SelectItem>
-                  <SelectItem value="direct">Direct</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -268,33 +293,88 @@ export function LandingList() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <User className="mr-2 h-4 w-4" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Mail className="mr-2 h-4 w-4" />
-                          Send Email
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                    N/A
+  {/* <InputSelect
+    name="actions"
+    label=""
+    value={selectedActions[user.id] || "actions"}
+    onChange={(e) => {
+      const action = e.target.value;
+      setSelectedActions(prev => ({...prev, [user.id]: action}));
+
+      switch(action) {
+        case "view":
+          // Handle view
+          break;
+        case "email":
+          // Handle email
+          break;
+        case "delete":
+          // Handle delete
+          break;
+      }
+    }}
+    options={[
+      { value: "actions", label: "Select Actions" },
+      { value: "view", label: "View Profile" }, 
+      { value: "email", label: "Send Email" },
+      { value: "delete", label: "Delete" }
+    ]}
+  /> */}
+</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          <div className="border-t px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => setPageSize(parseInt(e.target.value))}
+          options={[
+            { value: "10", label: "10 rows" },
+            { value: "20", label: "20 rows" },
+            { value: "50", label: "50 rows" }
+          ]}
+        />
+        
+        <div className="flex-1 flex items-center justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1} 
+                />
+              </PaginationItem>
+              {[...Array(Math.min(5, Math.ceil(users.length / pageSize)))].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setPage(p => Math.min(Math.ceil(users.length / pageSize), p + 1))}
+                  disabled={page === Math.ceil(users.length / pageSize)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+
+        <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+          Showing <span className="font-medium">{pageSize}</span> of{" "}
+          <span className="font-medium">{users.length}</span> registrations
+        </p>
+      </div>
+    </div>
         </CardContent>
       </Card>
     </div>
