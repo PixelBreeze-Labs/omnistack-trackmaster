@@ -29,6 +29,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { CalendarIcon, Plus, Search, Tag, Percent, Users, Clock } from "lucide-react";
 import { format } from "date-fns";
+import InputSelect from "../Common/InputSelect";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination";
 
 interface Discount {
   id: string;
@@ -94,6 +103,8 @@ export function PromotionsDiscounts() {
   const [endDate, setEndDate] = useState<Date>();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -269,35 +280,49 @@ export function PromotionsDiscounts() {
         </CardContent>
       </Card>
 
+
+      {/* Filter Card */}
+<Card>
+  <CardHeader>
+    <div className="mb-1">
+      <h3 className="font-medium">Filter Discounts</h3>
+      <p className="text-sm text-muted-foreground">
+        Search and filter through your discount campaigns
+      </p>
+    </div>
+  </CardHeader>
+  <CardContent className="p-0">
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center flex-1 gap-2 max-w-3xl">
+        <div className="relative mt-2 flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search discounts..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <InputSelect
+          name="status"
+          label=""
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          options={[
+            { value: "all", label: "All Status" },
+            { value: "active", label: "Active" },
+            { value: "scheduled", label: "Scheduled" },
+            { value: "expired", label: "Expired" }
+          ]}
+        />
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
       {/* Active Discounts Table */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Active Discounts</CardTitle>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search discounts..."
-                  className="pl-8 w-[250px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
+       
         <CardContent>
           <Table>
             <TableHeader>
@@ -341,8 +366,60 @@ export function PromotionsDiscounts() {
               ))}
             </TableBody>
           </Table>
+          {/* Pagination */}
+    <div className="border-t px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => setPageSize(parseInt(e.target.value))}
+          options={[
+            { value: "10", label: "10 rows" },
+            { value: "20", label: "20 rows" },
+            { value: "50", label: "50 rows" }
+          ]}
+        />
+        
+        <div className="flex-1 flex items-center justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1} 
+                />
+              </PaginationItem>
+              {[...Array(Math.min(5, Math.ceil(discounts.length / pageSize)))].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setPage(p => Math.min(Math.ceil(discounts.length / pageSize), p + 1))}
+                  disabled={page === Math.ceil(discounts.length / pageSize)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+
+        <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+          Showing <span className="font-medium">{pageSize}</span> of{" "}
+          <span className="font-medium">{discounts.length}</span> discounts
+        </p>
+      </div>
+      </div>
         </CardContent>
       </Card>
+       {/* Add empty space div at the bottom */}
+  <div className="h-8"></div>
     </div>
   );
 }
