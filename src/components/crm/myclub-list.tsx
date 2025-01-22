@@ -20,13 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+//   DropdownMenuSeparator,
+// } from "@/components/ui/dropdown-menu";
 import { 
   Search, 
   Users,
@@ -34,17 +34,23 @@ import {
   Gift,
   Calendar,
   Download,
-  MoreVertical,
-  Mail,
-  User,
   Star,
-  Trash2,
   RefreshCw,
-  Heart,
   ShoppingBag,
   CreditCard
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+import InputSelect from "../Common/InputSelect";
+
+
 
 interface ClubMember {
   id: string;
@@ -108,6 +114,8 @@ export function MyClubList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [tierFilter, setTierFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const getTierBadge = (tier: string) => {
     const variants = {
@@ -188,46 +196,58 @@ export function MyClubList() {
         </Card>
       </div>
 
-      {/* Filters and Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Club Members</CardTitle>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search members..."
-                  className="pl-8 w-[250px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Select value={tierFilter} onValueChange={setTierFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Tier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tiers</SelectItem>
+       {/* Filters Card */}
+     <Card>
+       <CardHeader>
+         <div className="mb-1">
+           <h3 className="font-medium">Filter Members</h3>
+           <p className="text-sm text-muted-foreground">
+             Search and filter through club members
+           </p>
+         </div>
+       </CardHeader>
+       <CardContent className="p-0">
+         <div className="flex items-center justify-between gap-4">
+           <div className="flex items-center flex-1 gap-2 max-w-3xl">
+             <div className="relative mt-2 flex-1">
+               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+               <Input
+                 placeholder="Search members..."
+                 className="pl-8"
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+               />
+             </div>
+             <Select value={tierFilter} onValueChange={setTierFilter}>
+               <SelectTrigger className="w-[140px]">
+                 <SelectValue placeholder="Tier" />
+               </SelectTrigger>
+               <SelectContent>
+               <SelectItem value="all">All Tiers</SelectItem>
                   <SelectItem value="platinum">Platinum</SelectItem>
                   <SelectItem value="gold">Gold</SelectItem>
                   <SelectItem value="silver">Silver</SelectItem>
                   <SelectItem value="bronze">Bronze</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
+               </SelectContent>
+             </Select>
+             <Select value={statusFilter} onValueChange={setStatusFilter}>
+               <SelectTrigger className="w-[140px]">
+                 <SelectValue placeholder="Status" />
+               </SelectTrigger>
+               <SelectContent>
+               <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
+               </SelectContent>
+             </Select>
+           </div>
+         </div>
+       </CardContent>
+     </Card>
+
+      {/* Filters and Table */}
+      <Card>
+     
         <CardContent>
           <Table>
             <TableHeader>
@@ -298,41 +318,66 @@ export function MyClubList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <User className="mr-2 h-4 w-4" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Mail className="mr-2 h-4 w-4" />
-                          Send Email
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Heart className="mr-2 h-4 w-4" />
-                          Add to VIP
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Remove
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  N/A
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
+         {/* Pagination */}
+         <div className="border-t px-4 py-3">
+           <div className="flex items-center justify-between gap-4">
+             <InputSelect
+               name="pageSize"
+               label=""
+               value={pageSize.toString()}
+               onChange={(e) => setPageSize(parseInt(e.target.value))}
+               options={[
+                 { value: "10", label: "10 rows" },
+                 { value: "20", label: "20 rows" },
+                 { value: "50", label: "50 rows" }
+               ]}
+             />
+             
+             <div className="flex-1 flex items-center justify-center">
+               <Pagination>
+                 <PaginationContent>
+                   <PaginationItem>
+                     <PaginationPrevious 
+                       onClick={() => setPage(p => Math.max(1, p - 1))}
+                       disabled={page === 1} 
+                     />
+                   </PaginationItem>
+                   {[...Array(Math.min(5, Math.ceil(members.length / pageSize)))].map((_, i) => (
+                     <PaginationItem key={i + 1}>
+                       <PaginationLink
+                         isActive={page === i + 1}
+                         onClick={() => setPage(i + 1)}
+                       >
+                         {i + 1}
+                       </PaginationLink>
+                     </PaginationItem>
+                   ))}
+                   <PaginationItem>
+                     <PaginationNext 
+                       onClick={() => setPage(p => Math.min(Math.ceil(members.length / pageSize), p + 1))}
+                       disabled={page === Math.ceil(members.length / pageSize)}
+                     />
+                   </PaginationItem>
+                 </PaginationContent>
+               </Pagination>
+             </div>
+
+             <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+               Showing <span className="font-medium">{pageSize}</span> of{" "}
+               <span className="font-medium">{members.length}</span> members
+             </p>
+           </div>
+         </div>
+       </CardContent>
+     </Card>
+   </div>
+ );
 }
 
 export default MyClubList;
