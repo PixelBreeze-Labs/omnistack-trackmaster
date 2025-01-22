@@ -187,16 +187,22 @@ export function BenefitsContent() {
 
       {/* Special Benefits Overview */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Core Benefits</CardTitle>
-            <Button variant="outline" size="sm">
-              <Gift className="h-4 w-4 mr-2" />
-              Add Benefit
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
+      <CardHeader>
+      <div className="mb-1">
+        <h3 className="font-medium">Core Benefits</h3>
+        <p className="text-sm text-muted-foreground">
+          Core membership benefits across all tiers
+        </p>
+      </div>
+    </CardHeader>
+        <CardContent className="p-0">
+    <div className="flex items-center justify-between px-6 py-3 border-b">
+      <div></div>
+      <Button variant="outline" size="sm">
+        <Gift className="h-4 w-4 mr-2" />
+        Add Benefit
+      </Button>
+    </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {SPECIAL_BENEFITS.map((benefit) => (
               <Card key={benefit.title}>
