@@ -16,6 +16,8 @@ export default async function Home() {
     } else if (clientType) {
       redirect(`/crm/${clientType.toLowerCase()}/dashboard`);
     }
+  } else {
+    redirect("/auth/login");
   }
 
   // If no user or redirection, render login page

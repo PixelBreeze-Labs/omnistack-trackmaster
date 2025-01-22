@@ -187,15 +187,13 @@ export function BenefitsContent() {
 
       {/* Special Benefits Overview */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Core Benefits</CardTitle>
-            <Button variant="outline" size="sm">
-              <Gift className="h-4 w-4 mr-2" />
-              Add Benefit
-            </Button>
-          </div>
-        </CardHeader>
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <CardTitle className="text-xl font-semibold">Core Benefits</CardTitle>
+   <Button variant="outline" size="sm" className="self-start">
+     <Gift className="h-4 w-4 mr-2" />
+     Add Benefit 
+   </Button>
+ </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {SPECIAL_BENEFITS.map((benefit) => (
@@ -222,15 +220,13 @@ export function BenefitsContent() {
       {/* Tier Benefits */}
       <div className="grid gap-6 grid-cols-1">
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Tier Benefits</CardTitle>
-              <Button variant="outline" size="sm">
-                <Crown className="h-4 w-4 mr-2" />
-                Manage Tiers
-              </Button>
-            </div>
-          </CardHeader>
+        <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <CardTitle className="text-xl font-semibold">Tier Benefits</CardTitle>
+   <Button variant="outline" size="sm" className="self-start">
+     <Crown className="h-4 w-4 mr-2" />
+     Manage Tiers
+   </Button>
+ </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {TIER_BENEFITS.map((tier) => (
@@ -263,13 +259,13 @@ export function BenefitsContent() {
       {/* Exclusive Rewards */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Exclusive Rewards</CardTitle>
-            <Button variant="outline" size="sm">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Add Reward
-            </Button>
-          </div>
+        <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <CardTitle className="text-xl font-semibold">Exclusive Rewards</CardTitle>
+   <Button variant="outline" size="sm" className="self-start">
+     <Sparkles className="h-4 w-4 mr-2" />
+     Add Reward
+   </Button>
+ </CardHeader>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">

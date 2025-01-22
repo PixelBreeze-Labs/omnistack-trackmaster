@@ -18,7 +18,7 @@ export async function sendEmail(emailData: EmailData) {
     console.log('Attempting to send email to:', emailData.to);
     
     const result = await resend.emails.send({
-      from: 'SnapFood <student-verification@snapfood.al>',
+      from: 'TrackMaster <info@trackmaster.omnistackhub.xyz>',
       to: emailData.to,
       subject: emailData.subject,
       html: emailData.html

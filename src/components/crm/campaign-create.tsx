@@ -75,44 +75,25 @@ export function CampaignCreate() {
 
       {/* Progress Steps */}
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-              step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'
-            }`}>
-              1
-            </div>
-            <div className="text-sm font-medium">Basic Info</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-              step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'
-            }`}>
-              2
-            </div>
-            <div className="text-sm font-medium">Audience</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-              step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'
-            }`}>
-              3
-            </div>
-            <div className="text-sm font-medium">Content</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-              step >= 4 ? 'bg-primary text-primary-foreground' : 'bg-muted'
-            }`}>
-              4
-            </div>
-            <div className="text-sm font-medium">Schedule & Budget</div>
-          </div>
-        </div>
-        <Badge variant="outline" className="text-sm">
-          Draft
-        </Badge>
-      </div>
+ <div className="flex items-center gap-8">
+   {[1,2,3,4].map(num => (
+     <div key={num} className="flex items-center gap-2">
+       <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+         step >= num ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'
+       }`}>
+         {num}
+       </div>
+       <div className="text-sm font-medium">
+         {num === 1 && "Basic Info"}
+         {num === 2 && "Audience"}
+         {num === 3 && "Content"} 
+         {num === 4 && "Schedule & Budget"}
+       </div>
+     </div>
+   ))}
+ </div>
+ <Badge variant="outline" className="text-sm">Draft</Badge>
+</div>
 
       {/* Main Content */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -120,12 +101,12 @@ export function CampaignCreate() {
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <CardTitle>Basic Information</CardTitle>
-              </div>
-            </CardHeader>
+          <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <div className="flex gap-2">
+     <Settings className="mt-1 h-4 w-4 text-muted-foreground" />
+     <CardTitle>Basic Information</CardTitle>
+   </div>
+ </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Campaign Name</Label>
@@ -190,12 +171,12 @@ export function CampaignCreate() {
 
           {/* Audience Targeting */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-muted-foreground" />
-                <CardTitle>Audience Targeting</CardTitle>
-              </div>
-            </CardHeader>
+          <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <div className="flex gap-2">
+     <Target className="mt-2 h-4 w-4 text-muted-foreground" />
+     <CardTitle>Audience Targeting</CardTitle>
+   </div>
+ </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Target Audience</Label>
@@ -241,12 +222,12 @@ export function CampaignCreate() {
 
           {/* Schedule & Budget */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <CardTitle>Schedule & Budget</CardTitle>
-              </div>
-            </CardHeader>
+          <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <div className="flex gap-2">
+     <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
+     <CardTitle>Schedule & Budget</CardTitle>
+   </div>
+ </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="flex-1 space-y-2">
@@ -289,18 +270,16 @@ export function CampaignCreate() {
         <div className="space-y-6">
           {/* Campaign Preview */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Megaphone className="h-4 w-4 text-muted-foreground" />
-                  <CardTitle>Campaign Preview</CardTitle>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share Preview
-                </Button>
-              </div>
-            </CardHeader>
+          <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
+   <div className="flex gap-2">
+     <Megaphone className="mt-2 h-4 w-4 text-muted-foreground" />
+     <CardTitle>Campaign Preview</CardTitle>
+   </div>
+   <Button variant="outline" size="sm" className="self-start">
+     <Share2 className="mr-2 h-4 w-4" />
+     Share Preview
+   </Button>
+ </CardHeader>
             <CardContent>
               <div className="rounded-lg border bg-muted/50 p-8 text-center">
                 <div className="mb-4">
@@ -319,8 +298,8 @@ export function CampaignCreate() {
           {/* Performance Estimate */}
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <div className="flex gap-2">
+                <BarChart3 className="mt-1 h-4 w-4 text-muted-foreground" />
                 <CardTitle>Performance Estimate</CardTitle>
               </div>
             </CardHeader>
@@ -364,8 +343,8 @@ export function CampaignCreate() {
           {/* Campaign Checklist */}
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-muted-foreground" />
+              <div className="flex gap-2">
+                <Settings className="mt-2 h-4 w-4 text-muted-foreground" />
                 <CardTitle>Campaign Checklist</CardTitle>
               </div>
             </CardHeader>
@@ -445,6 +424,8 @@ export function CampaignCreate() {
           </Card>
         </div>
       </div>
+       {/* Add empty space div at the bottom */}
+  <div className="h-8"></div>
     </div>
   )
 }
