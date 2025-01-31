@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { useFamilyAccounts } from '@/hooks/useFamilyAccounts';
+import { LinkFamilyModal } from './family/link-modal';
 
 export function FamilyAccounts() {
  const {
@@ -53,6 +54,7 @@ export function FamilyAccounts() {
  const [page, setPage] = useState(1);
  const [pageSize, setPageSize] = useState(10);
  const [expandedFamily, setExpandedFamily] = useState<string | null>(null);
+ const [showLinkModal, setShowLinkModal] = useState(false);
 
  useEffect(() => {
    fetchFamilyAccounts({
@@ -71,6 +73,7 @@ export function FamilyAccounts() {
    };
    return <Badge variant={variants[status]}>{status}</Badge>;
  };
+ 
 
  return (
    <div className="space-y-6">
@@ -86,10 +89,11 @@ export function FamilyAccounts() {
            <Download className="mr-2 h-4 w-4" />
            Export
          </Button>
-         <Button variant="default" size="sm">
-           <UserPlus className="mr-2 h-4 w-4" />
-           Link Accounts
-         </Button>
+         <Button variant="default" size="sm" onClick={() => setShowLinkModal(true)}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Link Accounts
+        </Button>
+
        </div>
      </div>
 
@@ -214,7 +218,7 @@ export function FamilyAccounts() {
                      <p className="text-sm text-muted-foreground max-w-sm">
                        Get started by linking your first family account. Create meaningful connections and share benefits.
                      </p>
-                     <Button className="mt-4">
+                     <Button  onClick={() => setShowLinkModal(true)} className="mt-4">
                        <UserPlus className="mr-2 h-4 w-4" />
                        Link New Family
                      </Button>
@@ -384,6 +388,18 @@ export function FamilyAccounts() {
      </Card>
 
      <div className="h-8"></div>
+     {showLinkModal && (
+  <LinkFamilyModal
+    isOpen={showLinkModal}
+    onClose={() => setShowLinkModal(false)}
+    onSuccess={() => fetchFamilyAccounts({
+      page,
+      limit: pageSize,
+      status: status !== 'all' ? status.toUpperCase() : undefined,
+      search: searchTerm
+    })}
+  />
+)}
    </div>
  );
 }
