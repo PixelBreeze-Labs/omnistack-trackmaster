@@ -47,6 +47,7 @@ import { toast } from "sonner";
 import { Staff, StaffRole, StaffStatus } from '@/types/staff';
 import { AddStaffModal } from '@/components/crm/staff/add-staff-modal';
 import { useClient } from '@/hooks/useClient';
+import InputSelect from '@/components/Common/InputSelect';
 
 export function StaffContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -197,7 +198,7 @@ export function StaffContent() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <div className="mb-2">
+          <div className="mb-0">
             <h3 className="font-medium">Filter Staff</h3>
             <p className="text-sm text-muted-foreground">
               Search and filter through your team members
@@ -207,7 +208,7 @@ export function StaffContent() {
         <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="flex items-center flex-1 gap-2 w-full">
-              <div className="relative flex-1">
+              <div className="relative mt-2 flex-1">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder="Search by name, email, or ID..." 
@@ -216,67 +217,56 @@ export function StaffContent() {
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
-              <Select
+              <InputSelect
+  name="departmentId"
+  label=""
   value={filters.departmentId || "all"}
-  onValueChange={(value) => setFilters(prev => ({ 
+  onChange={(e) => setFilters(prev => ({ 
     ...prev, 
-    departmentId: value === "all" ? "" : value 
+    departmentId: e.target.value === "all" ? "" : e.target.value 
   }))}
->
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="All Departments" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Departments</SelectItem>
-    {departments && departments.length > 0 ? (
-      departments.map((dept) => (
-        <SelectItem key={dept.id} value={dept.id}>
-          {dept.name}
-        </SelectItem>
-      ))
-    ) : (
-      <SelectItem value="no-departments">No departments available</SelectItem>
-    )}
-  </SelectContent>
-</Select>
-<Select
+  options={[
+    { value: "all", label: "All Departments" },
+    ...(departments?.length > 0 
+      ? departments.map(dept => ({ value: dept.id, label: dept.name }))
+      : [{ value: "no-departments", label: "No departments available" }]
+    )
+  ]}
+/>
+
+<InputSelect
+  name="role"
+  label=""
   value={filters.role || "all"}
-  onValueChange={(value) => setFilters(prev => ({
+  onChange={(e) => setFilters(prev => ({
     ...prev,
-    role: value === "all" ? "" : value
+    role: e.target.value === "all" ? "" : e.target.value
   }))}
->
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="All Roles" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Roles</SelectItem>
-    {Object.values(StaffRole).map((role) => (
-      <SelectItem key={role} value={role}>
-        {role}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
-<Select
+  options={[
+    { value: "all", label: "All Roles" },
+    ...Object.values(StaffRole).map(role => ({
+      value: role,
+      label: role
+    }))
+  ]}
+/>
+
+<InputSelect
+  name="status"
+  label=""
   value={filters.status || "all"}
-  onValueChange={(value) => setFilters(prev => ({
+  onChange={(e) => setFilters(prev => ({
     ...prev,
-    status: value === "all" ? "" : value
+    status: e.target.value === "all" ? "" : e.target.value
   }))}
->
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="All Status" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Status</SelectItem>
-    {Object.values(StaffStatus).map((status) => (
-      <SelectItem key={status} value={status}>
-        {status}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+  options={[
+    { value: "all", label: "All Status" },
+    ...Object.values(StaffStatus).map(status => ({
+      value: status,
+      label: status
+    }))
+  ]}
+/>
             </div>
           </div>
         </CardContent>
@@ -423,25 +413,23 @@ export function StaffContent() {
           {staff?.length > 0 && (
             <div className="border-t px-4 py-3">
               <div className="flex items-center justify-between gap-4">
-              <Select
+              <InputSelect
+  name="pageSize"
+  label=""
   value={pagination.limit.toString()}
-  onValueChange={(value) => {
+  onChange={(e) => {
     setPagination(prev => ({
       ...prev,
       page: 1,
-      limit: parseInt(value)
+      limit: parseInt(e.target.value)
     }));
   }}
->
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="10 rows" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="10">10 rows</SelectItem>
-    <SelectItem value="20">20 rows</SelectItem>
-    <SelectItem value="50">50 rows</SelectItem>
-  </SelectContent>
-</Select>
+  options={[
+    { value: "10", label: "10 rows" },
+    { value: "20", label: "20 rows" },
+    { value: "50", label: "50 rows" }
+  ]}
+/>
                 
                 <div className="flex-1 flex items-center justify-center">
                   <Pagination>
