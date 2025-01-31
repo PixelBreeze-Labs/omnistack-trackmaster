@@ -21,3 +21,26 @@ export interface ListCustomersResponse {
     page: number;
     limit: number;
 }
+
+export interface CustomerParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: 'ACTIVE' | 'INACTIVE' | 'ALL';
+    type?: 'REGULAR' | 'VIP' | 'ALL';
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+ }
+ 
+ export interface CustomerMetrics {
+    totalCustomers: number;
+    activeCustomers: number;
+    averageOrderValue: number;
+    customerGrowth: number;
+    trends: {
+        customers: { value: number; percentage: number };
+        active: { value: number; percentage: number };
+        orderValue: { value: number; percentage: number };
+        growth: { value: number; percentage: number };
+    }
+ }
