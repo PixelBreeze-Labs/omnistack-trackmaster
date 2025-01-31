@@ -41,12 +41,16 @@ import { Staff, StaffRole, StaffStatus } from '@/types/staff';
 import { AddStaffModal } from '@/components/crm/staff/add-staff-modal';
 import { useClient } from '@/hooks/useClient';
 import InputSelect from '@/components/Common/InputSelect';
+import { useRouter } from 'next/navigation';
+
 
 export function StaffContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
   const { clientId } = useClient();
+  const router = useRouter();
+
   const [stats, setStats] = useState({
     totalStaff: 0,
     totalManagers: 0,
@@ -129,17 +133,23 @@ export function StaffContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Staff Management</h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            Manage your team members and their roles
-          </p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Staff Management</h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          Manage your team members and their roles
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button variant="soft" onClick={() => router.push('/crm/ecommerce/hr/department')}>
+          <Building2 className="h-4 w-4 mr-2" />
+          Manage Departments
+        </Button>
         <Button variant="default" onClick={() => setIsModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Staff Member
         </Button>
       </div>
+    </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
