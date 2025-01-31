@@ -93,51 +93,53 @@ export function FamilyAccounts() {
        </div>
      </div>
 
-     <div className="grid gap-4 md:grid-cols-4">
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-           <CardTitle className="text-sm font-medium">Total Families</CardTitle>
-           <Users className="h-4 w-4 text-muted-foreground" />
-         </CardHeader>
-         <CardContent>
-           <div className="text-2xl font-bold">{metrics.totalFamilies}</div>
-           <p className="text-xs text-muted-foreground mt-1">Active family groups</p>
-         </CardContent>
-       </Card>
+    
+    <div className="grid gap-4 md:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Families</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{metrics?.totalFamilies ?? 0}</div>
+          <p className="text-xs text-muted-foreground mt-1">Active family groups</p>
+        </CardContent>
+      </Card>
 
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-           <CardTitle className="text-sm font-medium">Linked Members</CardTitle>
-           <UserCircle className="h-4 w-4 text-muted-foreground" />
-         </CardHeader>
-         <CardContent>
-           <div className="text-2xl font-bold">{metrics.linkedMembers}</div>
-           <p className="text-xs text-muted-foreground mt-1">Total linked accounts</p>
-         </CardContent>
-       </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Linked Members</CardTitle>
+          <UserCircle className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{metrics?.linkedMembers ?? 0}</div>
+          <p className="text-xs text-muted-foreground mt-1">Total linked accounts</p>
+        </CardContent>
+      </Card>
 
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-           <CardTitle className="text-sm font-medium">Average Size</CardTitle>
-           <LinkIcon className="h-4 w-4 text-muted-foreground" />
-         </CardHeader>
-         <CardContent>
-           <div className="text-2xl font-bold">{metrics.averageSize?.toFixed(1)}</div>
-           <p className="text-xs text-muted-foreground mt-1">Members per family</p>
-         </CardContent>
-       </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Average Size</CardTitle>
+          <LinkIcon className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{(metrics?.averageSize ?? 0).toFixed(1)}</div>
+          <p className="text-xs text-muted-foreground mt-1">Members per family</p>
+        </CardContent>
+      </Card>
 
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-           <CardTitle className="text-sm font-medium">Family Spending</CardTitle>
-           <Heart className="h-4 w-4 text-muted-foreground" />
-         </CardHeader>
-         <CardContent>
-           <div className="text-2xl font-bold">{metrics.familySpendingMultiplier?.toFixed(1)}x</div>
-           <p className="text-xs text-muted-foreground mt-1">vs individual accounts</p>
-         </CardContent>
-       </Card>
-     </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Family Spending</CardTitle>
+          <Heart className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{(metrics?.familySpendingMultiplier ?? 0).toFixed(1)}x</div>
+          <p className="text-xs text-muted-foreground mt-1">vs individual accounts</p>
+        </CardContent>
+      </Card>
+    </div>
+
 
      <Card>
        <CardHeader>
