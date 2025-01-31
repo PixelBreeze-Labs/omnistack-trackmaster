@@ -1,18 +1,9 @@
 "use client"
 
-import React from 'react';
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-  } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -21,12 +12,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Search,
   Plus,
-  Store,
   MapPin,
   BarChart,
   Users,
@@ -34,86 +39,97 @@ import {
   ChevronRight,
   Mail,
   Phone,
-  Calendar
+  Calendar,
+  UserPlus,
 } from "lucide-react";
-import InputSelect from '@/components/Common/InputSelect';
-
-const STAFF_MEMBERS = [
-  {
-    id: "EMP-001",
-    name: "Sarah Johnson",
-    role: "Store Manager",
-    location: "Main Street Store",
-    email: "sarah.j@example.com",
-    phone: "+1 234-567-8901",
-    status: "ACTIVE",
-    performance: 95,
-    avatar: null
-  },
-  {
-    id: "EMP-002",
-    name: "Michael Chen",
-    role: "Sales Associate",
-    location: "Downtown Branch",
-    email: "michael.c@example.com",
-    phone: "+1 234-567-8902",
-    status: "ACTIVE",
-    performance: 88,
-    avatar: null
-  },
-  // Add more staff data...
-];
-
-const DEPARTMENT_STATS = [
-  {
-    title: "Total Staff",
-    value: "24",
-    subtitle: "4 managers",
-    icon: Users
-  },
-  {
-    title: "Locations",
-    value: "3",
-    subtitle: "2 cities",
-    icon: Store
-  },
-  {
-    title: "Avg. Performance",
-    value: "92%",
-    subtitle: "Last 30 days",
-    icon: BarChart
-  },
-  {
-    title: "Departments",
-    value: "5",
-    subtitle: "Active teams",
-    icon: Building2
-  }
-];
-
-const getStatusBadge = (status: string) => {
-  const variants: { [key: string]: string } = {
-    "ACTIVE": "bg-green-100 text-green-800",
-    "ON_LEAVE": "bg-yellow-100 text-yellow-800",
-    "INACTIVE": "bg-gray-100 text-gray-800"
-  };
-  return variants[status] || variants["INACTIVE"];
-};
-
-const getPerformanceColor = (score: number) => {
-  if (score >= 90) return "text-green-600";
-  if (score >= 70) return "text-yellow-600";
-  return "text-red-600";
-};
+import { toast } from "sonner";
+import { Staff, StaffRole, StaffStatus } from '@/types/staff';
+import { AddStaffModal } from '@/components/crm/staff/add-staff-modal';
+import { useClient } from '@/hooks/useClient';
 
 export function StaffContent() {
-    const [pageSize, setPageSize] = useState(10);
-    const [page, setPage] = useState(1);
-    
-    // Calculate pagination
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const displayedStaff = STAFF_MEMBERS.slice(startIndex, endIndex);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
+  const { clientId } = useClient();
+  const [stats, setStats] = useState({
+    totalStaff: 0,
+    totalManagers: 0,
+    totalDepartments: 0,
+    avgPerformance: 0
+  });
+  const [filters, setFilters] = useState({
+    search: '',
+    departmentId: '',
+    role: '',
+    status: ''
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0
+  });
+
+  // Fetch staff and departments
+  useEffect(() => {
+    fetchStaff();
+    fetchDepartments();
+  }, [filters, pagination.page, pagination.limit, clientId]);
+
+  const fetchStaff = async () => {
+    if (!clientId) return;
+    try {
+      const queryParams = new URLSearchParams({
+        clientId,
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+        ...filters
+      });
+      const response = await fetch(`/api/staff?${queryParams}`);
+      const data = await response.json();
+      
+      setStaff(data.items);
+      setPagination(prev => ({ ...prev, total: data.total }));
+      
+      // Update stats
+      setStats({
+        totalStaff: data.total,
+        totalManagers: data.items.filter(s => s.role === 'MANAGER').length,
+        totalDepartments: new Set(data.items.map(s => s.departmentId)).size,
+        avgPerformance: data.items.reduce((acc, s) => acc + (s.performanceScore || 0), 0) / data.items.length
+      });
+    } catch (error) {
+      toast.error('Failed to fetch staff members');
+    }
+  };
+
+  const fetchDepartments = async () => {
+    if (!clientId) return;
+    try {
+      const response = await fetch(`/api/departments?clientId=${clientId}`);
+      const data = await response.json();
+      setDepartments(data);
+    } catch (error) {
+      toast.error('Failed to fetch departments');
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants: { [key: string]: string } = {
+      "ACTIVE": "bg-green-100 text-green-800",
+      "ON_LEAVE": "bg-yellow-100 text-yellow-800",
+      "INACTIVE": "bg-gray-100 text-gray-800",
+      "SUSPENDED": "bg-red-100 text-red-800"
+    };
+    return variants[status] || variants["INACTIVE"];
+  };
+
+  const getPerformanceColor = (score: number) => {
+    if (score >= 90) return "text-green-600";
+    if (score >= 70) return "text-yellow-600";
+    return "text-red-600";
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -124,7 +140,7 @@ export function StaffContent() {
             Manage your team members and their roles
           </p>
         </div>
-        <Button variant="default" style={{ backgroundColor: "#5FC4D0" }}>
+        <Button variant="default" onClick={() => setIsModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Staff Member
         </Button>
@@ -132,9 +148,28 @@ export function StaffContent() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {DEPARTMENT_STATS.map((stat) => (
+        {[
+          {
+            title: "Total Staff",
+            value: stats.totalStaff,
+            subtitle: `${stats.totalManagers} managers`,
+            icon: Users
+          },
+          {
+            title: "Departments",
+            value: stats.totalDepartments,
+            subtitle: "Active teams",
+            icon: Building2
+          },
+          {
+            title: "Avg. Performance",
+            value: `${Math.round(stats.avgPerformance)}%`,
+            subtitle: "Last 30 days",
+            icon: BarChart
+          }
+        ].map((stat) => (
           <Card key={stat.title}>
-            <CardContent className="p-0">
+            <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
@@ -153,7 +188,7 @@ export function StaffContent() {
       </div>
 
       {/* Filters */}
-     <Card>
+      <Card>
         <CardHeader>
           <div className="mb-1">
             <h3 className="font-medium">Filter Staff</h3>
@@ -162,52 +197,79 @@ export function StaffContent() {
             </p>
           </div>
         </CardHeader>
-        <CardContent className="p-0 pt-0">
+        <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="flex items-center flex-1 gap-2 w-full">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Search by name, role, or location..." 
+                  placeholder="Search by name, email, or ID..." 
                   className="pl-9 w-full"
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
-              <InputSelect
-                name="location"
-                label=""
-                value="all"
-                onChange={() => {}}
-                options={[
-                  { value: "all", label: "All Locations" },
-                  { value: "main", label: "Main Street Store" },
-                  { value: "downtown", label: "Downtown Branch" },
-                  { value: "mall", label: "Shopping Mall" }
-                ]}
-              />
-              <InputSelect
-                name="role"
-                label=""
-                value="all"
-                onChange={() => {}}
-                options={[
-                  { value: "all", label: "All Roles" },
-                  { value: "manager", label: "Store Manager" },
-                  { value: "sales", label: "Sales Associate" },
-                  { value: "support", label: "Support Staff" }
-                ]}
-              />
-              <InputSelect
-                name="status"
-                label=""
-                value="all"
-                onChange={() => {}}
-                options={[
-                  { value: "all", label: "All Status" },
-                  { value: "active", label: "Active" },
-                  { value: "on_leave", label: "On Leave" },
-                  { value: "inactive", label: "Inactive" }
-                ]}
-              />
+              <Select
+  value={filters.departmentId || "all"}
+  onValueChange={(value) => setFilters(prev => ({ 
+    ...prev, 
+    departmentId: value === "all" ? "" : value 
+  }))}
+>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="All Departments" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="all">All Departments</SelectItem>
+    {departments && departments.length > 0 ? (
+      departments.map((dept) => (
+        <SelectItem key={dept.id} value={dept.id}>
+          {dept.name}
+        </SelectItem>
+      ))
+    ) : (
+      <SelectItem value="no-departments">No departments available</SelectItem>
+    )}
+  </SelectContent>
+</Select>
+<Select
+  value={filters.role || "all"}
+  onValueChange={(value) => setFilters(prev => ({
+    ...prev,
+    role: value === "all" ? "" : value
+  }))}
+>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="All Roles" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="all">All Roles</SelectItem>
+    {Object.values(StaffRole).map((role) => (
+      <SelectItem key={role} value={role}>
+        {role}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+<Select
+  value={filters.status || "all"}
+  onValueChange={(value) => setFilters(prev => ({
+    ...prev,
+    status: value === "all" ? "" : value
+  }))}
+>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="All Status" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="all">All Status</SelectItem>
+    {Object.values(StaffStatus).map((status) => (
+      <SelectItem key={status} value={status}>
+        {status}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
             </div>
           </div>
         </CardContent>
@@ -225,140 +287,214 @@ export function StaffContent() {
                 <TableHead>Employee</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Contact</TableHead>
-                <TableHead>Location</TableHead>
+                <TableHead>Department</TableHead>
                 <TableHead>Performance</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {STAFF_MEMBERS.map((staff) => (
-                <TableRow key={staff.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={staff.avatar || undefined} />
-                        <AvatarFallback>{staff.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{staff.name}</div>
-                        <div className="text-sm text-muted-foreground">ID: {staff.id}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      {staff.role}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm">
-                        <Mail className="h-3 w-3 mr-2 text-muted-foreground" />
-                        {staff.email}
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Phone className="h-3 w-3 mr-2 text-muted-foreground" />
-                        {staff.phone}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      {staff.location}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className={`font-medium ${getPerformanceColor(staff.performance)}`}>
-                        {staff.performance}%
-                      </span>
-                      <div className="w-24 h-2 rounded-full bg-gray-100">
-                        <div 
-                          className={`h-full rounded-full ${
-                            staff.performance >= 90 ? "bg-green-500" :
-                            staff.performance >= 70 ? "bg-yellow-500" :
-                            "bg-red-500"
-                          }`}
-                          style={{ width: `${staff.performance}%` }}
-                        />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusBadge(staff.status)}>
-                      {staff.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Schedule
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <ChevronRight className="h-4 w-4" />
+              {staff?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-3">
+                      <Users className="h-12 w-12 text-muted-foreground" />
+                      <h3 className="text-lg font-medium">No Staff Members Found</h3>
+                      <p className="text-sm text-muted-foreground max-w-[400px]">
+                        Get started by adding your first staff member to manage your team effectively.
+                      </p>
+                      <Button onClick={() => setIsModalOpen(true)} className="mt-4">
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Add First Staff Member
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                staff?.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={member.avatar || undefined} />
+                          <AvatarFallback>
+                            {member.firstName[0]}{member.lastName[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">
+                            {member.firstName} {member.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            ID: {member.employeeId}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div>{member.role}</div>
+                          {member.subRole && (
+                            <div className="text-sm text-muted-foreground">
+                              {member.subRole}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm">
+                          <Mail className="h-3 w-3 mr-2 text-muted-foreground" />
+                          {member.email}
+                        </div>
+                        {member.phone && (
+                          <div className="flex items-center text-sm">
+                            <Phone className="h-3 w-3 mr-2 text-muted-foreground" />
+                            {member.phone}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        {member.department.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {member.performanceScore !== null && (
+                        <div className="flex items-center gap-2">
+                          <span className={`font-medium ${getPerformanceColor(member.performanceScore)}`}>
+                            {member.performanceScore}%
+                          </span>
+                          <div className="w-24 h-2 rounded-full bg-gray-100">
+                            <div 
+                              className={`h-full rounded-full ${
+                                member.performanceScore >= 90 ? "bg-green-500" :
+                                member.performanceScore >= 70 ? "bg-yellow-500" :
+                                "bg-red-500"
+                              }`}
+                              style={{ width: `${member.performanceScore}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusBadge(member.status)}>
+                        {member.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          Schedule
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            toast.info("Edit functionality coming soon");
+                          }}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
-          {/* Pagination */}
-          <div className="border-t px-4 py-3">
-            <div className="flex items-center justify-between gap-4">
-              <InputSelect
-                name="pageSize"
-                label=""
-                value={pageSize.toString()}
-                onChange={(e) => setPageSize(parseInt(e.target.value))}
-                options={[
-                  { value: "10", label: "10 rows" },
-                  { value: "20", label: "20 rows" },
-                  { value: "50", label: "50 rows" }
-                ]}
-              />
-              
-              <div className="flex-1 flex items-center justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1} 
-                      />
-                    </PaginationItem>
-                    {[...Array(Math.min(5, Math.ceil(STAFF_MEMBERS.length / pageSize)))].map((_, i) => (
-                      <PaginationItem key={i + 1}>
-                        <PaginationLink
-                          isActive={page === i + 1}
-                          onClick={() => setPage(i + 1)}
-                        >
-                          {i + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setPage(p => Math.min(Math.ceil(STAFF_MEMBERS.length / pageSize), p + 1))}
-                        disabled={page === Math.ceil(STAFF_MEMBERS.length / pageSize)}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
 
-              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                Showing <span className="font-medium">{displayedStaff.length}</span> of{" "}
-                <span className="font-medium">{STAFF_MEMBERS.length}</span> staff members
-              </p>
+          {staff?.length > 0 && (
+            <div className="border-t px-4 py-3">
+              <div className="flex items-center justify-between gap-4">
+              <Select
+  value={pagination.limit.toString()}
+  onValueChange={(value) => {
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+      limit: parseInt(value)
+    }));
+  }}
+>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="10 rows" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="10">10 rows</SelectItem>
+    <SelectItem value="20">20 rows</SelectItem>
+    <SelectItem value="50">50 rows</SelectItem>
+  </SelectContent>
+</Select>
+                
+                <div className="flex-1 flex items-center justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setPagination(prev => ({
+                            ...prev,
+                            page: Math.max(1, prev.page - 1)
+                          }))}
+                          disabled={pagination.page === 1} 
+                        />
+                      </PaginationItem>
+                      {[...Array(Math.min(5, Math.ceil(pagination.total / pagination.limit)))].map((_, i) => (
+                        <PaginationItem key={i + 1}>
+                          <PaginationLink
+                            isActive={pagination.page === i + 1}
+                            onClick={() => setPagination(prev => ({
+                              ...prev,
+                              page: i + 1
+                            }))}
+                          >
+                            {i + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setPagination(prev => ({
+                            ...prev,
+                            page: Math.min(Math.ceil(pagination.total / prev.limit), prev.page + 1)
+                          }))}
+                          disabled={pagination.page === Math.ceil(pagination.total / pagination.limit)}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+
+                <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                  Showing <span className="font-medium">{staff.length}</span> of{" "}
+                  <span className="font-medium">{pagination.total}</span> staff members
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Add Staff Modal */}
+      {isModalOpen && (
+        <AddStaffModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={() => {
+            fetchStaff();
+            fetchDepartments();
+          }}
+          departments={departments}
+          clientId={clientId}
+        />
+      )}
     </div>
   );
 }

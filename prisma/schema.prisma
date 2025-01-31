@@ -55,6 +55,8 @@ model Client {
   sales             Sale[]
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
+  Department        Department[]
+  Staff             Staff[]
 
   @@index([type])
 }
@@ -81,6 +83,52 @@ model Department {
   updatedAt   DateTime @updatedAt
 }
 
+model Staff {
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  clientId         String      @db.ObjectId
+  client           Client      @relation(fields: [clientId], references: [id])
+  departmentId     String      @db.ObjectId
+  department       Department  @relation(fields: [departmentId], references: [id])
+  firstName        String
+  lastName         String
+  email            String
+  phone            String?
+  role             StaffRole   @default(STAFF)
+  subRole          String? // For specific roles like "Sales Associate"
+  status           StaffStatus @default(ACTIVE)
+  employeeId       String // Employee identification number
+  dateOfJoin       DateTime
+  canAccessApp     Boolean     @default(false)
+  performanceScore Float?
+  avatar           String?
+  address          String?
+  emergencyContact String?
+  documents        Json? // Store document URLs or references
+  notes            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@unique([clientId, email])
+  @@unique([clientId, employeeId])
+  @@index([clientId, departmentId, status])
+}
+
+// Add these to your existing enums
+enum StaffRole {
+  ADMIN
+  MANAGER
+  SUPERVISOR
+  SALES
+  STAFF
+  SUPPORT
+}
+
+enum StaffStatus {
+  ACTIVE
+  ON_LEAVE
+  INACTIVE
+  SUSPENDED
+}
 
 model CustomerTag {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
