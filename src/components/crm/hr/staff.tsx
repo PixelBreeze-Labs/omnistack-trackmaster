@@ -41,6 +41,7 @@ import {
   Phone,
   Calendar,
   UserPlus,
+  Smartphone
 } from "lucide-react";
 import { toast } from "sonner";
 import { Staff, StaffRole, StaffStatus } from '@/types/staff';
@@ -148,56 +149,62 @@ export function StaffContent() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            title: "Total Staff",
-            value: stats.totalStaff,
-            subtitle: `${stats.totalManagers} managers`,
-            icon: Users
-          },
-          {
-            title: "Departments",
-            value: stats.totalDepartments,
-            subtitle: "Active teams",
-            icon: Building2
-          },
-          {
-            title: "Avg. Performance",
-            value: `${Math.round(stats.avgPerformance)}%`,
-            subtitle: "Last 30 days",
-            icon: BarChart
-          }
-        ].map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <div className="space-y-1">
-                    <h3 className="text-2xl font-bold">{stat.value}</h3>
-                    <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
-                  </div>
-                </div>
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <stat.icon className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {[
+  {
+    title: "Total Staff",
+    value: stats.totalStaff,
+    subtitle: `${stats.totalManagers} managers`,
+    icon: Users
+  },
+  {
+    title: "Departments",
+    value: stats.totalDepartments,
+    subtitle: "Active teams",
+    icon: Building2
+  },
+  {
+    title: "Avg. Performance",
+    value: isNaN(stats.avgPerformance) ? "No data" : `${Math.round(stats.avgPerformance)}%`,
+    subtitle: "Last 30 days",
+    icon: BarChart
+  },
+  {
+    title: "App Users",
+    value: staff?.filter(s => s.canAccessApp).length || 0,
+    subtitle: "Sales app access",
+    icon: Smartphone
+  }
+].map((stat) => (
+  <Card key={stat.title}>
+    <CardContent className="p-6">
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold">{stat.value}</h3>
+            <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+          </div>
+        </div>
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <stat.icon className="h-5 w-5 text-primary" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+))}
       </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
-          <div className="mb-1">
+          <div className="mb-2">
             <h3 className="font-medium">Filter Staff</h3>
             <p className="text-sm text-muted-foreground">
               Search and filter through your team members
             </p>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="flex items-center flex-1 gap-2 w-full">
               <div className="relative flex-1">
@@ -365,24 +372,26 @@ export function StaffContent() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {member.performanceScore !== null && (
-                        <div className="flex items-center gap-2">
-                          <span className={`font-medium ${getPerformanceColor(member.performanceScore)}`}>
-                            {member.performanceScore}%
-                          </span>
-                          <div className="w-24 h-2 rounded-full bg-gray-100">
-                            <div 
-                              className={`h-full rounded-full ${
-                                member.performanceScore >= 90 ? "bg-green-500" :
-                                member.performanceScore >= 70 ? "bg-yellow-500" :
-                                "bg-red-500"
-                              }`}
-                              style={{ width: `${member.performanceScore}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
+  {member.performanceScore !== null && member.performanceScore !== undefined ? (
+    <div className="flex items-center gap-2">
+      <span className={`font-medium ${getPerformanceColor(member.performanceScore)}`}>
+        {member.performanceScore}%
+      </span>
+      <div className="w-24 h-2 rounded-full bg-gray-100">
+        <div 
+          className={`h-full rounded-full ${
+            member.performanceScore >= 90 ? "bg-green-500" :
+            member.performanceScore >= 70 ? "bg-yellow-500" :
+            "bg-red-500"
+          }`}
+          style={{ width: `${member.performanceScore}%` }}
+        />
+      </div>
+    </div>
+  ) : (
+    <span className="text-muted-foreground text-sm">Not available</span>
+  )}
+</TableCell>
                     <TableCell>
                       <Badge className={getStatusBadge(member.status)}>
                         {member.status}
@@ -495,6 +504,7 @@ export function StaffContent() {
           clientId={clientId}
         />
       )}
+      <div className="h-8"></div>
     </div>
   );
 }
