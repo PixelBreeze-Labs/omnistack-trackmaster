@@ -83,3 +83,24 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
+
+
+// const { PrismaClient } = require('@prisma/client')
+// const prisma = new PrismaClient()
+
+// async function main() {
+//  await prisma.client.update({
+//   // TODO: update with prod
+//    where: { id: '6790e14bcfd33d49db3a2741' },
+//    data: { omniGatewayId: '679cd85f2468feb16f7c57ba', omniGatewayApiKey: 'sk_73f7fe6f22aec03511b02415a72ee75ea746a60980b69ac9f3dfba9241b17b91' }
+//  })
+// }
+
+// main()
+//  .catch(e => {
+//    console.error(e)
+//    process.exit(1)
+//  })
+//  .finally(async () => {
+//    await prisma.$disconnect()
+//  })

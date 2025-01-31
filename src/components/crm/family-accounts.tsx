@@ -122,7 +122,7 @@ export function FamilyAccounts() {
            <LinkIcon className="h-4 w-4 text-muted-foreground" />
          </CardHeader>
          <CardContent>
-           <div className="text-2xl font-bold">{metrics.averageSize.toFixed(1)}</div>
+           <div className="text-2xl font-bold">{metrics.averageSize?.toFixed(1)}</div>
            <p className="text-xs text-muted-foreground mt-1">Members per family</p>
          </CardContent>
        </Card>
@@ -133,7 +133,7 @@ export function FamilyAccounts() {
            <Heart className="h-4 w-4 text-muted-foreground" />
          </CardHeader>
          <CardContent>
-           <div className="text-2xl font-bold">{metrics.familySpendingMultiplier.toFixed(1)}x</div>
+           <div className="text-2xl font-bold">{metrics.familySpendingMultiplier?.toFixed(1)}x</div>
            <p className="text-xs text-muted-foreground mt-1">vs individual accounts</p>
          </CardContent>
        </Card>

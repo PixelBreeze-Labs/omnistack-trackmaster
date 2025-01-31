@@ -8,7 +8,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 enum ClientType {
   ECOMMERCE
   SAAS
@@ -18,277 +17,276 @@ enum ClientType {
   OTHER
 }
 
-
 // Core User model with Supabase integration
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  email         String    @unique
-  name          String?
-  password      String?   // Optional since we'll use Supabase auth
-  supabaseId    String    @unique  // Link to Supabase user
-  role          Role      @default(SALES)
-  clientId      String?   @db.ObjectId
-  client        Client?   @relation(fields: [clientId], references: [id])
-  activities    Activity[]
-  tasks         Task[]    @relation("TaskAssignee")
-  createdTasks  Task[]    @relation("TaskCreator")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  email        String     @unique
+  name         String?
+  password     String? // Optional since we'll use Supabase auth
+  supabaseId   String     @unique // Link to Supabase user
+  role         Role       @default(SALES)
+  clientId     String?    @db.ObjectId
+  client       Client?    @relation(fields: [clientId], references: [id])
+  activities   Activity[]
+  tasks        Task[]     @relation("TaskAssignee")
+  createdTasks Task[]     @relation("TaskCreator")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 // Client/Company model
 model Client {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  industry      String?
-  website       String?
-  description   String?
-  status        ClientStatus @default(ACTIVE)
-  type          ClientType @default(ECOMMERCE)
-  users         User[]
-  customers     Customer[]
-  contacts      Contact[]
-  products      Product[]
-  orders        Order[]
-  campaigns     Campaign[]
-  promotions    Promotion[]
-  sales         Sale[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  industry          String?
+  website           String?
+  description       String?
+  omniGatewayId     String?      @unique
+  omniGatewayApiKey String?      @unique
+  status            ClientStatus @default(ACTIVE)
+  type              ClientType   @default(ECOMMERCE)
+  users             User[]
+  customers         Customer[]
+  contacts          Contact[]
+  products          Product[]
+  orders            Order[]
+  campaigns         Campaign[]
+  promotions        Promotion[]
+  sales             Sale[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
-   @@index([type])
+  @@index([type])
 }
 
 // Customer Tags
 model Tag {
-  id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  customerTags  CustomerTag[]   // Relation to join table
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  customerTags CustomerTag[] // Relation to join table
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
-
 model CustomerTag {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  customerId  String    @db.ObjectId
-  customer    Customer  @relation(fields: [customerId], references: [id])
-  tagId       String    @db.ObjectId
-  tag         Tag       @relation(fields: [tagId], references: [id])
-  createdAt   DateTime  @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  tagId      String   @db.ObjectId
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  createdAt  DateTime @default(now())
 
   @@unique([customerId, tagId])
 }
 
-
 // Customer model
 model Customer {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  clientId      String        @db.ObjectId
-  client        Client        @relation(fields: [clientId], references: [id])
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  clientId      String         @db.ObjectId
+  client        Client         @relation(fields: [clientId], references: [id])
   firstName     String
   lastName      String
   email         String
   phone         String?
   status        CustomerStatus @default(ACTIVE)
   type          CustomerType   @default(REGULAR)
-  loyaltyPoints Int           @default(0)
-  loyaltyTier   LoyaltyTier   @default(BRONZE)
-  tags          CustomerTag[]  // Updated to use join table
+  loyaltyPoints Int            @default(0)
+  loyaltyTier   LoyaltyTier    @default(BRONZE)
+  tags          CustomerTag[] // Updated to use join table
   notes         Note[]
   orders        Order[]
   activities    Activity[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@unique([clientId, email])
 }
 
 // Product model
 model Product {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  clientId      String    @db.ObjectId
-  client        Client    @relation(fields: [clientId], references: [id])
-  name          String
-  description   String?
-  sku           String?
-  price         Float
-  category      String?
-  isActive      Boolean   @default(true)
-  inventory     Int       @default(0)
-  orders        OrderItem[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  clientId    String      @db.ObjectId
+  client      Client      @relation(fields: [clientId], references: [id])
+  name        String
+  description String?
+  sku         String?
+  price       Float
+  category    String?
+  isActive    Boolean     @default(true)
+  inventory   Int         @default(0)
+  orders      OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@unique([clientId, sku])
 }
 
 // Order tracking
 model Order {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  orderNumber   String    @unique
-  clientId      String    @db.ObjectId
-  client        Client    @relation(fields: [clientId], references: [id])
-  customerId    String    @db.ObjectId
-  customer      Customer  @relation(fields: [customerId], references: [id])
-  items         OrderItem[]
-  status        OrderStatus @default(PENDING)
-  subtotal      Float
-  discount      Float     @default(0)
-  shipping      Float     @default(0)
-  tax          Float     @default(0)
-  total         Float
-  appliedPromotionIds String[] @db.ObjectId
-  notes         Note[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber         String      @unique
+  clientId            String      @db.ObjectId
+  client              Client      @relation(fields: [clientId], references: [id])
+  customerId          String      @db.ObjectId
+  customer            Customer    @relation(fields: [customerId], references: [id])
+  items               OrderItem[]
+  status              OrderStatus @default(PENDING)
+  subtotal            Float
+  discount            Float       @default(0)
+  shipping            Float       @default(0)
+  tax                 Float       @default(0)
+  total               Float
+  appliedPromotionIds String[]    @db.ObjectId
+  notes               Note[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 }
 
 // Order Items
 model OrderItem {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  orderId       String    @db.ObjectId
-  order         Order     @relation(fields: [orderId], references: [id])
-  productId     String    @db.ObjectId
-  product       Product   @relation(fields: [productId], references: [id])
-  quantity      Int
-  priceAtTime   Float     // Price when ordered
-  discount      Float     @default(0)
-  total         Float
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String   @db.ObjectId
+  order       Order    @relation(fields: [orderId], references: [id])
+  productId   String   @db.ObjectId
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  priceAtTime Float // Price when ordered
+  discount    Float    @default(0)
+  total       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Marketing Campaigns
 model Campaign {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  clientId      String    @db.ObjectId
-  client        Client    @relation(fields: [clientId], references: [id])
-  name          String
-  description   String?
-  type          CampaignType
-  status        CampaignStatus @default(DRAFT)
-  startDate     DateTime?
-  endDate       DateTime?
-  budget        Float?
-  promotions    Promotion[]
-  activities    Activity[]
-  notes         Note[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  clientId    String         @db.ObjectId
+  client      Client         @relation(fields: [clientId], references: [id])
+  name        String
+  description String?
+  type        CampaignType
+  status      CampaignStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      Float?
+  promotions  Promotion[]
+  activities  Activity[]
+  notes       Note[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 // Promotions and Discounts
 model Promotion {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  clientId      String    @db.ObjectId
-  client        Client    @relation(fields: [clientId], references: [id])
-  campaignId    String?   @db.ObjectId
-  campaign      Campaign? @relation(fields: [campaignId], references: [id])
-  name          String
-  description   String?
-  type          PromotionType
-  value         Float     // Discount value (percentage or fixed amount)
-  isPercentage  Boolean   @default(true)
-  code          String?   // Promotional code if applicable
-  minimumSpend  Float?    // Minimum spend requirement
-  usageLimit    Int?      // Maximum number of times this can be used
-  usedCount     Int       @default(0)
-  status        PromotionStatus @default(ACTIVE)
-  applicableProducts String[]   @db.ObjectId  // Array of product IDs this applies to
-  excludedProducts  String[]   @db.ObjectId  // Array of product IDs this excludes
-  startDate     DateTime
-  endDate       DateTime
-  notes         Note[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  clientId           String          @db.ObjectId
+  client             Client          @relation(fields: [clientId], references: [id])
+  campaignId         String?         @db.ObjectId
+  campaign           Campaign?       @relation(fields: [campaignId], references: [id])
+  name               String
+  description        String?
+  type               PromotionType
+  value              Float // Discount value (percentage or fixed amount)
+  isPercentage       Boolean         @default(true)
+  code               String? // Promotional code if applicable
+  minimumSpend       Float? // Minimum spend requirement
+  usageLimit         Int? // Maximum number of times this can be used
+  usedCount          Int             @default(0)
+  status             PromotionStatus @default(ACTIVE)
+  applicableProducts String[]        @db.ObjectId // Array of product IDs this applies to
+  excludedProducts   String[]        @db.ObjectId // Array of product IDs this excludes
+  startDate          DateTime
+  endDate            DateTime
+  notes              Note[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 // Sales Events
 model Sale {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  clientId      String    @db.ObjectId
-  client        Client    @relation(fields: [clientId], references: [id])
-  name          String
-  description   String?
-  type          SaleType
-  discountValue Float
-  isPercentage  Boolean   @default(true)
-  startDate     DateTime
-  endDate       DateTime
-  status        SaleStatus @default(SCHEDULED)
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+  clientId           String     @db.ObjectId
+  client             Client     @relation(fields: [clientId], references: [id])
+  name               String
+  description        String?
+  type               SaleType
+  discountValue      Float
+  isPercentage       Boolean    @default(true)
+  startDate          DateTime
+  endDate            DateTime
+  status             SaleStatus @default(SCHEDULED)
   applicableProducts String[]   @db.ObjectId
-  excludedProducts  String[]   @db.ObjectId
-  activities    Activity[]
-  notes         Note[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  excludedProducts   String[]   @db.ObjectId
+  activities         Activity[]
+  notes              Note[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 }
 
 // Activity Tracking
 model Activity {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String    @db.ObjectId
-  user          User      @relation(fields: [userId], references: [id])
-  type          ActivityType
-  description   String
-  customerId    String?   @db.ObjectId
-  customer      Customer? @relation(fields: [customerId], references: [id])
-  campaignId    String?   @db.ObjectId
-  campaign      Campaign? @relation(fields: [campaignId], references: [id])
-  saleId        String?   @db.ObjectId
-  sale          Sale?     @relation(fields: [saleId], references: [id])
-  metadata      Json?     // Additional activity-specific data
-  createdAt     DateTime  @default(now())
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @db.ObjectId
+  user        User         @relation(fields: [userId], references: [id])
+  type        ActivityType
+  description String
+  customerId  String?      @db.ObjectId
+  customer    Customer?    @relation(fields: [customerId], references: [id])
+  campaignId  String?      @db.ObjectId
+  campaign    Campaign?    @relation(fields: [campaignId], references: [id])
+  saleId      String?      @db.ObjectId
+  sale        Sale?        @relation(fields: [saleId], references: [id])
+  metadata    Json? // Additional activity-specific data
+  createdAt   DateTime     @default(now())
 }
 
 // Task Management
 model Task {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId     String    @db.ObjectId
-  creator       User      @relation("TaskCreator", fields: [creatorId], references: [id])
-  assigneeId    String    @db.ObjectId
-  assignee      User      @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  title         String
-  description   String?
-  dueDate       DateTime?
-  priority      TaskPriority @default(MEDIUM)
-  status        TaskStatus @default(OPEN)
-  notes         Note[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId   String       @db.ObjectId
+  creator     User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  assigneeId  String       @db.ObjectId
+  assignee    User         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime?
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(OPEN)
+  notes       Note[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 // Notes System
 model Note {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  content       String
-  customerId    String?   @db.ObjectId
-  customer      Customer? @relation(fields: [customerId], references: [id])
-  orderId       String?   @db.ObjectId
-  order         Order?    @relation(fields: [orderId], references: [id])
-  campaignId    String?   @db.ObjectId
-  campaign      Campaign? @relation(fields: [campaignId], references: [id])
-  promotionId   String?   @db.ObjectId
-  promotion     Promotion? @relation(fields: [promotionId], references: [id])
-  saleId        String?   @db.ObjectId
-  sale          Sale?     @relation(fields: [saleId], references: [id])
-  taskId        String?   @db.ObjectId
-  task          Task?     @relation(fields: [taskId], references: [id])
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+  customerId  String?    @db.ObjectId
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  orderId     String?    @db.ObjectId
+  order       Order?     @relation(fields: [orderId], references: [id])
+  campaignId  String?    @db.ObjectId
+  campaign    Campaign?  @relation(fields: [campaignId], references: [id])
+  promotionId String?    @db.ObjectId
+  promotion   Promotion? @relation(fields: [promotionId], references: [id])
+  saleId      String?    @db.ObjectId
+  sale        Sale?      @relation(fields: [saleId], references: [id])
+  taskId      String?    @db.ObjectId
+  task        Task?      @relation(fields: [taskId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 // Contact Information
 model Contact {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  clientId      String    @db.ObjectId
-  client        Client    @relation(fields: [clientId], references: [id])
-  type          ContactType
-  value         String
-  isPrimary     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  clientId  String      @db.ObjectId
+  client    Client      @relation(fields: [clientId], references: [id])
+  type      ContactType
+  value     String
+  isPrimary Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 // Enums
