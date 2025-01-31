@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { StaffRole } from '@/types/staff';
+import InputSelect from "@/components/Common/InputSelect";
 
 // Form schema for adding/editing staff
 const staffFormSchema = z.object({
@@ -157,59 +158,56 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-            <FormField
-                control={form.control}
-                name="departmentId"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Department</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select department" />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        {departments && departments.length > 0 ? (
-                            departments.map((dept) => (
-                            <SelectItem key={dept.id} value={dept.id}>
-                                {dept.name}
-                            </SelectItem>
-                            ))
-                        ) : (
-                            <SelectItem value="no-dept">No departments available</SelectItem>
-                        )}
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.values(StaffRole).map((role) => (
-                          <SelectItem key={role} value={role}>
-                            {role}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+  <FormField
+    control={form.control}
+    name="departmentId"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Department</FormLabel>
+        <FormControl>
+          <InputSelect
+            name={field.name}
+            label=""
+            value={field.value}
+            onChange={field.onChange}
+            options={
+              departments && departments.length > 0
+                ? departments.map((dept) => ({
+                    value: dept.id,
+                    label: dept.name,
+                  }))
+                : [{ value: "no-dept", label: "No departments available" }]
+            }
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="role"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Role</FormLabel>
+        <FormControl>
+          <InputSelect
+            name={field.name}
+            label=""
+            value={field.value}
+            onChange={field.onChange}
+            options={Object.values(StaffRole).map((role) => ({
+              value: role,
+              label: role,
+            }))}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
 
             <FormField
               control={form.control}
