@@ -227,18 +227,18 @@ export function FamilyDetailsModal({
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={selectedFamily.mainCustomerId.avatar} />
+                      <AvatarImage src={selectedFamily.mainCustomerId?.avatar} />
                       <AvatarFallback>
-                        {selectedFamily.mainCustomerId.firstName[0]}
-                        {selectedFamily.mainCustomerId.lastName[0]}
+                        {selectedFamily.mainCustomerId?.firstName[0]}
+                        {selectedFamily.mainCustomerId?.lastName[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <h3 className="font-semibold text-lg">
-                        {selectedFamily.mainCustomerId.firstName} {selectedFamily.mainCustomerId.lastName}
+                        {selectedFamily.mainCustomerId?.firstName} {selectedFamily.mainCustomerId?.lastName}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {selectedFamily.mainCustomerId.email}
+                        {selectedFamily.mainCustomerId?.email}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="secondary">Main Account</Badge>

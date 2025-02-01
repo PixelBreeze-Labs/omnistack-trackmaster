@@ -341,15 +341,15 @@ export function FamilyAccounts() {
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={family.mainCustomerId?.avatar} />
                             <AvatarFallback>
-                              {family.mainCustomerId.firstName[0]}{family.mainCustomerId.lastName[0]}
+                              {family.mainCustomerId?.firstName[0]}{family.mainCustomerId?.lastName[0]}
                             </AvatarFallback>
                           </Avatar>
                           <div className="space-y-0.5">
                             <div className="font-medium">
-                              {family.mainCustomerId.firstName} {family.mainCustomerId.lastName}
+                              {family.mainCustomerId?.firstName} {family.mainCustomerId?.lastName}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {family.mainCustomerId.email}
+                              {family.mainCustomerId?.email}
                             </div>
                           </div>
                         </div>
@@ -563,6 +563,7 @@ export function FamilyAccounts() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <div className="h-8"></div>
     </div>
   );
 }
