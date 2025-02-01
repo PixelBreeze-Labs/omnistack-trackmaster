@@ -31,19 +31,11 @@ import {
   RefreshCcw,
   Link as LinkIcon,
   UserCircle,
-  ChevronRight,
   Heart,
   Clock,
-  MoreVertical,
-  Settings,
   UserMinus
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -298,7 +290,7 @@ export function FamilyAccounts() {
                 <TableHead>Total Spent</TableHead>
                 <TableHead>Shared Benefits</TableHead>
                 <TableHead>Last Activity</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -376,40 +368,29 @@ export function FamilyAccounts() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleActionSelect(family, 'view')}>
-                              <Users className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleActionSelect(family, 'edit')}>
-                              <Settings className="h-4 w-4 mr-2" />
-                              Edit Family
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleActionSelect(family, 'add')}>
-                              <UserPlus className="h-4 w-4 mr-2" />
-                              Add Member
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleActionSelect(family, 'manage')}>
-                              <Heart className="h-4 w-4 mr-2" />
-                              Manage Benefits
-                            </DropdownMenuItem>
-                            {family.status === 'ACTIVE' && (
-                              <DropdownMenuItem 
-                                className="text-red-600"
-                                onClick={() => handleActionSelect(family, 'deactivate')}
-                              >
-                                <UserMinus className="h-4 w-4 mr-2" />
-                                Deactivate Family
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="min-w-[140px]">
+                          <InputSelect
+                            name="actions"
+                            label=""
+                            value=""
+                            onChange={(e) => {
+                              const action = e.target.value;
+                              if (action) {
+                                handleActionSelect(family, action);
+                              }
+                            }}
+                            options={[
+                              { value: "", label: "Select Action" },
+                              { value: "view", label: "View Details" },
+                              { value: "edit", label: "Edit Family" },
+                              { value: "add", label: "Add Member" },
+                              { value: "manage", label: "Manage Benefits" },
+                              ...(family.status === 'ACTIVE' ? [
+                                { value: "deactivate", label: "Deactivate Family" }
+                              ] : [])
+                            ]}
+                          />
+                        </div>
                       </TableCell>
                     </TableRow>
                     {expandedFamily === family._id && (
