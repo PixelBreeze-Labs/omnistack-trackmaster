@@ -24,22 +24,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -69,6 +53,7 @@ import InputSelect from "@/components/Common/InputSelect";
 import React from "react";
 import { DeleteCustomerDialog } from "./DeleteCustomerDialog";
 import { CustomerForm } from "./CustomerForm";
+import { Customer } from "@/app/api/external/omnigateway/types/customers";
 
 export function AllCustomers() {
   const {
@@ -90,9 +75,9 @@ export function AllCustomers() {
   const [type, setType] = useState("all");
   
   const [customerFormOpen, setCustomerFormOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
   useEffect(() => {
     fetchCustomers({
@@ -173,11 +158,11 @@ export function AllCustomers() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <div className="text-2xl font-bold">{metrics?.totalCustomers}</div>
+              <div className="text-2xl font-bold">{metrics?.totalCustomers ?? 0}</div>
               <div className="flex items-center gap-1">
                 {getTrendIcon(metrics?.trends.customers.percentage)}
                 <span className={`text-sm ${getTrendClass(metrics?.trends.customers.percentage)}`}>
-                  {metrics?.trends.customers.percentage}%
+                  {metrics?.trends.customers.percentage ?? 0}%
                 </span>
               </div>
             </div>
@@ -192,11 +177,11 @@ export function AllCustomers() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <div className="text-2xl font-bold">{metrics?.activeCustomers}</div>
+              <div className="text-2xl font-bold">{metrics?.activeCustomers ?? 0}</div>
               <div className="flex items-center gap-1">
                 {getTrendIcon(metrics?.trends.active.percentage)}
                 <span className={`text-sm ${getTrendClass(metrics?.trends.active.percentage)}`}>
-                  {metrics?.trends.active.percentage}%
+                  {metrics?.trends.active.percentage ??0}%
                 </span>
               </div>
             </div>
@@ -211,11 +196,11 @@ export function AllCustomers() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <div className="text-2xl font-bold">{metrics?.averageOrderValue.toLocaleString()} ALL</div>
+              <div className="text-2xl font-bold">{metrics?.averageOrderValue.toLocaleString() ?? 0} ALL</div>
               <div className="flex items-center gap-1">
                 {getTrendIcon(metrics?.trends.orderValue.percentage)}
                 <span className={`text-sm ${getTrendClass(metrics?.trends.orderValue.percentage)}`}>
-                  {metrics?.trends.orderValue.percentage}%
+                  {metrics?.trends.orderValue.percentage ?? 0}%
                 </span>
               </div>
             </div>
@@ -230,11 +215,11 @@ export function AllCustomers() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <div className="text-2xl font-bold">+{metrics?.customerGrowth}</div>
+              <div className="text-2xl font-bold">+{metrics?.customerGrowth ?? 0}</div>
               <div className="flex items-center gap-1">
                 {getTrendIcon(metrics?.trends.growth.percentage)}
                 <span className={`text-sm ${getTrendClass(metrics?.trends.growth.percentage)}`}>
-                  {metrics?.trends.growth.percentage}%
+                  {metrics?.trends.growth.percentage ?? 0}%
                 </span>
               </div>
             </div>
@@ -469,8 +454,6 @@ export function AllCustomers() {
                   )}
                 </TableBody>
               </Table>
-</CardContent>
-      </Card>
               <div className="border-t px-4 py-3">
                 <div className="flex items-center justify-between gap-4">
                   <InputSelect
@@ -520,6 +503,9 @@ export function AllCustomers() {
                   </p>
                 </div>
               </div>
+</CardContent>
+      </Card>
+             
 
               <CustomerForm
                 open={customerFormOpen}
@@ -528,7 +514,15 @@ export function AllCustomers() {
                   setSelectedCustomer(null);
                 }}
                 onSubmit={selectedCustomer ? handleUpdateCustomer : handleCreateCustomer}
-                initialData={selectedCustomer}
+                initialData={selectedCustomer ? {
+                  firstName: selectedCustomer.firstName,
+                  lastName: selectedCustomer.lastName,
+                  email: selectedCustomer.email,
+                  phone: selectedCustomer.phone,
+                  type: selectedCustomer.type,
+                  status: selectedCustomer.status,
+                } : undefined}
+                title={selectedCustomer ? 'Edit Customer' : 'Add New Customer'}
               />
 
               <DeleteCustomerDialog
