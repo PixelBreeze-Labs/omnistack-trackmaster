@@ -76,6 +76,7 @@ export function FamilyAccounts() {
   const [showConfirmDeactivate, setShowConfirmDeactivate] = useState(false);
   const [selectedActionFamily, setSelectedActionFamily] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedFamilyForMembers, setSelectedFamilyForMembers] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFamilyAccounts({
@@ -514,15 +515,20 @@ export function FamilyAccounts() {
       </Card>
 
       {showLinkModal && (
-        <LinkFamilyModal
-          isOpen={showLinkModal}
-          onClose={() => setShowLinkModal(false)}
-          onSuccess={() => {
-            handleRefresh();
+    <LinkFamilyModal
+        isOpen={showLinkModal}
+        onClose={() => {
             setShowLinkModal(false);
-          }}
-        />
-      )}
+            setSelectedFamilyForMembers(null);
+        }}
+        onSuccess={() => {
+            fetchFamilyAccounts();
+            setShowLinkModal(false);
+            setSelectedFamilyForMembers(null);
+        }}
+        existingFamilyId={selectedFamilyForMembers}
+    />
+)}
 
       {showDetailsModal && selectedFamilyId && (
         <FamilyDetailsModal

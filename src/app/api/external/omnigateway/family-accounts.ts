@@ -43,7 +43,10 @@ export const createFamilyAccountsApi = (apiKey: string) => {
         searchCustomers: async (query: string): Promise<Customer[]> => {
             try {
                 const { data } = await api.get('/customers/search', { 
-                    params: { query } 
+                    params: { 
+                        query,
+                        excludeFamilyMembers: true
+                     } 
                 });
                 return data;
             } catch (error) {

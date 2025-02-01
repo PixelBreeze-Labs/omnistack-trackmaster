@@ -79,12 +79,29 @@ export const useFamilyAccounts = () => {
         if (!api) return;
         try {
             await api.unlinkMember(familyId, memberId);
+            
+            // Update local state to reflect changes immediately
+            setFamilyAccounts(prev => prev.map(family => {
+                if (family._id === familyId) {
+                    return {
+                        ...family,
+                        members: family.members.filter(m => m.customerId._id !== memberId),
+                        status: family.members.length === 1 ? 'INACTIVE' : family.status
+                    };
+                }
+                return family;
+            }));
+    
+            // Refresh data
             await fetchFamilyAccounts();
+            
             if (selectedFamily?.id === familyId) {
                 await getFamilyDetails(familyId);
             }
-        } catch (error) {
             
+            toast.success('Member unlinked successfully');
+        } catch (error) {
+            toast.error('Failed to unlink member');
             throw error;
         }
     }, [api, fetchFamilyAccounts, selectedFamily]);

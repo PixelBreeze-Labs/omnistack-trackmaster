@@ -128,14 +128,16 @@
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    existingFamilyId?: string; 
   }
 
-  export function LinkFamilyModal({ isOpen, onClose, onSuccess }: LinkFamilyModalProps) {
+  export function LinkFamilyModal({ isOpen, onClose, onSuccess, existingFamilyId }: LinkFamilyModalProps) {
     const {
       handleSearch,
       linkFamily,
       searchResults,
-      isSearching
+      isSearching,
+      updateFamily
     } = useFamilyAccounts();
 
     const [step, setStep] = useState<'main' | 'members'>('main');
@@ -185,13 +187,28 @@
     const handleSubmit = async () => {
       try {
         setIsSubmitting(true);
-        await linkFamily({
-          mainCustomerId: mainCustomer!._id,
-          members: selectedMembers.map(m => ({
-            customerId: m.id,
-            relationship: m.relationship
-          }))
-        });
+        if (existingFamilyId) {
+          // Add members to existing family
+          await updateFamily(existingFamilyId, {
+              members: [...(selectedFamily?.members || []), 
+                  ...selectedMembers.map(m => ({
+                      customerId: m.id,
+                      relationship: m.relationship
+                  }))
+              ]
+          });
+          toast.success('Members added successfully');
+      } else {
+          // Create new family
+          await linkFamily({
+              mainCustomerId: mainCustomer!._id,
+              members: selectedMembers.map(m => ({
+                  customerId: m.id,
+                  relationship: m.relationship
+              }))
+          });
+          toast.success('Family account created successfully');
+      }
         onSuccess();
         handleClose();
       } catch (error) {
@@ -213,10 +230,12 @@
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Link Family Account</DialogTitle>
+            <DialogTitle>
+            {existingFamilyId ? 'Add Family Members' : 'Link Family Account'}
+            </DialogTitle>
           </DialogHeader>
 
-          {step === 'main' ? (
+          {!existingFamilyId && step === 'main' ? ( 
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Search Main Customer</Label>
@@ -346,7 +365,7 @@
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            {step === 'main' ? (
+            {!existingFamilyId && step === 'main' ? (
               <Button
                 onClick={() => setStep('members')}
                 disabled={!mainCustomer}
@@ -355,15 +374,17 @@
               </Button>
             ) : (
               <>
-                <Button variant="outline" onClick={() => setStep('main')}>
-                  Back
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={selectedMembers.length === 0 || isSubmitting}
-                >
-                  {isSubmitting ? 'Linking...' : 'Link Family'}
-                </Button>
+                {!existingFamilyId && (
+                                <Button variant="outline" onClick={() => setStep('main')}>
+                                    Back
+                                </Button>
+                            )}
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={selectedMembers.length === 0 || isSubmitting}
+                            >
+                                {isSubmitting ? 'Processing...' : existingFamilyId ? 'Add Members' : 'Link Family'}
+                            </Button>
               </>
             )}
           </DialogFooter>
