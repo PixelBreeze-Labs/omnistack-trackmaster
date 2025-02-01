@@ -2,6 +2,7 @@
 export interface FamilyMetrics {
     totalFamilies: number;
     activeAccounts: number;
+    inactiveAccounts: number;
     linkedMembers: number;
     averageSize: number;
     familySpendingMultiplier: number;
