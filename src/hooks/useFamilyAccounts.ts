@@ -92,14 +92,12 @@ export const useFamilyAccounts = () => {
         if (!api) return;
         try {
             const response = await api.updateFamily(id, payload);
-            toast.success('Family updated successfully');
             await fetchFamilyAccounts();
             if (selectedFamily?.id === id) {
                 await getFamilyDetails(id);
             }
             return response;
         } catch (error) {
-            toast.error('Failed to update family');
             throw error;
         }
     }, [api, fetchFamilyAccounts, selectedFamily]);

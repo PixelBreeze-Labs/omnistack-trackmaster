@@ -61,7 +61,8 @@ export function FamilyAccounts() {
     totalItems,
     totalPages,
     fetchFamilyAccounts,
-    unlinkMember
+    unlinkMember,
+    updateFamily
   } = useFamilyAccounts();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,7 +138,7 @@ export function FamilyAccounts() {
       toast.success('Family account deactivated');
       handleRefresh();
     } catch (error) {
-      toast.error('Failed to deactivate family');
+      toast.error(error.message ?? 'Failed to deactivate family');
     } finally {
       setShowConfirmDeactivate(false);
       setSelectedActionFamily(null);
