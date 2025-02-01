@@ -108,7 +108,7 @@ export async function POST(req: Request) {
             name: body.firstName,
             surname: body.lastName,
             email: body.email,
-            password: body,
+            password: password,
             external_ids: [staff.id] // Add our staff ID as external ID
           });
   
