@@ -353,7 +353,7 @@ export function AllCustomers() {
                                   <Badge variant="default" className="bg-primary">VIP</Badge>
                                 )}
                                 <span className="text-xs text-muted-foreground">
-                                  Customer since {new Date(customer.registrationDate).toLocaleDateString()}
+                                  Customer since {customer.registrationDate ? new Date(customer.registrationDate).toLocaleDateString() : 'N/A'}
                                 </span>
                               </div>
                             </div>
@@ -380,17 +380,17 @@ export function AllCustomers() {
                         </TableCell>
                         <TableCell>
                           <div className="space-y-0.5">
-                            <div>{customer.orders} orders</div>
+                            <div>{customer.orders ?? 0} orders</div>
                             <span className="text-xs text-muted-foreground">
-                              Last: {new Date(customer.lastOrder).toLocaleDateString()}
+                              Last: {customer.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : 'N/A'}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-0.5">
-                            <div>{new Date(customer.registrationDate).toLocaleDateString()}</div>
+                            <div>{customer.registrationDate ? new Date(customer.registrationDate).toLocaleDateString() : 'N/A'}</div>
                             <span className="text-xs text-muted-foreground">
-                              First order: {new Date(customer.firstOrder).toLocaleDateString()}
+                              First order: {customer.firstOrder ? new Date(customer.firstOrder).toLocaleDateString() : 'N/A'}
                             </span>
                           </div>
                         </TableCell>
@@ -406,7 +406,7 @@ export function AllCustomers() {
                             {customer.loyaltyTier}
                           </Badge>
                         </TableCell>
-                        <TableCell>{customer.totalSpent.toLocaleString()} ALL</TableCell>
+                        <TableCell>{customer.totalSpent?.toLocaleString() ?? 0} ALL</TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
