@@ -61,7 +61,8 @@ export function FamilyAccounts() {
     totalItems,
     totalPages,
     fetchFamilyAccounts,
-    unlinkMember
+    unlinkMember,
+    updateFamily
   } = useFamilyAccounts();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,6 +76,7 @@ export function FamilyAccounts() {
   const [showConfirmDeactivate, setShowConfirmDeactivate] = useState(false);
   const [selectedActionFamily, setSelectedActionFamily] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedFamilyForMembers, setSelectedFamilyForMembers] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFamilyAccounts({
@@ -137,7 +139,7 @@ export function FamilyAccounts() {
       toast.success('Family account deactivated');
       handleRefresh();
     } catch (error) {
-      toast.error('Failed to deactivate family');
+      toast.error(error.message ?? 'Failed to deactivate family');
     } finally {
       setShowConfirmDeactivate(false);
       setSelectedActionFamily(null);
@@ -355,12 +357,23 @@ export function FamilyAccounts() {
                       <TableCell>{getStatusBadge(family.status)}</TableCell>
                       <TableCell>{formatCurrency(family.totalSpent)}</TableCell>
                       <TableCell>
-                        {family.sharedBenefits.map(benefit => (
-                          <Badge key={benefit.id} variant="outline" className="mr-1">
-                            {benefit.name}
-                          </Badge>
-                        ))}
-                      </TableCell>
+                      {family.sharedBenefits.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {family.sharedBenefits.map(benefit => (
+                            <Badge 
+                              key={benefit.id} 
+                              variant="outline"
+                            >
+                              {benefit.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          No benefits
+                        </span>
+                      )}
+                    </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="h-4 w-4 text-muted-foreground" />
@@ -406,14 +419,14 @@ export function FamilyAccounts() {
                                 >
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-8 w-8">
-                                      <AvatarImage src={member.customerId.avatar} />
+                                      <AvatarImage src={member.customerId?.avatar} />
                                       <AvatarFallback>
-                                        {member.customerId.firstName[0]}{member.customerId.lastName[0]}
+                                        {member.customerId?.firstName[0]}{member.customerId?.lastName[0]}
                                       </AvatarFallback>
                                     </Avatar>
                                     <div>
                                       <div className="font-medium">
-                                        {member.customerId.firstName} {member.customerId.lastName}
+                                        {member.customerId?.firstName} {member.customerId?.lastName}
                                       </div>
                                       <div className="text-sm text-muted-foreground">
                                         {member.relationship}
@@ -502,15 +515,20 @@ export function FamilyAccounts() {
       </Card>
 
       {showLinkModal && (
-        <LinkFamilyModal
-          isOpen={showLinkModal}
-          onClose={() => setShowLinkModal(false)}
-          onSuccess={() => {
-            handleRefresh();
+    <LinkFamilyModal
+        isOpen={showLinkModal}
+        onClose={() => {
             setShowLinkModal(false);
-          }}
-        />
-      )}
+            setSelectedFamilyForMembers(null);
+        }}
+        onSuccess={() => {
+            fetchFamilyAccounts();
+            setShowLinkModal(false);
+            setSelectedFamilyForMembers(null);
+        }}
+        existingFamilyId={selectedFamilyForMembers}
+    />
+)}
 
       {showDetailsModal && selectedFamilyId && (
         <FamilyDetailsModal

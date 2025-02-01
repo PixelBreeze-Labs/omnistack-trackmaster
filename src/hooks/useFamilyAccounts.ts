@@ -15,6 +15,7 @@ export const useFamilyAccounts = () => {
     const [metrics, setMetrics] = useState<FamilyMetrics>({
         totalFamilies: 0,
         activeAccounts: 0,
+        inactiveAccounts: 0,
         linkedMembers: 0,
         averageSize: 0,
         familySpendingMultiplier: 0
@@ -78,12 +79,29 @@ export const useFamilyAccounts = () => {
         if (!api) return;
         try {
             await api.unlinkMember(familyId, memberId);
+            
+            // Update local state to reflect changes immediately
+            setFamilyAccounts(prev => prev.map(family => {
+                if (family._id === familyId) {
+                    return {
+                        ...family,
+                        members: family.members.filter(m => m.customerId._id !== memberId),
+                        status: family.members.length === 1 ? 'INACTIVE' : family.status
+                    };
+                }
+                return family;
+            }));
+    
+            // Refresh data
             await fetchFamilyAccounts();
+            
             if (selectedFamily?.id === familyId) {
                 await getFamilyDetails(familyId);
             }
-        } catch (error) {
             
+            toast.success('Member unlinked successfully');
+        } catch (error) {
+            toast.error('Failed to unlink member');
             throw error;
         }
     }, [api, fetchFamilyAccounts, selectedFamily]);
@@ -92,14 +110,12 @@ export const useFamilyAccounts = () => {
         if (!api) return;
         try {
             const response = await api.updateFamily(id, payload);
-            toast.success('Family updated successfully');
             await fetchFamilyAccounts();
             if (selectedFamily?.id === id) {
                 await getFamilyDetails(id);
             }
             return response;
         } catch (error) {
-            toast.error('Failed to update family');
             throw error;
         }
     }, [api, fetchFamilyAccounts, selectedFamily]);
