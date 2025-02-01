@@ -100,7 +100,7 @@ export function AllCustomers() {
 
   const handleDeleteCustomer = async () => {
     if (customerToDelete) {
-      await deleteCustomer(customerToDelete.id);
+      await deleteCustomer(customerToDelete._id);
       setDeleteDialogOpen(false);
       setCustomerToDelete(null);
       handleRefresh();
