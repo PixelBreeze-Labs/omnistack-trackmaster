@@ -73,6 +73,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Client not found' }, { status: 404 });
       }
       
+      const formatDate = (date: Date | null | undefined) => {
+        if (!date) return '-';
+        return new Date(date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        });
+      };
 
         // Extract password for user creation but don't send it to staff model
         const { password, ...staffData } = body;
@@ -134,7 +142,7 @@ export async function POST(req: Request) {
           await prisma.staff.update({
             where: { id: staff.id },
             data: {
-              notes: `Sales associate app access granted. User accounts created on ${new Date().toISOString()}`,
+              notes: `Sales associate app access granted. User accounts created on ${formatDate(new Date())}`,
               documents: {
                 externalIds: {
                   omnistack: omniStackUser.id,
