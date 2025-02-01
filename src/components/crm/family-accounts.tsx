@@ -356,12 +356,23 @@ export function FamilyAccounts() {
                       <TableCell>{getStatusBadge(family.status)}</TableCell>
                       <TableCell>{formatCurrency(family.totalSpent)}</TableCell>
                       <TableCell>
-                        {family.sharedBenefits.map(benefit => (
-                          <Badge key={benefit.id} variant="outline" className="mr-1">
-                            {benefit.name}
-                          </Badge>
-                        ))}
-                      </TableCell>
+                      {family.sharedBenefits.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {family.sharedBenefits.map(benefit => (
+                            <Badge 
+                              key={benefit.id} 
+                              variant="outline"
+                            >
+                              {benefit.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          No benefits
+                        </span>
+                      )}
+                    </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="h-4 w-4 text-muted-foreground" />

@@ -15,6 +15,7 @@ export const useFamilyAccounts = () => {
     const [metrics, setMetrics] = useState<FamilyMetrics>({
         totalFamilies: 0,
         activeAccounts: 0,
+        inactiveAccounts: 0,
         linkedMembers: 0,
         averageSize: 0,
         familySpendingMultiplier: 0
