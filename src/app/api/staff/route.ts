@@ -1,6 +1,9 @@
 // src/app/api/staff/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createSupabaseUser } from '@/lib/supabase-admin';
+import { createOmniStackUserApi } from '../external/omnigateway/user';
+import bcrypt from 'bcrypt'
 
 export async function GET(req: Request) {
   try {
@@ -61,86 +64,95 @@ export async function POST(req: Request) {
     try {
       const body = await req.json();
       
-      // Create staff member first
-      const staff = await prisma.staff.create({
-        data: {
-          ...body,
-          employeeId: `EMP-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-          subRole: body.canAccessApp ? 'Sales Associate' : body.subRole // Set subRole automatically
-        },
-        include: {
-          department: true
+       // First verify the client exists
+       const client = await prisma.client.findUnique({
+        where: { id: body.clientId }
+      });
+
+      if (!client) {
+        return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+      }
+      
+
+        // Extract password for user creation but don't send it to staff model
+        const { password, ...staffData } = body;
+      // Start a transaction
+      const result = await prisma.$transaction(async (prisma) => {
+        // Create staff member first
+        const staff = await prisma.staff.create({
+            data: {
+              ...staffData,
+              employeeId: `EMP-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+              subRole: body.canAccessApp ? 'Sales Associate' : body.subRole,
+              dateOfJoin: new Date(body.dateOfJoin).toISOString()
+            },
+            include: {
+              department: true,
+              client: true
+            }
+          });
+  
+        // If staff member needs app access, create associated accounts
+        if (body.canAccessApp && password) {
+          // Create Supabase user
+          const supabaseUser = await createSupabaseUser(body.email, password);
+  
+          // Get client's OmniStack API key
+          if (!staff.client.omniGatewayApiKey) {
+            throw new Error('Client OmniStack API key not configured');
+          }
+  
+          // Create OmniStack user
+          const omniStackApi = createOmniStackUserApi(staff.client.omniGatewayApiKey);
+          const omniStackUser = await omniStackApi.createUser({
+            name: body.firstName,
+            surname: body.lastName,
+            email: body.email,
+            password: body,
+            external_ids: [staff.id] // Add our staff ID as external ID
+          });
+  
+          const hashedPassword = await bcrypt.hash(password, 12);
+          
+          // Create User record in our database
+          await prisma.user.create({
+            data: {
+              email: body.email,
+              name: `${body.firstName} ${body.lastName}`,
+              supabaseId: supabaseUser.id,
+              role: 'SALES',
+              clientId: body.clientId,
+              password: hashedPassword,
+              externalIds: {
+                supabase: supabaseUser.id,
+                omnistack: omniStackUser.id
+              }
+            }
+          });
+  
+          // Update staff record with note and external IDs
+          await prisma.staff.update({
+            where: { id: staff.id },
+            data: {
+              notes: `Sales associate app access granted. User accounts created on ${new Date().toISOString()}`,
+              documents: {
+                externalIds: {
+                  omnistack: omniStackUser.id,
+                  supabase: supabaseUser.id
+                }
+              }
+            }
+          });
         }
+  
+        return staff;
       });
   
-      // If staff member needs app access, create associated accounts
-      if (body.canAccessApp && body.password) {
-        // Create Supabase user
-        const supabaseUser = await createSupabaseUser(body.email, body.password);
-  
-        // Create OmniStack user
-        const omniStackUser = await createOmniStackUser({
-          email: body.email,
-          name: `${body.firstName} ${body.lastName}`,
-          employeeId: staff.employeeId
-        });
-  
-        const hashedPassword = await bcrypt.hash(body.password, 12)
-        
-        // Create User record in our database
-        await prisma.user.create({
-          data: {
-            email: body.email,
-            name: `${body.firstName} ${body.lastName}`,
-            supabaseId: supabaseUser.id,
-            role: 'SALES',
-            clientId: body.clientId,
-            password: hashedPassword,
-          }
-        });
-  
-        // Update staff record with note about app access
-        await prisma.staff.update({
-          where: { id: staff.id },
-          data: {
-            notes: `Sales associate app access granted. User accounts created on ${new Date().toISOString()}`
-          }
-        });
-      }
-  
-      return NextResponse.json(staff);
+      return NextResponse.json(result);
     } catch (error) {
-      console.error('Staff creation error:', error);
       return NextResponse.json(
-        { error: 'Failed to create staff member and associated accounts' }, 
+        { error: error instanceof Error ? error.message : 'Failed to create staff member' }, 
         { status: 500 }
       );
-    }
-  }
-
-// Add these helper functions
-async function createSupabaseUser(email: string, password: string) {
-    try {
-      // Placeholder for Supabase user creation
-      console.log('Creating Supabase user:', { email });
-      return {
-        id: `sb_${Math.random().toString(36).substr(2, 9)}`, // Simulate Supabase ID
-        email
-      };
-    } catch (error) {
-      throw new Error('Failed to create Supabase user');
-    }
-  }
-
-  async function createOmniStackUser(userData: any) {
-    try {
-      // Placeholder for OmniStack Gateway API call
-      console.log('Creating OmniStack user:', userData);
-      return {
-        id: `omni_${Math.random().toString(36).substr(2, 9)}`, // Simulate OmniStack ID
-        status: 'success'
-      };
-    } catch (error) {
-      throw new Error('Failed to create OmniStack user');
     }
   }
