@@ -1,4 +1,5 @@
 // components/staff/add-staff-modal.tsx
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,22 +11,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { StaffRole } from '@/types/staff';
+import { StaffRole, StaffStatus } from '@/types/staff';
 import InputSelect from "@/components/Common/InputSelect";
 
-// Form schema for adding/editing staff
 const staffFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -37,8 +30,19 @@ const staffFormSchema = z.object({
   dateOfJoin: z.string(),
   status: z.string(),
   canAccessApp: z.boolean().default(false),
-  password: z.string().min(6, "Password must be at least 6 characters").optional(),
-  clientId: z.string() 
+  password: z.union([
+    z.string().min(6, "Password must be at least 6 characters"),
+    z.string().length(0)
+  ]).optional()
+}).refine((data) => {
+  // If canAccessApp is true, password must be provided and at least 6 characters
+  if (data.canAccessApp) {
+    return data.password && data.password.length >= 6;
+  }
+  return true;
+}, {
+  message: "Password is required and must be at least 6 characters when app access is enabled",
+  path: ["password"]
 });
 
 interface AddStaffModalProps {
@@ -49,8 +53,10 @@ interface AddStaffModalProps {
   clientId: string;
 }
 
-export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddStaffModalProps) {
-  const form = useForm({
+export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientId }: AddStaffModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<z.infer<typeof staffFormSchema>>({
     resolver: zodResolver(staffFormSchema),
     defaultValues: {
       firstName: '',
@@ -63,31 +69,39 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
       dateOfJoin: new Date().toISOString().split('T')[0],
       status: 'ACTIVE',
       canAccessApp: false,
-      password: '',
-      clientId: ''
+      password: ''
     }
   });
 
   const onSubmit = async (values: z.infer<typeof staffFormSchema>) => {
     try {
+      setIsSubmitting(true);
+      const formattedDate = new Date(values.dateOfJoin).toISOString();
       const response = await fetch('/api/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            ...values,
-            clientId,
-          }),
-    
+          ...values,
+          dateOfJoin: formattedDate, // Use the formatted date
+          clientId,
+        }),
       });
       
-      if (!response.ok) throw new Error('Failed to create staff member');
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create staff member');
+      }
       
       toast.success('Staff member created successfully');
       onClose();
       form.reset();
       onSuccess();
     } catch (error) {
-      toast.error('Failed to create staff member');
+      console.error('Staff creation error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create staff member');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -107,7 +121,7 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Enter first name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,7 +134,7 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Enter last name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -136,7 +150,7 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" {...field} />
+                      <Input type="email" {...field} placeholder="Enter email address" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -149,7 +163,7 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
                   <FormItem>
                     <FormLabel>Phone (Optional)</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder="Enter phone number" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -158,56 +172,101 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-  <FormField
-    control={form.control}
-    name="departmentId"
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>Department</FormLabel>
-        <FormControl>
-          <InputSelect
-            name={field.name}
-            label=""
-            value={field.value}
-            onChange={field.onChange}
-            options={
-              departments && departments.length > 0
-                ? departments.map((dept) => ({
-                    value: dept.id,
-                    label: dept.name,
-                  }))
-                : [{ value: "no-dept", label: "No departments available" }]
-            }
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    )}
-  />
+              <FormField
+                control={form.control}
+                name="departmentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department</FormLabel>
+                    <FormControl>
+                      <InputSelect
+                        name={field.name}
+                        label=""
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={
+                          departments && departments.length > 0
+                            ? departments.map((dept) => ({
+                                value: dept.id,
+                                label: dept.name,
+                              }))
+                            : [{ value: "", label: "Select department" }]
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-  <FormField
-    control={form.control}
-    name="role"
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>Role</FormLabel>
-        <FormControl>
-          <InputSelect
-            name={field.name}
-            label=""
-            value={field.value}
-            onChange={field.onChange}
-            options={Object.values(StaffRole).map((role) => ({
-              value: role,
-              label: role,
-            }))}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    )}
-  />
-</div>
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <InputSelect
+                        name={field.name}
+                        label=""
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={[
+                          { value: "", label: "Select role" },
+                          ...Object.values(StaffRole).map((role) => ({
+                            value: role,
+                            label: role,
+                          }))
+                        ]}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <InputSelect
+                        name={field.name}
+                        label=""
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={[
+                          { value: "", label: "Select status" },
+                          ...Object.values(StaffStatus).map((status) => ({
+                            value: status,
+                            label: status,
+                          }))
+                        ]}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dateOfJoin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date of Join</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -237,7 +296,11 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input 
+                        type="password" 
+                        {...field} 
+                        placeholder="Enter password (min. 6 characters)"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -246,10 +309,21 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments }: AddSt
             )}
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
-              <Button type="submit">Create Staff Member</Button>
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-primary"
+              >
+                {isSubmitting ? 'Creating...' : 'Create Staff Member'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
