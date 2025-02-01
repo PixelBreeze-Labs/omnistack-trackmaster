@@ -192,7 +192,6 @@
             relationship: m.relationship
           }))
         });
-        toast.success('Family linked successfully');
         onSuccess();
         handleClose();
       } catch (error) {

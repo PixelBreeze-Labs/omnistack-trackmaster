@@ -9,22 +9,22 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface DeleteCustomerDialogProps {
+interface DeactivateCustomerDialogProps {
     open: boolean;
     onClose: () => void;
     onConfirm: () => Promise<void>;
     customerName: string;
 }
 
-export const DeleteCustomerDialog = ({ open, onClose, onConfirm, customerName }: DeleteCustomerDialogProps) => {
+export const DeactivateCustomerDialog = ({ open, onClose, onConfirm, customerName }: DeactivateCustomerDialogProps) => {
     return (
         <AlertDialog open={open} onOpenChange={onClose}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This will permanently delete the customer "{customerName}".
-                        This action cannot be undone.
+                        This will deactivate the customer "{customerName}".
+                        This action can be undone. This is not a permanent delete.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -33,7 +33,7 @@ export const DeleteCustomerDialog = ({ open, onClose, onConfirm, customerName }:
                         onClick={onConfirm}
                         className="bg-red-600 hover:bg-red-700"
                     >
-                        Delete Customer
+                        Deactivate Customer
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

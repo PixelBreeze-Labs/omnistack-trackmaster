@@ -1,5 +1,5 @@
 // components/CustomerForm.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,14 +41,39 @@ export function CustomerForm({ open, onClose, onSubmit, initialData, title }: Cu
   const form = useForm<z.infer<typeof customerFormSchema>>({
     resolver: zodResolver(customerFormSchema),
     defaultValues: {
-      firstName: initialData?.firstName || '',
-      lastName: initialData?.lastName || '',
-      email: initialData?.email || '',
-      phone: initialData?.phone || '',
-      type: initialData?.type || 'REGULAR',
-      status: initialData?.status || 'ACTIVE',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      type: 'REGULAR',
+      status: 'ACTIVE',
     }
   });
+
+  // Reset form when initialData changes or modal opens/closes
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        form.reset({
+          firstName: initialData.firstName || '',
+          lastName: initialData.lastName || '',
+          email: initialData.email || '',
+          phone: initialData.phone || '',
+          type: initialData.type || 'REGULAR',
+          status: initialData.status || 'ACTIVE',
+        });
+      } else {
+        form.reset({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          type: 'REGULAR',
+          status: 'ACTIVE',
+        });
+      }
+    }
+  }, [open, initialData, form]);
 
   const handleSubmit = async (values: z.infer<typeof customerFormSchema>) => {
     try {
@@ -56,7 +81,6 @@ export function CustomerForm({ open, onClose, onSubmit, initialData, title }: Cu
       await onSubmit(values);
       toast.success(initialData ? 'Customer updated successfully' : 'Customer created successfully');
       onClose();
-      form.reset();
     } catch (error) {
       console.error('Form submission error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to submit customer form');
@@ -65,6 +89,7 @@ export function CustomerForm({ open, onClose, onSubmit, initialData, title }: Cu
     }
   };
 
+  // Rest of the component remains the same
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
@@ -143,7 +168,7 @@ export function CustomerForm({ open, onClose, onSubmit, initialData, title }: Cu
                         name={field.name}
                         label=""
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(e) => field.onChange(e.target.value)}
                         options={[
                           { value: "REGULAR", label: "Regular" },
                           { value: "VIP", label: "VIP" }
@@ -165,7 +190,7 @@ export function CustomerForm({ open, onClose, onSubmit, initialData, title }: Cu
                         name={field.name}
                         label=""
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(e) => field.onChange(e.target.value)}
                         options={[
                           { value: "ACTIVE", label: "Active" },
                           { value: "INACTIVE", label: "Inactive" }

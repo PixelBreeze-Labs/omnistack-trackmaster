@@ -69,11 +69,9 @@ export const useCustomers = () => {
         try {
             setIsLoading(true);
             const response = await customerApi.updateCustomer(id, data);
-            toast.success('Customer updated successfully');
             return response;
         } catch (error) {
-            console.error('Error updating customer:', error);
-            toast.error('Failed to update customer');
+            // handled in modal
             throw error;
         } finally {
             setIsLoading(false);
@@ -85,12 +83,29 @@ export const useCustomers = () => {
         
         try {
             setIsLoading(true);
-            const response = await customerApi.deleteCustomer(id);
+            const response = await customerApi.hardDelete(id);
             toast.success('Customer deleted successfully');
             return response;
         } catch (error) {
             console.error('Error deleting customer:', error);
             toast.error('Failed to delete customer');
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [customerApi]);
+
+    const deactivateCustomer = useCallback(async (id: string) => {
+        if (!customerApi) return;
+        
+        try {
+            setIsLoading(true);
+            const response = await customerApi.deactivateCustomer(id);
+            toast.success('Customer deactivated successfully');
+            return response;
+        } catch (error) {
+            console.error('Error deactivating customer:', error);
+            toast.error('Failed to deactivate customer');
             throw error;
         } finally {
             setIsLoading(false);
@@ -107,6 +122,7 @@ export const useCustomers = () => {
         createCustomer,
         updateCustomer,
         deleteCustomer,
+        deactivateCustomer,
         apiKeyError,
         isInitialized: !!customerApi,
     };
