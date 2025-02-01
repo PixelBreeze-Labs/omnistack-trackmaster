@@ -69,11 +69,9 @@ export const useCustomers = () => {
         try {
             setIsLoading(true);
             const response = await customerApi.updateCustomer(id, data);
-            toast.success('Customer updated successfully');
             return response;
         } catch (error) {
-            console.error('Error updating customer:', error);
-            toast.error('Failed to update customer');
+            // handled in modal
             throw error;
         } finally {
             setIsLoading(false);

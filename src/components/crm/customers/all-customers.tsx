@@ -94,7 +94,7 @@ export function AllCustomers() {
   };
 
   const handleUpdateCustomer = async (data) => {
-    await updateCustomer(selectedCustomer.id, data);
+    await updateCustomer(selectedCustomer._id, data);
     handleRefresh();
   };
 
@@ -326,7 +326,7 @@ export function AllCustomers() {
                     </TableRow>
                   ) : (
                     customers.map((customer) => (
-                      <TableRow key={customer.id}>
+                      <TableRow key={customer._id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar>
