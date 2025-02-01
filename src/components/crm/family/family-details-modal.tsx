@@ -21,23 +21,14 @@ import {
   Heart,
   Clock,
   ShoppingBag,
-  MoreVertical,
-  UserMinus,
-  History,
-  Settings,
   Loader2
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { useFamilyAccounts } from "@/hooks/useFamilyAccounts";
 import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { toast } from "react-hot-toast";
 import {FamilyMember } from "@/app/api/external/omnigateway/types/family-account";
+import InputSelect from "@/components/Common/InputSelect";
 
 interface FamilyDetailsModalProps {
   familyId: string;
@@ -55,6 +46,20 @@ interface MemberCardProps {
 const MemberCard = ({ member, onUnlink, isUnlinking }: MemberCardProps) => {
   const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
 
+  const handleActionSelect = (action: string) => {
+    switch (action) {
+      case "history":
+        toast.error('Coming soon');
+        break;
+      case "edit":
+        toast.error('Coming soon');
+        break;
+      case "unlink":
+        setShowUnlinkConfirm(true);
+        break;
+    }
+  };
+
   return (
     <>
       <Card key={member.id}>
@@ -64,12 +69,12 @@ const MemberCard = ({ member, onUnlink, isUnlinking }: MemberCardProps) => {
               <Avatar>
                 <AvatarImage src={member.avatar} />
                 <AvatarFallback>
-                  {member.firstName[0]}{member.lastName[0]}
+                  {member.customerId.firstName[0]}{member.customerId.lastName[0]}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <div className="font-medium">
-                  {member.firstName} {member.lastName}
+                  {member.customerId.firstName} {member.customerId.lastName}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {member.relationship}
@@ -87,31 +92,17 @@ const MemberCard = ({ member, onUnlink, isUnlinking }: MemberCardProps) => {
               </div>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => toast.error('Coming soon')}>
-                  <History className="h-4 w-4 mr-2" />
-                  View History
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => toast.error('Coming soon')}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Edit Member
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-red-600"
-                  onClick={() => setShowUnlinkConfirm(true)}
-                  disabled={isUnlinking}
-                >
-                  <UserMinus className="h-4 w-4 mr-2" />
-                  {isUnlinking ? 'Unlinking...' : 'Unlink Member'}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <InputSelect
+              value=""
+              onChange={(e) => handleActionSelect(e.target.value)}
+              options={[
+                { value: "", label: "Actions" },
+                { value: "history", label: "View History" },
+                { value: "edit", label: "Edit Member" },
+                { value: "unlink", label: isUnlinking ? "Unlinking..." : "Unlink Member" }
+              ]}
+              disabled={isUnlinking}
+            />
           </div>
         </CardContent>
       </Card>
@@ -154,7 +145,6 @@ export function FamilyDetailsModal({
     getFamilyStats, 
     selectedFamily, 
     familyStats, 
-    isLoading 
   } = useFamilyAccounts();
 
   const [unlinkingMemberId, setUnlinkingMemberId] = useState<string | null>(null);
@@ -162,6 +152,7 @@ export function FamilyDetailsModal({
 
   useEffect(() => {
     if (isOpen && familyId) {
+     setActiveTab("overview");
       getFamilyDetails(familyId);
       getFamilyStats(familyId);
     }
@@ -188,6 +179,9 @@ export function FamilyDetailsModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Loading</DialogTitle>
+        </DialogHeader>
           <div className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
@@ -203,7 +197,7 @@ export function FamilyDetailsModal({
           <DialogTitle>Family Account Details</DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="overview">
           <TabsList className="mb-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="members">
