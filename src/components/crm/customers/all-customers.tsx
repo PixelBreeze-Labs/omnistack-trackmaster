@@ -41,6 +41,7 @@ import {
 import InputSelect from "@/components/Common/InputSelect";
 import React from "react";
 import { DeleteCustomerDialog } from "./DeleteCustomerDialog";
+import { DeactivateCustomerDialog } from "./DeactivateCustomerDialog";
 import { CustomerForm } from "./CustomerForm";
 import { Customer } from "@/app/api/external/omnigateway/types/customers";
 
@@ -55,6 +56,7 @@ export function AllCustomers() {
     createCustomer,
     updateCustomer,
     deleteCustomer,
+    deactivateCustomer
   } = useCustomers();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,7 +68,9 @@ export function AllCustomers() {
   const [customerFormOpen, setCustomerFormOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [customerToDeactivate, setCustomerToDeactivate] = useState<Customer | null>(null);
 
   useEffect(() => {
     fetchCustomers({
@@ -103,6 +107,15 @@ export function AllCustomers() {
       await deleteCustomer(customerToDelete._id);
       setDeleteDialogOpen(false);
       setCustomerToDelete(null);
+      handleRefresh();
+    }
+  };
+
+  const handleDeactivateCustomer = async () => {
+    if (customerToDeactivate) {
+      await deactivateCustomer(customerToDeactivate._id);
+      setDeactivateDialogOpen(false);
+      setCustomerToDeactivate(null);
       handleRefresh();
     }
   };
@@ -423,6 +436,10 @@ export function AllCustomers() {
                                     setCustomerToDelete(customer);
                                     setDeleteDialogOpen(true);
                                     break;
+                                  case "deactivate":
+                                    setCustomerToDeactivate(customer);
+                                    setDeactivateDialogOpen(true);
+                                    break;
                                 }
                               }}
                               options={[
@@ -431,6 +448,7 @@ export function AllCustomers() {
                                 { value: "message", label: "Send Message" },
                                 { value: "history", label: "View History" },
                                 { value: "vip", label: "Add to VIP" },
+                                { value: "deactivate", label: "Deactivate Customer" },
                                 { value: "delete", label: "Delete Customer" },
                               ]}
                             />
@@ -521,7 +539,17 @@ export function AllCustomers() {
                 onConfirm={handleDeleteCustomer}
                 customerName={customerToDelete ? `${customerToDelete.firstName} ${customerToDelete.lastName}` : ''}
               />
- <div className="h-8"></div>
+
+              <DeactivateCustomerDialog
+                open={deactivateDialogOpen}
+                onClose={() => {
+                  setDeactivateDialogOpen(false);
+                  setCustomerToDeactivate(null);
+                }}
+                onConfirm={handleDeactivateCustomer}
+                customerName={customerToDeactivate ? `${customerToDeactivate.firstName} ${customerToDeactivate.lastName}` : ''}
+              />
+              <div className="h-8"></div>
     </div>
   );
 }

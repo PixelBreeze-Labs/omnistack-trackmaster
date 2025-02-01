@@ -17,8 +17,12 @@ export const createCustomersApi = (apiKey: string) => {
             const { data } = await api.patch(`/customers/${id}`, customerData);
             return data;
         },
-        deleteCustomer: async (id: string) => {
+        deactivateCustomer: async (id: string) => {
             const { data } = await api.delete(`/customers/${id}`);
+            return data;
+        },
+        hardDelete: async (id: string) => {
+            const { data } = await api.delete(`/customers/${id}/hard`);
             return data;
         }
     };
