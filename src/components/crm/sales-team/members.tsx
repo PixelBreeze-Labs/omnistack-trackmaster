@@ -35,7 +35,6 @@ import {
   MoreVertical,
   Mail,
   Phone,
-  UserCog,
   Target,
   TrendingUp,
   TrendingDown,
@@ -44,7 +43,6 @@ import {
   UserPlus,
   CircleDollarSign,
   BarChart2,
-  Calendar,
   UserCheck,
   ClipboardList,
   MessagesSquare,
@@ -85,6 +83,8 @@ export function SalesTeam() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
+
   const [stats, setStats] = useState({
     totalSales: 0,
     salesGrowth: 0,
@@ -134,9 +134,22 @@ export function SalesTeam() {
     }
   };
 
+  
   useEffect(() => {
     fetchStaff();
+    fetchDepartments();
   }, [clientId, searchTerm, position, status, page, pageSize]);
+
+  const fetchDepartments = async () => {
+    if (!clientId) return;
+    try {
+      const response = await fetch(`/api/departments?clientId=${clientId}`);
+      const data = await response.json();
+      setDepartments(data);
+    } catch (error) {
+      toast.error('Failed to fetch departments');
+    }
+  };
 
    const getStatusBadge = (status: string) => {
    const variants = {
@@ -540,13 +553,15 @@ export function SalesTeam() {
          isOpen={isModalOpen}
          onClose={() => setIsModalOpen(false)}
          onSuccess={() => {
-           fetchStaff();
-           setIsModalOpen(false);
-         }}
-         departments={[]}
-         clientId={clientId}
+            fetchStaff();
+            setIsModalOpen(false);
+            fetchDepartments();
+          }}
+          departments={departments}
+          clientId={clientId}
        />
      )}
+     <div className="h-8"></div>
    </div>
  );
 }
