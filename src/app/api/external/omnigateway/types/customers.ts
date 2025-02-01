@@ -1,3 +1,9 @@
+export type CustomerStatus = 'ACTIVE' | 'INACTIVE';
+export type CustomerType = 'REGULAR' | 'VIP';
+export type LoyaltyTier = 'PLATINUM' | 'GOLD' | 'SILVER' | 'NONE';
+export type FilterStatus = 'ACTIVE' | 'INACTIVE' | 'ALL';
+export type FilterType = 'REGULAR' | 'VIP' | 'ALL';
+
 export interface Customer {
     id: string;
     firstName: string;
@@ -21,6 +27,23 @@ export interface ListCustomersResponse {
     page: number;
     limit: number;
 }
+
+export interface Customer {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    status: CustomerStatus;
+    type: CustomerType;
+    orders: number;
+    lastOrder: string;
+    firstOrder: string;
+    registrationDate: string;
+    totalSpent: number;
+    avatar?: string;
+    loyaltyTier: LoyaltyTier;
+  }
 
 export interface CustomerParams {
     page?: number;
