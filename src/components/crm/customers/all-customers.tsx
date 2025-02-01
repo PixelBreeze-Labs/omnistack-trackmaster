@@ -23,21 +23,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+
 import { 
   Users,
   Search,
-  MoreVertical,
   Mail,
   Phone,
-  MessageSquare,
-  History,
   UserPlus,
   Star,
   TrendingUp,
@@ -46,8 +37,6 @@ import {
   FileText,
   RefreshCcw,
   ArrowUpRight,
-  Pencil,
-  Trash2
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import React from "react";
@@ -301,7 +290,7 @@ export function AllCustomers() {
                     <TableHead>Registration</TableHead>
                     <TableHead>Loyalty</TableHead>
                     <TableHead>Total Spent</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -407,47 +396,45 @@ export function AllCustomers() {
                           </Badge>
                         </TableCell>
                         <TableCell>{customer.totalSpent?.toLocaleString() ?? 0} ALL</TableCell>
+
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => {
-                                setSelectedCustomer(customer);
-                                setCustomerFormOpen(true);
-                              }}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit Customer
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                Send Message
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <History className="mr-2 h-4 w-4" />
-                                View History 
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem>
-                                <Star className="mr-2 h-4 w-4" />
-                                Add to VIP
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                className="text-destructive"
-                                onClick={() => {
-                                  setCustomerToDelete(customer);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Customer
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="">
+                            <InputSelect
+                              name="actions"
+                              label=""
+                              value=""
+                              onChange={(e) => {
+                                const action = e.target.value;
+                                switch (action) {
+                                  case "edit":
+                                    setSelectedCustomer(customer);
+                                    setCustomerFormOpen(true);
+                                    break;
+                                  case "message":
+                                    // Handle send message
+                                    break;
+                                  case "history":
+                                    // Handle view history
+                                    break;
+                                  case "vip":
+                                    // Handle add to VIP
+                                    break;
+                                  case "delete":
+                                    setCustomerToDelete(customer);
+                                    setDeleteDialogOpen(true);
+                                    break;
+                                }
+                              }}
+                              options={[
+                                { value: "", label: "Select Action" },
+                                { value: "edit", label: "Edit Customer" },
+                                { value: "message", label: "Send Message" },
+                                { value: "history", label: "View History" },
+                                { value: "vip", label: "Add to VIP" },
+                                { value: "delete", label: "Delete Customer" },
+                              ]}
+                            />
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
