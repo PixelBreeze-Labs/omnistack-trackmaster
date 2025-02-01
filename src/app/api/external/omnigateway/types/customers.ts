@@ -22,6 +22,16 @@ export interface ListCustomersResponse {
     limit: number;
 }
 
+export interface CustomerFormData {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    type: 'REGULAR' | 'VIP';
+    status: 'ACTIVE' | 'INACTIVE';
+}
+
+
 export interface CustomerParams {
     page?: number;
     limit?: number;
