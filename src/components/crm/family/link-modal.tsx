@@ -1,220 +1,374 @@
-// components/family/link-modal.tsx
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SearchIcon, X } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import InputSelect from "@/components/Common/InputSelect"; 
-import { useState } from "react";
+  // components/family/link-modal.tsx
+  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+  import { Input } from "@/components/ui/input";
+  import { Label } from "@/components/ui/label";
+  import { Button } from "@/components/ui/button";
+  import { Badge } from "@/components/ui/badge";
+  import { ScrollArea } from "@/components/ui/scroll-area";
+  import {
+    SearchIcon,
+    X,
+    CheckCircle,
+  } from "lucide-react";
+  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  import InputSelect from "@/components/Common/InputSelect";
+  import { useState, useEffect } from "react";
+  import { useFamilyAccounts } from "@/hooks/useFamilyAccounts";
+  import { useDebounce } from "@/hooks/useDebounce";
+  import toast from 'react-hot-toast';
+  import { Customer } from "@/app/api/external/omnigateway/types/family-account";
 
-const RELATIONSHIP_OPTIONS = [
- { value: "spouse", label: "Spouse" },
- { value: "child", label: "Child" },
- { value: "parent", label: "Parent" }
-];
+  const RELATIONSHIP_OPTIONS = [
+    { value: "SPOUSE", label: "Spouse" },
+    { value: "CHILD", label: "Child" },
+    { value: "PARENT", label: "Parent" },
+    { value: "SIBLING", label: "Sibling" },
+    { value: "OTHER", label: "Other" }
+  ];
 
-// Dummy data for demo
-const CUSTOMER_OPTIONS = [
- { value: "1", label: "John Doe - Bronze" },
- { value: "2", label: "Jane Smith - Gold" },
- { value: "3", label: "Bob Wilson - Silver" }
-];
+  interface SelectedMember {
+    id: string;
+    name: string;
+    email: string;
+    relationship: string;
+    avatar?: string;
+  }
 
-interface LinkFamilyModalProps {
- isOpen: boolean;
- onClose: () => void;
- onSuccess: () => void;
-}
+  interface CustomerSelectCardProps {
+    customer: Customer;
+    isMainCustomer: boolean;
+    isSelected: boolean;
+    onSelect: (relationship: string) => void;
+  }
 
-export function LinkFamilyModal({ isOpen, onClose, onSuccess }: LinkFamilyModalProps) {
- const [selectedMainCustomer, setSelectedMainCustomer] = useState("");
- const [selectedMembers, setSelectedMembers] = useState([]);
- const [step, setStep] = useState<'select-main' | 'select-members'>('select-main');
- const [newMember, setNewMember] = useState({
-   name: '',
-   email: '',
-   phone: '',
-   relationship: ''
- });
+  const CustomerSelectCard = ({
+    customer,
+    isMainCustomer,
+    isSelected,
+    onSelect
+  }: CustomerSelectCardProps) => {
+    const [showRelationship, setShowRelationship] = useState(false);
+    const [relationship, setRelationship] = useState('');
 
- return (
-   <Dialog open={isOpen} onOpenChange={onClose}>
-     <DialogContent className="sm:max-w-[600px]">
-       <DialogHeader>
-         <DialogTitle>Link Family Account</DialogTitle>
-       </DialogHeader>
+    const handleSelect = () => {
+      if (isMainCustomer || isSelected) return;
+      
+      if (relationship) {
+        onSelect(relationship);
+        setShowRelationship(false);
+        setRelationship('');
+      } else {
+        setShowRelationship(true);
+      }
+    };
 
-       {step === 'select-main' ? (
-         <div className="space-y-4">
-           <InputSelect
-             name="mainCustomer"
-             label="Select Main Customer"
-             value={selectedMainCustomer}
-             options={CUSTOMER_OPTIONS}
-             onChange={(e) => setSelectedMainCustomer(e.target.value)}
-             required
-           />
+    return (
+      <div className={`p-4 border-b last:border-0 ${isMainCustomer ? 'opacity-50' : 'hover:bg-accent'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <AvatarImage src={customer.avatar} />
+              <AvatarFallback>
+                {customer.firstName[0]}{customer.lastName[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium">
+                {customer.firstName} {customer.lastName}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {customer.email}
+              </div>
+            </div>
+          </div>
+          
+          {isSelected ? (
+            <Badge variant="success">Selected</Badge>
+          ) : isMainCustomer ? (
+            <Badge variant="secondary">Main Customer</Badge>
+          ) : showRelationship ? (
+            <div className="flex items-center gap-2">
+              <InputSelect
+                name="relationship"
+                value={relationship}
+                onChange={(e) => setRelationship(e.target.value)}
+                options={RELATIONSHIP_OPTIONS}
+                className="w-32"
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowRelationship(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSelect}
+                disabled={!relationship}
+              >
+                Add
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSelect}
+            >
+              Select
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-           {selectedMainCustomer && (
-             <div className="space-y-2 border-t pt-4">
-               <CustomerCard customer={CUSTOMER_OPTIONS.find(c => c.value === selectedMainCustomer)} />
-             </div>
-           )}
-         </div>
-       ) : (
-         <div className="space-y-4">
-           <div className="flex justify-between items-center">
-             <div>
-               <h3 className="font-medium">Select Family Members</h3>
-               <p className="text-sm text-muted-foreground">
-                 Selected customer: <span className="font-medium">
-                   {CUSTOMER_OPTIONS.find(c => c.value === selectedMainCustomer)?.label}
-                 </span>
-               </p>
-             </div>
-           </div>
+  interface LinkFamilyModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess: () => void;
+  }
 
-           <Tabs defaultValue="search">
-             <TabsList>
-               <TabsTrigger value="search">Search Member</TabsTrigger>
-               <TabsTrigger value="new">Add New Member</TabsTrigger>
-             </TabsList>
+  export function LinkFamilyModal({ isOpen, onClose, onSuccess }: LinkFamilyModalProps) {
+    const {
+      handleSearch,
+      linkFamily,
+      searchResults,
+      isSearching
+    } = useFamilyAccounts();
 
-             <TabsContent value="search">
-               <div className="space-y-4 p-2">
-                 <div className="relative mt-2">
-                   <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                   <Input placeholder="Search by email, phone or membership ID" className="pl-8" />
-                 </div>
-                 <div className="border rounded-lg divide-y max-h-[300px] overflow-auto">
-                   <CustomerSelectItem />
-                 </div>
-               </div>
-             </TabsContent>
+    const [step, setStep] = useState<'main' | 'members'>('main');
+    const [mainCustomer, setMainCustomer] = useState<Customer | null>(null);
+    const [selectedMembers, setSelectedMembers] = useState<SelectedMember[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(handleSearch, 300);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-             <TabsContent value="new">
-               <div className="space-y-4 p-4">
-                 <div>
-                   <Label>Full Name</Label>
-                   <Input 
-                     value={newMember.name}
-                     onChange={(e) => setNewMember({...newMember, name: e.target.value})}
-                   />
-                 </div>
-                 <div>
-                   <Label>Email</Label>
-                   <Input 
-                     type="email"
-                     value={newMember.email}
-                     onChange={(e) => setNewMember({...newMember, email: e.target.value})}
-                   />
-                 </div>
-                 <div>
-                   <Label>Phone</Label>
-                   <Input 
-                     value={newMember.phone}
-                     onChange={(e) => setNewMember({...newMember, phone: e.target.value})}
-                   />
-                 </div>
-                 <InputSelect
-                   name="relationship"
-                   label="Relationship"
-                   value={newMember.relationship}
-                   options={RELATIONSHIP_OPTIONS}
-                   onChange={(e) => setNewMember({...newMember, relationship: e.target.value})}
-                   required
-                 />
-               </div>
-             </TabsContent>
-           </Tabs>
+    useEffect(() => {
+      if (searchTerm.length >= 2) {
+        debouncedSearch(searchTerm);
+      }
+    }, [searchTerm, debouncedSearch]);
 
-           {selectedMembers.length > 0 && (
-             <div className="border-t pt-4 space-y-2">
-               <Label>Selected Members</Label>
-               <div className="space-y-2">
-                 {selectedMembers.map(member => (
-                   <SelectedMemberCard 
-                     key={member.id} 
-                     member={member}
-                     onRemove={() => setSelectedMembers(
-                       selectedMembers.filter(m => m.id !== member.id)
-                     )}
-                   />
-                 ))}
-               </div>
-             </div>
-           )}
-         </div>
-       )}
+    const handleSelectMainCustomer = (customer: Customer) => {
+      setMainCustomer(customer);
+    };
 
-       <DialogFooter>
-         {step === 'select-main' ? (
-           <>
-             <Button variant="outline" onClick={onClose}>Cancel</Button>
-             <Button onClick={() => setStep('select-members')} disabled={!selectedMainCustomer}>
-               Next
-             </Button>
-           </>
-         ) : (
-           <>
-             <Button variant="outline" onClick={() => setStep('select-main')}>Back</Button>
-             <Button disabled={selectedMembers.length === 0}>Link Family</Button>
-           </>
-         )}
-       </DialogFooter>
-     </DialogContent>
-   </Dialog>
- );
-}
+    const handleAddMember = (customer: Customer, relationship: string) => {
+      if (customer._id === mainCustomer?._id) {
+        toast.error("Can't add main customer as a member");
+        return;
+      }
 
-function CustomerCard({ customer }) {
- return (
-   <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-     <Avatar className="h-10 w-10">
-       <AvatarFallback>{customer?.label?.substring(0,2)}</AvatarFallback>
-     </Avatar>
-     <div>
-       <div className="font-medium">{customer?.label}</div>
-       <div className="text-xs text-muted-foreground">Member since Jan 2024</div>
-     </div>
-   </div>
- );
-}
+      if (selectedMembers.some(m => m._id === customer._id)) {
+        toast.error('Member already added');
+        return;
+      }
 
-function CustomerSelectItem() {
- return (
-   <div className="flex items-center justify-between p-3 hover:bg-accent cursor-pointer">
-     <div className="flex items-center gap-3">
-       <Avatar className="h-8 w-8">
-         <AvatarFallback>JD</AvatarFallback>
-       </Avatar>
-       <div>
-         <div className="font-medium">John Doe</div>
-         <div className="text-xs text-muted-foreground">Bronze Member</div>
-       </div>
-     </div>
-     <Button variant="ghost" size="sm">Select</Button>
-   </div>
- );
-}
+      setSelectedMembers([
+        ...selectedMembers,
+        {
+          id: customer._id,
+          name: `${customer.firstName} ${customer.lastName}`,
+          email: customer.email,
+          relationship,
+          avatar: customer.avatar
+        }
+      ]);
+    };
 
-function SelectedMemberCard({ member, onRemove }) {
- return (
-   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-     <div className="flex items-center gap-3">
-       <Avatar className="h-8 w-8">
-         <AvatarFallback>{member.name?.substring(0,2)}</AvatarFallback>
-       </Avatar>
-       <div>
-         <div className="font-medium">{member.name}</div>
-         <div className="text-xs text-muted-foreground">{member.relationship}</div>
-       </div>
-     </div>
-     <Button variant="ghost" size="sm" onClick={onRemove}>
-       <X className="h-4 w-4" />
-     </Button>
-   </div>
- );
-}
+    const handleRemoveMember = (memberId: string) => {
+      setSelectedMembers(selectedMembers.filter(m => m.id !== memberId));
+    };
+
+    const handleSubmit = async () => {
+      try {
+        setIsSubmitting(true);
+        await linkFamily({
+          mainCustomerId: mainCustomer!._id,
+          members: selectedMembers.map(m => ({
+            customerId: m.id,
+            relationship: m.relationship
+          }))
+        });
+        toast.success('Family linked successfully');
+        onSuccess();
+        handleClose();
+      } catch (error) {
+        // Error handled by the hook
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    const handleClose = () => {
+      setStep('main');
+      setMainCustomer(null);
+      setSelectedMembers([]);
+      setSearchTerm('');
+      onClose();
+    };
+
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Link Family Account</DialogTitle>
+          </DialogHeader>
+
+          {step === 'main' ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Search Main Customer</Label>
+                <div className="relative">
+                  <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name, email or phone..."
+                    className="pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                {isSearching ? (
+                  <div className="text-center py-4">Searching...</div>
+                ) : (
+                  <ScrollArea className="h-[300px] rounded-md border">
+                    {searchResults?.map((customer) => (
+                      <div
+                        key={customer._id}
+                        className={`p-4 cursor-pointer hover:bg-accent flex items-center justify-between ${
+                          mainCustomer?._id === customer._id ? 'bg-accent' : ''
+                        }`}
+                        onClick={() => handleSelectMainCustomer(customer)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={customer.avatar} />
+                            <AvatarFallback>
+                              {customer.firstName[0]}{customer.lastName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">
+                              {customer.firstName} {customer.lastName}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {customer.email}
+                            </div>
+                          </div>
+                        </div>
+                        {mainCustomer?._id === customer._id && (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        )}
+                      </div>
+                    ))}
+                  </ScrollArea>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">Select Family Members</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Main: {mainCustomer?.firstName} {mainCustomer?.lastName}
+                  </p>
+                </div>
+                <Badge variant="secondary">
+                  {selectedMembers.length} members selected
+                </Badge>
+              </div>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search members..."
+                    className="pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                <ScrollArea className="h-[300px] rounded-md border">
+                  {searchResults?.map((customer) => (
+                    <CustomerSelectCard
+                      key={customer._id}
+                      customer={customer}
+                      isMainCustomer={customer._id === mainCustomer?._id}
+                      isSelected={selectedMembers.some(m => m._id === customer._id)}
+                      onSelect={(relationship) => handleAddMember(customer, relationship)}
+                    />
+                  ))}
+                </ScrollArea>
+              </div>
+
+              {selectedMembers.length > 0 && (
+                <div className="border-t pt-4">
+                  <Label>Selected Members</Label>
+                  <div className="space-y-2 mt-2">
+                    {selectedMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between p-3 bg-accent rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={member.avatar} />
+                            <AvatarFallback>
+                              {member.name.substring(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{member.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {member.relationship}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveMember(member._id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            {step === 'main' ? (
+              <Button
+                onClick={() => setStep('members')}
+                disabled={!mainCustomer}
+              >
+                Next
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => setStep('main')}>
+                  Back
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={selectedMembers.length === 0 || isSubmitting}
+                >
+                  {isSubmitting ? 'Linking...' : 'Link Family'}
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
