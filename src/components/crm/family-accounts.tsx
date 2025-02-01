@@ -407,14 +407,14 @@ export function FamilyAccounts() {
                                 >
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-8 w-8">
-                                      <AvatarImage src={member.customerId.avatar} />
+                                      <AvatarImage src={member.customerId?.avatar} />
                                       <AvatarFallback>
-                                        {member.customerId.firstName[0]}{member.customerId.lastName[0]}
+                                        {member.customerId?.firstName[0]}{member.customerId?.lastName[0]}
                                       </AvatarFallback>
                                     </Avatar>
                                     <div>
                                       <div className="font-medium">
-                                        {member.customerId.firstName} {member.customerId.lastName}
+                                        {member.customerId?.firstName} {member.customerId?.lastName}
                                       </div>
                                       <div className="text-sm text-muted-foreground">
                                         {member.relationship}
