@@ -37,7 +37,11 @@ import {
   RefreshCcw,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Star,
+  ArrowUpRight
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { MemberForm } from "../members/MemberForm";
@@ -139,51 +143,107 @@ export function AllMembers() {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.totalMembers ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total registered members</p>
-          </CardContent>
-        </Card>
+    <div className="grid gap-4 md:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="text-2xl font-bold">{metrics?.totalMembers ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">From last month</p>
+            </div>
+            <div className="flex items-center gap-1">
+              {metrics?.trends?.members.percentage > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
+              <span className={`text-sm ${metrics?.trends?.members.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.members.percentage ?? 0}%
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.activeMembers ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Currently active members</p>
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Active Members</CardTitle>
+          <CheckCircle className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="text-2xl font-bold">{metrics?.activeMembers ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">From last month</p>
+            </div>
+            <div className="flex items-center gap-1">
+              {metrics?.trends?.active.percentage > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
+              <span className={`text-sm ${metrics?.trends?.active.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.active.percentage ?? 0}%
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Members</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.pendingMembers ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting confirmation</p>
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Points</CardTitle>
+          <Star className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="text-2xl font-bold">{metrics?.totalPoints?.toLocaleString() ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Points issued this month</p>
+            </div>
+            <div className="flex items-center gap-1">
+              {metrics?.trends?.points.percentage > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
+              <span className={`text-sm ${metrics?.trends?.points.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.points.percentage ?? 0}%
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rejected Members</CardTitle>
-            <XCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.rejectedMembers ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Members rejected</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Points Redeemed</CardTitle>
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="text-2xl font-bold">{metrics?.pointsRedeemed?.toLocaleString() ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Points redeemed this month</p>
+            </div>
+            <div className="flex items-center gap-1">
+              {metrics?.trends?.redeemed.percentage > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
+              <span className={`text-sm ${metrics?.trends?.redeemed.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.redeemed.percentage ?? 0}%
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
 
       {/* Search and Filters */}
       <Card>
@@ -492,7 +552,7 @@ export function AllMembers() {
         onConfirm={handleDeleteMember}
         memberName={memberToDelete ? `${memberToDelete.firstName} ${memberToDelete.lastName}` : ''}
       />
-      <div className="h-8"></div>
+      <div className="h-4"></div>
     </div>
   );
 }
