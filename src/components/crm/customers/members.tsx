@@ -1,18 +1,13 @@
-"use client"
+// components/members/AllMembers.tsx
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import InputSelect from "@/components/Common/InputSelect"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useMembers } from "@/hooks/useMembers";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -20,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Pagination,
   PaginationContent,
@@ -28,263 +23,277 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Users, 
-  Search, 
-  MoreVertical, 
+} from "@/components/ui/pagination";
+import {
+  Users,
+  Search,
   Mail,
   Phone,
-  Star,
-  Gift,
-  History,
-  Coins,
-  TrendingUp,
-  TrendingDown,
   UserPlus,
+  Calendar,
+  MapPin,
   Download,
-  RefreshCcw
-} from "lucide-react"
-import { CustomerStatus, CustomerType, LoyaltyTier } from "@prisma/client"
+  FileText,
+  RefreshCcw,
+  CheckCircle,
+  XCircle,
+  Clock
+} from "lucide-react";
+import InputSelect from "@/components/Common/InputSelect";
+import { MemberForm } from "../members/MemberForm";
+import { Member } from "@/app/api/external/omnigateway/types/members";
+import { DeleteMemberDialog } from "../members/DeleteMemberDialog";
 
-interface Member {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  status: CustomerStatus
-  type: CustomerType
-  loyaltyPoints: number
-  loyaltyTier: LoyaltyTier
-  lastActivity: string
-  totalSpent: number
-}
+export function AllMembers() {
+  const {
+    isLoading,
+    members,
+    metrics,
+    totalItems,
+    totalPages,
+    fetchMembers,
+    createMember,
+    updateMember,
+    deleteMember
+  } = useMembers();
 
-const DUMMY_MEMBERS: Member[] = [
-  {
-    id: "1",
-    firstName: "John",
-    lastName: "Doe",
-    email: "john@example.com",
-    phone: "+355691234567",
-    status: "ACTIVE",
-    type: "VIP",
-    loyaltyPoints: 2500,
-    loyaltyTier: "GOLD",
-    lastActivity: "2024-01-15",
-    totalSpent: 75000
-  },
-  // Add more dummy data as needed
-]
-
-export function Members() {
-    const [members] = useState<Member[]>(DUMMY_MEMBERS)
-    const [searchTerm, setSearchTerm] = useState("")
-    const [status, setStatus] = useState("all")
-    const [tier, setTier] = useState("all")
-    const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [status, setStatus] = useState("all");
   
-    const getTrendIcon = (percentage: number) => {
-      if (percentage > 0) {
-        return <TrendingUp className="h-4 w-4 text-green-500" />
-      }
-      return <TrendingDown className="h-4 w-4 text-red-500" />
+  const [memberFormOpen, setMemberFormOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+
+  useEffect(() => {
+    fetchMembers({
+      page,
+      limit: pageSize,
+      status: status !== 'all' ? status.toUpperCase() : undefined,
+      search: searchTerm
+    });
+  }, [fetchMembers, page, pageSize, status, searchTerm]);
+
+  const handleRefresh = () => {
+    fetchMembers({
+      page,
+      limit: pageSize,
+      status: status !== 'all' ? status.toUpperCase() : undefined,
+      search: searchTerm
+    });
+  };
+
+  const handleCreateMember = async (data) => {
+    await createMember(data);
+    handleRefresh();
+  };
+
+  const handleUpdateMember = async (data) => {
+    if (selectedMember) {
+      await updateMember(selectedMember._id, data);
+      handleRefresh();
     }
-  
-    const getTrendClass = (percentage: number) => {
-      return percentage > 0 ? "text-green-500" : "text-red-500"
+  };
+
+  const handleDeleteMember = async () => {
+    if (memberToDelete) {
+      await deleteMember(memberToDelete._id);
+      setDeleteDialogOpen(false);
+      setMemberToDelete(null);
+      handleRefresh();
     }
-  
-    return (
-      <div className="space-y-6 mb-8">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Members</h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              View and manage your loyalty program members
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="soft" size="sm">
-              <RefreshCcw className="mr-2 h-4 w-4" />
-              Refresh
-            </Button>
-            <Button variant="default" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
+  };
+
+  return (
+    <div className="space-y-6 mb-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Members</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            Manage all your members in one place
+          </p>
         </div>
-  
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">856</div>
-                <div className="flex items-center gap-1">
-                  {getTrendIcon(15)}
-                  <span className={`text-sm ${getTrendClass(15)}`}>+15%</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">From last month</p>
-            </CardContent>
-          </Card>
-  
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">624</div>
-                <div className="flex items-center gap-1">
-                  {getTrendIcon(8)}
-                  <span className={`text-sm ${getTrendClass(8)}`}>+8%</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">From last month</p>
-            </CardContent>
-          </Card>
-  
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Points</CardTitle>
-              <Coins className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">125,430</div>
-                <div className="flex items-center gap-1">
-                  {getTrendIcon(20)}
-                  <span className={`text-sm ${getTrendClass(20)}`}>+20%</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Points issued this month</p>
-            </CardContent>
-          </Card>
-  
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Points Redeemed</CardTitle>
-              <Gift className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">45,780</div>
-                <div className="flex items-center gap-1">
-                  {getTrendIcon(12)}
-                  <span className={`text-sm ${getTrendClass(12)}`}>+12%</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Points redeemed this month</p>
-            </CardContent>
-          </Card>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleRefresh}>
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={() => {
+              setSelectedMember(null);
+              setMemberFormOpen(true);
+            }}
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Member
+          </Button>
         </div>
-  
-        {/* Filters and Actions */}
+      </div>
+
+      {/* Metrics Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardContent className="p-0">
-            <div className="mb-1">
-              <h3 className="font-medium">Manage Members</h3>
-              <p className="text-sm text-muted-foreground">
-                Search, filter, and manage club members and their loyalty benefits
-              </p>
-            </div>
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center flex-1 gap-2 max-w-3xl">
-                <div className="relative mt-2 flex-1">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search members by name, email, or phone..."
-                    className="pl-8"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <InputSelect
-                  name="status"
-                  label=""
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  options={[
-                    { value: "all", label: "All Status" },
-                    { value: "active", label: "Active" },
-                    { value: "inactive", label: "Inactive" }
-                  ]}
-                />
-                <InputSelect
-                  name="tier"
-                  label=""
-                  value={tier}
-                  onChange={(e) => setTier(e.target.value)}
-                  options={[
-                    { value: "all", label: "All Tiers" },
-                    { value: "platinum", label: "Platinum" },
-                    { value: "gold", label: "Gold" },
-                    { value: "silver", label: "Silver" }
-                  ]}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline">
-                  <Gift className="mr-2 h-4 w-4" />
-                  Issue Points
-                </Button>
-                <Button>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add Member
-                </Button>
-              </div>
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.totalMembers ?? 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total registered members</p>
           </CardContent>
         </Card>
-  
-        {/* Members Table Card */}
-        <Card className="mb-8">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Tier</TableHead>
-                  <TableHead>Points</TableHead>
-                  <TableHead>Last Activity</TableHead>
-                  <TableHead>Total Spent</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {members.map((member) => (
-                  <TableRow key={member.id}>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.activeMembers ?? 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Currently active members</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Members</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.pendingMembers ?? 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Awaiting confirmation</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Rejected Members</CardTitle>
+            <XCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.rejectedMembers ?? 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Members rejected</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search and Filters */}
+      <Card>
+        <CardHeader>
+          <div className="mb-1">
+            <h3 className="font-medium">Filter Members</h3>
+            <p className="text-sm text-muted-foreground">
+              Search and filter through your member base
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="p-4 flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search members by name, email, or code..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <InputSelect
+              name="status"
+              label=""
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              options={[
+                { value: "all", label: "All Status" },
+                { value: "active", label: "Active" },
+                { value: "pending", label: "Pending" },
+                { value: "rejected", label: "Rejected" }
+              ]}
+            />
+            <Button variant="outline" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Import
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Members Table */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Member</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Registration</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+            {isLoading ? (
+    <TableRow>
+      <TableCell colSpan={7} className="text-center py-8">
+        <div className="flex items-center justify-center">
+          <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </TableCell>
+    </TableRow>
+  ) : !members || members.length === 0 ? (
+    <TableRow>
+      <TableCell colSpan={7} className="text-center py-8">
+        <div className="flex flex-col items-center gap-3">
+          <UserPlus className="h-12 w-12 text-muted-foreground" />
+          <h3 className="text-lg font-medium">No Members Found</h3>
+          <p className="text-sm text-muted-foreground max-w-sm text-center">
+            {searchTerm || status !== 'all' 
+              ? "No members match your search criteria. Try adjusting your filters." 
+              : "Start building your member base. Add your first member to begin tracking relationships."}
+          </p>
+          {!searchTerm && status === 'all' && (
+            <Button 
+              className="mt-4"
+              onClick={() => {
+                setSelectedMember(null);
+                setMemberFormOpen(true);
+              }}
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Member
+            </Button>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
+              ) : (
+                members?.map((member) => (
+                  <TableRow key={member._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarImage src={member.avatar} alt={`${member.firstName} ${member.lastName}`} />
                           <AvatarFallback className="uppercase">
                             {member.firstName[0]}{member.lastName[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium">{member.firstName} {member.lastName}</div>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            {member.type === "VIP" && (
-                              <Badge variant="default" className="bg-primary">VIP</Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              {member.loyaltyPoints.toLocaleString()} points
-                            </span>
-                          </div>
+                          {member.birthday && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(member.birthday).toLocaleDateString()}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </TableCell>
@@ -296,111 +305,196 @@ export function Members() {
                         </div>
                         <div className="flex items-center text-sm">
                           <Phone className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-                          {member.phone}
+                          {member.phoneNumber || '-'}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
+                      <Badge variant="outline">{member.code}</Badge>
+                    </TableCell>
+                    <TableCell>
                       <Badge 
                         variant={
-                          member.loyaltyTier === "PLATINUM" ? "default" :
-                          member.loyaltyTier === "GOLD" ? "warning" :
-                          member.loyaltyTier === "SILVER" ? "secondary" :
-                          "outline"
+                          member.isRejected ? "destructive" : 
+                          member.acceptedAt ? "success" : 
+                          "secondary"
                         }
                       >
-                        {member.loyaltyTier}
+                        {member.isRejected ? "Rejected" : 
+                         member.acceptedAt ? "Active" : 
+                         "Pending"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center">
-                        <Coins className="mr-2 h-4 w-4 text-yellow-500" />
-                        {member.loyaltyPoints.toLocaleString()}
+                      {(member.city || member.address) ? (
+                        <div className="space-y-1">
+                          {member.city && (
+                            <div className="flex items-center text-sm">
+                              <MapPin className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                              {member.city}
+                            </div>
+                          )}
+                          {member.address && (
+                            <div className="text-xs text-muted-foreground">
+                              {member.address}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">
+                          {new Date(member.createdAt).toLocaleDateString()}
+                        </div>
+                        {member.acceptedAt && (
+                          <div className="text-xs text-muted-foreground">
+                            Accepted: {new Date(member.acceptedAt).toLocaleDateString()}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(member.lastActivity).toLocaleDateString()}</TableCell>
-                    <TableCell>{member.totalSpent.toLocaleString()} ALL</TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Gift className="mr-2 h-4 w-4" />
-                            Issue Points
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <History className="mr-2 h-4 w-4" />
-                            View History
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Star className="mr-2 h-4 w-4" />
-                            Upgrade Tier
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex justify-end">
+                        <InputSelect
+                          name="actions"
+                          label=""
+                          value=""
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            switch (action) {
+                              case "edit":
+                                setSelectedMember(member);
+                                setMemberFormOpen(true);
+                                break;
+                              case "delete":
+                                setMemberToDelete(member);
+                                setDeleteDialogOpen(true);
+                                break;
+                              case "accept":
+                                updateMember(member._id, {
+                                  acceptedAt: new Date().toISOString(),
+                                  isRejected: false
+                                });
+                                break;
+                              case "reject":
+                                updateMember(member._id, {
+                                  isRejected: true,
+                                  rejectedAt: new Date().toISOString()
+                                });
+                                break;
+                            }
+                          }}
+                          options={[
+                            { value: "", label: "Actions" },
+                            { value: "edit", label: "Edit Member" },
+                            ...(!member.acceptedAt && !member.isRejected ? [
+                              { value: "accept", label: "Accept Member" }
+                            ] : []),
+                            ...(!member.isRejected ? [
+                              { value: "reject", label: "Reject Member" }
+                            ] : []),
+                            { value: "delete", label: "Delete Member" }
+                          ]}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-  
-            {/* Integrated Pagination */}
-            <div className="border-t px-4 py-3">
-              <div className="flex items-center justify-between gap-4">
-                <InputSelect
-                  name="pageSize"
-                  label=""
-                  value={pageSize.toString()}
-                  onChange={(e) => setPageSize(parseInt(e.target.value))}
-                  options={[
-                    { value: "10", label: "10 rows" },
-                    { value: "20", label: "20 rows" },
-                    { value: "50", label: "50 rows" }
-                  ]}
-                />
-                
-                <div className="flex-1 flex items-center justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => setPage(p => Math.max(1, p - 1))}
-                          disabled={page === 1} 
-                        />
-                      </PaginationItem>
-                      {[...Array(Math.min(5, Math.ceil(members.length / pageSize)))].map((_, i) => (
-                        <PaginationItem key={i + 1}>
-                          <PaginationLink
-                            isActive={page === i + 1}
-                            onClick={() => setPage(i + 1)}
-                          >
-                            {i + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => setPage(p => Math.min(Math.ceil(members.length / pageSize), p + 1))}
-                          disabled={page === Math.ceil(members.length / pageSize)}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-  
-                <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-        Showing <span className="font-medium">50</span> of{" "}
-        <span className="font-medium">1,274</span> members
-      </p>
+                ))
+              )}
+            </TableBody>
+          </Table>
+
+          {/* Pagination */}
+          <div className="border-t px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <InputSelect
+                name="pageSize"
+                label=""
+                value={pageSize.toString()}
+                onChange={(e) => setPageSize(parseInt(e.target.value))}
+                options={[
+                  { value: "10", label: "10 rows" },
+                  { value: "20", label: "20 rows" },
+                  { value: "50", label: "50 rows" }
+                ]}
+              />
+              
+              <div className="flex-1 flex items-center justify-center">
+              <Pagination>
+    <PaginationContent>
+      <PaginationItem>
+        <PaginationPrevious 
+          onClick={() => setPage(p => Math.max(1, p - 1))}
+          disabled={page === 1} 
+        />
+      </PaginationItem>
+      
+      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => (
+        <PaginationItem key={i + 1}>
+          <PaginationLink
+            isActive={page === i + 1}
+            onClick={() => setPage(i + 1)}
+          >
+            {i + 1}
+          </PaginationLink>
+        </PaginationItem>
+      ))}
+
+      <PaginationItem>
+        <PaginationNext 
+          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        />
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+              </div>
+
+              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                Showing <span className="font-medium">{members?.length}</span> of{" "}
+                <span className="font-medium">{totalItems}</span> members
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modals */}
+      <MemberForm
+        open={memberFormOpen}
+        onClose={() => {
+          setMemberFormOpen(false);
+          setSelectedMember(null);
+        }}
+        onSubmit={selectedMember ? handleUpdateMember : handleCreateMember}
+        initialData={selectedMember ? {
+          firstName: selectedMember.firstName,
+          lastName: selectedMember.lastName,
+          email: selectedMember.email,
+          phoneNumber: selectedMember.phoneNumber,
+          code: selectedMember.code,
+          city: selectedMember.city,
+          address: selectedMember.address,
+          birthday: selectedMember.birthday,
+        } : undefined}
+        title={selectedMember ? 'Edit Member' : 'Add New Member'}
+      />
+
+      <DeleteMemberDialog 
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setMemberToDelete(null);
+        }}
+        onConfirm={handleDeleteMember}
+        memberName={memberToDelete ? `${memberToDelete.firstName} ${memberToDelete.lastName}` : ''}
+      />
+      <div className="h-8"></div>
     </div>
-  </div>
-  </CardContent>
-  </Card>
-  </div>
-  )
-  }
+  );
+}
+
+export default AllMembers;
