@@ -1,10 +1,14 @@
 // hooks/useFamilyAccounts.ts
 import { useState, useCallback, useMemo } from 'react';
-import { createFamilyAccountsApi } from '../app/api/external/omnigateway/family-accounts';
-import { FamilyAccount, FamilyMetrics, LinkFamilyPayload, UpdateFamilyPayload } from "@/app/api/external/omnigateway/types/family-account";
-import { useGatewayClientApiKey } from '../hooks/useGatewayClientApiKey';
-import toast from 'react-hot-toast';
-
+import { createFamilyAccountsApi } from '@/app/api/external/omnigateway/family-accounts';
+import { 
+    FamilyAccount, 
+    FamilyMetrics, 
+    LinkFamilyPayload, 
+    UpdateFamilyPayload 
+} from "@/app/api/external/omnigateway/types/family-account";
+import { useGatewayClientApiKey } from './useGatewayClientApiKey';
+import { toast } from "sonner";
 
 export const useFamilyAccounts = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +16,7 @@ export const useFamilyAccounts = () => {
     const [familyAccounts, setFamilyAccounts] = useState<FamilyAccount[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
+    const [searchResults, setSearchResults] = useState([]);
     const [metrics, setMetrics] = useState<FamilyMetrics>({
         totalFamilies: 0,
         activeAccounts: 0,
@@ -21,19 +26,17 @@ export const useFamilyAccounts = () => {
         familySpendingMultiplier: 0
     });
 
-    const [searchResults, setSearchResults] = useState([]);
-    const [selectedFamily, setSelectedFamily] = useState(null);
-    const [familyStats, setFamilyStats] = useState(null);
-
+    // Get API key from context
     const { apiKey } = useGatewayClientApiKey();
     const api = useMemo(() => apiKey ? createFamilyAccountsApi(apiKey) : null, [apiKey]);
 
+    // Fetch all family accounts with pagination and filters
     const fetchFamilyAccounts = useCallback(async (params = {}) => {
         if (!api) return;
         try {
             setIsLoading(true);
             const response = await api.getFamilyAccounts(params);
-            setFamilyAccounts(response.items);
+            setFamilyAccounts(response.items || []);
             setTotalItems(response.total);
             setTotalPages(response.pages);
             setMetrics(response.metrics);
@@ -47,6 +50,7 @@ export const useFamilyAccounts = () => {
         }
     }, [api]);
 
+    // Search customers for linking
     const handleSearch = useCallback(async (query: string) => {
         if (!api || query.length < 2) return;
         setIsSearching(true);
@@ -55,6 +59,7 @@ export const useFamilyAccounts = () => {
             setSearchResults(results.items);
             return results;
         } catch (error) {
+            console.error('Search error:', error);
             toast.error('Failed to search customers');
             throw error;
         } finally {
@@ -62,84 +67,71 @@ export const useFamilyAccounts = () => {
         }
     }, [api]);
 
+    // Create new family link
     const linkFamily = useCallback(async (payload: LinkFamilyPayload) => {
         if (!api) return;
         try {
             const result = await api.linkFamily(payload);
-            await fetchFamilyAccounts();
-            toast.success('Family account linked successfully');
+            await fetchFamilyAccounts(); // Refresh the list after linking
             return result;
         } catch (error) {
+            console.error('Link family error:', error);
             toast.error('Failed to link family account');
             throw error;
         }
     }, [api, fetchFamilyAccounts]);
 
+    // Unlink a member from a family
     const unlinkMember = useCallback(async (familyId: string, memberId: string) => {
         if (!api) return;
         try {
-            await api.unlinkMember(familyId, memberId);
-            
-            // Update local state to reflect changes immediately
-            setFamilyAccounts(prev => prev.map(family => {
-                if (family._id === familyId) {
-                    return {
-                        ...family,
-                        members: family.members.filter(m => m.customerId._id !== memberId),
-                        status: family.members.length === 1 ? 'INACTIVE' : family.status
-                    };
-                }
-                return family;
-            }));
-    
-            // Refresh data
-            await fetchFamilyAccounts();
-            
-            if (selectedFamily?.id === familyId) {
-                await getFamilyDetails(familyId);
-            }
-            
-            toast.success('Member unlinked successfully');
+            const result = await api.unlinkMember(familyId, memberId);
+            // Don't await the fetch - let the UI handle refresh timing
+            fetchFamilyAccounts();
+            return result;
         } catch (error) {
-            toast.error('Failed to unlink member');
+            console.error('Unlink member error:', error);
             throw error;
         }
-    }, [api, fetchFamilyAccounts, selectedFamily]);
+    }, [api, fetchFamilyAccounts]);
 
+    // Update family account
     const updateFamily = useCallback(async (id: string, payload: UpdateFamilyPayload) => {
         if (!api) return;
         try {
-            const response = await api.updateFamily(id, payload);
-            await fetchFamilyAccounts();
-            if (selectedFamily?.id === id) {
-                await getFamilyDetails(id);
-            }
-            return response;
+            const result = await api.updateFamily(id, payload);
+            // Don't await the fetch - let the UI handle refresh timing
+            fetchFamilyAccounts();
+            return result;
         } catch (error) {
+            console.error('Update family error:', error);
+            toast.error('Failed to update family');
             throw error;
         }
-    }, [api, fetchFamilyAccounts, selectedFamily]);
+    }, [api, fetchFamilyAccounts]);
 
+    // Get family details
     const getFamilyDetails = useCallback(async (id: string) => {
         if (!api) return;
         try {
-            const family = await api.getFamilyDetails(id);
-            setSelectedFamily(family);
-            return family;
+            const result = await api.getFamilyDetails(id);
+            return result;
         } catch (error) {
+            console.error('Get family details error:', error);
             toast.error('Failed to fetch family details');
             throw error;
         }
     }, [api]);
 
+    // Get family statistics
     const getFamilyStats = useCallback(async (id: string) => {
         if (!api) return;
         try {
-            const stats = await api.getFamilyStats(id);
-            setFamilyStats(stats);
-            return stats;
+            const result = await api.getFamilyStats(id);
+            return result;
         } catch (error) {
-            toast.error('Failed to fetch family stats');
+            console.error('Get family stats error:', error);
+            toast.error('Failed to fetch family statistics');
             throw error;
         }
     }, [api]);
@@ -152,8 +144,6 @@ export const useFamilyAccounts = () => {
         totalPages,
         metrics,
         searchResults,
-        selectedFamily,
-        familyStats,
         fetchFamilyAccounts,
         handleSearch,
         linkFamily,
