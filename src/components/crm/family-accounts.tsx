@@ -399,7 +399,6 @@ export function FamilyAccounts() {
                               { value: "view", label: "View Details" },
                               { value: "edit", label: "Edit Family" },
                               { value: "add", label: "Add Member" },
-                              { value: "manage", label: "Manage Benefits" },
                               ...(family.status === 'ACTIVE' ? [
                                 { value: "deactivate", label: "Deactivate Family" }
                               ] : [])
