@@ -391,7 +391,7 @@ export function AllMembers() {
                           {member.city && (
                             <div className="flex items-center text-sm">
                               <MapPin className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-                              {member.city}
+                              {member.country ? member.country + ', ' : ''} {member.city}
                             </div>
                           )}
                           {member.address && (
@@ -537,6 +537,7 @@ export function AllMembers() {
           phoneNumber: selectedMember.phoneNumber,
           code: selectedMember.code,
           city: selectedMember.city,
+          country: selectedMember.country,
           address: selectedMember.address,
           birthday: selectedMember.birthday,
         } : undefined}

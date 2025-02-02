@@ -14,7 +14,6 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-// import toast from "react-hot-toast";
 import { CreateMemberDto } from "@/app/api/external/omnigateway/types/members";
 
 const memberFormSchema = z.object({
@@ -24,7 +23,8 @@ const memberFormSchema = z.object({
   phoneNumber: z.string().optional(),
   city: z.string().optional(),
   address: z.string().optional(),
-  birthday: z.string().optional()
+  birthday: z.string().optional(),
+  country: z.string().optional()
 });
 
 interface MemberFormProps {
@@ -47,7 +47,8 @@ export function MemberForm({ open, onClose, onSubmit, initialData, title }: Memb
       phoneNumber: '',
       city: '',
       address: '',
-      birthday: ''
+      birthday: '',
+      country: ''
     }
   });
 
@@ -135,8 +136,7 @@ export function MemberForm({ open, onClose, onSubmit, initialData, title }: Memb
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="birthday"
@@ -145,6 +145,19 @@ export function MemberForm({ open, onClose, onSubmit, initialData, title }: Memb
                     <FormLabel>Birthday</FormLabel>
                     <FormControl>
                       <Input {...field} type="date" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter country" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

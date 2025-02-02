@@ -7,6 +7,7 @@ export interface Member {
     email: string;
     phoneNumber?: string;
     birthday?: string;
+    country?: string;
     city?: string;
     address?: string;
     code: string;
@@ -25,6 +26,7 @@ export type CreateMemberDto = {
     email: string;
     phoneNumber?: string;
     birthday?: string;
+    country?: string;
     city?: string;
     address?: string;
     code: string;
