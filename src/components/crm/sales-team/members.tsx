@@ -151,14 +151,15 @@ export function SalesTeam() {
     }
   };
 
-   const getStatusBadge = (status: string) => {
-   const variants = {
-     ACTIVE: "success",
-     INACTIVE: "secondary",
-     PENDING: "warning"
-   };
-   return <Badge variant={variants[status]}>{status}</Badge>;
- };
+  const getStatusBadge = (status: string) => {
+    const variants: { [key: string]: string } = {
+      "ACTIVE": "bg-green-100 text-green-800",
+      "ON_LEAVE": "bg-yellow-100 text-yellow-800",
+      "INACTIVE": "bg-gray-100 text-gray-800",
+      "SUSPENDED": "bg-red-100 text-red-800"
+    };
+    return variants[status] || variants["INACTIVE"];
+  };
 
   const handleExport = async () => {
     try {
@@ -347,7 +348,8 @@ export function SalesTeam() {
                   { value: "all", label: "All Status" },
                   { value: "ACTIVE", label: "Active" },
                   { value: "INACTIVE", label: "Inactive" },
-                  { value: "ON_LEAVE", label: "On Leave" }
+                  { value: "ON_LEAVE", label: "On Leave" },
+                  { value: "SUSPENDED", label: "Suspended" }
                 ]}
               />
             </div>
@@ -441,9 +443,9 @@ export function SalesTeam() {
           </div>
         </TableCell>
         <TableCell>
-          <Badge variant={getStatusBadge(member.status)}>
-            {member.status}
-          </Badge>
+           <Badge className={getStatusBadge(member.status)}>
+                        {member.status}
+                      </Badge>
         </TableCell>
         <TableCell>
           <div className="space-y-1">
