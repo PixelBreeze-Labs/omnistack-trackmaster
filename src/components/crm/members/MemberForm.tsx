@@ -14,7 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 import { CreateMemberDto } from "@/app/api/external/omnigateway/types/members";
 
 const memberFormSchema = z.object({
@@ -22,7 +22,6 @@ const memberFormSchema = z.object({
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phoneNumber: z.string().optional(),
-  code: z.string().min(1, "Code is required"),
   city: z.string().optional(),
   address: z.string().optional(),
   birthday: z.string().optional()
@@ -46,7 +45,6 @@ export function MemberForm({ open, onClose, onSubmit, initialData, title }: Memb
       lastName: '',
       email: '',
       phoneNumber: '',
-      code: '',
       city: '',
       address: '',
       birthday: ''
@@ -137,20 +135,8 @@ export function MemberForm({ open, onClose, onSubmit, initialData, title }: Memb
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Member Code</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter member code" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="grid grid-cols-1 gap-4">
+              
               <FormField
                 control={form.control}
                 name="birthday"
