@@ -120,6 +120,7 @@ export function FamilyAccounts() {
         toast.error('Edit feature coming soon');
         break;
       case "add":
+        setSelectedFamilyForMembers(family._id);
         setShowLinkModal(true);
         break;
       case "manage":
@@ -149,8 +150,9 @@ export function FamilyAccounts() {
   const handleUnlinkMember = async (familyId: string, memberId: string) => {
     try {
       await unlinkMember(familyId, memberId);
+      setExpandedFamily(null); // Close expanded view
+      await handleRefresh(); // Refresh data
       toast.success('Member unlinked successfully');
-      handleRefresh();
     } catch (error) {
       toast.error('Failed to unlink member');
     }
@@ -515,20 +517,20 @@ export function FamilyAccounts() {
       </Card>
 
       {showLinkModal && (
-    <LinkFamilyModal
-        isOpen={showLinkModal}
-        onClose={() => {
+        <LinkFamilyModal
+          isOpen={showLinkModal}
+          onClose={() => {
             setShowLinkModal(false);
             setSelectedFamilyForMembers(null);
-        }}
-        onSuccess={() => {
-            fetchFamilyAccounts();
+          }}
+          onSuccess={async () => {
+            await handleRefresh();
             setShowLinkModal(false);
             setSelectedFamilyForMembers(null);
-        }}
-        existingFamilyId={selectedFamilyForMembers}
-    />
-)}
+          }}
+          existingFamilyId={selectedFamilyForMembers}
+        />
+      )}
 
       {showDetailsModal && selectedFamilyId && (
         <FamilyDetailsModal
