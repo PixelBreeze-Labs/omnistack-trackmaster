@@ -156,13 +156,13 @@ export function AllMembers() {
               <p className="text-xs text-muted-foreground mt-1">From last month</p>
             </div>
             <div className="flex items-center gap-1">
-              {metrics?.trends?.members.percentage > 0 ? (
+              {metrics?.trends?.members?.percentage > 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500" />
               )}
-              <span className={`text-sm ${metrics?.trends?.members.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {metrics?.trends?.members.percentage ?? 0}%
+              <span className={`text-sm ${metrics?.trends?.members?.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.members?.percentage ?? 0}%
               </span>
             </div>
           </div>
@@ -206,13 +206,13 @@ export function AllMembers() {
               <p className="text-xs text-muted-foreground mt-1">Points issued this month</p>
             </div>
             <div className="flex items-center gap-1">
-              {metrics?.trends?.points.percentage > 0 ? (
+              {metrics?.trends?.points?.percentage > 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500" />
               )}
-              <span className={`text-sm ${metrics?.trends?.points.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {metrics?.trends?.points.percentage ?? 0}%
+              <span className={`text-sm ${metrics?.trends?.points?.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.points?.percentage ?? 0}%
               </span>
             </div>
           </div>
@@ -231,13 +231,13 @@ export function AllMembers() {
               <p className="text-xs text-muted-foreground mt-1">Points redeemed this month</p>
             </div>
             <div className="flex items-center gap-1">
-              {metrics?.trends?.redeemed.percentage > 0 ? (
+              {metrics?.trends?.redeemed?.percentage > 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500" />
               )}
-              <span className={`text-sm ${metrics?.trends?.redeemed.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {metrics?.trends?.redeemed.percentage ?? 0}%
+              <span className={`text-sm ${metrics?.trends?.redeemed?.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {metrics?.trends?.redeemed?.percentage ?? 0}%
               </span>
             </div>
           </div>
@@ -248,7 +248,7 @@ export function AllMembers() {
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <div className="mb-1">
+          <div className="mb-0">
             <h3 className="font-medium">Filter Members</h3>
             <p className="text-sm text-muted-foreground">
               Search and filter through your member base
@@ -256,8 +256,8 @@ export function AllMembers() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="p-4 flex items-center gap-4">
-            <div className="relative flex-1">
+          <div className="p-0 flex items-center gap-4">
+            <div className="relative mt-2 flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search members by name, email, or code..."
@@ -278,7 +278,7 @@ export function AllMembers() {
                 { value: "rejected", label: "Rejected" }
               ]}
             />
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 mt-2">
               <FileText className="h-4 w-4" />
               Import
             </Button>
