@@ -117,7 +117,7 @@ export function MyClubList() {
 
      <Card>
        <CardHeader>
-         <div className="mb-1">
+         <div className="">
            <h3 className="font-medium">Filter Members</h3>
            <p className="text-sm text-muted-foreground">
              Search and filter through club members
@@ -126,7 +126,7 @@ export function MyClubList() {
        </CardHeader>
        <CardContent>
          <div className="flex items-center gap-4">
-           <div className="relative flex-1">
+           <div className="relative mt-2 flex-1">
              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
              <Input
                placeholder="Search by name or email..."
