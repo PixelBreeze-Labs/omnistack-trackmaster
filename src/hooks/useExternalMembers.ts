@@ -54,7 +54,27 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
       setMembers(response.data);
       setTotalCount(response.total);
       
-      // Calculate metrics from response data
+      // If the API provides metrics, map them to the UI's expected format
+    if (response.metrics) {
+      const apiMetrics = response.metrics;
+      setMetrics({
+        totalRegistrations: apiMetrics.totalRegistrations,
+        conversionRate: apiMetrics.totalRegistrations
+          ? (apiMetrics.approvedUsers / apiMetrics.totalRegistrations) * 100
+          : 0,
+        activeUsers: apiMetrics.approvedUsers,
+        // Here, you can choose to use pendingUsers, or compute recentSignups from the data.
+        recentSignups: apiMetrics.pendingUsers, 
+        trends: {
+          monthly: apiMetrics.trends.monthly,
+          // We only have "weekly" from the API so we'll use it for the remaining trend fields.
+          conversion: apiMetrics.trends.weekly,
+          active: apiMetrics.trends.weekly,
+          recent: apiMetrics.trends.weekly,
+        }
+      });
+    } else {
+      // Fallback: calculate metrics from the data if the API does not provide them
       const activeCount = response.data.filter(m => m.status === 'approved').length;
       const recentCount = response.data.filter(m => {
         const date = new Date(m.applied_at);
@@ -65,16 +85,17 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
 
       setMetrics({
         totalRegistrations: response.total,
-        conversionRate: (activeCount / response.total) * 100,
+        conversionRate: response.total ? (activeCount / response.total) * 100 : 0,
         activeUsers: activeCount,
         recentSignups: recentCount,
-        trends: response.metrics?.trends || {
+        trends: {
           monthly: 0,
           conversion: 0,
           active: 0,
           recent: 0
         }
       });
+    }
     } catch (err) {
       setError('Failed to fetch members');
       toast.error('Failed to fetch members');
@@ -89,6 +110,46 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
     return () => controller.abort();
   }, [loadData]);
 
+  const approveMember = useCallback(async (id: string) => {
+    try {
+      await api.approveMember(id);
+      toast.success('Member approved successfully');
+      // Optionally, refresh the member list after approval:
+      loadData({});
+    } catch (error) {
+      toast.error('Failed to approve member');
+    }
+  }, [api, loadData]);
+
+  const rejectMember = useCallback(async (id: string, reason?: string) => {
+    try {
+      await api.rejectMember(id, reason);
+      toast.success('Member rejected successfully');
+      // Optionally, refresh the member list after rejection:
+      loadData({});
+    } catch (error) {
+      toast.error('Failed to reject member');
+    }
+  }, [api, loadData]);
+
+  const exportMembers = useCallback(async () => {
+    try {
+      const fileData = await api.exportMembers(source);
+      // Create a blob from the returned data and trigger a download
+      const blob = new Blob([fileData], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'members_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      toast.success('Export initiated successfully');
+    } catch (error) {
+      toast.error('Failed to export members');
+    }
+  }, [api, source]);
+
   return {
     members,
     loading,
@@ -99,6 +160,9 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
     pageSize,
     setPageSize,
     metrics,
-    fetchMembers
+    fetchMembers,
+    approveMember,
+    rejectMember,
+    exportMembers
   };
 };
