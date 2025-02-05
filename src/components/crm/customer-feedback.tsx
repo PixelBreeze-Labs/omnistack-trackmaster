@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Download, RefreshCcw, Eye, Star, Filter, Clock } from "lucide-react";
+import { Search, Download, RefreshCcw, Eye, Star, Clock } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { useCustomerFeedback } from "@/hooks/useCustomerFeedback";
 import { useFeedbackStats } from "@/hooks/useFeedbackStats";
@@ -39,10 +39,10 @@ export function CustomerFeedback() {
   const {
     feedbacks,
     loading,
-    error,
+    // error,
     totalCount,
     fetchFeedback,
-    getFeedbackById,
+    // getFeedbackById,
   } = useCustomerFeedback();
 
   const { stats, loading: statsLoading } = useFeedbackStats();
@@ -55,39 +55,40 @@ export function CustomerFeedback() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, status, fetchFeedback]);
 
+  const { data, pagination } = feedbacks;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const handleViewDetails = async (id: string) => {
+  const handleViewDetails = async (feedback) => {
     try {
-      const data = await getFeedbackById(id);
-      setSelectedFeedback(data);
+      
+      setSelectedFeedback(feedback);
       setIsModalOpen(true);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, string> = {
-      NEW: "warning",
-      REVIEWED: "default",
-      RESPONDED: "success",
-    };
-    return <Badge variant={variants[status]}>{status}</Badge>;
-  };
 
-  const getRatingStars = (rating: number) => {
-    return Array(5)
-      .fill(0)
-      .map((_, index) => (
+const getRatingStars = (rating: number) => {
+  const normalizedRating = Math.round((rating / 10) * 5); // Convert 10-point to 5 stars
+  return (
+    <div className="flex items-center gap-1">
+      {Array(5).fill(0).map((_, index) => (
         <Star
           key={index}
-          className={`h-4 w-4 inline-block ${
-            index < rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
+          className={`h-4 w-4 ${
+            index < normalizedRating 
+              ? "text-yellow-500 fill-yellow-500" 
+              : "text-gray-300"
           }`}
         />
-      ));
-  };
+      ))}
+      <span className="ml-2 text-sm font-medium">
+        {rating}/10
+      </span>
+    </div>
+  );
+};
 
   return (
     <div className="space-y-6">
@@ -240,180 +241,171 @@ export function CustomerFeedback() {
      {/* Feedback Table */}
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Feedback</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7}>
-                    <div className="flex justify-center items-center py-8">
-                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : feedbacks?.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7}>
-                    <div className="flex flex-col items-center justify-center py-8 gap-3">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 text-muted-foreground"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"
-                        />
-                      </svg>
-                      <h3 className="text-lg font-medium">No feedback found</h3>
-                      <p className="text-sm text-muted-foreground max-w-sm text-center">
-                        {searchTerm || status !== 'all' 
-                          ? "Try adjusting your filters or search terms"
-                          : "Customer feedback will appear here when they provide ratings and reviews"}
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                feedbacks?.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={item.customer.avatar} />
-                          <AvatarFallback>
-                            {item.customer.name ? item.customer.name.substring(0, 2).toUpperCase() : 'NA'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-0.5">
-                          <div className="font-medium">{item.customer.name}</div>
-                          <div className="text-xs text-muted-foreground">{item.customer.email}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-0.5">
-                        {Array(5).fill(0).map((_, index) => (
-                          <Star
-                            key={index}
-                            className={`h-4 w-4 ${
-                              index < (item.rating || 0) 
-                                ? "text-yellow-500 fill-yellow-500" 
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {item.category || 'General'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="max-w-[300px] truncate" title={item.product_feedback}>
-                        {item.product_feedback || 'No feedback provided'}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={
-                        item.status === "NEW" ? "warning" :
-                        item.status === "REVIEWED" ? "default" : "success"
-                      }>
-                        {item.status || 'PENDING'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span>{item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleViewDetails(item.id)}
-                        disabled={loading}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-
-          {/* Pagination Footer */}
-          <div className="border-t px-4 py-3">
-            <div className="flex items-center justify-between gap-4">
-              <InputSelect
-                name="pageSize"
-                label=""
-                value={pageSize.toString()}
-                onChange={(e) => {
-                  setPageSize(parseInt(e.target.value));
-                  setPage(1);
-                }}
-                options={[
-                  { value: "10", label: "10 rows" },
-                  { value: "20", label: "20 rows" },
-                  { value: "50", label: "50 rows" },
-                ]}
-              />
-              
-              <div className="flex-1 flex items-center justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page === 1 || loading}
-                      />
-                    </PaginationItem>
-                    {Array.from({ length: Math.min(5, Math.ceil(totalCount / pageSize)) }, (_, i) => (
-                      <PaginationItem key={i}>
-                        <PaginationLink
-                          isActive={page === i + 1}
-                          onClick={() => setPage(i + 1)}
-                          disabled={loading}
-                        >
-                          {i + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setPage((p) => Math.min(Math.ceil(totalCount / pageSize), p + 1))}
-                        disabled={page === Math.ceil(totalCount / pageSize) || loading || totalCount === 0}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-              
-              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                Showing <span className="font-medium">{feedbacks?.length}</span> of{" "}
-                <span className="font-medium">{totalCount || 0}</span> items
+        <Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Date</TableHead>
+      <TableHead>Customer</TableHead>
+      <TableHead>Store</TableHead>
+      <TableHead>Overall Rating</TableHead>
+      <TableHead>Feedback</TableHead>
+      <TableHead>Purchase</TableHead>
+      <TableHead className="text-right">Actions</TableHead>
+    </TableRow>
+  </TableHeader>
+<TableBody>
+  {feedbacks.map((item) => (
+    <TableRow key={item.id}>
+      <TableCell>
+        <div className="flex flex-col">
+          <span className="font-medium">
+            {new Date(item.visit_date).toLocaleDateString()}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {new Date(item.created_at).toLocaleTimeString()}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>
+              {item.customer.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="font-medium">{item.customer.name}</span>
+            <span className="text-xs text-muted-foreground">
+              {item.customer.email}
+            </span>
+            {item.customer.phone && (
+              <span className="text-xs text-muted-foreground">
+                {item.customer.phone}
+              </span>
+            )}
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <Badge variant="outline">{item.store.name}</Badge>
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1">
+            {getRatingStars(item.ratings.overall)}
+          </div>
+          <div className="flex items-center gap-1">
+            <Badge variant={item.would_recommend ? "success" : "destructive"}>
+              {item.would_recommend ? "Would Recommend" : "Wouldn't Recommend"}
+            </Badge>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="max-w-[200px] space-y-1">
+          {item.feedback.product && (
+            <div>
+              <span className="text-xs font-medium">Product:</span>
+              <p className="text-sm truncate" title={item.feedback.product}>
+                {item.feedback.product}
               </p>
             </div>
-          </div>
+          )}
+          {item.feedback.service && (
+            <div>
+              <span className="text-xs font-medium">Service:</span>
+              <p className="text-sm truncate" title={item.feedback.service}>
+                {item.feedback.service}
+              </p>
+            </div>
+          )}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-col gap-1">
+          <Badge variant={item.purchase.amount ? "success" : "secondary"}>
+            {item.purchase.amount ? `${item.purchase.amount} ALL` : 'No Purchase'}
+          </Badge>
+          <Badge variant={item.purchase.found_product ? "outline" : "secondary"}>
+            {item.purchase.found_product ? "Found Product" : "Didn't Find Product"}
+          </Badge>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewDetails(item)}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Details
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+</Table>
+
+<div className="border-t px-4 py-3">
+ <div className="flex items-center justify-between gap-4">
+   <InputSelect
+     name="pageSize"
+     label=""
+     value={pageSize.toString()}
+     onChange={(e) => {
+       setPageSize(parseInt(e.target.value));
+       setPage(1);
+     }}
+     options={[
+       { value: "10", label: "10 rows" },
+       { value: "20", label: "20 rows" },
+       { value: "50", label: "50 rows" }
+     ]}
+   />
+
+   <div className="flex-1 flex items-center justify-center">  
+     <Pagination>
+       <PaginationContent>
+         <PaginationItem>
+           <PaginationPrevious
+             onClick={() => setPage(Math.max(1, page - 1))}
+             disabled={page === 1}
+           />
+         </PaginationItem>
+         {[...Array(5)].map((_, i) => {
+           const pageNumber = page <= 3 
+             ? i + 1 
+             : page >= pagination?.last_page - 2
+             ? pagination?.last_page - 4 + i
+             : page - 2 + i;
+           return (
+             <PaginationItem key={i}>
+               <PaginationLink
+                 isActive={page === pageNumber}
+                 onClick={() => setPage(pageNumber)}
+               >
+                 {pageNumber}
+               </PaginationLink>
+             </PaginationItem>
+           );
+         })}
+         <PaginationItem>
+           <PaginationNext
+             onClick={() => setPage(Math.min(pagination?.last_page, page + 1))}
+             disabled={page === pagination?.last_page}
+           />
+         </PaginationItem>
+       </PaginationContent>
+     </Pagination>
+   </div>
+
+   <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+     Showing {feedbacks.length} of {pagination?.total || 0} items
+   </p>
+ </div>
+</div>
         </CardContent>
       </Card>
       {/* Feedback Modal */}
