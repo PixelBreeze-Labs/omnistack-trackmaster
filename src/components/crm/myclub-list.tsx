@@ -1,6 +1,6 @@
-// src/components/crm/myclub-list.tsx
 "use client";
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,13 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-//   DropdownMenuSeparator,
-// } from "@/components/ui/dropdown-menu";
 import { 
   Search, 
   Users,
@@ -39,83 +32,47 @@ import {
   ShoppingBag,
   CreditCard
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import InputSelect from "../Common/InputSelect";
-
-
-
-interface ClubMember {
-  id: string;
-  name: string;
-  email: string;
-  joinDate: string;
-  tier: "bronze" | "silver" | "gold" | "platinum";
-  points: number;
-  totalSpent: number;
-  lastPurchase: string;
-  status: "active" | "inactive";
-  favoriteCategories: string[];
-  purchaseCount: number;
-  avatar?: string;
-}
-
-const DUMMY_MEMBERS: ClubMember[] = [
-  {
-    id: "1",
-    name: "Alice Brown",
-    email: "alice@example.com",
-    joinDate: "2024-01-08",
-    tier: "gold",
-    points: 2500,
-    totalSpent: 125000,
-    lastPurchase: "2024-01-20",
-    status: "active",
-    favoriteCategories: ["Fashion", "Accessories"],
-    purchaseCount: 24
-  },
-  {
-    id: "2",
-    name: "Bob White",
-    email: "bob@example.com",
-    joinDate: "2024-01-15",
-    tier: "silver",
-    points: 1200,
-    totalSpent: 75000,
-    lastPurchase: "2024-01-18",
-    status: "active",
-    favoriteCategories: ["Electronics"],
-    purchaseCount: 12
-  },
-  {
-    id: "3",
-    name: "Carol Davis",
-    email: "carol@example.com",
-    joinDate: "2024-01-10",
-    tier: "platinum",
-    points: 5000,
-    totalSpent: 250000,
-    lastPurchase: "2024-01-21",
-    status: "active",
-    favoriteCategories: ["Fashion", "Beauty", "Home"],
-    purchaseCount: 45
-  }
-];
+import { useExternalMembers } from "@/hooks/useExternalMembers";
 
 export function MyClubList() {
-  const [members] = useState<ClubMember[]>(DUMMY_MEMBERS);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [tierFilter, setTierFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+
+  const { 
+    members, 
+    loading, 
+    error, 
+    totalCount,
+    page, 
+    setPage,
+    pageSize, 
+    setPageSize,
+    fetchMembers,
+    metrics
+  } = useExternalMembers({ source: 'from_my_club' });
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchMembers({ 
+        search: searchQuery,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        tier: tierFilter !== 'all' ? tierFilter : undefined 
+      });
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchMembers, searchQuery, statusFilter, tierFilter, page, pageSize]);
 
   const getTierBadge = (tier: string) => {
     const variants = {
@@ -127,9 +84,20 @@ export function MyClubList() {
     return <Badge variant={variants[tier]} className="uppercase">{tier}</Badge>;
   };
 
+  const handleRefresh = () => {
+    fetchMembers({
+      search: searchQuery,
+      status: statusFilter !== 'all' ? statusFilter : undefined,
+      tier: tierFilter !== 'all' ? tierFilter : undefined
+    });
+  };
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">My Club Members</h2>
@@ -142,14 +110,18 @@ export function MyClubList() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -157,8 +129,8 @@ export function MyClubList() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,847</div>
-            <p className="text-xs text-muted-foreground mt-1">+124 this month</p>
+            <div className="text-2xl font-bold">{metrics?.totalMembers}</div>
+            <p className="text-xs text-muted-foreground mt-1">Active club members</p>
           </CardContent>
         </Card>
 
@@ -168,7 +140,7 @@ export function MyClubList() {
             <Crown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">284</div>
+            <div className="text-2xl font-bold">{metrics?.vipMembers}</div>
             <p className="text-xs text-muted-foreground mt-1">Gold & Platinum tier</p>
           </CardContent>
         </Card>
@@ -179,7 +151,7 @@ export function MyClubList() {
             <Gift className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">458.2K</div>
+            <div className="text-2xl font-bold">{metrics?.totalPoints?.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">Active rewards points</p>
           </CardContent>
         </Card>
@@ -190,194 +162,174 @@ export function MyClubList() {
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">85K ALL</div>
+            <div className="text-2xl font-bold">{metrics?.averageSpend?.toLocaleString()} ALL</div>
             <p className="text-xs text-muted-foreground mt-1">Per member</p>
           </CardContent>
         </Card>
       </div>
 
-       {/* Filters Card */}
-     <Card>
-       <CardHeader>
-         <div className="mb-1">
-           <h3 className="font-medium">Filter Members</h3>
-           <p className="text-sm text-muted-foreground">
-             Search and filter through club members
-           </p>
-         </div>
-       </CardHeader>
-       <CardContent className="p-0">
-         <div className="flex items-center justify-between gap-4">
-           <div className="flex items-center flex-1 gap-2 max-w-3xl">
-             <div className="relative mt-2 flex-1">
-               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-               <Input
-                 placeholder="Search members..."
-                 className="pl-8"
-                 value={searchTerm}
-                 onChange={(e) => setSearchTerm(e.target.value)}
-               />
-             </div>
-             <Select value={tierFilter} onValueChange={setTierFilter}>
-               <SelectTrigger className="w-[140px]">
-                 <SelectValue placeholder="Tier" />
-               </SelectTrigger>
-               <SelectContent>
-               <SelectItem value="all">All Tiers</SelectItem>
-                  <SelectItem value="platinum">Platinum</SelectItem>
-                  <SelectItem value="gold">Gold</SelectItem>
-                  <SelectItem value="silver">Silver</SelectItem>
-                  <SelectItem value="bronze">Bronze</SelectItem>
-               </SelectContent>
-             </Select>
-             <Select value={statusFilter} onValueChange={setStatusFilter}>
-               <SelectTrigger className="w-[140px]">
-                 <SelectValue placeholder="Status" />
-               </SelectTrigger>
-               <SelectContent>
-               <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-               </SelectContent>
-             </Select>
-           </div>
-         </div>
-       </CardContent>
-     </Card>
-
-      {/* Filters and Table */}
       <Card>
-     
+        <CardHeader>
+          <div className="mb-1">
+            <h3 className="font-medium">Filter Members</h3>
+            <p className="text-sm text-muted-foreground">
+              Search and filter through club members
+            </p>
+          </div>
+        </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Tier</TableHead>
-                <TableHead>Points</TableHead>
-                <TableHead>Join Date</TableHead>
-                <TableHead>Total Spent</TableHead>
-                <TableHead>Last Purchase</TableHead>
-                <TableHead>Favorites</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={member.avatar} />
-                        <AvatarFallback>
-                          {member.name.split(" ").map(n => n[0]).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{member.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {member.email}
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+            <Select value={tierFilter} onValueChange={setTierFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Tier" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tiers</SelectItem>
+                <SelectItem value="platinum">Platinum</SelectItem>
+                <SelectItem value="gold">Gold</SelectItem>
+                <SelectItem value="silver">Silver</SelectItem>
+                <SelectItem value="bronze">Bronze</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Tier</TableHead>
+                  <TableHead>Points</TableHead>
+                  <TableHead>Join Date</TableHead>
+                  <TableHead>Total Spent</TableHead>
+                  <TableHead>Last Activity</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {members.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            {member.full_name?.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{member.full_name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {member.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getTierBadge(member.tier)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-muted-foreground" />
-                      {member.points.toLocaleString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      {new Date(member.joinDate).toLocaleDateString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      {member.totalSpent.toLocaleString()} ALL
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      {new Date(member.lastPurchase).toLocaleDateString()}
-                      <div className="text-xs text-muted-foreground">
-                        {member.purchaseCount} purchases
+                    </TableCell>
+                    <TableCell>{getTierBadge(member.tier)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-muted-foreground" />
+                        {member.points?.toLocaleString() ?? 0}
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {member.favoriteCategories.map((category) => (
-                        <Badge key={category} variant="outline" className="text-xs">
-                          {category}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                  N/A
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-         {/* Pagination */}
-         <div className="border-t px-4 py-3">
-           <div className="flex items-center justify-between gap-4">
-             <InputSelect
-               name="pageSize"
-               label=""
-               value={pageSize.toString()}
-               onChange={(e) => setPageSize(parseInt(e.target.value))}
-               options={[
-                 { value: "10", label: "10 rows" },
-                 { value: "20", label: "20 rows" },
-                 { value: "50", label: "50 rows" }
-               ]}
-             />
-             
-             <div className="flex-1 flex items-center justify-center">
-               <Pagination>
-                 <PaginationContent>
-                   <PaginationItem>
-                     <PaginationPrevious 
-                       onClick={() => setPage(p => Math.max(1, p - 1))}
-                       disabled={page === 1} 
-                     />
-                   </PaginationItem>
-                   {[...Array(Math.min(5, Math.ceil(members.length / pageSize)))].map((_, i) => (
-                     <PaginationItem key={i + 1}>
-                       <PaginationLink
-                         isActive={page === i + 1}
-                         onClick={() => setPage(i + 1)}
-                       >
-                         {i + 1}
-                       </PaginationLink>
-                     </PaginationItem>
-                   ))}
-                   <PaginationItem>
-                     <PaginationNext 
-                       onClick={() => setPage(p => Math.min(Math.ceil(members.length / pageSize), p + 1))}
-                       disabled={page === Math.ceil(members.length / pageSize)}
-                     />
-                   </PaginationItem>
-                 </PaginationContent>
-               </Pagination>
-             </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        {new Date(member.join_date).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        {member.total_spent?.toLocaleString() ?? 0} ALL
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {new Date(member.last_activity).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
-             <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-               Showing <span className="font-medium">{pageSize}</span> of{" "}
-               <span className="font-medium">{members.length}</span> members
-             </p>
-           </div>
-         </div>
-       </CardContent>
-     </Card>
-   </div>
- );
+          <div className="border-t px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <InputSelect
+                name="pageSize"
+                label=""
+                value={pageSize.toString()}
+                onChange={(e) => setPageSize(parseInt(e.target.value))}
+                options={[
+                  { value: "10", label: "10 rows" },
+                  { value: "20", label: "20 rows" },
+                  { value: "50", label: "50 rows" }
+                ]}
+              />
+              
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      disabled={page === 1 || loading} 
+                    />
+                  </PaginationItem>
+                  {[...Array(Math.min(5, Math.ceil(totalCount / pageSize)))].map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        isActive={page === i + 1}
+                        onClick={() => setPage(i + 1)}
+                        disabled={loading}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setPage(Math.min(Math.ceil(totalCount / pageSize), page + 1))}
+                      disabled={page === Math.ceil(totalCount / pageSize) || loading}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+
+              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                Showing {members.length} of {totalCount} members
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
-
-export default MyClubList;
