@@ -65,7 +65,7 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
 
       setMetrics({
         totalRegistrations: response.total,
-        conversionRate: (activeCount / response.total) * 100,
+        conversionRate: response.total ? (activeCount / response.total) * 100 : 0,
         activeUsers: activeCount,
         recentSignups: recentCount,
         trends: response.metrics?.trends || {
@@ -89,6 +89,46 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
     return () => controller.abort();
   }, [loadData]);
 
+  const approveMember = useCallback(async (id: string) => {
+    try {
+      await api.approveMember(id);
+      toast.success('Member approved successfully');
+      // Optionally, refresh the member list after approval:
+      loadData({});
+    } catch (error) {
+      toast.error('Failed to approve member');
+    }
+  }, [api, loadData]);
+
+  const rejectMember = useCallback(async (id: string, reason?: string) => {
+    try {
+      await api.rejectMember(id, reason);
+      toast.success('Member rejected successfully');
+      // Optionally, refresh the member list after rejection:
+      loadData({});
+    } catch (error) {
+      toast.error('Failed to reject member');
+    }
+  }, [api, loadData]);
+
+  const exportMembers = useCallback(async () => {
+    try {
+      const fileData = await api.exportMembers(source);
+      // Create a blob from the returned data and trigger a download
+      const blob = new Blob([fileData], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'members_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      toast.success('Export initiated successfully');
+    } catch (error) {
+      toast.error('Failed to export members');
+    }
+  }, [api, source]);
+
   return {
     members,
     loading,
@@ -99,6 +139,9 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
     pageSize,
     setPageSize,
     metrics,
-    fetchMembers
+    fetchMembers,
+    approveMember,
+    rejectMember,
+    exportMembers
   };
 };
