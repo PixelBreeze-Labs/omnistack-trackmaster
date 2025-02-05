@@ -1,21 +1,20 @@
-// hooks/useCustomerFeedback.ts
-import { useState, useCallback, useMemo } from 'react';
-import { createVenueBoostFeedbackApi, VenueBoostFeedbackResponse, Feedback } from '@/app/api/external/venueboost/feedback';
-import { useGatewayClientApiKey } from './useGatewayClientApiKey';
-import toast from 'react-hot-toast';
+import { useState, useCallback, useMemo } from "react";
+import { createVenueBoostFeedbackApi, VenueBoostFeedbackResponse, Feedback } from "@/app/api/external/omnigateway/venueboost/feedback";
+import { useGatewayClientApiKey } from "./useGatewayClientApiKey";
+import toast from "react-hot-toast";
 
 export const useCustomerFeedback = () => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
 
   const { apiKey } = useGatewayClientApiKey();
   const api = useMemo(() => createVenueBoostFeedbackApi(apiKey), [apiKey]);
 
-  const loadData = useCallback(async (params: { search?: string } = {}) => {
+  const loadData = useCallback(async (params: { search?: string; status?: string } = {}) => {
     try {
       setLoading(true);
       const response: VenueBoostFeedbackResponse = await api.getFeedback({
@@ -26,23 +25,23 @@ export const useCustomerFeedback = () => {
       setFeedbacks(response.data);
       setTotalCount(response.total);
     } catch (err) {
-      setError('Failed to fetch feedback');
-      toast.error('Failed to fetch feedback');
+      setError("Failed to fetch feedback");
+      toast.error("Failed to fetch feedback");
     } finally {
       setLoading(false);
     }
   }, [api, page, pageSize]);
 
-  const fetchFeedback = useCallback((params: { search?: string } = {}) => {
+  const fetchFeedback = useCallback((params: { search?: string; status?: string } = {}) => {
     loadData(params);
   }, [loadData]);
 
   const getFeedbackById = useCallback(async (id: string) => {
     try {
-      const feedback = await api.getFeedbackById(id);
-      return feedback;
+      const data = await api.getFeedbackById(id);
+      return data;
     } catch (err) {
-      toast.error('Failed to fetch feedback detail');
+      toast.error("Failed to fetch feedback detail");
       throw err;
     }
   }, [api]);

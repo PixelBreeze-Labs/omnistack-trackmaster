@@ -1,5 +1,4 @@
-// app/api/external/venueboost/feedback.ts
-import { createOmniGateway } from '../index';
+import { createOmniGateway } from "../index";
 
 export interface Feedback {
   id: string;
@@ -22,7 +21,14 @@ export interface Feedback {
   purchase_amount: number;
   preferred_communication_channel: string;
   subscribe_to_newsletter: boolean;
-  created_at: string;
+  date: string;
+  customer: {
+    name: string;
+    email: string;
+    avatar: string | null;
+  };
+  category: string;
+  status: string;
 }
 
 export interface VenueBoostFeedbackResponse {
@@ -33,21 +39,32 @@ export interface VenueBoostFeedbackResponse {
   total: number;
 }
 
+export interface FeedbackStatsResponse {
+    averageRating: number;
+    totalFeedback: number;
+    satisfactionScore: number;
+    trending: string;
+  }
+
 export const createVenueBoostFeedbackApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
-
   return {
     getFeedback: async (params: {
       page?: number;
       per_page?: number;
       search?: string;
+      status?: string;
     }): Promise<VenueBoostFeedbackResponse> => {
-      const { data } = await api.get('/vb/feedback', { params });
+      const { data } = await api.get("/vb/feedback", { params });
       return data;
     },
     getFeedbackById: async (id: string): Promise<Feedback> => {
       const { data } = await api.get(`/vb/feedback/${id}`);
       return data;
     },
+    getFeedbackStats: async (): Promise<FeedbackStatsResponse> => {
+        const { data } = await api.get("/vb/feedback/stats");
+        return data;
+      },
   };
 };
