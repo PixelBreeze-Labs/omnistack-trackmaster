@@ -54,7 +54,27 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
       setMembers(response.data);
       setTotalCount(response.total);
       
-      // Calculate metrics from response data
+      // If the API provides metrics, map them to the UI's expected format
+    if (response.metrics) {
+      const apiMetrics = response.metrics;
+      setMetrics({
+        totalRegistrations: apiMetrics.totalRegistrations,
+        conversionRate: apiMetrics.totalRegistrations
+          ? (apiMetrics.approvedUsers / apiMetrics.totalRegistrations) * 100
+          : 0,
+        activeUsers: apiMetrics.approvedUsers,
+        // Here, you can choose to use pendingUsers, or compute recentSignups from the data.
+        recentSignups: apiMetrics.pendingUsers, 
+        trends: {
+          monthly: apiMetrics.trends.monthly,
+          // We only have "weekly" from the API so we'll use it for the remaining trend fields.
+          conversion: apiMetrics.trends.weekly,
+          active: apiMetrics.trends.weekly,
+          recent: apiMetrics.trends.weekly,
+        }
+      });
+    } else {
+      // Fallback: calculate metrics from the data if the API does not provide them
       const activeCount = response.data.filter(m => m.status === 'approved').length;
       const recentCount = response.data.filter(m => {
         const date = new Date(m.applied_at);
@@ -68,13 +88,14 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
         conversionRate: response.total ? (activeCount / response.total) * 100 : 0,
         activeUsers: activeCount,
         recentSignups: recentCount,
-        trends: response.metrics?.trends || {
+        trends: {
           monthly: 0,
           conversion: 0,
           active: 0,
           recent: 0
         }
       });
+    }
     } catch (err) {
       setError('Failed to fetch members');
       toast.error('Failed to fetch members');

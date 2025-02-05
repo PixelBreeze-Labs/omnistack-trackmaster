@@ -144,107 +144,113 @@ export function LandingList() {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-2xl font-bold">{metrics?.totalRegistrations}</div>
-                <p className="text-xs text-muted-foreground mt-1">From landing pages</p>
-              </div>
-              <div className="flex items-center gap-1">
-                {metrics?.trends.monthly > 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                )}
-                <span className={`text-sm ${metrics?.trends.monthly > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics?.trends.monthly}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-2xl font-bold">{metrics?.conversionRate}%</div>
-                <p className="text-xs text-muted-foreground mt-1">Conversion rate</p>
-              </div>
-              <div className="flex items-center gap-1">
-                {metrics?.trends.conversion > 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                )}
-                <span className={`text-sm ${metrics?.trends.conversion > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics?.trends.conversion}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-2xl font-bold">{metrics?.activeUsers}</div>
-                <p className="text-xs text-muted-foreground mt-1">Active users</p>
-              </div>
-              <div className="flex items-center gap-1">
-                {metrics?.trends.active > 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                )}
-                <span className={`text-sm ${metrics?.trends.active > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics?.trends.active}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Signups</CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-2xl font-bold">{metrics?.recentSignups}</div>
-                <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
-              </div>
-              <div className="flex items-center gap-1">
-                {metrics?.trends.recent > 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                )}
-                <span className={`text-sm ${metrics?.trends.recent > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics?.trends.recent}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+<div className="grid gap-4 md:grid-cols-4">
+  {/* Total Registrations Card */}
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
+      <Users className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="text-2xl font-bold">{metrics?.totalRegistrations}</div>
+          <p className="text-xs text-muted-foreground mt-1">From landing pages</p>
+        </div>
+        <div className="flex items-center gap-1">
+          {metrics?.trends.monthly > 0 ? (
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500" />
+          )}
+          <span className={`text-sm ${metrics?.trends.monthly > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {metrics?.trends.monthly}%
+          </span>
+        </div>
       </div>
+    </CardContent>
+  </Card>
+
+  {/* Conversion Rate Card */}
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+      <BarChart3 className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex justify-between items-start">
+        <div>
+          {/* toFixed(2) ensures two decimal places */}
+          <div className="text-2xl font-bold">{metrics?.conversionRate?.toFixed(2)}%</div>
+          <p className="text-xs text-muted-foreground mt-1">Approved / Total</p>
+        </div>
+        <div className="flex items-center gap-1">
+          {metrics?.trends.conversion > 0 ? (
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500" />
+          )}
+          <span className={`text-sm ${metrics?.trends.conversion > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {metrics?.trends.conversion}%
+          </span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+
+  {/* Active Users Card */}
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+      <UserCheck className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="text-2xl font-bold">{metrics?.activeUsers}</div>
+          <p className="text-xs text-muted-foreground mt-1">Approved Users</p>
+        </div>
+        <div className="flex items-center gap-1">
+          {metrics?.trends.active > 0 ? (
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500" />
+          )}
+          <span className={`text-sm ${metrics?.trends.active > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {metrics?.trends.active}%
+          </span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+
+  {/* Recent Signups Card */}
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">Recent Signups</CardTitle>
+      <UserPlus className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="text-2xl font-bold">{metrics?.recentSignups}</div>
+          <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
+        </div>
+        <div className="flex items-center gap-1">
+          {metrics?.trends.recent > 0 ? (
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500" />
+          )}
+          <span className={`text-sm ${metrics?.trends.recent > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {metrics?.trends.recent}%
+          </span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
 
       {/* Filter Section */}
       <Card>
