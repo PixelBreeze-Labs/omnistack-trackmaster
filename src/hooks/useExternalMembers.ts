@@ -1,11 +1,11 @@
 // hooks/useExternalMembers.ts
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { ExternalMember } from '@/app/api/external/omnigateway/types/members';
 import { createVenueBoostApi } from '@/app/api/external/omnigateway/venueboost/members';
 import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
-interface ExternalMemberMetrics {
+export interface ExternalMemberMetrics {
   totalRegistrations: number;
   conversionRate: number;
   activeUsers: number;
@@ -39,7 +39,7 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
   });
 
   const { apiKey } = useGatewayClientApiKey();
-  const api = createVenueBoostApi(apiKey);
+  const api = useMemo(() => createVenueBoostApi(apiKey), [apiKey]);
 
   const loadData = useCallback(async (params: { search?: string; status?: string }) => {
     try {
@@ -53,7 +53,28 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
 
       setMembers(response.data);
       setTotalCount(response.total);
-      setMetrics(response.metrics);
+      
+      // Calculate metrics from response data
+      const activeCount = response.data.filter(m => m.status === 'approved').length;
+      const recentCount = response.data.filter(m => {
+        const date = new Date(m.applied_at);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return date >= sevenDaysAgo;
+      }).length;
+
+      setMetrics({
+        totalRegistrations: response.total,
+        conversionRate: (activeCount / response.total) * 100,
+        activeUsers: activeCount,
+        recentSignups: recentCount,
+        trends: response.metrics?.trends || {
+          monthly: 0,
+          conversion: 0,
+          active: 0,
+          recent: 0
+        }
+      });
     } catch (err) {
       setError('Failed to fetch members');
       toast.error('Failed to fetch members');
@@ -61,6 +82,12 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
       setLoading(false);
     }
   }, [api, page, pageSize, source]);
+
+  const fetchMembers = useCallback((params: { search?: string; status?: string }) => {
+    const controller = new AbortController();
+    loadData(params);
+    return () => controller.abort();
+  }, [loadData]);
 
   return {
     members,
@@ -72,6 +99,6 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
     pageSize,
     setPageSize,
     metrics,
-    fetchMembers: loadData
+    fetchMembers
   };
 };

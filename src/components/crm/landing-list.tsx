@@ -29,7 +29,10 @@ import {
   UserCheck,
   UserPlus,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Mail,
+  Phone,
+  MapPin
 } from "lucide-react";
 import { useExternalMembers } from "@/hooks/useExternalMembers";
 import {
@@ -40,9 +43,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InputSelect from "../Common/InputSelect";
 
+
+ 
 export function LandingList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -60,16 +65,55 @@ export function LandingList() {
     metrics
   } = useExternalMembers({ source: 'landing_page' });
 
+  const generatePaginationItems = (currentPage: number, lastPage: number) => {
+    let delta = 2;
+    let range = [];
+    let rangeWithDots = [];
+    let l: number;
+  
+    range.push(1);
+  
+    for (let i = currentPage - delta; i <= currentPage + delta; i++) {
+      if (i < lastPage && i > 1) {
+        range.push(i);
+      }
+    }
+    range.push(lastPage);
+  
+    for (let i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+  
+    return rangeWithDots;
+  };
+   
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchMembers({ 
-        search: searchQuery,
-        status: statusFilter !== 'all' ? statusFilter : undefined 
-      });
-    }, 300);
-
+      if (searchQuery !== '') {
+        fetchMembers({ 
+          search: searchQuery,
+          status: statusFilter !== 'all' ? statusFilter : undefined 
+        });
+      }
+    }, 500);
+  
     return () => clearTimeout(timeoutId);
-  }, [fetchMembers, searchQuery, statusFilter, page, pageSize]);
+  }, [searchQuery, statusFilter]);
+
+  useEffect(() => {
+    fetchMembers({
+      status: statusFilter !== 'all' ? statusFilter : undefined,
+      search: searchQuery
+    });
+  }, [page, pageSize]);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "warning" | "success" | "destructive"> = {
@@ -226,7 +270,7 @@ export function LandingList() {
 
       <Card>
         <CardHeader>
-          <div className="mb-1">
+          <div className="">
             <h3 className="font-medium">Filter Registrations</h3>
             <p className="text-sm text-muted-foreground">
               Search and filter through registrations
@@ -235,7 +279,7 @@ export function LandingList() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <div className="relative flex-1">
+            <div className="relative mt-2 flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name or email..."
@@ -263,99 +307,157 @@ export function LandingList() {
       </Card>
 
       <Card>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Applied at</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {members.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback>
-                            {member.full_name?.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="font-medium">
-                          {member.full_name}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{member.email}</TableCell>
-                    <TableCell>{member.phone}</TableCell>
-                    <TableCell>{getStatusBadge(member.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        {new Date(member.applied_at).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+       <CardContent>
+         {loading ? (
+           <div className="text-center py-4">Loading...</div>
+         ) : (
+           <Table>
+             <TableHeader>
+               <TableRow>
+                 <TableHead>Member</TableHead>
+                 <TableHead>Contact</TableHead>
+                 <TableHead>Location</TableHead>
+                 <TableHead>Brand</TableHead>
+                 <TableHead>Member Code</TableHead>
+                 <TableHead>Status</TableHead>
+                 <TableHead>Registration</TableHead>
+               </TableRow>
+             </TableHeader>
+             <TableBody>
+               {members.map((member) => (
+                 <TableRow key={member.id}>
+                   <TableCell>
+                     <div className="flex items-center gap-3">
+                       <Avatar>
+                         <AvatarImage alt={`${member.first_name} ${member.last_name}`} />
+                         <AvatarFallback>
+                           {`${member.first_name[0]}${member.last_name[0]}`}
+                         </AvatarFallback>
+                       </Avatar>
+                       <div>
+                         <div className="font-medium">
+                           {`${member.first_name} ${member.last_name}`}
+                         </div>
+                         {member.birthday && (
+                           <div className="text-sm text-muted-foreground">
+                             {new Date(member.birthday1).toLocaleDateString()}
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </TableCell>
 
-          <div className="border-t px-4 py-3">
-            <div className="flex items-center justify-between gap-4">
-              <InputSelect
-                name="pageSize"
-                label=""
-                value={pageSize.toString()}
-                onChange={(e) => setPageSize(parseInt(e.target.value))}
-                options={[
-                  { value: "10", label: "10 rows" },
-                  { value: "20", label: "20 rows" },
-                  { value: "50", label: "50 rows" }
-                ]}
-              />
-              
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setPage(Math.max(1, page - 1))}
-                      disabled={page === 1 || loading} 
-                    />
-                  </PaginationItem>
-                  {[...Array(Math.min(5, Math.ceil(totalCount / pageSize)))].map((_, i) => (
-                    <PaginationItem key={i + 1}>
-                      <PaginationLink
-                        isActive={page === i + 1}
-                        onClick={() => setPage(i + 1)}
-                        disabled={loading}
-                      >
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setPage(Math.min(Math.ceil(totalCount / pageSize), page + 1))}
-                      disabled={page === Math.ceil(totalCount / pageSize) || loading}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                   <TableCell>
+                     <div className="space-y-1">
+                       <div className="flex items-center gap-2">
+                         <Mail className="h-4 w-4 text-muted-foreground" />
+                         <span className="text-sm">{member.email}</span>
+                       </div>
+                       <div className="flex items-center gap-2">
+                         <Phone className="h-4 w-4 text-muted-foreground" />
+                         <span className="text-sm">{member.phone_number}</span>
+                       </div>
+                     </div>
+                   </TableCell>
 
-              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                Showing {members.length} of {totalCount} registrations
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                   <TableCell>
+                     <div className="flex items-center gap-2">
+                       <MapPin className="h-4 w-4 text-muted-foreground" />
+                       <span className="text-sm">{member.city || member.address || '-'}</span>
+                     </div>
+                   </TableCell>
+
+                   <TableCell>
+                     <Badge variant="outline" className="w-fit">
+                       {member.preferred_brand || 'No brand'}
+                     </Badge>
+                   </TableCell>
+
+                   <TableCell>
+                     <div className="text-sm font-mono">
+                       {member.old_platform_member_code || '-'}
+                     </div>
+                   </TableCell>
+
+                   <TableCell>
+                     {getStatusBadge(member.approval_status)}
+                   </TableCell>
+
+                   <TableCell>
+                     <div className="space-y-1">
+                       <div className="flex items-center gap-2">
+                         <Calendar className="h-4 w-4 text-muted-foreground" />
+                         <span className="text-sm">
+                           {new Date(member.applied_at).toLocaleDateString()}
+                         </span>
+                       </div>
+                       <div className="text-xs text-muted-foreground">
+                         {member.registration_source}
+                       </div>
+                     </div>
+                   </TableCell>
+                 </TableRow>
+               ))}
+             </TableBody>
+           </Table>
+         )}
+
+<div className="border-t px-4 py-3">
+  <div className="flex items-center justify-between gap-4">
+    <InputSelect
+      name="pageSize"
+      label=""
+      value={pageSize.toString()}
+      onChange={(e) => setPageSize(parseInt(e.target.value))}
+      options={[
+        { value: "10", label: "10 rows" },
+        { value: "20", label: "20 rows" },
+        { value: "50", label: "50 rows" }
+      ]}
+    />
+    
+    <div className="flex-1 flex items-center justify-center">
+  <Pagination>
+    <PaginationContent>
+      <PaginationItem>
+        <PaginationPrevious 
+          onClick={() => setPage(Math.max(1, page - 1))}
+          disabled={page === 1} 
+        />
+      </PaginationItem>
+      {[...Array(5)].map((_, i) => {
+        const pageNumber = page <= 3 ? i + 1 : 
+                          page >= totalCount - 2 ? totalCount - 4 + i :
+                          page - 2 + i;
+        return (
+          <PaginationItem key={i}>
+            <PaginationLink
+              isActive={page === pageNumber}
+              onClick={() => setPage(pageNumber)}
+            >
+              {pageNumber}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      })}
+      <PaginationItem>
+        <PaginationNext 
+          onClick={() => setPage(Math.min(totalCount, page + 1))}
+          disabled={page === totalCount}
+        />
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+</div>
+
+    <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+      Showing {members.length} of {totalCount} registrations
+    </p>
+  </div>
+</div>
+       </CardContent>
+     </Card>
+     <div className="h-8"></div>
     </div>
   );
 }
