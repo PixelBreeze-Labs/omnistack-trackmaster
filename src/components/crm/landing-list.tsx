@@ -313,7 +313,9 @@ export function LandingList() {
                         <Avatar>
                           <AvatarImage alt={`${member.first_name} ${member.last_name}`} />
                           <AvatarFallback>
-                            {`${member.first_name[0]}${member.last_name[0]}`}
+                            {member.last_name && member.last_name.length > 0 
+                              ? `${member.first_name.charAt(0)}${member.last_name.charAt(0)}`
+                              : member.first_name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
