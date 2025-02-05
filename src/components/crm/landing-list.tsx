@@ -12,13 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import Link from "next/link";
 import { 
   Search, 
   Users,
@@ -118,30 +112,38 @@ export function LandingList() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Landing Page Registrations</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            View and manage registrations from landing pages
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
+     
+
+    {/* Header */}
+    <div className="flex justify-between items-center">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Landing Page Registrations</h2>
+        <p className="text-sm text-muted-foreground mt-2">
+          View and manage registrations from landing pages
+        </p>
       </div>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Export
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh}
+          disabled={loading}
+        >
+          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+        <Link href="/crm/ecommerce/members">
+          <Button variant="secondary" size="sm">
+            All Members
+          </Button>
+        </Link>
+      </div>
+    </div>
+
 
       {/* Metrics Cards */}
 <div className="grid gap-4 md:grid-cols-4">
