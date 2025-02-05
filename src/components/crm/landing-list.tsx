@@ -69,17 +69,16 @@ export function LandingList() {
         status: statusFilter !== 'all' ? statusFilter : undefined 
       });
     }, 500);
-  
     return () => clearTimeout(timeoutId);
   }, [searchQuery, statusFilter, fetchMembers]);
 
   // Also re-fetch if the page or pageSize changes
   useEffect(() => {
     fetchMembers({
+      search: searchQuery,
       status: statusFilter !== 'all' ? statusFilter : undefined,
-      search: searchQuery
     });
-  }, [page, pageSize, fetchMembers, searchQuery, statusFilter]);
+  }, [page, pageSize, searchQuery, statusFilter, fetchMembers]);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "warning" | "success" | "destructive"> = {
@@ -98,7 +97,7 @@ export function LandingList() {
   const handleRefresh = () => {
     fetchMembers({
       search: searchQuery,
-      status: statusFilter !== 'all' ? statusFilter : undefined
+      status: statusFilter !== 'all' ? statusFilter : undefined,
     });
   };
 
@@ -112,152 +111,147 @@ export function LandingList() {
 
   return (
     <div className="space-y-6">
-     
-
-    {/* Header */}
-    <div className="flex justify-between items-center">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Landing Page Registrations</h2>
-        <p className="text-sm text-muted-foreground mt-2">
-          View and manage registrations from landing pages
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="mr-2 h-4 w-4" />
-          Export
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleRefresh}
-          disabled={loading}
-        >
-          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-        <Link href="/crm/ecommerce/members">
-          <Button variant="secondary" size="sm">
-            All Members
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Landing Page Registrations</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            View and manage registrations from landing pages
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
           </Button>
-        </Link>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Link href="/crm/ecommerce/members">
+            <Button variant="secondary" size="sm">
+              All Members
+            </Button>
+          </Link>
+        </div>
       </div>
-    </div>
-
 
       {/* Metrics Cards */}
-<div className="grid gap-4 md:grid-cols-4">
-  {/* Total Registrations Card */}
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
-      <Users className="h-4 w-4 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="text-2xl font-bold">{metrics?.totalRegistrations}</div>
-          <p className="text-xs text-muted-foreground mt-1">From landing pages</p>
-        </div>
-        <div className="flex items-center gap-1">
-          {metrics?.trends.monthly > 0 ? (
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          )}
-          <span className={`text-sm ${metrics?.trends.monthly > 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {metrics?.trends.monthly}%
-          </span>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
+      <div className="grid gap-4 md:grid-cols-4">
+        {/* Total Registrations Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.totalRegistrations}</div>
+                <p className="text-xs text-muted-foreground mt-1">From landing pages</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.monthly > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.monthly > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.monthly}%
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-  {/* Conversion Rate Card */}
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-      <BarChart3 className="h-4 w-4 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      <div className="flex justify-between items-start">
-        <div>
-          {/* toFixed(2) ensures two decimal places */}
-          <div className="text-2xl font-bold">{metrics?.conversionRate?.toFixed(2)}%</div>
-          <p className="text-xs text-muted-foreground mt-1">Approved / Total</p>
-        </div>
-        <div className="flex items-center gap-1">
-          {metrics?.trends.conversion > 0 ? (
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          )}
-          <span className={`text-sm ${metrics?.trends.conversion > 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {metrics?.trends.conversion}%
-          </span>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
+        {/* Conversion Rate Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.conversionRate?.toFixed(2)}%</div>
+                <p className="text-xs text-muted-foreground mt-1">Approved / Total</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.conversion > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.conversion > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.conversion}%
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-  {/* Active Users Card */}
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-      <UserCheck className="h-4 w-4 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="text-2xl font-bold">{metrics?.activeUsers}</div>
-          <p className="text-xs text-muted-foreground mt-1">Approved Users</p>
-        </div>
-        <div className="flex items-center gap-1">
-          {metrics?.trends.active > 0 ? (
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          )}
-          <span className={`text-sm ${metrics?.trends.active > 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {metrics?.trends.active}%
-          </span>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
+        {/* Active Users Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.activeUsers}</div>
+                <p className="text-xs text-muted-foreground mt-1">Approved Users</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.active > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.active > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.active}%
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-  {/* Recent Signups Card */}
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">Recent Signups</CardTitle>
-      <UserPlus className="h-4 w-4 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="text-2xl font-bold">{metrics?.recentSignups}</div>
-          <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
-        </div>
-        <div className="flex items-center gap-1">
-          {metrics?.trends.recent > 0 ? (
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          )}
-          <span className={`text-sm ${metrics?.trends.recent > 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {metrics?.trends.recent}%
-          </span>
-        </div>
+        {/* Recent Signups Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recent Signups</CardTitle>
+            <UserPlus className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.recentSignups}</div>
+                <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.recent > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.recent > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.recent}%
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </CardContent>
-  </Card>
-</div>
-
 
       {/* Filter Section */}
       <Card>
         <CardHeader>
-          <div className="">
+          <div>
             <h3 className="font-medium">Filter Registrations</h3>
             <p className="text-sm text-muted-foreground">
               Search and filter through registrations
@@ -287,7 +281,7 @@ export function LandingList() {
                 { value: "rejected", label: "Rejected" },
               ]}
             />
-                      </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -298,20 +292,21 @@ export function LandingList() {
             <div className="text-center py-4">Loading...</div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Brand</TableHead>
-                  <TableHead>Member Code</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Registration</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {members.map((member) => (
+            <TableHeader>
+              <TableRow>
+                <TableHead>Member</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Brand</TableHead>
+                <TableHead>Member Code</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Registration</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.length > 0 ? (
+                members.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -333,7 +328,6 @@ export function LandingList() {
                         </div>
                       </div>
                     </TableCell>
-
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -346,30 +340,25 @@ export function LandingList() {
                         </div>
                       </div>
                     </TableCell>
-
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{member.city || member.address || '-'}</span>
                       </div>
                     </TableCell>
-
                     <TableCell>
                       <Badge variant="outline" className="w-fit">
                         {member.preferred_brand || 'No brand'}
                       </Badge>
                     </TableCell>
-
                     <TableCell>
                       <div className="text-sm font-mono">
                         {member.old_platform_member_code || '-'}
                       </div>
                     </TableCell>
-
                     <TableCell>
                       {getStatusBadge(member.approval_status)}
                     </TableCell>
-
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -383,7 +372,6 @@ export function LandingList() {
                         </div>
                       </div>
                     </TableCell>
-
                     <TableCell>
                       {member.approval_status === "pending" && (
                         <div className="flex gap-2">
@@ -427,9 +415,36 @@ export function LandingList() {
                       )}
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <div className="flex flex-col items-center justify-center">
+                      {/* Optional empty state icon */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-10 w-10 text-muted-foreground"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"
+                        />
+                      </svg>
+                      <span className="mt-2 text-lg font-medium text-muted-foreground">
+                        No registrations found.
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          
           )}
 
           {/* Pagination */}
