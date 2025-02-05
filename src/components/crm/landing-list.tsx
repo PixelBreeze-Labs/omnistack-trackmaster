@@ -1,6 +1,5 @@
-"use client"
-
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,114 +19,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-  } from "@/components/ui/pagination";
 import { 
   Search, 
-  Users, 
-  UserPlus,
+  Users,
+  Download,
+  RefreshCw,
   Calendar,
   BarChart3,
-  Download,
-  MoreVertical,
-  Mail,
-  User,
   UserCheck,
-  Trash2,
-  RefreshCw
+  UserPlus,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useExternalMembers } from "@/hooks/useExternalMembers";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import InputSelect from "../Common/InputSelect";
 
-interface LandingUser {
-  id: string;
-  name: string;
-  email: string;
-  registrationDate: string;
-  source: string;
-  status: "active" | "pending" | "converted";
-  campaign?: string;
-  location: string;
-  device: string;
-  avatar?: string;
-}
-
-const DUMMY_USERS: LandingUser[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    registrationDate: "2024-01-10",
-    source: "Facebook Ad",
-    status: "active",
-    campaign: "Summer Sale 2024",
-    location: "New York, US",
-    device: "Mobile - iOS"
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    registrationDate: "2024-01-12",
-    source: "Google Search",
-    status: "converted",
-    campaign: "Holiday Special",
-    location: "London, UK",
-    device: "Desktop - Chrome"
-  },
-  {
-    id: "3",
-    name: "Mike Johnson",
-    email: "mike@example.com",
-    registrationDate: "2024-01-15",
-    source: "Direct",
-    status: "pending",
-    location: "Paris, FR",
-    device: "Mobile - Android"
-  }
-];
-
 export function LandingList() {
-  const [users] = useState<LandingUser[]>(DUMMY_USERS);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sourceFilter, setSourceFilter] = useState("all");
-  const [page, setPage] = useState(1);
-const [pageSize, setPageSize] = useState(10);
-const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  
+  const { 
+    members, 
+    loading, 
+    error, 
+    totalCount,
+    page, 
+    setPage,
+    pageSize, 
+    setPageSize,
+    fetchMembers,
+    metrics
+  } = useExternalMembers({ source: 'landing_page' });
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchMembers({ 
+        search: searchQuery,
+        status: statusFilter !== 'all' ? statusFilter : undefined 
+      });
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchMembers, searchQuery, statusFilter, page, pageSize]);
 
   const getStatusBadge = (status: string) => {
-    const variants = {
-      active: "success",
+    const variants: Record<string, "warning" | "success" | "destructive"> = {
       pending: "warning",
-      converted: "default"
+      approved: "success",
+      rejected: "destructive"
     };
-    return <Badge variant={variants[status]}>{status.toUpperCase()}</Badge>;
+    return <Badge variant={variants[status]}>{status?.toUpperCase()}</Badge>;
   };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(1);
+  };
+
+  const handleRefresh = () => {
+    fetchMembers({
+      search: searchQuery,
+      status: statusFilter !== 'all' ? statusFilter : undefined
+    });
+  };
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Landing Registrations</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Landing Page Registrations</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            View and manage all users who registered through landing pages
+            View and manage registrations from landing pages
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -135,14 +110,18 @@ const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>(
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -150,8 +129,22 @@ const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>(
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2,847</div>
-            <p className="text-xs text-muted-foreground mt-1">+180 this month</p>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.totalRegistrations}</div>
+                <p className="text-xs text-muted-foreground mt-1">From landing pages</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.monthly > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.monthly > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.monthly}%
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -161,8 +154,22 @@ const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>(
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24.8%</div>
-            <p className="text-xs text-muted-foreground mt-1">+2.4% from last month</p>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.conversionRate}%</div>
+                <p className="text-xs text-muted-foreground mt-1">Conversion rate</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.conversion > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.conversion > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.conversion}%
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -172,8 +179,22 @@ const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>(
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,923</div>
-            <p className="text-xs text-muted-foreground mt-1">67.5% of total</p>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.activeUsers}</div>
+                <p className="text-xs text-muted-foreground mt-1">Active users</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.active > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.active > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.active}%
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -183,202 +204,158 @@ const [selectedActions, setSelectedActions] = useState<{[key: string]: string}>(
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">284</div>
-            <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-2xl font-bold">{metrics?.recentSignups}</div>
+                <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
+              </div>
+              <div className="flex items-center gap-1">
+                {metrics?.trends.recent > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className={`text-sm ${metrics?.trends.recent > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {metrics?.trends.recent}%
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-{/* Filters and Table */}
-<Card>
-  <CardHeader>
-    <div className="mb-1">
-      <h3 className="font-medium">Filter Registrations</h3>
-      <p className="text-sm text-muted-foreground">
-        Search and filter through landing page registrations
-      </p>
-    </div>
-  </CardHeader>
-  <CardContent className="p-0">
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center flex-1 gap-2 max-w-3xl">
-        <div className="relative mt-2 flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="converted">Converted</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={sourceFilter} onValueChange={setSourceFilter}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Source" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sources</SelectItem>
-            <SelectItem value="facebook">Facebook</SelectItem>
-            <SelectItem value="google">Google</SelectItem>
-            <SelectItem value="direct">Direct</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+      <Card>
+        <CardHeader>
+          <div className="mb-1">
+            <h3 className="font-medium">Filter Registrations</h3>
+            <p className="text-sm text-muted-foreground">
+              Search and filter through registrations
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+            </div>
+            <Select
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Filters and Table */}
       <Card>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Registration Date</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Device</TableHead>
-                <TableHead>Campaign</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback>
-                          {user.name.split(" ").map(n => n[0]).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {user.email}
+          {loading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Applied at</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {members.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            {member.full_name?.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="font-medium">
+                          {member.full_name}
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{user.source}</TableCell>
-                  <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      {new Date(user.registrationDate).toLocaleDateString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>{user.location}</TableCell>
-                  <TableCell>
-                    <span className="text-sm">{user.device}</span>
-                  </TableCell>
-                  <TableCell>
-                    {user.campaign ? (
-                      <Badge variant="outline">{user.campaign}</Badge>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    N/A
-  {/* <InputSelect
-    name="actions"
-    label=""
-    value={selectedActions[user.id] || "actions"}
-    onChange={(e) => {
-      const action = e.target.value;
-      setSelectedActions(prev => ({...prev, [user.id]: action}));
+                    </TableCell>
+                    <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.phone}</TableCell>
+                    <TableCell>{getStatusBadge(member.status)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        {new Date(member.applied_at).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
-      switch(action) {
-        case "view":
-          // Handle view
-          break;
-        case "email":
-          // Handle email
-          break;
-        case "delete":
-          // Handle delete
-          break;
-      }
-    }}
-    options={[
-      { value: "actions", label: "Select Actions" },
-      { value: "view", label: "View Profile" }, 
-      { value: "email", label: "Send Email" },
-      { value: "delete", label: "Delete" }
-    ]}
-  /> */}
-</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
           <div className="border-t px-4 py-3">
-      <div className="flex items-center justify-between gap-4">
-        <InputSelect
-          name="pageSize"
-          label=""
-          value={pageSize.toString()}
-          onChange={(e) => setPageSize(parseInt(e.target.value))}
-          options={[
-            { value: "10", label: "10 rows" },
-            { value: "20", label: "20 rows" },
-            { value: "50", label: "50 rows" }
-          ]}
-        />
-        
-        <div className="flex-1 flex items-center justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1} 
-                />
-              </PaginationItem>
-              {[...Array(Math.min(5, Math.ceil(users.length / pageSize)))].map((_, i) => (
-                <PaginationItem key={i + 1}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setPage(p => Math.min(Math.ceil(users.length / pageSize), p + 1))}
-                  disabled={page === Math.ceil(users.length / pageSize)}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+            <div className="flex items-center justify-between gap-4">
+              <InputSelect
+                name="pageSize"
+                label=""
+                value={pageSize.toString()}
+                onChange={(e) => setPageSize(parseInt(e.target.value))}
+                options={[
+                  { value: "10", label: "10 rows" },
+                  { value: "20", label: "20 rows" },
+                  { value: "50", label: "50 rows" }
+                ]}
+              />
+              
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      disabled={page === 1 || loading} 
+                    />
+                  </PaginationItem>
+                  {[...Array(Math.min(5, Math.ceil(totalCount / pageSize)))].map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        isActive={page === i + 1}
+                        onClick={() => setPage(i + 1)}
+                        disabled={loading}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setPage(Math.min(Math.ceil(totalCount / pageSize), page + 1))}
+                      disabled={page === Math.ceil(totalCount / pageSize) || loading}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
 
-        <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-          Showing <span className="font-medium">{pageSize}</span> of{" "}
-          <span className="font-medium">{users.length}</span> registrations
-        </p>
-      </div>
-    </div>
+              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                Showing {members.length} of {totalCount} registrations
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-export default LandingList;

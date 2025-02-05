@@ -66,3 +66,45 @@ export interface MembersResponse {
     limit: number;
     metrics: MemberMetrics;
 }
+
+
+export interface BaseMember {
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    brand?: string;
+    source: 'from_my_club' | 'landing_page';
+    status: 'pending' | 'approved' | 'rejected';
+    applied_at: string;
+    approved_at?: string;
+    rejected_at?: string;
+}
+
+export interface LandingMember extends BaseMember {
+    source: 'landing_page';
+}
+
+export interface ClubMember extends BaseMember {
+    source: 'from_my_club';
+    membership_type?: string;
+    last_visit?: string;
+}
+
+export type ExternalMember = LandingMember | ClubMember;
+
+export interface MemberParams {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    registration_source?: 'from_my_club' | 'landing_page';
+}
+
+export interface ExternalMembersResponse {
+    data: ExternalMember[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    metrics: MemberMetrics;
+}
