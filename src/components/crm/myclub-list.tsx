@@ -31,14 +31,6 @@ import {
  X
 } from "lucide-react";
 import { useExternalMembers } from "@/hooks/useExternalMembers";
-import {
- Pagination,
- PaginationContent,
- PaginationItem,
- PaginationLink,
- PaginationNext,
- PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InputSelect from "../Common/InputSelect";
 import TablePagination from "../ui/table-pagination";
