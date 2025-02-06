@@ -55,25 +55,23 @@ export const useExternalMembers = ({ source }: { source: 'from_my_club' | 'landi
       setTotalCount(response.total);
       
       // If the API provides metrics, map them to the UI's expected format
-    if (response.metrics) {
-      const apiMetrics = response.metrics;
-      setMetrics({
-        totalRegistrations: apiMetrics.totalRegistrations,
-        conversionRate: apiMetrics.totalRegistrations
-          ? (apiMetrics.approvedUsers / apiMetrics.totalRegistrations) * 100
-          : 0,
-        activeUsers: apiMetrics.approvedUsers,
-        // Here, you can choose to use pendingUsers, or compute recentSignups from the data.
-        recentSignups: apiMetrics.pendingUsers, 
-        trends: {
-          monthly: apiMetrics.trends.monthly,
-          // We only have "weekly" from the API so we'll use it for the remaining trend fields.
-          conversion: apiMetrics.trends.weekly,
-          active: apiMetrics.trends.weekly,
-          recent: apiMetrics.trends.weekly,
-        }
-      });
-    } else {
+      if (response.metrics) {
+        const apiMetrics = response.metrics;
+        setMetrics({
+          totalRegistrations: apiMetrics.totalRegistrations,
+          conversionRate: apiMetrics.totalRegistrations
+            ? (apiMetrics.approvedUsers / apiMetrics.totalRegistrations) * 100
+            : 0,
+          activeUsers: apiMetrics.approvedUsers,
+          recentSignups: apiMetrics.recentSignups, // Now using actual recentSignups from API
+          trends: {
+            monthly: apiMetrics.trends.monthly,
+            conversion: apiMetrics.trends.weekly,
+            active: apiMetrics.trends.weekly,
+            recent: apiMetrics.trends.recent // Now using dedicated recent trend
+          }
+        });
+      } else {
       // Fallback: calculate metrics from the data if the API does not provide them
       const activeCount = response.data.filter(m => m.status === 'approved').length;
       const recentCount = response.data.filter(m => {
