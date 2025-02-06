@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InputSelect from "../Common/InputSelect";
+import TablePagination from "../ui/table-pagination";
 
 export function LandingList() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -54,6 +55,7 @@ export function LandingList() {
     page, 
     setPage,
     pageSize, 
+    setPageSize,
     fetchMembers,
     metrics,
     approveMember,
@@ -450,59 +452,14 @@ export function LandingList() {
           )}
 
           {/* Pagination */}
-          <div className="border-t px-4 py-3">
-            <div className="flex items-center justify-between gap-4">
-              <InputSelect
-                name="pageSize"
-                label=""
-                value={pageSize.toString()}
-                onChange={(e) => setPage(parseInt(e.target.value))}
-                options={[
-                  { value: "10", label: "10 rows" },
-                  { value: "20", label: "20 rows" },
-                  { value: "50", label: "50 rows" }
-                ]}
-              />
-              <div className="flex-1 flex items-center justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setPage(Math.max(1, page - 1))}
-                        disabled={page === 1} 
-                      />
-                    </PaginationItem>
-                    {[...Array(5)].map((_, i) => {
-                      const pageNumber = page <= 3
-                        ? i + 1
-                        : page >= totalCount - 2
-                        ? totalCount - 4 + i
-                        : page - 2 + i;
-                      return (
-                        <PaginationItem key={i}>
-                          <PaginationLink
-                            isActive={page === pageNumber}
-                            onClick={() => setPage(pageNumber)}
-                          >
-                            {pageNumber}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setPage(Math.min(totalCount, page + 1))}
-                        disabled={page === totalCount}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                Showing {members.length} of {totalCount} registrations
-              </p>
-            </div>
-          </div>
+          <TablePagination
+              page={page}
+              setPage={setPage}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
+              totalCount={totalCount}
+              itemsShown={members.length}
+            />
         </CardContent>
       </Card>
       <div className="h-8"></div>
