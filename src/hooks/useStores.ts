@@ -1,12 +1,15 @@
-// hooks/useStores.ts
-
 import { useState, useCallback, useMemo } from 'react';
 import { createStoreApi } from '@/app/api/external/omnigateway/store';
 import { Store } from "@/app/api/external/omnigateway/types/stores";
 import { useGatewayClientApiKey } from '../hooks/useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
-export const useStores = () => {
+interface UseStoresProps {
+    onSuccess?: () => void;
+  }
+
+  
+  export const useStores = ({ onSuccess }: UseStoresProps = {}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [stores, setStores] = useState<Store[]>([]);
     const { apiKey } = useGatewayClientApiKey();
@@ -27,24 +30,50 @@ export const useStores = () => {
         }
     }, [api]);
 
-    const connectUser = useCallback(async (storeId: string, userId: string) => {
+    const connectUser = useCallback(async (storeId: string, userId: string, originalstaffId: string) => {
         if (!api) return;
         try {
+            // Connect in OmniGateway
             await api.connectUser(storeId, userId);
-            toast.success('User connected successfully');
+
+            // Update Prisma via API
+            await fetch('/api/staff/store-connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    staffId: originalstaffId,
+                    storeId,
+                    action: 'connect'
+                })
+            });
+
+            toast.success('Store connected successfully');
         } catch (error) {
-            toast.error('Failed to connect user');
+            toast.error('Failed to connect store');
             throw error;
         }
     }, [api]);
 
-    const disconnectUser = useCallback(async (storeId: string, userId: string) => {
+    const disconnectUser = useCallback(async (storeId: string, userId: string, originalstaffId: string) => {
         if (!api) return;
         try {
+            // Disconnect in OmniGateway
             await api.disconnectUser(storeId, userId);
-            toast.success('User disconnected successfully');
+
+            // Update Prisma via API
+            await fetch('/api/staff/store-connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    staffId: originalstaffId,
+                    storeId,
+                    action: 'disconnect'
+                })
+            });
+            onSuccess?.(); 
+            toast.success('Store disconnected successfully');
         } catch (error) {
-            toast.error('Failed to disconnect user');
+            toast.error('Failed to disconnect store');
             throw error;
         }
     }, [api]);
