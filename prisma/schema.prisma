@@ -55,6 +55,7 @@ model Client {
   campaigns         Campaign[]
   promotions        Promotion[]
   sales             Sale[]
+  settings          Json?
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   Department        Department[]

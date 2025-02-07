@@ -25,7 +25,8 @@ import {
     BookOpen,
     Wallet,
     Building2,
-    UserPlus
+    UserPlus,
+    Settings
   } from 'lucide-react';
   
   export const getSidebarDataForType = (clientType: string | undefined): { 
@@ -298,6 +299,12 @@ import {
           title: "Staff",
           path: `/crm/${clientType}/hr/staff`,
           icon: <Building2 className="w-5 h-5"/>,
+        },
+        {
+          id: 23,
+          title: "Settings",
+          path: `/crm/${clientType}/settings`,
+          icon: <Settings className="w-5 h-5"/>,
         }
       ]
     };
