@@ -34,7 +34,8 @@ import {
   Phone,
   Calendar,
   UserPlus,
-  Smartphone
+  Smartphone,
+  Store
 } from "lucide-react";
 import { toast } from "sonner";
 import { Staff, StaffRole, StaffStatus } from '@/types/staff';
@@ -42,6 +43,7 @@ import { AddStaffModal } from '@/components/crm/staff/add-staff-modal';
 import { useClient } from '@/hooks/useClient';
 import InputSelect from '@/components/Common/InputSelect';
 import { useRouter } from 'next/navigation';
+import { ConnectStoreModal } from '../staff/connect-store-modal';
 
 
 export function StaffContent() {
@@ -50,6 +52,8 @@ export function StaffContent() {
   const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
   const { clientId } = useClient();
   const router = useRouter();
+  const [showConnectStore, setShowConnectStore] = useState(false);
+const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
 
   const [stats, setStats] = useState({
     totalStaff: 0,
@@ -392,10 +396,17 @@ export function StaffContent() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Schedule
-                        </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedStaff(member);
+                          setShowConnectStore(true);
+                        }}
+                      >
+                        <Store className="h-4 w-4 mr-2" />
+                        Connect Store
+                      </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -495,6 +506,21 @@ export function StaffContent() {
           clientId={clientId}
         />
       )}
+
+{showConnectStore && selectedStaff && (
+  <ConnectStoreModal
+    isOpen={showConnectStore}
+    onClose={() => {
+      setShowConnectStore(false);
+      setSelectedStaff(null);
+    }}
+    onSuccess={() => {
+      fetchStaff();
+    }}
+    staffId={selectedStaff.id}
+    staffName={`${selectedStaff.firstName} ${selectedStaff.lastName}`}
+  />
+)}
       <div className="h-8"></div>
     </div>
   );
