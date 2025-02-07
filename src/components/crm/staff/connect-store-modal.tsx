@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "sonner";
-import { useVenueBoost } from '@/hooks/useVenueBoost';
+import { useStores } from "@/hooks/useStores";
 
 interface ConnectStoreModalProps {
   isOpen: boolean;
@@ -15,46 +15,30 @@ interface ConnectStoreModalProps {
 }
 
 export function ConnectStoreModal({ isOpen, onClose, onSuccess, staffId, staffName }: ConnectStoreModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedStore, setSelectedStore] = useState('');
-  const { listStores, isLoading: isLoadingStores, stores } = useVenueBoost();
+  const { listConnectedStores, connectUser, isLoading, stores } = useStores();
 
   useEffect(() => {
     if (isOpen) {
-      listStores().catch(console.error);
+        listConnectedStores().catch(console.error);
     }
-  }, [isOpen, listStores]);
+}, [isOpen, listConnectedStores]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStore) {
-      toast.error('Please select a store');
-      return;
+        toast.error('Please select a store');
+        return;
     }
 
-    setIsLoading(true);
     try {
-      const response = await fetch('/api/staff/connect-store', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          staffId,
-          storeId: selectedStore
-        })
-      });
-
-      if (!response.ok) throw new Error('Failed to connect store');
-
-      toast.success('Store connected successfully');
-      onSuccess();
-      onClose();
+        await connectUser(selectedStore, staffId);
+        onSuccess();
+        onClose();
     } catch (error) {
-      toast.error('Failed to connect store');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+        console.error(error);
     }
-  };
+};
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -76,7 +60,7 @@ export function ConnectStoreModal({ isOpen, onClose, onSuccess, staffId, staffNa
                   label: store.name
                 }))
               ]}
-              disabled={isLoadingStores}
+              disabled={isLoading}
             />
           </div>
           <DialogFooter>
