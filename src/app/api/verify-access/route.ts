@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // Find staff member with app access
     const staff = await prisma.staff.findFirst({
       where: {
-        id: { in: external_ids },
+        id: external_ids.staffId,
         status: 'ACTIVE',
         canAccessApp: true
       },
