@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { external_ids } = body;
 
-    if (!external_ids || !Array.isArray(external_ids)) {
+    if (!external_ids || typeof external_ids !== 'object') {
       return NextResponse.json({ 
         hasAccess: false, 
         message: 'Invalid external_ids' 
