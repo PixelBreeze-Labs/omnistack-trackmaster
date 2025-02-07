@@ -117,7 +117,7 @@ export async function POST(req: Request) {
             surname: body.lastName,
             email: body.email,
             password: password,
-            external_ids: [staff.id] // Add our staff ID as external ID
+            external_ids: { staffId: staff.id } // Add our staff ID as external ID
           });
   
           const hashedPassword = await bcrypt.hash(password, 12);
@@ -133,7 +133,7 @@ export async function POST(req: Request) {
               password: hashedPassword,
               externalIds: {
                 supabase: supabaseUser.id,
-                omnistack: omniStackUser.id
+                omnistack: omniStackUser._id
               }
             }
           });
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
               notes: `Sales associate app access granted. User accounts created on ${formatDate(new Date())}`,
               documents: {
                 externalIds: {
-                  omnistack: omniStackUser.id,
+                  omnistack: omniStackUser._id,
                   supabase: supabaseUser.id
                 }
               }
