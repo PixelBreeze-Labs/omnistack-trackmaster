@@ -89,8 +89,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 async function main() {
-  await prisma.client.update({6795785555dcaaa39e3f5cb1
-    where: { id: '67912730369ddcde8d740883' },
+  await prisma.client.update({
+    where: { id: '67a695545057cf3f170f4230' },
     data: { 
       bookMasterId: '6795785555dcaaa39e3f5cb1'
     }

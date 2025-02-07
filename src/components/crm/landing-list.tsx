@@ -43,7 +43,6 @@ export function LandingList() {
     members, 
     loading, 
     error, 
-    isInitialized, // Add this
     totalCount,
     page, 
     setPage,
@@ -57,25 +56,17 @@ export function LandingList() {
   } = useExternalMembers({ source: 'landing_page' });
 
   // Trigger a new fetch when the search query or status filter changes
+;
+  // Also re-fetch if the page or pageSize changes
   useEffect(() => {
-    if (!isInitialized) return;
     const timeoutId = setTimeout(() => {
-      fetchMembers({ 
+      fetchMembers({
         search: searchQuery,
-        status: statusFilter !== 'all' ? statusFilter : undefined 
+        status: statusFilter !== 'all' ? statusFilter : undefined,
       });
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, statusFilter, fetchMembers, isInitialized]);
-
-  // Also re-fetch if the page or pageSize changes
-  useEffect(() => {
-    if (!isInitialized) return;
-    fetchMembers({
-      search: searchQuery,
-      status: statusFilter !== 'all' ? statusFilter : undefined,
-    });
-  }, [page, pageSize, searchQuery, statusFilter, fetchMembers, isInitialized]);
+  }, [page, pageSize, searchQuery, statusFilter, fetchMembers])
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "warning" | "success" | "destructive"> = {
