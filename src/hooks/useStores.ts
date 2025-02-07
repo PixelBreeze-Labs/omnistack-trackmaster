@@ -4,7 +4,12 @@ import { Store } from "@/app/api/external/omnigateway/types/stores";
 import { useGatewayClientApiKey } from '../hooks/useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
-export const useStores = () => {
+interface UseStoresProps {
+    onSuccess?: () => void;
+  }
+
+  
+  export const useStores = ({ onSuccess }: UseStoresProps = {}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [stores, setStores] = useState<Store[]>([]);
     const { apiKey } = useGatewayClientApiKey();
@@ -42,14 +47,14 @@ export const useStores = () => {
                 })
             });
 
-            toast.success('User connected successfully');
+            toast.success('Store connected successfully');
         } catch (error) {
-            toast.error('Failed to connect user');
+            toast.error('Failed to connect store');
             throw error;
         }
     }, [api]);
 
-    const disconnectUser = useCallback(async (storeId: string, userId: string) => {
+    const disconnectUser = useCallback(async (storeId: string, userId: string, originalstaffId: string) => {
         if (!api) return;
         try {
             // Disconnect in OmniGateway
@@ -60,15 +65,15 @@ export const useStores = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    staffId: userId,
+                    staffId: originalstaffId,
                     storeId,
                     action: 'disconnect'
                 })
             });
-
-            toast.success('User disconnected successfully');
+            onSuccess?.(); 
+            toast.success('Store disconnected successfully');
         } catch (error) {
-            toast.error('Failed to disconnect user');
+            toast.error('Failed to disconnect store');
             throw error;
         }
     }, [api]);

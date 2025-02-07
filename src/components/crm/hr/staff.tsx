@@ -35,7 +35,8 @@ import {
   Calendar,
   UserPlus,
   Smartphone,
-  Store
+  Store,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { Staff, StaffRole, StaffStatus } from '@/types/staff';
@@ -55,7 +56,6 @@ export function StaffContent() {
   const router = useRouter();
   const [showConnectStore, setShowConnectStore] = useState(false);
 const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
-const { listConnectedStores, disconnectUser, isLoading, stores } = useStores();
 
   const [stats, setStats] = useState({
     totalStaff: 0,
@@ -81,9 +81,6 @@ const { listConnectedStores, disconnectUser, isLoading, stores } = useStores();
     fetchDepartments();
   }, [filters, pagination.page, pagination.limit, clientId]);
 
-  useEffect(() => {
-    listConnectedStores().catch(console.error);
-  }, [listConnectedStores]);
 
   const fetchStaff = async () => {
     if (!clientId) return;
@@ -111,6 +108,16 @@ const { listConnectedStores, disconnectUser, isLoading, stores } = useStores();
       toast.error('Failed to fetch staff members');
     }
   };
+
+  // Then initialize useStores with the function reference
+const { listConnectedStores, disconnectUser, isLoading, stores } = useStores({
+  onSuccess: fetchStaff // Pass function reference, not call
+});
+
+// Then your useEffect
+useEffect(() => {
+  listConnectedStores().catch(console.error);
+}, [listConnectedStores]);
 
   const fetchDepartments = async () => {
     if (!clientId) return;
@@ -403,9 +410,28 @@ const { listConnectedStores, disconnectUser, isLoading, stores } = useStores();
                     <TableCell>
   <div className="flex items-center gap-2">
     {member.documents?.storeConnections?.map((connection) => (
-      <Badge key={connection.storeId} variant="outline">
-        {stores?.find(s => s._id === connection.storeId)?.name || 'Unknown Store'}
-      </Badge>
+      <div key={connection.storeId} className="flex items-center gap-1">
+        <Badge variant="secondary">
+        <Store className="h-4 w-4 mr-2" />
+          {stores?.find(s => s._id === connection.storeId)?.name || 'Unknown Store'}
+        </Badge>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="h-6 w-6 p-0"
+        onClick={() => {
+          disconnectUser(
+            connection.storeId, 
+            member.documents.externalIds.omnistack,
+            member.id
+          );
+          fetchStaff();
+        }}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+      
     ))}
     {(!member.documents?.storeConnections || member.documents.storeConnections.length === 0) && 
       <Button 
