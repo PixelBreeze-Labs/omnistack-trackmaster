@@ -43,6 +43,7 @@ export function MyClubList() {
    members, 
    loading, 
    error, 
+   isInitialized, // Add this
    totalCount,
    page, 
    setPage,
@@ -56,6 +57,7 @@ export function MyClubList() {
  } = useExternalMembers({ source: 'from_my_club' });
 
  useEffect(() => {
+  if (!isInitialized) return;
    const timeoutId = setTimeout(() => {
      fetchMembers({ 
        search: searchQuery,
@@ -63,14 +65,15 @@ export function MyClubList() {
      });
    }, 500);
    return () => clearTimeout(timeoutId);
- }, [searchQuery, statusFilter, fetchMembers]);
+ }, [searchQuery, statusFilter, fetchMembers, isInitialized]);
 
  useEffect(() => {
+  if (!isInitialized) return;
    fetchMembers({
      search: searchQuery,
      status: statusFilter !== 'all' ? statusFilter : undefined,
    });
- }, [page, pageSize, searchQuery, statusFilter, fetchMembers]);
+ }, [page, pageSize, searchQuery, statusFilter, fetchMembers, isInitialized]);
 
  const getStatusBadge = (status: string) => {
    const variants: Record<string, "warning" | "success" | "destructive"> = {
