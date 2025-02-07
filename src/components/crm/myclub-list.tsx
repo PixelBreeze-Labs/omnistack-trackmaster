@@ -56,7 +56,6 @@ export function MyClubList() {
  } = useExternalMembers({ source: 'from_my_club' });
 
  useEffect(() => {
-  if (!isInitialized) return;
   
   const timeoutId = setTimeout(() => {
     fetchMembers({ 
@@ -66,7 +65,7 @@ export function MyClubList() {
   }, 500);
   
   return () => clearTimeout(timeoutId);
-}, [page, pageSize, searchQuery, statusFilter, fetchMembers, isInitialized]);
+}, [page, pageSize, searchQuery, statusFilter, fetchMembers]);
 
  const getStatusBadge = (status: string) => {
    const variants: Record<string, "warning" | "success" | "destructive"> = {
