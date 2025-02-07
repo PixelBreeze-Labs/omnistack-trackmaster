@@ -2,6 +2,7 @@
 // src/app/api/staff/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createOmniStackUserApi } from '../../external/omnigateway/user';
 
 export async function GET(
   req: Request,
@@ -50,13 +51,41 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.staff.update({
+    // Get the staff member to delete
+    const staff = await prisma.staff.findUnique({
       where: { id: params.id },
-      data: { status: 'INACTIVE' }
+      include: { client: true }
     });
 
-    return NextResponse.json({ message: 'Staff member deactivated successfully' });
+    if (!staff) {
+      return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
+    }
+
+    // If staff has app access, delete from external systems
+    if (staff.documents?.externalIds) {
+      // Delete from OmniStack if API key exists
+      if (staff.client.omniGatewayApiKey && staff.documents.externalIds.omnistack) {
+        const omniStackApi = createOmniStackUserApi(staff.client.omniGatewayApiKey);
+        await omniStackApi.deleteUser(staff.documents.externalIds.omnistack);
+      }
+
+      // Delete associated user record
+      await prisma.user.delete({
+        where: { email: staff.email }
+      });
+    }
+
+    // Finally delete the staff record
+    await prisma.staff.delete({
+      where: { id: params.id }
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to deactivate staff member' }, { status: 500 });
+    console.error('Delete staff error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to delete staff member' },
+      { status: 500 }
+    );
   }
 }

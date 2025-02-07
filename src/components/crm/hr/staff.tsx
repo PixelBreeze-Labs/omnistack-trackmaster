@@ -36,7 +36,8 @@ import {
   UserPlus,
   Smartphone,
   Store,
-  X
+  X,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Staff, StaffRole, StaffStatus } from '@/types/staff';
@@ -46,6 +47,7 @@ import InputSelect from '@/components/Common/InputSelect';
 import { useRouter } from 'next/navigation';
 import { ConnectStoreModal } from '../staff/connect-store-modal';
 import { useStores } from "@/hooks/useStores";
+import { DeleteConfirmationModal } from './delete-confirmation-modal';
 
 
 export function StaffContent() {
@@ -56,6 +58,16 @@ export function StaffContent() {
   const router = useRouter();
   const [showConnectStore, setShowConnectStore] = useState(false);
 const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+const [deleteModal, setDeleteModal] = useState<{
+  isOpen: boolean;
+  staff: Staff | null;
+  isLoading: boolean;
+}>({
+  isOpen: false,
+  staff: null,
+  isLoading: false
+});
+
 
   const [stats, setStats] = useState({
     totalStaff: 0,
@@ -146,6 +158,30 @@ useEffect(() => {
     return "text-red-600";
   };
 
+  const handleDelete = async () => {
+    if (!deleteModal.staff) return;
+    
+    setDeleteModal(prev => ({ ...prev, isLoading: true }));
+    
+    try {
+      const response = await fetch(`/api/staff/${deleteModal.staff.id}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete staff member');
+      }
+      
+      toast.success('Staff member deleted successfully');
+      fetchStaff();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete staff member');
+    } finally {
+      setDeleteModal({ isOpen: false, staff: null, isLoading: false });
+    }
+  };
+
+  
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -449,11 +485,14 @@ useEffect(() => {
     <Button 
       variant="ghost" 
       size="sm"
-      onClick={() => {
-        toast.info("Edit functionality coming soon");
-      }}
+      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+      onClick={() => setDeleteModal({ 
+        isOpen: true, 
+        staff: member,
+        isLoading: false
+      })}
     >
-      <ChevronRight className="h-4 w-4" />
+      <Trash2 className="h-4 w-4" />
     </Button>
   </div>
 </TableCell>
@@ -560,6 +599,17 @@ useEffect(() => {
     staffId={selectedStaff?.documents?.externalIds?.omnistack}
     staffName={`${selectedStaff.firstName} ${selectedStaff.lastName}`}
     connectedStores={stores}
+  />
+)}
+
+{/* Add the DeleteConfirmationModal */}
+{deleteModal.isOpen && deleteModal.staff && (
+  <DeleteConfirmationModal
+    isOpen={deleteModal.isOpen}
+    onClose={() => setDeleteModal({ isOpen: false, staff: null, isLoading: false })}
+    onConfirm={handleDelete}
+    staffName={`${deleteModal.staff.firstName} ${deleteModal.staff.lastName}`}
+    isLoading={deleteModal.isLoading}
   />
 )}
       <div className="h-8"></div>

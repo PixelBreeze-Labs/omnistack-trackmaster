@@ -10,6 +10,10 @@ export const createOmniStackUserApi = (apiKey: string) => {
     createUser: async (userData: CreateOmniStackUserData) => {
       const { data } = await api.post('/users', userData);
       return data as OmniStackUserResponse;
+    },
+    deleteUser: async (userId: string) => {
+      const { data } = await api.delete(`/users/${userId}`);
+      return data;
     }
   };
 };
