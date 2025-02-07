@@ -25,16 +25,20 @@ export function ConnectVenueBoostModal({
     currentSettings?.venueShortCode || ''
   );
 
+  const [webhookApiKey, setWebhookApiKey] = useState(
+    currentSettings?.webhookApiKey || ''
+  );
+
   const handleConnect = async () => {
-    if (!venueShortCode) {
-      toast.error('Please enter a venue short code');
+    if (!venueShortCode && !webhookApiKey) {
+      toast.error('Please enter all fields');
       return;
     }
 
     setIsLoading(true);
     try {
       // First connect to VenueBoost
-      await connectVenueBoost(venueShortCode);
+      await connectVenueBoost(venueShortCode, webhookApiKey);
 
       // Then update local settings
       await updateSettings({
@@ -42,6 +46,7 @@ export function ConnectVenueBoostModal({
           venueBoost: {
             enabled: true,
             venueShortCode,
+            webhookApiKey,
             connectedAt: new Date().toISOString()
           }
         }
@@ -78,6 +83,19 @@ export function ConnectVenueBoostModal({
               Enter your VenueBoost venue short code to connect
             </p>
           </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Api Key</label>
+            <Input
+              value={webhookApiKey}
+              onChange={(e) => setWebhookApiKey(e.target.value)}
+              placeholder="Enter api key"
+              disabled={isLoading}
+            />
+            <p className="text-sm text-muted-foreground">
+              Enter your VenueBoost api key to connect
+            </p>
+          </div>
         </div>
         <DialogFooter>
           <div className="flex justify-between w-full">
@@ -87,7 +105,7 @@ export function ConnectVenueBoostModal({
               </Button>
               <Button 
                 onClick={handleConnect} 
-                disabled={isLoading || !venueShortCode}
+                disabled={isLoading || !venueShortCode || !webhookApiKey}
               >
                 {isLoading ? "Connecting..." : "Connect"}
               </Button>
