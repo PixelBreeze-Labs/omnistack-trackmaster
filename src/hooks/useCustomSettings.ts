@@ -31,6 +31,7 @@ export function useCustomSettings() {
      settings, 
      isLoading,
      isVenueBoostEnabled: settings?.integrations?.venueBoost?.enabled,
-     venueShortCode: settings?.integrations?.venueBoost?.venueShortCode 
+     venueShortCode: settings?.integrations?.venueBoost?.venueShortCode,
+     webhookApiKey: settings?.integrations?.venueBoost?.webhookApiKey 
    };
 }

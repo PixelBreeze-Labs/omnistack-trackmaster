@@ -35,6 +35,7 @@ export function IntegrationsTab() {
               {isVBConnected && (
                 <div className="text-sm text-muted-foreground">
                   Connected to: {settings?.integrations?.venueBoost?.venueShortCode}
+                  API Key:  {settings?.integrations?.venueBoost?.webhookApiKey}
                 </div>
               )}
             </div>
