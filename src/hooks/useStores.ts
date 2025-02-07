@@ -1,5 +1,3 @@
-// hooks/useStores.ts
-
 import { useState, useCallback, useMemo } from 'react';
 import { createStoreApi } from '@/app/api/external/omnigateway/store';
 import { Store } from "@/app/api/external/omnigateway/types/stores";
@@ -27,10 +25,23 @@ export const useStores = () => {
         }
     }, [api]);
 
-    const connectUser = useCallback(async (storeId: string, userId: string) => {
+    const connectUser = useCallback(async (storeId: string, userId: string, originalstaffId: string) => {
         if (!api) return;
         try {
+            // Connect in OmniGateway
             await api.connectUser(storeId, userId);
+
+            // Update Prisma via API
+            await fetch('/api/staff/store-connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    staffId: originalstaffId,
+                    storeId,
+                    action: 'connect'
+                })
+            });
+
             toast.success('User connected successfully');
         } catch (error) {
             toast.error('Failed to connect user');
@@ -41,7 +52,20 @@ export const useStores = () => {
     const disconnectUser = useCallback(async (storeId: string, userId: string) => {
         if (!api) return;
         try {
+            // Disconnect in OmniGateway
             await api.disconnectUser(storeId, userId);
+
+            // Update Prisma via API
+            await fetch('/api/staff/store-connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    staffId: userId,
+                    storeId,
+                    action: 'disconnect'
+                })
+            });
+
             toast.success('User disconnected successfully');
         } catch (error) {
             toast.error('Failed to disconnect user');

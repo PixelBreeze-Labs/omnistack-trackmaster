@@ -44,6 +44,7 @@ import { useClient } from '@/hooks/useClient';
 import InputSelect from '@/components/Common/InputSelect';
 import { useRouter } from 'next/navigation';
 import { ConnectStoreModal } from '../staff/connect-store-modal';
+import { useStores } from "@/hooks/useStores";
 
 
 export function StaffContent() {
@@ -54,6 +55,7 @@ export function StaffContent() {
   const router = useRouter();
   const [showConnectStore, setShowConnectStore] = useState(false);
 const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+const { listConnectedStores, disconnectUser, isLoading, stores } = useStores();
 
   const [stats, setStats] = useState({
     totalStaff: 0,
@@ -78,6 +80,10 @@ const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
     fetchStaff();
     fetchDepartments();
   }, [filters, pagination.page, pagination.limit, clientId]);
+
+  useEffect(() => {
+    listConnectedStores().catch(console.error);
+  }, [listConnectedStores]);
 
   const fetchStaff = async () => {
     if (!clientId) return;
@@ -395,29 +401,36 @@ const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          setSelectedStaff(member);
-                          setShowConnectStore(true);
-                        }}
-                      >
-                        <Store className="h-4 w-4 mr-2" />
-                        Connect Store
-                      </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => {
-                            toast.info("Edit functionality coming soon");
-                          }}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+  <div className="flex items-center gap-2">
+    {member.documents?.storeConnections?.map((connection) => (
+      <Badge key={connection.storeId} variant="outline">
+        {stores?.find(s => s._id === connection.storeId)?.name || 'Unknown Store'}
+      </Badge>
+    ))}
+    {(!member.documents?.storeConnections || member.documents.storeConnections.length === 0) && 
+      <Button 
+        variant="outline" 
+        size="sm"
+        onClick={() => {
+          setSelectedStaff(member);
+          setShowConnectStore(true);
+        }}
+      >
+        <Store className="h-4 w-4 mr-2" />
+        Connect Store
+      </Button>
+    }
+    <Button 
+      variant="ghost" 
+      size="sm"
+      onClick={() => {
+        toast.info("Edit functionality coming soon");
+      }}
+    >
+      <ChevronRight className="h-4 w-4" />
+    </Button>
+  </div>
+</TableCell>
                   </TableRow>
                 ))
               )}
@@ -517,8 +530,10 @@ const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
     onSuccess={() => {
       fetchStaff();
     }}
-    staffId={selectedStaff.id}
+    originalstaffId={selectedStaff?.id}
+    staffId={selectedStaff?.documents?.externalIds?.omnistack}
     staffName={`${selectedStaff.firstName} ${selectedStaff.lastName}`}
+    connectedStores={stores}
   />
 )}
       <div className="h-8"></div>

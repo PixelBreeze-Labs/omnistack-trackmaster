@@ -5,24 +5,22 @@ import { Button } from "@/components/ui/button";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "sonner";
 import { useStores } from "@/hooks/useStores";
+import { Store } from "@/app/api/external/omnigateway/types/stores";
 
 interface ConnectStoreModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  originalstaffId: string;
   staffId: string;
   staffName: string;
+  connectedStores: Store[];
 }
 
-export function ConnectStoreModal({ isOpen, onClose, onSuccess, staffId, staffName }: ConnectStoreModalProps) {
+export function ConnectStoreModal({ isOpen, onClose, onSuccess, originalstaffId, staffId, staffName, connectedStores }: ConnectStoreModalProps) {
   const [selectedStore, setSelectedStore] = useState('');
-  const { listConnectedStores, connectUser, isLoading, stores } = useStores();
+  const {  connectUser, isLoading } = useStores();
 
-  useEffect(() => {
-    if (isOpen) {
-        listConnectedStores().catch(console.error);
-    }
-}, [isOpen, listConnectedStores]);
 
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +30,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     try {
-        await connectUser(selectedStore, staffId);
+        await connectUser(selectedStore, staffId, originalstaffId);
         onSuccess();
         onClose();
     } catch (error) {
@@ -55,7 +53,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               onChange={(e) => setSelectedStore(e.target.value)}
               options={[
                 { value: "", label: "Select a store" },
-                ...(stores || []).map(store => ({
+                ...(connectedStores || []).map(store => ({
                   value: store.id,
                   label: store.name
                 }))
