@@ -35,6 +35,7 @@ export function CustomerFeedback() {
   const [pageSize, setPageSize] = useState(10);
   const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [storeFilter, setStoreFilter] = useState("");
 
   const {
     feedbacks,
@@ -220,18 +221,20 @@ const getRatingStars = (rating: number) => {
               />
             </div>
             <InputSelect
-              name="status"
+              name="store"
               label=""
-              value={status}
+              value={storeFilter}
               onChange={(e) => {
-                setStatus(e.target.value);
+                setStoreFilter(e.target.value);
                 setPage(1);
               }}
               options={[
-                { value: "all", label: "All Status" },
-                { value: "new", label: "New" },
-                { value: "reviewed", label: "Reviewed" },
-                { value: "responded", label: "Responded" },
+                { value: "", label: "All Stores" },
+                ...Array.from(new Set(feedbacks.map(f => f.store.name)))
+                  .map(store => ({ 
+                    value: store, 
+                    label: store 
+                  }))
               ]}
             />
           </div>
