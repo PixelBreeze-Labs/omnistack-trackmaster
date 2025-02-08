@@ -338,7 +338,7 @@ export function DepartmentsContent() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => handleDelete(deleteDialog.department?.id)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700"
             >
               Delete Department
             </AlertDialogAction>
