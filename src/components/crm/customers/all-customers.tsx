@@ -299,8 +299,10 @@ export function AllCustomers() {
                     <TableHead>Customer</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Source</TableHead>
                     <TableHead>Orders</TableHead>
-                    <TableHead>Registration</TableHead>
+                    <TableHead>Last Active</TableHead>
+                    <TableHead>Points</TableHead>
                     <TableHead>Loyalty</TableHead>
                     <TableHead>Total Spent</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -317,7 +319,7 @@ export function AllCustomers() {
                     </TableRow>
                   ) : customers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
+                      <TableCell colSpan={10} className="text-center py-8">
                         <div className="flex flex-col items-center gap-3">
                           <UserPlus className="h-12 w-12 text-muted-foreground" />
                           <h3 className="text-lg font-medium">No Customers Found</h3>
@@ -380,6 +382,19 @@ export function AllCustomers() {
                             {customer.status}
                           </Badge>
                         </TableCell>
+
+                        <TableCell>
+                            <Badge 
+                              variant={
+                                customer.source === "METROSHOP" ? "default" :
+                                customer.source === "METROSUITES" ? "warning" :
+                                customer.source === "MANUAL" ? "secondary" :
+                                "outline"
+                              }
+                            >
+                              {customer.source}
+                            </Badge>
+                          </TableCell>
                         <TableCell>
                           <div className="space-y-0.5">
                             <div>{customer.orders ?? 0} orders</div>
@@ -393,6 +408,23 @@ export function AllCustomers() {
                             <div>{customer.registrationDate ? new Date(customer.registrationDate).toLocaleDateString() : 'N/A'}</div>
                             <span className="text-xs text-muted-foreground">
                               First order: {customer.firstOrder ? new Date(customer.firstOrder).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-0.5">
+                            <div>{customer.lastActive ? new Date(customer.lastActive).toLocaleDateString() : 'N/A'}</div>
+                            <span className="text-xs text-muted-foreground">
+                              {customer.lastActive ? new Date(customer.lastActive).toLocaleTimeString() : ''}
+                            </span>
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="space-y-0.5">
+                            <div>{customer.pointsBalance?.toLocaleString() ?? 0} pts</div>
+                            <span className="text-xs text-muted-foreground">
+                              Available Balance
                             </span>
                           </div>
                         </TableCell>
