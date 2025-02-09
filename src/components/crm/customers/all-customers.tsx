@@ -45,6 +45,24 @@ import { DeactivateCustomerDialog } from "./DeactivateCustomerDialog";
 import { CustomerForm } from "./CustomerForm";
 import { Customer } from "@/app/api/external/omnigateway/types/customers";
 
+
+const getTierBadge = (tier: string) => {
+  switch (tier) {
+    case 'Bronze Tier':
+      return <Badge variant="secondary" className="mt-1">Bronze</Badge>;
+    case 'Silver Tier':
+      return <Badge variant="warning" className="mt-1">Silver</Badge>;
+    case 'Gold Tier':
+      return <Badge variant="success" className="mt-1">Gold</Badge>;
+    case 'Platinum Tier':
+      return <Badge variant="destructive" className="mt-1">Platinum</Badge>;
+    case 'Default Tier':
+      return <Badge variant="outline" className="mt-1">Default</Badge>;
+    default:
+      return <Badge variant="outline" className="mt-1">None</Badge>;
+  }
+};
+
 export function AllCustomers() {
   const {
     isLoading,
@@ -415,12 +433,10 @@ export function AllCustomers() {
   </div>
 </TableCell>
 
-          <TableCell className="text-center">
-            <div className="font-medium">{customer.points?.toLocaleString() || 0}</div>
-            <Badge variant="outline" className="mt-1">
-              {customer.membershipTier || 'NONE'}
-            </Badge>
-          </TableCell>
+              <TableCell className="text-center">
+                <div className="font-medium">{customer.points?.toLocaleString() || 0}</div>
+                {getTierBadge(customer.membershipTier || 'NONE')}
+              </TableCell>
 
           <TableCell className="text-center">
             <div className="font-medium">
