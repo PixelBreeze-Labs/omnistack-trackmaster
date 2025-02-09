@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 import { ProgramPreview } from "./loyalty-program-preview";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
 import { MembershipTier } from "@/app/api/external/omnigateway/types/loyalty-program";
 
 export function ProgramContent() {
@@ -77,9 +77,8 @@ export function ProgramContent() {
       if (!localProgram) return;
       await updateProgram(localProgram);
       setHasChanges(false);
-      toast.success('Program updated successfully');
     } catch (error) {
-      toast.error('Failed to update program');
+      // toast.error('Failed to update program');
     }
   };
 

@@ -19,6 +19,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Benefit } from '@/hooks/useBenefits';
 import { LoyaltyProgram } from "@/app/api/external/omnigateway/types/loyalty-program";
+import InputSelect from '@/components/Common/InputSelect';
 
 interface BenefitFormProps {
   open: boolean;
@@ -146,23 +147,21 @@ export function BenefitForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-              <Select
+                            <InputSelect
+                name="type"
+                label=""  // If you need a label, add it here
                 value={formData.type}
-                onValueChange={(value) => setFormData(prev => ({
+                onChange={(e) => setFormData(prev => ({
                   ...prev,
-                  type: value as Benefit['type']
+                  type: e.target.value as Benefit['type']
                 }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DISCOUNT">Discount</SelectItem>
-                  <SelectItem value="CASHBACK">Cashback</SelectItem>
-                  <SelectItem value="POINTS">Points</SelectItem>
-                  <SelectItem value="FREE_SHIPPING">Free Shipping</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { value: 'DISCOUNT', label: 'Discount' },
+                  { value: 'CASHBACK', label: 'Cashback' },
+                  { value: 'POINTS', label: 'Points' },
+                  { value: 'FREE_SHIPPING', label: 'Free Shipping' }
+                ]}
+              />
             </div>
 
             <div className="space-y-2">
