@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { LoyaltyProgram } from '@/app/api/external/omnigateway/types/loyalty-program';
 import { UpdatePointsSystemDto } from '@/app/api/external/omnigateway/types/points-system';
+import InputSelect from '@/components/Common/InputSelect';
 
 interface PointsConfigFormProps {
   open: boolean;
@@ -177,25 +178,23 @@ export function PointsConfigForm({
             </div>
 
             <div className="space-y-2">
-              <Label>Discount Type</Label>
-              <Select
-                value={formData.redeemingPoints.discountType}
-                onValueChange={(value) => setFormData(prev => ({
-                  ...prev,
-                  redeemingPoints: {
-                    ...prev.redeemingPoints,
-                    discountType: value as 'fixed' | 'percentage'
-                  }
-                }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fixed">Fixed Amount</SelectItem>
-                  <SelectItem value="percentage">Percentage</SelectItem>
-                </SelectContent>
-              </Select>
+                <Label>Discount Type</Label>
+                <InputSelect
+                    name="discountType"
+                    label=""  // Label is already handled above
+                    value={formData.redeemingPoints.discountType}
+                    onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    redeemingPoints: {
+                        ...prev.redeemingPoints,
+                        discountType: e.target.value as 'fixed' | 'percentage'
+                    }
+                    }))}
+                    options={[
+                    { value: 'fixed', label: 'Fixed Amount' },
+                    { value: 'percentage', label: 'Percentage' }
+                    ]}
+                />
             </div>
           </div>
 
