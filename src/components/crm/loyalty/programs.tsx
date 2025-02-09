@@ -1,15 +1,14 @@
 "use client"
 
-import React from 'react';
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Settings,
   Crown,
-  Star,
-  Edit,
-  Plus
+  Plus,
+  Loader2
 } from "lucide-react";
 import {
   Table,
@@ -19,67 +18,99 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-
-// This matches our backend schema
-interface MembershipTier {
-  name: string;
-  spendRange: {
-    min: number;
-    max: number;
-  };
-  pointsMultiplier: number;
-  birthdayReward: number;
-  perks: string[];
-  referralPoints: number;
-}
-
-interface LoyaltyProgram {
-  programName: string;
-  currency: string;
-  membershipTiers: MembershipTier[];
-}
+import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
+import { ProgramPreview } from "./loyalty-program-preview";
+import { toast } from "react-hot-toast";
+import { MembershipTier } from "@/app/api/external/omnigateway/types/loyalty-program";
 
 export function ProgramContent() {
-  // Demo data matching our schema
-  const currentProgram: LoyaltyProgram = {
-    programName: "ByBest Rewards Club",
-    currency: "EUR",
-    membershipTiers: [
-      {
-        name: "Bronze",
-        spendRange: { min: 0, max: 499 },
-        pointsMultiplier: 1,
-        birthdayReward: 5,
-        perks: [],
-        referralPoints: 5
-      },
-      {
-        name: "Silver",
-        spendRange: { min: 500, max: 999 },
-        pointsMultiplier: 1.5,
-        birthdayReward: 10,
-        perks: ['Free standard shipping on orders over 50 EUR'],
-        referralPoints: 10
-      },
-      {
-        name: "Gold",
-        spendRange: { min: 1000, max: 2499 },
-        pointsMultiplier: 2,
-        birthdayReward: 20,
-        perks: ['Free express shipping'],
-        referralPoints: 15
-      },
-      {
-        name: "Platinum",
-        spendRange: { min: 2500, max: 9999999 },
-        pointsMultiplier: 2.5,
-        birthdayReward: 30,
-        perks: ['VIP customer service'],
-        referralPoints: 20
-      }
-    ]
+  const { 
+    isLoading, 
+    program, 
+    fetchProgram, 
+    updateProgram 
+  } = useLoyaltyProgram();
+
+  const [localProgram, setLocalProgram] = useState(program);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    fetchProgram();
+  }, [fetchProgram]);
+
+  useEffect(() => {
+    if (program) {
+      setLocalProgram(program);
+    }
+  }, [program]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setLocalProgram(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
+    setHasChanges(true);
   };
+
+  const handleTierChange = (index: number, field: string, value: any) => {
+    setLocalProgram(prev => {
+      if (!prev) return prev;
+      const newTiers = [...prev.membershipTiers];
+      newTiers[index] = {
+        ...newTiers[index],
+        [field]: value
+      };
+      return {
+        ...prev,
+        membershipTiers: newTiers
+      };
+    });
+    setHasChanges(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      if (!localProgram) return;
+      await updateProgram(localProgram);
+      setHasChanges(false);
+      toast.success('Program updated successfully');
+    } catch (error) {
+      toast.error('Failed to update program');
+    }
+  };
+
+  const addNewTier = () => {
+    if (!localProgram) return;
+    
+    const newTier: MembershipTier = {
+      name: "New Tier",
+      spendRange: { min: 0, max: 999 },
+      pointsMultiplier: 1,
+      birthdayReward: 5,
+      perks: [],
+      referralPoints: 5
+    };
+
+    setLocalProgram(prev => ({
+      ...prev!,
+      membershipTiers: [...prev!.membershipTiers, newTier]
+    }));
+    setHasChanges(true);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[500px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!localProgram) return null;
 
   return (
     <div className="space-y-6">
@@ -92,11 +123,17 @@ export function ProgramContent() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => setPreviewOpen(true)}
+          >
             <Settings className="h-4 w-4 mr-2" />
             Preview Program
           </Button>
-          <Button>
+          <Button 
+            onClick={handleSave}
+            disabled={!hasChanges}
+          >
             <Crown className="h-4 w-4 mr-2" />
             Save Changes
           </Button>
@@ -114,14 +151,16 @@ export function ProgramContent() {
               <label className="text-sm font-medium">Program Name</label>
               <Input 
                 placeholder="Enter program name" 
-                value={currentProgram.programName}
+                value={localProgram.programName}
+                onChange={(e) => handleInputChange('programName', e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Currency</label>
               <Input 
                 placeholder="EUR" 
-                value={currentProgram.currency}
+                value={localProgram.currency}
+                onChange={(e) => handleInputChange('currency', e.target.value)}
               />
             </div>
           </div>
@@ -132,7 +171,11 @@ export function ProgramContent() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Membership Tiers</CardTitle>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={addNewTier}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Tier
           </Button>
@@ -151,25 +194,102 @@ export function ProgramContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentProgram.membershipTiers.map((tier) => (
-                <TableRow key={tier.name}>
-                  <TableCell className="font-medium">{tier.name}</TableCell>
+              {localProgram.membershipTiers.map((tier, index) => (
+                <TableRow key={index}>
                   <TableCell>
-                    {tier.spendRange.min} - {tier.spendRange.max} {currentProgram.currency}
+                    <Input 
+                      value={tier.name}
+                      onChange={(e) => handleTierChange(index, 'name', e.target.value)}
+                    />
                   </TableCell>
-                  <TableCell>{tier.pointsMultiplier}x</TableCell>
-                  <TableCell>{tier.birthdayReward} {currentProgram.currency}</TableCell>
-                  <TableCell>{tier.referralPoints} points</TableCell>
                   <TableCell>
-                    {tier.perks.length > 0 ? (
-                      <Badge variant="secondary">{tier.perks.length} perks</Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">No perks</span>
-                    )}
+                    <div className="flex gap-2 items-center">
+                      <Input 
+                        type="number"
+                        value={tier.spendRange.min}
+                        onChange={(e) => handleTierChange(index, 'spendRange', {
+                          ...tier.spendRange,
+                          min: parseInt(e.target.value)
+                        })}
+                      />
+                     <span>-</span>
+                      <Input 
+                        type="number"
+                        value={tier.spendRange.max}
+                        onChange={(e) => handleTierChange(index, 'spendRange', {
+                          ...tier.spendRange,
+                          max: parseInt(e.target.value)
+                        })}
+                      />
+                      <span>{localProgram.currency}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Input 
+                        type="number"
+                        value={tier.pointsMultiplier}
+                        onChange={(e) => handleTierChange(index, 'pointsMultiplier', parseFloat(e.target.value))}
+                      />
+                      <span>x</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Input 
+                        type="number"
+                        value={tier.birthdayReward}
+                        onChange={(e) => handleTierChange(index, 'birthdayReward', parseInt(e.target.value))}
+                      />
+                      <span>{localProgram.currency}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Input 
+                        type="number"
+                        value={tier.referralPoints}
+                        onChange={(e) => handleTierChange(index, 'referralPoints', parseInt(e.target.value))}
+                      />
+                      <span>points</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Input 
+                      value={tier.perks.join(', ')}
+                      onChange={(e) => handleTierChange(index, 'perks', e.target.value.split(',').map(p => p.trim()).filter(Boolean))}
+                      placeholder="Comma-separated perks"
+                    />
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => {
+                        const newTiers = localProgram.membershipTiers.filter((_, i) => i !== index);
+                        setLocalProgram(prev => ({
+                          ...prev!,
+                          membershipTiers: newTiers
+                        }));
+                        setHasChanges(true);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                      </svg>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -179,55 +299,20 @@ export function ProgramContent() {
         </CardContent>
       </Card>
 
-      {/* Preview Panel - Read Only */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Preview Tiers</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
-            {currentProgram.membershipTiers.map((tier) => (
-              <Card key={tier.name}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge 
-                      variant="secondary" 
-                      className={
-                        tier.name === "Platinum" ? "bg-blue-100 text-blue-700" :
-                        tier.name === "Gold" ? "bg-yellow-100 text-yellow-700" :
-                        tier.name === "Silver" ? "bg-gray-100 text-gray-700" :
-                        "bg-amber-100 text-amber-700"
-                      }
-                    >
-                      {tier.name}
-                    </Badge>
-                    <Star className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Spend Range: </span>
-                      {tier.spendRange.min}-{tier.spendRange.max} {currentProgram.currency}
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Points: </span>
-                      {tier.pointsMultiplier}x multiplier
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Birthday: </span>
-                      {tier.birthdayReward} {currentProgram.currency}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Preview Modal */}
+      {localProgram && (
+        <ProgramPreview 
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          program={localProgram}
+        />
+      )}
 
       {/* Bottom spacing */}
       <div className="h-8" />
     </div>
   );
+
 }
 
 export default ProgramContent;
