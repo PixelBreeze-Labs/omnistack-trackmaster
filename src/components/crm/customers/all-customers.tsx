@@ -301,7 +301,7 @@ export function AllCustomers() {
       <TableHead>Status</TableHead>
       <TableHead>Source</TableHead>
       <TableHead>Registration</TableHead>
-      <TableHead>Activity</TableHead>
+      <TableHead>Last Activity</TableHead>
       <TableHead className="text-center">Points</TableHead>
       <TableHead className="text-center">Total Spend</TableHead>
       <TableHead className="text-right">Actions</TableHead>
@@ -394,10 +394,26 @@ export function AllCustomers() {
           </TableCell>
 
           <TableCell>
-            <div className="text-sm">
-              {customer.lastActive ? new Date(customer.lastActive).toLocaleDateString() : 'N/A'}
-            </div>
-          </TableCell>
+  <div className="space-y-0.5">
+    <div className="text-sm font-medium">
+      {customer.lastActive 
+        ? new Date(customer.lastActive).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })
+        : 'N/A'}
+    </div>
+    <div className="text-xs text-muted-foreground">
+      {customer.lastActive 
+        ? new Date(customer.lastActive).toLocaleTimeString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : ''}
+    </div>
+  </div>
+</TableCell>
 
           <TableCell className="text-center">
             <div className="font-medium">{customer.points?.toLocaleString() || 0}</div>
