@@ -164,16 +164,18 @@ export function PointsRewardsContent() {
     ];
 
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Redemption Options</CardTitle>
+      
+        <Card className='relative'>
+        <CardHeader >
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">Redemption Options</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Configure how members can redeem their points
+              Configure how members can redeem their points
               </p>
-            </div>
-            <Button 
+          </div>
+          </CardHeader>
+          <div className="absolute top-6 right-6">
+          <Button 
               variant="outline" 
               size="sm"
               onClick={() => setConfigFormOpen(true)}
@@ -182,7 +184,7 @@ export function PointsRewardsContent() {
               Edit Options
             </Button>
           </div>
-        </CardHeader>
+       
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {options.map((option) => (
@@ -212,28 +214,28 @@ export function PointsRewardsContent() {
     if (!pointsSystem) return null;
 
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Bonus Days</CardTitle>
+      <Card className='relative'>
+        <CardHeader >
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">Bonus Days</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Special events with increased point earnings
+              Special events with increased point earnings
               </p>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                setSelectedBonusDay(null);
-                setBonusDayFormOpen(true);
-              }}
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Add Bonus Day
-            </Button>
           </div>
-        </CardHeader>
+          </CardHeader>
+          <div className="absolute top-6 right-6">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setSelectedBonusDay(null);
+                  setBonusDayFormOpen(true);
+                }}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Add Bonus Day
+              </Button>
+          </div>
         <CardContent>
           <div className="space-y-4">
             {pointsSystem.earningPoints.bonusDays.map((day) => (
