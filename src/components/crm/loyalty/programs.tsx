@@ -3,211 +3,218 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Star,
-  Settings,
-  Users,
-  Gift,
-  Crown,
-  Calendar,
-  ArrowUpRight,
-  BadgePercent,
-  TrendingUp,
-  MessageSquare,
-  Shield
-} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  Settings,
+  Crown,
+  Star,
+  Edit,
+  Plus
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 
-const PROGRAM_STATS = [
-  {
-    title: "Total Members",
-    value: "1,274",
-    change: "+12%",
-    subtitle: "Across all tiers",
-    icon: Users
-  },
-  {
-    title: "Points Issued",
-    value: "45,230",
-    change: "+8%",
-    subtitle: "Last 30 days",
-    icon: Star
-  },
-  {
-    title: "Redemption Rate",
-    value: "68%",
-    change: "+5%",
-    subtitle: "Points redeemed",
-    icon: Gift
-  },
-  {
-    title: "Avg. Member Value",
-    value: "€285",
-    change: "+15%",
-    subtitle: "Per member",
-    icon: Crown
-  }
-];
+// This matches our backend schema
+interface MembershipTier {
+  name: string;
+  spendRange: {
+    min: number;
+    max: number;
+  };
+  pointsMultiplier: number;
+  birthdayReward: number;
+  perks: string[];
+  referralPoints: number;
+}
 
-const TIERS_OVERVIEW = [
-  {
-    name: "Bronze",
-    members: 850,
-    spendRange: "€0 - €499",
-    color: "bg-amber-500/10 text-amber-600"
-  },
-  {
-    name: "Silver",
-    members: 285,
-    spendRange: "€500 - €999",
-    color: "bg-slate-500/10 text-slate-600"
-  },
-  {
-    name: "Gold",
-    members: 98,
-    spendRange: "€1000 - €2499",
-    color: "bg-yellow-500/10 text-yellow-600"
-  },
-  {
-    name: "Platinum",
-    members: 41,
-    spendRange: "€2500+",
-    color: "bg-blue-500/10 text-blue-600"
-  }
-];
+interface LoyaltyProgram {
+  programName: string;
+  currency: string;
+  membershipTiers: MembershipTier[];
+}
 
-export function LoyaltyProgramsContent() {
+export function ProgramContent() {
+  // Demo data matching our schema
+  const currentProgram: LoyaltyProgram = {
+    programName: "ByBest Rewards Club",
+    currency: "EUR",
+    membershipTiers: [
+      {
+        name: "Bronze",
+        spendRange: { min: 0, max: 499 },
+        pointsMultiplier: 1,
+        birthdayReward: 5,
+        perks: [],
+        referralPoints: 5
+      },
+      {
+        name: "Silver",
+        spendRange: { min: 500, max: 999 },
+        pointsMultiplier: 1.5,
+        birthdayReward: 10,
+        perks: ['Free standard shipping on orders over 50 EUR'],
+        referralPoints: 10
+      },
+      {
+        name: "Gold",
+        spendRange: { min: 1000, max: 2499 },
+        pointsMultiplier: 2,
+        birthdayReward: 20,
+        perks: ['Free express shipping'],
+        referralPoints: 15
+      },
+      {
+        name: "Platinum",
+        spendRange: { min: 2500, max: 9999999 },
+        pointsMultiplier: 2.5,
+        birthdayReward: 30,
+        perks: ['VIP customer service'],
+        referralPoints: 20
+      }
+    ]
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Loyalty Programs</h1>
+          <h2 className="text-2xl font-bold tracking-tight">Loyalty Program Settings</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            Manage your loyalty program tiers and rewards
+            Configure your loyalty program tiers and basic settings
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
             <Settings className="h-4 w-4 mr-2" />
-            Program Settings
+            Preview Program
           </Button>
-          <Button style={{ backgroundColor: "#5FC4D0" }}>
-            <Shield className="h-4 w-4 mr-2" />
-            View Member Portal
+          <Button>
+            <Crown className="h-4 w-4 mr-2" />
+            Save Changes
           </Button>
         </div>
       </div>
 
-      {/* Program Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {PROGRAM_STATS.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <div className="space-y-1">
-                    <h3 className="text-2xl font-bold">{stat.value}</h3>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center text-xs text-green-600">
-                        <ArrowUpRight className="h-3 w-3 mr-1" />
-                        {stat.change}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <stat.icon className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-        <Card className="relative overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <BadgePercent className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Special Promotions</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  2 active bonus point events
-                </p>
-              </div>
+      {/* Basic Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Basic Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Program Name</label>
+              <Input 
+                placeholder="Enter program name" 
+                value={currentProgram.programName}
+              />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Calendar className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Upcoming Events</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Next: Black Friday 2x Points
-                </p>
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Currency</label>
+              <Input 
+                placeholder="EUR" 
+                value={currentProgram.currency}
+              />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <MessageSquare className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Member Feedback</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  92% satisfaction rate
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Membership Tiers */}
       <Card>
-
-      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
-   <CardTitle className="text-xl font-semibold">Membership Tiers</CardTitle>
-   <Button variant="outline" size="sm" className="self-start">
-   <Settings className="h-4 w-4 mr-2" />
-   Configure Tiers
-   </Button>
- </CardHeader>
-
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Membership Tiers</CardTitle>
+          <Button variant="outline" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Tier
+          </Button>
+        </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {TIERS_OVERVIEW.map((tier) => (
-              <Card key={tier.name}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge className={tier.color}>{tier.name}</Badge>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tier Name</TableHead>
+                <TableHead>Spend Range</TableHead>
+                <TableHead>Points Multiplier</TableHead>
+                <TableHead>Birthday Reward</TableHead>
+                <TableHead>Referral Points</TableHead>
+                <TableHead>Perks</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentProgram.membershipTiers.map((tier) => (
+                <TableRow key={tier.name}>
+                  <TableCell className="font-medium">{tier.name}</TableCell>
+                  <TableCell>
+                    {tier.spendRange.min} - {tier.spendRange.max} {currentProgram.currency}
+                  </TableCell>
+                  <TableCell>{tier.pointsMultiplier}x</TableCell>
+                  <TableCell>{tier.birthdayReward} {currentProgram.currency}</TableCell>
+                  <TableCell>{tier.referralPoints} points</TableCell>
+                  <TableCell>
+                    {tier.perks.length > 0 ? (
+                      <Badge variant="secondary">{tier.perks.length} perks</Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">No perks</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
                     <Button variant="ghost" size="icon">
-                      <Settings className="h-4 w-4" />
+                      <Edit className="h-4 w-4" />
                     </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Preview Panel - Read Only */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Preview Tiers</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-4">
+            {currentProgram.membershipTiers.map((tier) => (
+              <Card key={tier.name}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge 
+                      variant="secondary" 
+                      className={
+                        tier.name === "Platinum" ? "bg-blue-100 text-blue-700" :
+                        tier.name === "Gold" ? "bg-yellow-100 text-yellow-700" :
+                        tier.name === "Silver" ? "bg-gray-100 text-gray-700" :
+                        "bg-amber-100 text-amber-700"
+                      }
+                    >
+                      {tier.name}
+                    </Badge>
+                    <Star className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Members</span>
-                      <span className="font-medium">{tier.members}</span>
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Spend Range: </span>
+                      {tier.spendRange.min}-{tier.spendRange.max} {currentProgram.currency}
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Spend Range</span>
-                      <span className="font-medium">{tier.spendRange}</span>
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Points: </span>
+                      {tier.pointsMultiplier}x multiplier
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Birthday: </span>
+                      {tier.birthdayReward} {currentProgram.currency}
                     </div>
                   </div>
                 </CardContent>
@@ -217,87 +224,10 @@ export function LoyaltyProgramsContent() {
         </CardContent>
       </Card>
 
-      {/* Program Features */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <Gift className="h-4 w-4" />
-              Point Rewards
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Points Earned</span>
-                <Badge variant="secondary">1 per €1</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Redemption Rate</span>
-                <Badge variant="secondary">€5 per 100 points</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Sign-up Bonus</span>
-                <Badge variant="secondary">50 points</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Program Performance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Active Members</span>
-                <Badge variant="secondary">85%</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Points Usage</span>
-                <Badge variant="secondary">68%</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Member Retention</span>
-                <Badge variant="secondary">92%</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Bonus Days
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Black Friday</span>
-                <Badge variant="secondary">2x Points</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Store Anniversary</span>
-                <Badge variant="secondary">2x Points</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Member Days</span>
-                <Badge variant="secondary">1.5x Points</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-        {/* Add bottom spacing */}
-        <div className="h-8"></div>
+      {/* Bottom spacing */}
+      <div className="h-8" />
     </div>
   );
 }
 
-export default LoyaltyProgramsContent;
+export default ProgramContent;

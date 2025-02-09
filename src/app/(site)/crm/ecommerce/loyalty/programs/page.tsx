@@ -1,6 +1,6 @@
 // src/app/crm/ecommerce/loyalty/programs/page.tsx
 import { Metadata } from "next"
-import { LoyaltyProgramsContent } from "@/components/crm/loyalty/programs"
+import { ProgramContent } from "@/components/crm/loyalty/programs"
 
 export const metadata: Metadata = {
     title: "Loyalty Programs - TrackMaster CRM",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function LoyaltyProgramsPage() {
     return (
         <div className="px-3">
-            <LoyaltyProgramsContent />
+            <ProgramContent />
         </div>
     )
 }
