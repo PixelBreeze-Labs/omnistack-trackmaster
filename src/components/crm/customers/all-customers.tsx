@@ -293,204 +293,160 @@ export function AllCustomers() {
 
       <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Orders</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead>Points</TableHead>
-                    <TableHead>Loyalty</TableHead>
-                    <TableHead>Total Spent</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
-                        <div className="flex items-center justify-center">
-                          <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : customers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center py-8">
-                        <div className="flex flex-col items-center gap-3">
-                          <UserPlus className="h-12 w-12 text-muted-foreground" />
-                          <h3 className="text-lg font-medium">No Customers Found</h3>
-                          <p className="text-sm text-muted-foreground max-w-sm text-center">
-                            Start building your customer base. Add your first customer to begin tracking relationships and orders.
-                          </p>
-                          <Button 
-                            className="mt-4"
-                            onClick={() => {
-                              setSelectedCustomer(null);
-                              setCustomerFormOpen(true);
-                            }}
-                          >
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            Add Customer
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    customers.map((customer) => (
-                      <TableRow key={customer._id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar>
-                              <AvatarImage src={customer.avatar} alt={`${customer.firstName} ${customer.lastName}`} />
-                              <AvatarFallback className="uppercase">
-                                {customer.firstName[0]}{customer.lastName[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">{customer.firstName} {customer.lastName}</div>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                {customer.type === "VIP" && (
-                                  <Badge variant="default" className="bg-primary">VIP</Badge>
-                                )}
-                                <span className="text-xs text-muted-foreground">
-                                  Customer since {customer.registrationDate ? new Date(customer.registrationDate).toLocaleDateString() : 'N/A'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center text-sm">
-                              <Mail className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-                              {customer.email}
-                            </div>
-                            <div className="flex items-center text-sm">
-                              <Phone className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-                              {customer.phone}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={customer.status === "ACTIVE" ? "success" : "secondary"}
-                          >
-                            {customer.status}
-                          </Badge>
-                        </TableCell>
+            <Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Customer</TableHead>
+      <TableHead>Contact</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Source</TableHead>
+      <TableHead>Registration</TableHead>
+      <TableHead>Activity</TableHead>
+      <TableHead className="text-center">Points</TableHead>
+      <TableHead className="text-center">Total Spend</TableHead>
+      <TableHead className="text-right">Actions</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {isLoading ? (
+      <TableRow>
+        <TableCell colSpan={9} className="text-center py-8">
+          <div className="flex items-center justify-center">
+            <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        </TableCell>
+      </TableRow>
+    ) : customers.length === 0 ? (
+      <TableRow>
+        <TableCell colSpan={9} className="text-center py-8">
+          <div className="flex flex-col items-center gap-3">
+            <UserPlus className="h-12 w-12 text-muted-foreground" />
+            <h3 className="text-lg font-medium">No Customers Found</h3>
+            <p className="text-sm text-muted-foreground max-w-sm text-center">
+              Start building your customer base. Add your first customer to begin tracking relationships and orders.
+            </p>
+            <Button 
+              className="mt-4"
+              onClick={() => {
+                setSelectedCustomer(null);
+                setCustomerFormOpen(true);
+              }}
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Customer
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+    ) : (
+      customers.map((customer) => (
+        <TableRow key={customer._id}>
+          <TableCell>
+            <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarImage src={customer.avatar} alt={`${customer.firstName} ${customer.lastName}`} />
+                <AvatarFallback className="uppercase">
+                  {customer.firstName[0]}{customer.lastName[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium">{customer.firstName} {customer.lastName}</div>
+                {customer.type === "VIP" && (
+                  <Badge variant="default" className="mt-0.5">VIP</Badge>
+                )}
+              </div>
+            </div>
+          </TableCell>
+          
+          <TableCell>
+            <div className="space-y-1">
+              <div className="flex items-center text-sm">
+                <Mail className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                {customer.email}
+              </div>
+              <div className="flex items-center text-sm">
+                <Phone className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                {customer.phone || 'N/A'}
+              </div>
+            </div>
+          </TableCell>
 
-                        <TableCell>
-                            <Badge 
-                              variant={
-                                customer.source === "METROSHOP" ? "default" :
-                                customer.source === "METROSUITES" ? "warning" :
-                                customer.source === "MANUAL" ? "secondary" :
-                                "outline"
-                              }
-                            >
-                              {customer.source}
-                            </Badge>
-                          </TableCell>
-                        <TableCell>
-                          <div className="space-y-0.5">
-                            <div>{customer.orders ?? 0} orders</div>
-                            <span className="text-xs text-muted-foreground">
-                              Last: {customer.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : 'N/A'}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-0.5">
-                            <div>{customer.registrationDate ? new Date(customer.registrationDate).toLocaleDateString() : 'N/A'}</div>
-                            <span className="text-xs text-muted-foreground">
-                              First order: {customer.firstOrder ? new Date(customer.firstOrder).toLocaleDateString() : 'N/A'}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-0.5">
-                            <div>{customer.lastActive ? new Date(customer.lastActive).toLocaleDateString() : 'N/A'}</div>
-                            <span className="text-xs text-muted-foreground">
-                              {customer.lastActive ? new Date(customer.lastActive).toLocaleTimeString() : ''}
-                            </span>
-                          </div>
-                        </TableCell>
+          <TableCell>
+            <Badge variant={customer.status === "ACTIVE" ? "success" : "secondary"}>
+              {customer.status}
+            </Badge>
+          </TableCell>
 
-                        <TableCell>
-                          <div className="space-y-0.5">
-                            <div>{customer.pointsBalance?.toLocaleString() ?? 0} pts</div>
-                            <span className="text-xs text-muted-foreground">
-                              Available Balance
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={
-                              customer.loyaltyTier === "PLATINUM" ? "default" :
-                              customer.loyaltyTier === "GOLD" ? "warning" :
-                              customer.loyaltyTier === "SILVER" ? "secondary" :
-                              "outline"
-                            }
-                          >
-                            {customer.loyaltyTier}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{customer.totalSpent?.toLocaleString() ?? 0} ALL</TableCell>
+          <TableCell>
+            <Badge variant={
+              customer.source === "metroshop" ? "default" :
+              customer.source === "metrosuites" ? "warning" :
+              "secondary"
+            }>
+              {customer.source?.toUpperCase() || 'MANUAL'}
+            </Badge>
+          </TableCell>
 
-                        <TableCell>
-                          <div className="">
-                            <InputSelect
-                              name="actions"
-                              label=""
-                              value=""
-                              onChange={(e) => {
-                                const action = e.target.value;
-                                switch (action) {
-                                  case "edit":
-                                    setSelectedCustomer(customer);
-                                    setCustomerFormOpen(true);
-                                    break;
-                                  case "message":
-                                    // Handle send message
-                                    break;
-                                  case "history":
-                                    // Handle view history
-                                    break;
-                                  case "vip":
-                                    // Handle add to VIP
-                                    break;
-                                  case "delete":
-                                    setCustomerToDelete(customer);
-                                    setDeleteDialogOpen(true);
-                                    break;
-                                  case "deactivate":
-                                    setCustomerToDeactivate(customer);
-                                    setDeactivateDialogOpen(true);
-                                    break;
-                                }
-                              }}
-                              options={[
-                                { value: "", label: "Select Action" },
-                                { value: "edit", label: "Edit Customer" },
-                                { value: "message", label: "Send Message" },
-                                { value: "history", label: "View History" },
-                                { value: "vip", label: "Add to VIP" },
-                                { value: "deactivate", label: "Deactivate Customer" },
-                                { value: "delete", label: "Delete Customer" },
-                              ]}
-                            />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+          <TableCell>
+            <div className="text-sm">
+              {customer.registrationDate ? new Date(customer.registrationDate).toLocaleDateString() : 'N/A'}
+            </div>
+          </TableCell>
+
+          <TableCell>
+            <div className="text-sm">
+              {customer.lastActive ? new Date(customer.lastActive).toLocaleDateString() : 'N/A'}
+            </div>
+          </TableCell>
+
+          <TableCell className="text-center">
+            <div className="font-medium">{customer.points?.toLocaleString() || 0}</div>
+            <Badge variant="outline" className="mt-1">
+              {customer.membershipTier || 'NONE'}
+            </Badge>
+          </TableCell>
+
+          <TableCell className="text-center">
+            <div className="font-medium">
+              {customer.totalSpend?.toLocaleString() || 0} ALL
+            </div>
+          </TableCell>
+
+          <TableCell className="text-right">
+            <select
+              className="w-[140px] rounded-md border border-input bg-background px-3 py-1 text-sm"
+              onChange={(e) => {
+                const action = e.target.value;
+                if (!action) return;
+                
+                switch (action) {
+                  case "edit":
+                    setSelectedCustomer(customer);
+                    setCustomerFormOpen(true);
+                    break;
+                  case "deactivate":
+                    setCustomerToDeactivate(customer);
+                    setDeactivateDialogOpen(true);
+                    break;
+                  case "delete":
+                    setCustomerToDelete(customer);
+                    setDeleteDialogOpen(true);
+                    break;
+                }
+                e.target.value = ""; // Reset select after action
+              }}
+            >
+              <option value="">Actions</option>
+              <option value="edit">Edit</option>
+              <option value="deactivate">Deactivate</option>
+              <option value="delete">Delete</option>
+            </select>
+          </TableCell>
+        </TableRow>
+      ))
+    )}
+  </TableBody>
+</Table>
               <div className="border-t px-4 py-3">
                 <div className="flex items-center justify-between gap-4">
                   <InputSelect
