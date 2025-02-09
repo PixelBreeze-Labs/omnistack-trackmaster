@@ -81,6 +81,19 @@ export function BonusDayForm({
           </div>
 
           <div className="space-y-2">
+  <Label>Date</Label>
+  <Input 
+    type="date"
+    value={format(formData.date, 'yyyy-MM-dd')}
+    onChange={(e) => setFormData(prev => ({
+      ...prev,
+      date: new Date(e.target.value)
+    }))}
+    required
+  />
+</div>
+
+          {/* <div className="space-y-2">
             <Label>Date</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -104,7 +117,7 @@ export function BonusDayForm({
                 />
               </PopoverContent>
             </Popover>
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <Label htmlFor="multiplier">Points Multiplier</Label>
