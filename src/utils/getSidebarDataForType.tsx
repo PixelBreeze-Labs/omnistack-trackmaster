@@ -26,7 +26,9 @@ import {
     Wallet,
     Building2,
     UserPlus,
-    Settings
+    Settings,
+    DollarSign,
+    List
   } from 'lucide-react';
   
   export const getSidebarDataForType = (clientType: string | undefined): { 
@@ -242,6 +244,20 @@ import {
               path: `/crm/${clientType}/landing/myclub`,
               icon: <Star className="w-4 h-4"/>
             }
+          ]
+        },
+        {
+          id: 14,
+          title: "Paid Campagins",
+          path: `/crm/${clientType}/paid-campaigns`,
+          icon: <DollarSign className="w-5 h-5"/>,
+          children: [
+            {
+              id: "14-1",
+              title: "List",
+              path: `/crm/${clientType}/campaigns`,
+              icon: <List className="w-4 h-4"/>
+            },
           ]
         }
       ],
