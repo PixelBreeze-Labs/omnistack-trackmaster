@@ -2,12 +2,14 @@
 import { createOmniGateway } from './index';
 import { Benefit, CreateBenefitDto } from '@/hooks/useBenefits';
 
+// app/api/external/omnigateway/benefits.ts
 export const createBenefitsApi = (apiKey: string) => {
     const api = createOmniGateway(apiKey);
 
     return {
-        getBenefits: async () => {
-            const { data } = await api.get('/benefits');
+        getBenefits: async (tier?: string) => {
+            const params = tier ? { tier } : {};
+            const { data } = await api.get('/benefits', { params });
             return data as Benefit[];
         },
 
@@ -21,9 +23,22 @@ export const createBenefitsApi = (apiKey: string) => {
             return data as Benefit;
         },
 
-        deleteBenefit: async (id: string) => {
-            const { data } = await api.delete(`/benefits/${id}`);
+        toggleBenefit: async (id: string, isActive: boolean) => {
+            if (!id) {
+                throw new Error('Benefit ID is required');
+            }
+            const { data } = await api.put(`/benefits/${id}/toggle`, { isActive }); // Send isActive in request body
             return data;
+        },
+
+        assignBenefitToTier: async (benefitId: string, tierId: string) => {
+            const { data } = await api.put(`/benefits/${benefitId}/tier/${tierId}`);
+            return data as Benefit;
+        },
+
+        removeBenefitFromTier: async (benefitId: string, tierId: string) => {
+            const { data } = await api.delete(`/benefits/${benefitId}/tier/${tierId}`);
+            return data as Benefit;
         }
     };
 };
