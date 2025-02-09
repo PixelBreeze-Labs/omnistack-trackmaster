@@ -5,7 +5,7 @@ import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
 export interface Benefit {
-    id: string;
+    _id: string;
     name: string;
     description: string;
     type: 'DISCOUNT' | 'CASHBACK' | 'POINTS' | 'FREE_SHIPPING';
@@ -20,6 +20,7 @@ export interface CreateBenefitDto {
     value: number;
 }
 
+// hooks/useBenefits.ts
 export const useBenefits = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [benefits, setBenefits] = useState<Benefit[]>([]);
@@ -27,12 +28,13 @@ export const useBenefits = () => {
     const { apiKey } = useGatewayClientApiKey();
     const api = useMemo(() => apiKey ? createBenefitsApi(apiKey) : null, [apiKey]);
 
-    const fetchBenefits = useCallback(async () => {
+    const fetchBenefits = useCallback(async (tier?: string) => {
         if (!api) return;
         try {
             setIsLoading(true);
-            const response = await api.getBenefits();
+            const response = await api.getBenefits(tier);
             setBenefits(response);
+            return response;
         } catch (error) {
             console.error('Error fetching benefits:', error);
             toast.error('Failed to fetch benefits');
@@ -41,50 +43,41 @@ export const useBenefits = () => {
         }
     }, [api]);
 
-    const createBenefit = useCallback(async (data: CreateBenefitDto) => {
+    const manageBenefit = useCallback(async (
+        action: 'create' | 'update' | 'toggle' | 'assignToTier' | 'removeFromTier',
+        data: any,
+        benefitId?: string,
+        tierId?: string
+    ) => {
         if (!api) return;
         try {
             setIsLoading(true);
-            const response = await api.createBenefit(data);
-            toast.success('Benefit created successfully');
-            await fetchBenefits(); // Refresh list
+            let response;
+
+            switch (action) {
+                case 'create':
+                    response = await api.createBenefit(data);
+                    break;
+                case 'update':
+                    response = await api.updateBenefit(benefitId!, data);
+                    break;
+                case 'toggle':
+                    response = await api.toggleBenefit(benefitId!, data.isActive);
+                    break;
+                case 'assignToTier':
+                    response = await api.assignBenefitToTier(benefitId!, tierId!);
+                    break;
+                case 'removeFromTier':
+                    response = await api.removeBenefitFromTier(benefitId!, tierId!);
+                    break;
+            }
+
+            toast.success(`Benefit ${action} successful`);
+            await fetchBenefits();
             return response;
         } catch (error) {
-            console.error('Error creating benefit:', error);
-            toast.error('Failed to create benefit');
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
-    }, [api, fetchBenefits]);
-
-    const updateBenefit = useCallback(async (id: string, data: Partial<CreateBenefitDto>) => {
-        if (!api) return;
-        try {
-            setIsLoading(true);
-            const response = await api.updateBenefit(id, data);
-            toast.success('Benefit updated successfully');
-            await fetchBenefits(); // Refresh list
-            return response;
-        } catch (error) {
-            console.error('Error updating benefit:', error);
-            toast.error('Failed to update benefit');
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
-    }, [api, fetchBenefits]);
-
-    const toggleBenefit = useCallback(async (id: string, isActive: boolean) => {
-        if (!api) return;
-        try {
-            setIsLoading(true);
-            await api.updateBenefit(id, { isActive });
-            toast.success(`Benefit ${isActive ? 'activated' : 'deactivated'} successfully`);
-            await fetchBenefits(); // Refresh list
-        } catch (error) {
-            console.error('Error toggling benefit:', error);
-            toast.error('Failed to toggle benefit');
+            console.error(`Error ${action} benefit:`, error);
+            toast.error(`Failed to ${action} benefit`);
             throw error;
         } finally {
             setIsLoading(false);
@@ -95,8 +88,14 @@ export const useBenefits = () => {
         isLoading,
         benefits,
         fetchBenefits,
-        createBenefit,
-        updateBenefit,
-        toggleBenefit
+        createBenefit: (data: CreateBenefitDto) => manageBenefit('create', data),
+        updateBenefit: (id: string, data: Partial<CreateBenefitDto>) => 
+            manageBenefit('update', data, id),
+        toggleBenefit: (id: string, isActive: boolean) => 
+            manageBenefit('toggle', { isActive }, id),
+        assignBenefitToTier: (benefitId: string, tierId: string) => 
+            manageBenefit('assignToTier', null, benefitId, tierId),
+        removeFromTier: (benefitId: string, tierId: string) => 
+            manageBenefit('removeFromTier', null, benefitId, tierId)
     };
 };

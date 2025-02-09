@@ -5,6 +5,7 @@ import { LoyaltyProgram, UpdateLoyaltyProgramDto } from "@/app/api/external/omni
 import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
+
 export const useLoyaltyProgram = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [program, setProgram] = useState<LoyaltyProgram | null>(null);
