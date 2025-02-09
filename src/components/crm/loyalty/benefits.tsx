@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,13 +30,8 @@ import { useBenefits, Benefit } from '@/hooks/useBenefits';
 import { useLoyaltyProgram } from '@/hooks/useLoyaltyProgram';
 import { BenefitForm } from './BenefitForm';
 import { TierBenefitForm } from './TierBenefitForm';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 import toast from 'react-hot-toast';
+import InputSelect from '@/components/Common/InputSelect';
 
 // Icon mapping for benefit types
 const BENEFIT_ICONS = {
@@ -107,7 +102,7 @@ export function BenefitsContent() {
   const [tierBenefitFormOpen, setTierBenefitFormOpen] = useState(false);
   const [selectedBenefit, setSelectedBenefit] = useState<Benefit | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  // const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   
 
   useEffect(() => {
@@ -118,10 +113,11 @@ export function BenefitsContent() {
   const handleCreateBenefit = async (data: any) => {
     try {
       await createBenefit(data);
-      toast.success('Benefit created successfully');
+      await fetchBenefits();
+      await fetchLoyaltyProgram();
       setBenefitFormOpen(false);
     } catch (error) {
-      toast.error('Failed to create benefit');
+      // toast.error('Failed to create benefit');
     }
   };
 
@@ -129,13 +125,24 @@ export function BenefitsContent() {
     try {
       if (!selectedBenefit) return;
       await updateBenefit(selectedBenefit._id, data);
-      toast.success('Benefit updated successfully');
+      await fetchBenefits();
+      await fetchLoyaltyProgram();
       setBenefitFormOpen(false);
     } catch (error) {
-      toast.error('Failed to update benefit');
+      // toast.error('Failed to update benefit');
     }
   };
 
+  const activeOptions = [
+    { value: 'edit', label: 'Edit' },
+    { value: 'deactivate', label: 'Deactivate' }
+  ];
+  
+  const inactiveOptions = [
+    { value: 'edit', label: 'Edit' },
+    { value: 'activate', label: 'Activate' }
+  ];
+  
   const handleTierBenefitSubmit = async (tierData: any) => {
     try {
       if (!loyaltyProgram) return;
@@ -152,6 +159,8 @@ export function BenefitsContent() {
       };
 
       await updateLoyaltyProgram(updatedProgram);
+      await fetchBenefits();
+      await fetchLoyaltyProgram();
       setTierBenefitFormOpen(false);
       toast.success(selectedTier ? 'Tier updated successfully' : 'New tier created successfully');
     } catch (error) {
@@ -176,6 +185,16 @@ export function BenefitsContent() {
    const renderBenefitCard = (benefit: Benefit, isActive: boolean = true) => {
      const Icon = BENEFIT_ICONS[benefit.type] || Star;
      const colorClass = BENEFIT_COLORS[benefit.type] || 'bg-gray-50 text-gray-600';
+
+     const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const action = e.target.value;
+      if (action === 'edit') {
+        setSelectedBenefit(benefit);
+        setBenefitFormOpen(true);
+      } else if (action === 'activate' || action === 'deactivate') {
+        toggleBenefit(benefit._id, action === 'activate');
+      }
+    };
  
      return (
        <Card key={benefit._id} className={!isActive ? 'opacity-60' : ''}>
@@ -216,28 +235,15 @@ export function BenefitsContent() {
                  </div>
                </div>
              </div>
-             <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                 <Button variant="ghost" size="icon">
-                   <Settings className="h-4 w-4" />
-                 </Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent align="end">
-                 <DropdownMenuItem
-                   onClick={() => {
-                     setSelectedBenefit(benefit);
-                     setBenefitFormOpen(true);
-                   }}
-                 >
-                   Edit
-                 </DropdownMenuItem>
-                 <DropdownMenuItem
-                   onClick={() => toggleBenefit(benefit._id, !isActive)}
-                 >
-                   {isActive ? 'Deactivate' : 'Activate'}
-                 </DropdownMenuItem>
-               </DropdownMenuContent>
-             </DropdownMenu>
+             <div className="w-35"> {/* Add width to control the select size */}
+            <InputSelect
+              name={`action-${benefit._id}`}
+              label=""
+              options={isActive ? activeOptions : inactiveOptions}
+              onChange={handleActionChange}
+              value=""
+            />
+          </div>
            </div>
          </CardContent>
        </Card>
@@ -383,7 +389,7 @@ export function BenefitsContent() {
     </Button>
   </div>
   <CardContent>
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
       {activeBenefits.map(benefit => renderBenefitCard(benefit))}
     </div>
   </CardContent>
@@ -400,7 +406,7 @@ export function BenefitsContent() {
             </p>
           </div>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
               {inactiveBenefits.map(benefit => renderBenefitCard(benefit, false))}
             </div>
           </CardContent>
