@@ -3,22 +3,8 @@ export type CustomerType = 'REGULAR' | 'VIP';
 export type LoyaltyTier = 'PLATINUM' | 'GOLD' | 'SILVER' | 'NONE';
 export type FilterStatus = 'ACTIVE' | 'INACTIVE' | 'ALL';
 export type FilterType = 'REGULAR' | 'VIP' | 'ALL';
+export type RegistrationSource = 'MANUAL' | 'METROSHOP' | 'METROSUITES' | 'BOOKMASTER' | 'TRACKMASTER' | 'OTHER';
 
-export interface Customer {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-    status: 'ACTIVE' | 'INACTIVE';
-    type: 'REGULAR' | 'VIP';
-    orders: number;
-    lastOrder: string;
-    firstOrder: string;
-    registrationDate: string;
-    totalSpent: number;
-    avatar?: string;
-}
 
 export interface ListCustomersResponse {
     items: Customer[];
@@ -43,7 +29,10 @@ export interface Customer {
     totalSpent: number;
     avatar?: string;
     loyaltyTier: LoyaltyTier;
-  }
+    source: RegistrationSource;
+    lastActive?: string;      // Last activity timestamp
+    pointsBalance?: number;   // Loyalty points balance
+}
 
 export interface CustomerParams {
     page?: number;
