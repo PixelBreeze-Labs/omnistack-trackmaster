@@ -247,7 +247,7 @@ import {
           ]
         },
         {
-          id: 14,
+          id: 15,
           title: "Paid Campagins",
           path: `/crm/${clientType}/paid-campaigns`,
           icon: <DollarSign className="w-5 h-5"/>,
@@ -255,7 +255,7 @@ import {
             {
               id: "14-1",
               title: "List",
-              path: `/crm/${clientType}/campaigns`,
+              path: `/crm/${clientType}/paid-campaigns`,
               icon: <List className="w-4 h-4"/>
             },
           ]
@@ -263,19 +263,19 @@ import {
       ],
       loyalty: [
         {
-          id: 15,
+          id: 16,
           title: "Manage Programs",
           path: `/crm/${clientType}/loyalty/programs`,
           icon: <Boxes className="w-5 h-5"/>,
         },
         {
-          id: 16,
+          id: 17,
           title: "Points & Rewards",
           path: `/crm/${clientType}/loyalty/points`,
           icon: <Star className="w-5 h-5"/>,
         },
         {
-          id: 17,
+          id: 18,
           title: "Benefits",
           path: `/crm/${clientType}/loyalty/benefits`,
           icon: <Gift className="w-5 h-5"/>,
@@ -283,19 +283,19 @@ import {
       ],
       communication: [
         {
-          id: 18,
+          id: 19,
           title: "OneBox",
           path: `/crm/${clientType}/onebox`,
           icon: <MessageSquare className="w-5 h-5"/>,
         },
         {
-          id: 19,
+          id: 20,
           title: "Help Center",
           path: `/crm/${clientType}/help-center`,
           icon: <HelpCircle className="w-5 h-5"/>,
         },
         {
-          id: 20,
+          id: 21,
           title: "Resources",
           path: `/crm/${clientType}/resources`,
           icon: <BookOpen className="w-5 h-5"/>,
@@ -303,7 +303,7 @@ import {
       ],
       finance: [
         {
-          id: 21,
+          id: 22,
           title: "Transactions",
           path: `/crm/${clientType}/finance/transactions`,
           icon: <Wallet className="w-5 h-5"/>,
@@ -311,13 +311,13 @@ import {
       ],
       hr: [
         {
-          id: 22,
+          id: 23,
           title: "Staff",
           path: `/crm/${clientType}/hr/staff`,
           icon: <Building2 className="w-5 h-5"/>,
         },
         {
-          id: 23,
+          id: 24,
           title: "Settings",
           path: `/crm/${clientType}/settings`,
           icon: <Settings className="w-5 h-5"/>,

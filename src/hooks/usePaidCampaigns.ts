@@ -75,6 +75,27 @@ export const usePaidCampaigns = () => {
     [api]
   );
 
+  const createCampaign = useCallback(
+    async (data: CampaignParamsDto) => {
+      if (!api) return;
+      try {
+        setIsLoading(true);
+        await api.createCampaign(data);
+        toast.success('Campaign created successfully');
+        // Refresh campaigns list
+        await fetchCampaigns();
+      } catch (error) {
+        console.error('Error creating campaign:', error);
+        toast.error('Failed to create campaign');
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [api, fetchCampaigns]
+  );
+  
+
   return {
     isLoading,
     campaigns,
@@ -84,5 +105,6 @@ export const usePaidCampaigns = () => {
     fetchCampaigns,
     fetchOverview,
     fetchCampaignDetails,
+    createCampaign
   };
 };
