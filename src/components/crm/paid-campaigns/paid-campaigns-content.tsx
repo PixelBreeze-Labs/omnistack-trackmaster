@@ -171,6 +171,7 @@ export default function PaidCampaignsComponent() {
                 <TableHead>Medium</TableHead>
                 <TableHead>Content</TableHead>
                 <TableHead>Views</TableHead>
+                <TableHead>Add to Carts</TableHead>
                 <TableHead>Purchases</TableHead>
                 <TableHead>Revenue</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -207,6 +208,7 @@ export default function PaidCampaignsComponent() {
                     <TableCell>{campaign.utmMedium}</TableCell>
                     <TableCell>{campaign.utmContent || '-'}</TableCell>
                     <TableCell>{campaign.stats?.viewCount || 0}</TableCell>
+                    <TableCell>{campaign.stats?.cartCount || 0}</TableCell>
                     <TableCell>{campaign.stats?.purchaseCount || 0}</TableCell>
                     <TableCell>${campaign.stats?.revenue?.toLocaleString() || 0}</TableCell>
                     <TableCell className="text-right">
@@ -277,6 +279,7 @@ export default function PaidCampaignsComponent() {
         onSubmit={createCampaign}
         title="Create New Campaign"
       />
+       <div className="h-4"></div>
     </div>
   );
 }
