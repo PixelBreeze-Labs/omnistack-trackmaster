@@ -1,6 +1,7 @@
 import { createOmniGateway } from './index';
 import {
   ListPaidCampaignsDto,
+  PaidCampaignParamsDto,
 } from './types/paid-campaigns';
 
 export const createCampaignsApi = (apiKey: string) => {
@@ -18,6 +19,10 @@ export const createCampaignsApi = (apiKey: string) => {
     getCampaignDetails: async (id: string, params: object = {}) => {
       const { data } = await api.get(`/tracking/campaigns/${id}`, { params });
       return data;
+    },
+    createCampaign: async (data: PaidCampaignParamsDto) => {
+      const { data: response } = await api.post('/tracking/campaigns', data);
+      return response;
     },
   };
 };

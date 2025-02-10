@@ -36,4 +36,12 @@ export interface PaidCampaign {
     page: number;
     limit: number;
   }
+
+  export interface PaidCampaignParamsDto {
+    utmSource: string;    // e.g. 'facebook'
+    utmMedium: string;    // e.g. 'cpc'
+    utmCampaign: string;  // campaign name
+    utmContent?: string;  // ad content
+    utmTerm?: string;     // keywords
+   }
   
