@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { RefreshCcw, TrendingUp, Eye, ShoppingCart, DollarSign, Target, Receipt, Calendar, Package } from 'lucide-react';
 import { usePaidCampaigns } from '@/hooks/usePaidCampaigns';
 import InputSelect from '@/components/Common/InputSelect';
-import { PaidCampaign } from '@/app/api/external/omnigateway/types/paid-campaigns';
+import { CampaignEvent, PaidCampaign } from '@/app/api/external/omnigateway/types/paid-campaigns';
 import { PaidCampaignStats } from '@/app/api/external/omnigateway/types/paid-campaigns';
 
 const MetricCard = ({ title, value, subValue, icon: Icon, color = "text-foreground" }) => (
@@ -20,6 +20,59 @@ const MetricCard = ({ title, value, subValue, icon: Icon, color = "text-foregrou
         <div className={`text-2xl font-bold ${color}`}>{value}</div>
         {subValue && (
           <p className="text-xs text-muted-foreground mt-1">{subValue}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const EventsTable = ({ events, type }: { events: CampaignEvent[], type: string }) => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{type} Events</CardTitle>
+      </CardHeader>
+      <CardContent>
+      {events.length === 0 ? (
+       <div className="py-12 flex flex-col items-center justify-center text-center border rounded-lg">
+         <Receipt className="h-8 w-8 text-muted-foreground mb-3" />
+         <p className="text-sm text-muted-foreground">No {type.toLowerCase()} events recorded yet</p>
+       </div>
+     ) : (
+        <div className="relative w-full overflow-auto">
+          <table className="w-full caption-bottom text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="h-12 px-4 text-left align-middle font-medium">Date</th>
+                {type === 'Purchase' && <th className="h-12 px-4 text-left align-middle font-medium">Order ID</th>}
+                {type !== 'Purchase' && <th className="h-12 px-4 text-left align-middle font-medium">Product ID</th>}
+                {type === 'Add to Cart' && (
+                  <>
+                    <th className="h-12 px-4 text-left align-middle font-medium">Quantity</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium">Price</th>
+                  </>
+                )}
+                {type === 'Purchase' && <th className="h-12 px-4 text-left align-middle font-medium">Total</th>}
+                <th className="h-12 px-4 text-left align-middle font-medium">Currency</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((event) => (
+                <tr key={event._id} className="border-b">
+                  <td className="p-4">{new Date(event.createdAt).toLocaleString()}</td>
+                  {type === 'Purchase' && <td className="p-4">{event.external_order_ids?.venueBoostId}</td>}
+                  {type !== 'Purchase' && <td className="p-4">{event.external_product_ids?.venueBoostId}</td>}
+                  {type === 'Add to Cart' && (
+                    <>
+                      <td className="p-4">{event.eventData.quantity}</td>
+                      <td className="p-4">${event.eventData.price}</td>
+                    </>
+                  )}
+                  {type === 'Purchase' && <td className="p-4">${event.eventData.total}</td>}
+                  <td className="p-4">{event.eventData?.currency}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         )}
       </CardContent>
     </Card>
@@ -142,10 +195,11 @@ const PaidCampaignDetailsComponent = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center gap-2">
-            <Package className="h-4 w-4" />
+        <CardHeader>
+        <div className="flex items-center gap-2">
             <CardTitle>Campaign Information</CardTitle>
-          </CardHeader>
+        </div>
+        </CardHeader>
           <CardContent className="grid grid-cols-2 gap-6">
             <div className="flex items-start gap-2">
               <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
@@ -183,6 +237,22 @@ const PaidCampaignDetailsComponent = () => {
         </Card>
     
      </div>
+
+     <div className="grid gap-6">
+  <EventsTable 
+    events={stats?.events.filter(e => e.eventType === 'view_product') || []} 
+    type="Product View" 
+  />
+  <EventsTable 
+    events={stats?.events.filter(e => e.eventType === 'add_to_cart') || []} 
+    type="Add to Cart" 
+  />
+  <EventsTable 
+    events={stats?.events.filter(e => e.eventType === 'purchase') || []} 
+    type="Purchase" 
+  />
+</div>
+     <div className="h-8"></div>
    </div>
  );
 };
