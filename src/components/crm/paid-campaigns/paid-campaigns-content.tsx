@@ -117,7 +117,7 @@ export default function PaidCampaignsComponent() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${overview.revenue.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{overview.revenue.toLocaleString()}</div>
             </CardContent>
           </Card>
         </div>
@@ -210,7 +210,7 @@ export default function PaidCampaignsComponent() {
                     <TableCell>{campaign.stats?.viewCount || 0}</TableCell>
                     <TableCell>{campaign.stats?.cartCount || 0}</TableCell>
                     <TableCell>{campaign.stats?.purchaseCount || 0}</TableCell>
-                    <TableCell>${campaign.stats?.revenue?.toLocaleString() || 0}</TableCell>
+                    <TableCell>{campaign.stats?.revenue?.toLocaleString() || 0}</TableCell>
                     <TableCell className="text-right">
                       <Link href={`/crm/ecommerce/paid-campaigns/${campaign._id}`}>
                         <Button variant="outline" size="sm">View Details</Button>
