@@ -167,7 +167,7 @@ const PaidCampaignDetailsComponent = () => {
           <CardContent className="grid md:grid-cols-4 gap-4">
             <MetricCard
               title="Revenue"
-              value={`$${stats?.revenue?.toLocaleString() ?? 0}`}
+              value={`${stats?.revenue?.toLocaleString() ?? 0}`}
               subValue={`Conv. Rate: ${stats?.conversionRate ?? '0%'}`}
               icon={DollarSign}
               color="text-green-600"
@@ -175,14 +175,14 @@ const PaidCampaignDetailsComponent = () => {
             <MetricCard
               title="Add to Cart"
               value={stats?.cartCount ?? 0}
-              subValue={`Total Value: $${(stats?.cartCount * 100)?.toLocaleString() ?? 0}`}
+              subValue={`Total Value: ${(stats?.cartCount * 100)?.toLocaleString() ?? 0}`}
               icon={ShoppingCart}
               color="text-blue-600"
             />
             <MetricCard
               title="Purchases"
               value={stats?.purchaseCount ?? 0}
-              subValue={`Avg Order: $${(stats?.revenue / (stats?.purchaseCount || 1))?.toFixed(2) ?? 0}`}
+              subValue={`Avg Order: ${(stats?.revenue / (stats?.purchaseCount || 1))?.toFixed(2) ?? 0}`}
               icon={Receipt}
             />
             <MetricCard
