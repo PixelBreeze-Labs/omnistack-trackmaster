@@ -63,10 +63,10 @@ const MetricCard = ({ title, value, subValue, icon: Icon, color = "text-foregrou
                   {type === 'Add to Cart' && (
                     <>
                       <td className="p-4">{event.eventData.quantity}</td>
-                      <td className="p-4">${event.eventData.price}</td>
+                      <td className="p-4">{event.eventData.price}</td>
                     </>
                   )}
-                  {type === 'Purchase' && <td className="p-4">${event.eventData.total}</td>}
+                  {type === 'Purchase' && <td className="p-4">{event.eventData.total}</td>}
                   <td className="p-4">{event.eventData?.currency}</td>
                 </tr>
               ))}
