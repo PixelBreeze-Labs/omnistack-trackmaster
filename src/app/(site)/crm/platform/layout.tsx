@@ -5,11 +5,14 @@ import Sidebar from "@/components/dashboard/sidebar"
 import Header from "@/components/dashboard/header"
 import { usePathname } from "next/navigation"
 import getSidebarDataForType from "@/utils/getSidebarDataForType"
+import { useSession } from "next-auth/react"
 
-// src/app/(site)/crm/layout.tsx
+
 const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
   const [openSidebar, setOpenSidebar] = useState(false)
   const pathname = usePathname()
+  const { data: session } = useSession()
+
   
   const getClientTypeFromPath = () => {
     const pathParts = pathname.split('/')
@@ -17,17 +20,29 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
     return pathParts[clientTypeIndex]
   }
 
-  const clientType = getClientTypeFromPath()
-  const { 
-    mainMenu, 
-    sales, 
-    crm, 
-    marketing, 
-    loyalty, 
-    communication,
-    finance,
-    hr
-  } = getSidebarDataForType(clientType)
+  const clientType = session?.user?.clientType || getClientTypeFromPath()
+
+  const sidebarData = getSidebarDataForType(clientType)
+
+  // For SAAS, use different props structure
+  const sidebarProps = clientType === 'SAAS' ? {
+    mainMenu: sidebarData.mainMenu,
+    business: sidebarData.business,
+    products: sidebarData.products,
+    users: sidebarData.users,
+    support: sidebarData.support,
+    finance: sidebarData.finance,
+    settings: sidebarData.settings
+  } : {
+    mainMenu: sidebarData.mainMenu,
+    sales: sidebarData.sales,
+    crm: sidebarData.crm,
+    marketing: sidebarData.marketing, 
+    loyalty: sidebarData.loyalty, 
+    communication: sidebarData.communication,
+    finance: sidebarData.finance,
+    hr: sidebarData.hr
+  }
 
   return (
     <div className="flex h-screen">
@@ -37,16 +52,7 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
           openSidebar ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <Sidebar 
-          mainMenu={mainMenu}
-          sales={sales}
-          crm={crm}
-          marketing={marketing}
-          loyalty={loyalty}
-          communication={communication}
-          finance={finance}
-          hr={hr}
-        />
+        <Sidebar {...sidebarProps} />
       </aside>
 
       {/* Main Content */}
