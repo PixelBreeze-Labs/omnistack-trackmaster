@@ -53,13 +53,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 1,
           title: "Dashboard",
-          path: `/crm/${clientType}/dashboard`,
+          path: `/crm/platform/dashboard`,
           icon: <LayoutDashboard className="w-5 h-5"/>,
         },
         {
           id: 2,
           title: "Analytics",
-          path: `/crm/${clientType}/analytics`,
+          path: `/crm/platform/analytics`,
           icon: <BarChart3 className="w-5 h-5"/>,
         }
       ],
@@ -67,19 +67,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 3,
           title: "Businesses",
-          path: `/crm/${clientType}/businesses`,
+          path: `/crm/platform/businesses`,
           icon: <Building2 className="w-5 h-5"/>,
           children: [
             {
               id: "3-1",
               title: "All Businesses",
-              path: `/crm/${clientType}/businesses`,
+              path: `/crm/platform/businesses`,
               icon: <Building2 className="w-4 h-4"/>
             },
             {
               id: "3-2",
               title: "Trial Users",
-              path: `/crm/${clientType}/businesses/trials`,
+              path: `/crm/platform/businesses/trials`,
               icon: <Clock className="w-4 h-4"/>
             }
           ]
@@ -87,25 +87,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 4,
           title: "Subscriptions",
-          path: `/crm/${clientType}/subscriptions`,
+          path: `/crm/platform/subscriptions`,
           icon: <CircleDollarSign className="w-5 h-5"/>,
           children: [
             {
               id: "4-1",
               title: "Active",
-              path: `/crm/${clientType}/subscriptions/active`,
+              path: `/crm/platform/subscriptions/active`,
               icon: <CheckCircle className="w-4 h-4"/>
             },
             {
               id: "4-2",
               title: "Past Due",
-              path: `/crm/${clientType}/subscriptions/past-due`,
+              path: `/crm/platform/subscriptions/past-due`,
               icon: <AlertCircle className="w-4 h-4"/>
             },
             {
               id: "4-3",
               title: "Canceled",
-              path: `/crm/${clientType}/subscriptions/canceled`,
+              path: `/crm/platform/subscriptions/canceled`,
               icon: <XCircle className="w-4 h-4"/>
             }
           ]
@@ -115,13 +115,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 5,
           title: "Products",
-          path: `/crm/${clientType}/products`,
+          path: `/crm/platform/products`,
           icon: <Package className="w-5 h-5"/>,
         },
         {
           id: 6,
           title: "Pricing Plans",
-          path: `/crm/${clientType}/pricing`,
+          path: `/crm/platform/pricing`,
           icon: <Tags className="w-5 h-5"/>,
         }
       ],
@@ -129,19 +129,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 7,
           title: "Users",
-          path: `/crm/${clientType}/users`,
+          path: `/crm/platform/users`,
           icon: <Users className="w-5 h-5"/>,
           children: [
             {
               id: "7-1",
               title: "All Users",
-              path: `/crm/${clientType}/users`,
+              path: `/crm/platform/users`,
               icon: <Users className="w-4 h-4"/>
             },
             {
               id: "7-2",
               title: "Admins",
-              path: `/crm/${clientType}/users/admins`,
+              path: `/crm/platform/users/admins`,
               icon: <UserCog className="w-4 h-4"/>
             }
           ]
@@ -151,19 +151,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 8,
           title: "Support",
-          path: `/crm/${clientType}/support`,
+          path: `/crm/platform/support`,
           icon: <HelpCircle className="w-5 h-5"/>,
           children: [
             {
               id: "8-1",
               title: "Tickets",
-              path: `/crm/${clientType}/support/tickets`,
+              path: `/crm/platform/support/tickets`,
               icon: <MessageSquare className="w-4 h-4"/>
             },
             {
               id: "8-2",
               title: "Knowledge Base",
-              path: `/crm/${clientType}/support/knowledge-base`,
+              path: `/crm/platform/support/knowledge-base`,
               icon: <BookOpen className="w-4 h-4"/>
             }
           ]
@@ -173,19 +173,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 9,
           title: "Billing",
-          path: `/crm/${clientType}/billing`,
+          path: `/crm/platform/billing`,
           icon: <Wallet className="w-5 h-5"/>,
           children: [
             {
               id: "9-1",
               title: "Invoices",
-              path: `/crm/${clientType}/billing/invoices`,
+              path: `/crm/platform/billing/invoices`,
               icon: <Receipt className="w-4 h-4"/>
             },
             {
               id: "9-2",
               title: "Transactions",
-              path: `/crm/${clientType}/billing/transactions`,
+              path: `/crm/platform/billing/transactions`,
               icon: <CircleDollarSign className="w-4 h-4"/>
             }
           ]
@@ -195,7 +195,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 10,
           title: "Settings",
-          path: `/crm/${clientType}/settings`,
+          path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
         }
       ]
@@ -208,25 +208,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 1,
         title: "Dashboard",
-        path: `/crm/${clientType}/dashboard`,
+        path: `/crm/platform/dashboard`,
         icon: <LayoutDashboard className="w-5 h-5"/>,
       },
       {
         id: 2,
         title: "Analytics",
-        path: `/crm/${clientType}/analytics`,
+        path: `/crm/platform/analytics`,
         icon: <BarChart3 className="w-5 h-5"/>,
       },
       {
         id: 3,
         title: "Sales",
-        path: `/crm/${clientType}/sales-overview`,
+        path: `/crm/platform/sales-overview`,
         icon: <CircleDollarSign className="w-5 h-5"/>,
       },
       {
         id: 4,
         title: "Marketing",
-        path: `/crm/${clientType}/marketing-overview`,
+        path: `/crm/platform/marketing-overview`,
         icon: <Megaphone className="w-5 h-5"/>,
       }
     ],
@@ -234,25 +234,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 5,
         title: "Orders",
-        path: `/crm/${clientType}/orders`,
+        path: `/crm/platform/orders`,
         icon: <ShoppingBag className="w-5 h-5"/>,
         children: [
           {
             id: "5-1",
             title: "All Orders",
-            path: `/crm/${clientType}/orders`,
+            path: `/crm/platform/orders`,
             icon: <Package className="w-4 h-4"/>
           },
           {
             id: "5-2",
             title: "Omni-channel Orders",
-            path: `/crm/${clientType}/orders/omnichannel`,
+            path: `/crm/platform/orders/omnichannel`,
             icon: <Store className="w-4 h-4"/>
           },
           {
             id: "5-3",
             title: "Returns & Refunds",
-            path: `/crm/${clientType}/orders/returns`,
+            path: `/crm/platform/orders/returns`,
             icon: <Receipt className="w-4 h-4"/>
           }
         ]
@@ -260,25 +260,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 6,
         title: "Sales Associates",
-        path: `/crm/${clientType}/sales-team`,
+        path: `/crm/platform/sales-team`,
         icon: <UserCog className="w-5 h-5"/>,
         children: [
           {
             id: "6-1",
             title: "Team",
-            path: `/crm/${clientType}/sales-team/members`,
+            path: `/crm/platform/sales-team/members`,
             icon: <Users className="w-4 h-4"/>
           },
           {
             id: "6-2",
             title: "Performance",
-            path: `/crm/${clientType}/sales-team/performance`,
+            path: `/crm/platform/sales-team/performance`,
             icon: <BarChart3 className="w-4 h-4"/>
           },
           {
             id: "6-3",
             title: "Customer Assignment",
-            path: `/crm/${clientType}/sales-team/assignments`,
+            path: `/crm/platform/sales-team/assignments`,
             icon: <UserCircle className="w-4 h-4"/>
           }
         ]
@@ -288,13 +288,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 7,
         title: "Customers",
-        path: `/crm/${clientType}/customers`,
+        path: `/crm/platform/customers`,
         icon: <Users className="w-5 h-5"/>,
         children: [
           {
             id: "7-1",
             title: "All Customers",
-            path: `/crm/${clientType}/customers`,
+            path: `/crm/platform/customers`,
             icon: <Users className="w-4 h-4"/>
           }
         ]
@@ -302,25 +302,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 8,
         title: "Members",
-        path: `/crm/${clientType}/members`,
+        path: `/crm/platform/members`,
         icon: <UsersRound className="w-5 h-5"/>,
       },
       {
         id: 9,
         title: "Family Accounts",
-        path: `/crm/${clientType}/family-accounts`,
+        path: `/crm/platform/family-accounts`,
         icon: <Users className="w-5 h-5"/>,
       },
       {
         id: 10,
         title: "Gifts Advisory",
-        path: `/crm/${clientType}/gifts`,
+        path: `/crm/platform/gifts`,
         icon: <Gift className="w-5 h-5"/>,
       },
       {
         id: 11,
         title: "Customer Feedback",
-        path: `/crm/${clientType}/feedback`,
+        path: `/crm/platform/feedback`,
         icon: <Heart className="w-5 h-5"/>,
       }
     ],
@@ -328,31 +328,31 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 12,
         title: "Promotions",
-        path: `/crm/${clientType}/promotions`,
+        path: `/crm/platform/promotions`,
         icon: <Tags className="w-5 h-5"/>,
         children: [
           {
             id: "12-1",
             title: "List",
-            path: `/crm/${clientType}/promotions`,
+            path: `/crm/platform/promotions`,
             icon: <ScrollText className="w-4 h-4"/>
           },
           {
             id: "12-2",
             title: "Discounts",
-            path: `/crm/${clientType}/promotions/discounts`,
+            path: `/crm/platform/promotions/discounts`,
             icon: <BadgePercent className="w-4 h-4"/>
           },
           {
             id: "12-3",
             title: "Coupons",
-            path: `/crm/${clientType}/promotions/coupons`,
+            path: `/crm/platform/promotions/coupons`,
             icon: <Tags className="w-4 h-4"/>
           },
           {
             id: "12-4",
             title: "Calendar",
-            path: `/crm/${clientType}/promotions/calendar`,
+            path: `/crm/platform/promotions/calendar`,
             icon: <CalendarDays className="w-4 h-4"/>
           }
         ]
@@ -360,19 +360,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 13,
         title: "Campaigns",
-        path: `/crm/${clientType}/campaigns`,
+        path: `/crm/platform/campaigns`,
         icon: <Megaphone className="w-5 h-5"/>,
         children: [
           {
             id: "13-1",
             title: "List",
-            path: `/crm/${clientType}/campaigns`,
+            path: `/crm/platform/campaigns`,
             icon: <ScrollText className="w-4 h-4"/>
           },
           {
             id: "13-2",
             title: "Create",
-            path: `/crm/${clientType}/campaigns/create`,
+            path: `/crm/platform/campaigns/create`,
             icon: <LayoutTemplate className="w-4 h-4"/>
           }
         ]
@@ -380,19 +380,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 14,
         title: "Landing",
-        path: `/crm/${clientType}/landing`,
+        path: `/crm/platform/landing`,
         icon: <LayoutTemplate className="w-5 h-5"/>,
         children: [
           {
             id: "14-1",
             title: "Registration",
-            path: `/crm/${clientType}/landing/list`,
+            path: `/crm/platform/landing/list`,
             icon: <UserPlus className="w-4 h-4"/>
           },
           {
             id: "14-2",
             title: "My Club",
-            path: `/crm/${clientType}/landing/myclub`,
+            path: `/crm/platform/landing/myclub`,
             icon: <Star className="w-4 h-4"/>
           }
         ]
@@ -400,13 +400,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 15,
         title: "Paid Campagins",
-        path: `/crm/${clientType}/paid-campaigns`,
+        path: `/crm/platform/paid-campaigns`,
         icon: <DollarSign className="w-5 h-5"/>,
         children: [
           {
             id: "14-1",
             title: "List",
-            path: `/crm/${clientType}/paid-campaigns`,
+            path: `/crm/platform/paid-campaigns`,
             icon: <List className="w-4 h-4"/>
           },
         ]
@@ -416,19 +416,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 16,
         title: "Manage Programs",
-        path: `/crm/${clientType}/loyalty/programs`,
+        path: `/crm/platform/loyalty/programs`,
         icon: <Boxes className="w-5 h-5"/>,
       },
       {
         id: 17,
         title: "Points & Rewards",
-        path: `/crm/${clientType}/loyalty/points`,
+        path: `/crm/platform/loyalty/points`,
         icon: <Star className="w-5 h-5"/>,
       },
       {
         id: 18,
         title: "Benefits",
-        path: `/crm/${clientType}/loyalty/benefits`,
+        path: `/crm/platform/loyalty/benefits`,
         icon: <Gift className="w-5 h-5"/>,
       }
     ],
@@ -436,19 +436,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 19,
         title: "OneBox",
-        path: `/crm/${clientType}/onebox`,
+        path: `/crm/platform/onebox`,
         icon: <MessageSquare className="w-5 h-5"/>,
       },
       {
         id: 20,
         title: "Help Center",
-        path: `/crm/${clientType}/help-center`,
+        path: `/crm/platform/help-center`,
         icon: <HelpCircle className="w-5 h-5"/>,
       },
       {
         id: 21,
         title: "Resources",
-        path: `/crm/${clientType}/resources`,
+        path: `/crm/platform/resources`,
         icon: <BookOpen className="w-5 h-5"/>,
       }
     ],
@@ -456,7 +456,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 22,
         title: "Transactions",
-        path: `/crm/${clientType}/finance/transactions`,
+        path: `/crm/platform/finance/transactions`,
         icon: <Wallet className="w-5 h-5"/>,
       }
     ],
@@ -464,13 +464,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       {
         id: 23,
         title: "Staff",
-        path: `/crm/${clientType}/hr/staff`,
+        path: `/crm/platform/hr/staff`,
         icon: <Building2 className="w-5 h-5"/>,
       },
       {
         id: 24,
         title: "Settings",
-        path: `/crm/${clientType}/settings`,
+        path: `/crm/platform/settings`,
         icon: <Settings className="w-5 h-5"/>,
       }
     ]
