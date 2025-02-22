@@ -12,9 +12,10 @@ export default async function Home() {
 
     // Replicate middleware logic for redirection
     if (userRole === "ADMIN") {
-      redirect("/crm/ecommerce/dashboard");
+      redirect("/crm/platform/dashboard");
     } else if (clientType) {
-      redirect(`/crm/${clientType.toLowerCase()}/dashboard`);
+      const unifiedClientType = clientType ? 'platform' : 'platform'
+      redirect(`/crm/${unifiedClientType.toLowerCase()}/dashboard`);
     }
   } else {
     redirect("/auth/login");

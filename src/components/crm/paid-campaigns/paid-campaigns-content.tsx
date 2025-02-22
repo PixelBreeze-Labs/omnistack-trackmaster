@@ -212,7 +212,7 @@ export default function PaidCampaignsComponent() {
                     <TableCell>{campaign.stats?.purchaseCount || 0}</TableCell>
                     <TableCell>{campaign.stats?.revenue?.toLocaleString() || 0}</TableCell>
                     <TableCell className="text-right">
-                      <Link href={`/crm/ecommerce/paid-campaigns/${campaign._id}`}>
+                      <Link href={`/crm/platform/paid-campaigns/${campaign._id}`}>
                         <Button variant="outline" size="sm">View Details</Button>
                       </Link>
                     </TableCell>

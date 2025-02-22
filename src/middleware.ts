@@ -29,7 +29,7 @@ export default withAuth(
       // If no client type in URL, redirect based on role/client type
       if (!requestedClientType) {
         if (token?.role === "ADMIN") {
-          return NextResponse.redirect(new URL("/crm/ecommerce/dashboard", req.url))
+          return NextResponse.redirect(new URL("/crm/platform/dashboard", req.url))
         } else if (token?.clientType) {
           return NextResponse.redirect(
             new URL(`/crm/${token.clientType.toLowerCase()}/dashboard`, req.url)

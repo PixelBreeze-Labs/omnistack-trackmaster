@@ -103,7 +103,7 @@ export function DepartmentsContent() {
   <div className="flex items-center gap-2">
     <Button 
       variant="soft" 
-      onClick={() => router.push('/crm/ecommerce/hr/staff')}
+      onClick={() => router.push('/crm/platform/hr/staff')}
     >
       <ArrowLeft className="h-4 w-4 mr-2" />
       Back to Staff

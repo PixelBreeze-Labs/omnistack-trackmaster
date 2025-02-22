@@ -38,7 +38,7 @@ export function LoginForm() {
 
             if (result?.ok) {
                 // Refresh the page to get the new session
-                router.push("/crm/ecommerce/dashboard")
+                router.push("/crm/platform/dashboard")
                 router.refresh()
             }
         } catch (error) {
