@@ -44,7 +44,7 @@ model Client {
   description       String?
   omniGatewayId     String?      @unique
   omniGatewayApiKey String?      @unique
-  bookMasterId      String?      @unique
+  bookMasterId      String?
   status            ClientStatus @default(ACTIVE)
   type              ClientType   @default(ECOMMERCE)
   users             User[]
