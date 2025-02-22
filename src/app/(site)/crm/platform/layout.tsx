@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import getSidebarDataForType from "@/utils/getSidebarDataForType"
 
 // src/app/(site)/crm/layout.tsx
-const CRMEcommerceLayout = ({ children }: { children: React.ReactNode }) => {
+const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
   const [openSidebar, setOpenSidebar] = useState(false)
   const pathname = usePathname()
   
@@ -68,4 +68,4 @@ const CRMEcommerceLayout = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export default CRMEcommerceLayout
+export default CRMPlatformLayout
