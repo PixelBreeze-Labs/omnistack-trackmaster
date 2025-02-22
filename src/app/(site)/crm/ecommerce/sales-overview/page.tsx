@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/sales-overview/page.tsx
+// src/app/crm/platform/sales-overview/page.tsx
 import { Metadata } from "next"
 import { SalesContent } from "@/components/crm/sales/sales-content"
 

@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/orders/omnichannel/page.tsx
+// src/app/crm/platform/orders/omnichannel/page.tsx
 import { Metadata } from "next"
 import { OmnichannelOrders } from "@/components/crm/orders/omnichannel-orders"
 

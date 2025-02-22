@@ -121,7 +121,7 @@ export function LandingList() {
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Link href="/crm/ecommerce/members">
+          <Link href="/crm/platform/members">
             <Button variant="secondary" size="sm">
               All Members
             </Button>

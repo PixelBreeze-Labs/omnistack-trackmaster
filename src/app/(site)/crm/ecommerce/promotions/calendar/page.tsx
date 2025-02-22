@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/promotions/calendar/page.tsx
+// src/app/crm/platform/promotions/calendar/page.tsx
 import { Metadata } from "next";
 import { PromotionsCalendar } from "@/components/crm/promotions-calendar";
 

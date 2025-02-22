@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/analytics/page.tsx
+// src/app/crm/platform/analytics/page.tsx
 import { Metadata } from "next"
 import { AnalyticsContent } from "@/components/crm/analytics/analytics-content"
 

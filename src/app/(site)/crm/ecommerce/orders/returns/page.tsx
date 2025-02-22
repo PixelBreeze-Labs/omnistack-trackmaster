@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/orders/returns/page.tsx
+// src/app/crm/platform/orders/returns/page.tsx
 import { Metadata } from "next"
 import { ReturnsAndRefunds } from "@/components/crm/orders/returns-refunds"
 

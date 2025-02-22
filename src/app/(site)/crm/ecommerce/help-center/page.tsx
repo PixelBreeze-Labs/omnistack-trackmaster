@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/onebox/page.tsx
+// src/app/crm/platform/onebox/page.tsx
 import { Metadata } from "next"
 import { HelpCenter } from "@/components/crm/communication/help-center"
 

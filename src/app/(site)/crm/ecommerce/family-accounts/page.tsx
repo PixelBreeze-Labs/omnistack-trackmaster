@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/family-accounts/page.tsx
+// src/app/crm/platform/family-accounts/page.tsx
 import { Metadata } from "next"
 import { FamilyAccounts } from "@/components/crm/family-accounts"
 

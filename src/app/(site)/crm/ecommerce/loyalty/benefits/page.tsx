@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/loyalty/benefits/page.tsx
+// src/app/crm/platform/loyalty/benefits/page.tsx
 import { Metadata } from "next"
 import { BenefitsContent } from "@/components/crm/loyalty/benefits"
 

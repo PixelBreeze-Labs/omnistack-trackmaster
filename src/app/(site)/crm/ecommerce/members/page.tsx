@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/members/page.tsx
+// src/app/crm/platform/members/page.tsx
 import { Metadata } from "next"
 import { AllMembers } from "@/components/crm/customers/members"
 

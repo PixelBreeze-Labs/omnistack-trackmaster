@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/promotions/coupons/page.tsx
+// src/app/crm/platform/promotions/coupons/page.tsx
 import { Metadata } from "next";
 import { PromotionsCoupons } from "@/components/crm/promotions-coupons";
 

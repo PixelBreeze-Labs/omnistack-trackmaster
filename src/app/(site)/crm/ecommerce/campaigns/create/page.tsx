@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/campaigns/create/page.tsx
+// src/app/crm/platform/campaigns/create/page.tsx
 import { Metadata } from "next";
 import { CampaignCreate } from "@/components/crm/campaign-create";
 

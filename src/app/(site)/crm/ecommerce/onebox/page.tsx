@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/onebox/page.tsx
+// src/app/crm/platform/onebox/page.tsx
 import { Metadata } from "next"
 import { OneBox } from "@/components/crm/communication/onebox"
 

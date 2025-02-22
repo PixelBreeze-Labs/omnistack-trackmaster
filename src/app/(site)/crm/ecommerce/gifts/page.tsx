@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/gifts/page.tsx
+// src/app/crm/platform/gifts/page.tsx
 import { Metadata } from "next"
 import { GiftsAdvisory } from "@/components/crm/gifts-advisory"
 

@@ -1,4 +1,4 @@
-// src/app/(site)/crm/ecommerce/paid-campaigns/page.tsx
+// src/app/(site)/crm/platform/paid-campaigns/page.tsx
 import { Metadata } from "next"
 import PaidCampaignsComponent from "@/components/crm/paid-campaigns/paid-campaigns-content"
 

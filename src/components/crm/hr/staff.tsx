@@ -193,7 +193,7 @@ useEffect(() => {
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="soft" onClick={() => router.push('/crm/ecommerce/hr/department')}>
+        <Button variant="soft" onClick={() => router.push('/crm/platform/hr/department')}>
           <Building2 className="h-4 w-4 mr-2" />
           Manage Departments
         </Button>

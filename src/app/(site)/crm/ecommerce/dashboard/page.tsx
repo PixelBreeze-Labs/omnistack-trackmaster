@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/dashboard/page.tsx
+// src/app/crm/platform/dashboard/page.tsx
 import { Metadata } from "next"
 import { DashboardContent } from "@/components/crm/dashboard/dashboard-content"
 

@@ -1,4 +1,4 @@
-// src/app/crm/ecommerce/feedback/page.tsx
+// src/app/crm/platform/feedback/page.tsx
 import { Metadata } from "next"
 import { CustomerFeedback } from "@/components/crm/customer-feedback"
 
