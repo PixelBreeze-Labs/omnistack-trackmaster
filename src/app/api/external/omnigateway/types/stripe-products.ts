@@ -1,4 +1,4 @@
-// types/stripe-products.ts
+// app/api/external/omnigateway/types/stripe-products.ts
 export interface StripeProduct {
     _id: string;
     name: string;
@@ -28,35 +28,11 @@ export interface StripePrice {
     updatedAt: string;
 }
 
-export type CreateProductDto = {
-    name: string;
-    description?: string;
-    stripeProductId?: string;
-    isActive?: boolean;
-    metadata?: Record<string, any>;
-}
-
-export type UpdateProductDto = Partial<CreateProductDto>;
-
-export type CreatePriceDto = {
-    stripeProductId: string;
-    stripePriceId?: string;
-    amount: number;
-    currency: string;
-    interval: 'month' | 'year';
-    intervalCount?: number;
-    trialPeriodDays?: number;
-    isActive?: boolean;
-    metadata?: Record<string, any>;
-}
-
-export type UpdatePriceDto = Partial<CreatePriceDto>;
-
 export interface ProductParams {
     page?: number;
     limit?: number;
     search?: string;
-    status?: 'active' | 'inactive' | 'all';
+    status?: string;
 }
 
 export interface ProductMetrics {
