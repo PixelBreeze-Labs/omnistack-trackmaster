@@ -114,14 +114,14 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       products: [
         {
           id: 5,
-          title: "Products",
-          path: `/crm/platform/products`,
+          title: "Products & Pricing",
+          path: `/crm/platform/stripe-products`,
           icon: <Package className="w-5 h-5"/>,
         },
         {
           id: 6,
-          title: "Pricing Plans",
-          path: `/crm/platform/pricing`,
+          title: "Stripe Config",
+          path: `/crm/platform/stripe-config`,
           icon: <Tags className="w-5 h-5"/>,
         }
       ],
