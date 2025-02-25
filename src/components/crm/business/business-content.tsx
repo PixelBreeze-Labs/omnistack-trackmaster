@@ -31,7 +31,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Table,
@@ -41,14 +40,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Pagination,
   PaginationContent,
@@ -112,7 +103,8 @@ export default function BusinessesContent() {
     updateUrlAndFetch();
   };
 
-  const handleStatusChange = (status: string) => {
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const status = e.target.value;
     setStatusFilter(status);
     setCurrentPage(1);
     updateUrlAndFetch(searchTerm, status, 1);
@@ -123,10 +115,53 @@ export default function BusinessesContent() {
     updateUrlAndFetch(searchTerm, statusFilter, page);
   };
 
-  const handleLimitChange = (limit: number) => {
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const limit = parseInt(e.target.value);
     setItemsPerPage(limit);
     setCurrentPage(1);
     updateUrlAndFetch(searchTerm, statusFilter, 1, limit);
+  };
+
+  const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>, businessId: string) => {
+    const action = e.target.value;
+    if (!action) return;
+    
+    e.stopPropagation();
+    
+    switch(action) {
+      case "view":
+        router.push(`/crm/platform/businesses/${businessId}`);
+        break;
+      case "edit":
+        router.push(`/crm/platform/businesses/${businessId}/edit`);
+        break;
+      case "users":
+        router.push(`/crm/platform/businesses/${businessId}/users`);
+        break;
+      case "upgrade":
+        router.push(`/crm/platform/businesses/${businessId}/subscribe`);
+        break;
+      case "manage":
+        // Manage subscription logic
+        console.log("Manage subscription for business", businessId);
+        break;
+      case "payment":
+        // Update payment logic
+        console.log("Update payment for business", businessId);
+        break;
+      case "reactivate":
+        // Reactivate logic
+        console.log("Reactivate business", businessId);
+        break;
+      default:
+        break;
+    }
+    
+    // Reset the select
+    setTimeout(() => {
+      const selectElement = document.getElementById(`actions-${businessId}`) as HTMLSelectElement;
+      if (selectElement) selectElement.value = "";
+    }, 100);
   };
 
   const updateUrlAndFetch = (
@@ -200,6 +235,37 @@ export default function BusinessesContent() {
     }).format(amount / 100); // Convert from cents
   };
 
+  // Generate action options based on business status
+  const getActionOptions = (business: any) => {
+    const baseOptions = [
+      { value: "", label: "Actions" },
+      { value: "view", label: "View Details" },
+      { value: "edit", label: "Edit Business" },
+      { value: "users", label: "Manage Users" },
+    ];
+    
+    let statusSpecificOptions = [];
+    
+    switch(business.subscriptionStatus) {
+      case 'trialing':
+        statusSpecificOptions = [{ value: "upgrade", label: "Upgrade to Paid" }];
+        break;
+      case 'active':
+        statusSpecificOptions = [{ value: "manage", label: "Manage Subscription" }];
+        break;
+      case 'past_due':
+        statusSpecificOptions = [{ value: "payment", label: "Update Payment" }];
+        break;
+      case 'canceled':
+        statusSpecificOptions = [{ value: "reactivate", label: "Reactivate" }];
+        break;
+      default:
+        statusSpecificOptions = [];
+    }
+    
+    return [...baseOptions, ...statusSpecificOptions];
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -218,7 +284,9 @@ export default function BusinessesContent() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Businesses</CardTitle>
+            <div>
+              <h2 className="text-sm font-medium">Total Businesses</h2>
+            </div>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -243,7 +311,9 @@ export default function BusinessesContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
+            <div>
+              <h2 className="text-sm font-medium">Active Subscriptions</h2>
+            </div>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -261,7 +331,9 @@ export default function BusinessesContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Trial Users</CardTitle>
+            <div>
+              <h2 className="text-sm font-medium">Trial Users</h2>
+            </div>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -281,7 +353,9 @@ export default function BusinessesContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Churn Rate</CardTitle>
+            <div>
+              <h2 className="text-sm font-medium">Churn Rate</h2>
+            </div>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -309,8 +383,8 @@ export default function BusinessesContent() {
       <Card>
         <CardHeader className="pb-3">
           <div>
-            <h3 className="text-lg font-medium">Filter Businesses</h3>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-lg font-medium">Filter Businesses</h2>
+            <p className="text-sm text-muted-foreground mt-2">
               Search and filter through your businesses and subscriptions
             </p>
           </div>
@@ -329,36 +403,22 @@ export default function BusinessesContent() {
               />
             </div>
             <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <Filter className="mr-2 h-4 w-4" /> 
-                    {statusFilter === "all" ? "All Statuses" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleStatusChange("all")}>
-                    All Statuses
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange("active")}>
-                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> Active
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange("trialing")}>
-                    <Clock className="mr-2 h-4 w-4 text-blue-500" /> Trial
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange("past_due")}>
-                    <AlertCircle className="mr-2 h-4 w-4 text-amber-500" /> Past Due
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange("canceled")}>
-                    <XCircle className="mr-2 h-4 w-4 text-red-500" /> Canceled
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange("incomplete")}>
-                    <Clock className="mr-2 h-4 w-4" /> Incomplete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="w-48">
+                <InputSelect
+                  name="status-filter"
+                  label=""
+                  value={statusFilter}
+                  onChange={handleStatusChange}
+                  options={[
+                    { value: "all", label: "All Statuses" },
+                    { value: "active", label: "Active" },
+                    { value: "trialing", label: "Trial" },
+                    { value: "past_due", label: "Past Due" },
+                    { value: "canceled", label: "Canceled" },
+                    { value: "incomplete", label: "Incomplete" }
+                  ]}
+                />
+              </div>
               <Button variant="outline" onClick={refreshData}>
                 <RefreshCcw className="mr-2 h-4 w-4" /> Refresh
               </Button>
@@ -481,58 +541,15 @@ export default function BusinessesContent() {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/crm/platform/businesses/${business._id}`);
-                              }}>
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/crm/platform/businesses/${business._id}/edit`);
-                              }}>
-                                Edit Business
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/crm/platform/businesses/${business._id}/users`);
-                              }}>
-                                Manage Users
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {business.subscriptionStatus === 'trialing' && (
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.push(`/crm/platform/businesses/${business._id}/subscribe`);
-                                }}>
-                                  Upgrade to Paid
-                                </DropdownMenuItem>
-                              )}
-                              {business.subscriptionStatus === 'active' && (
-                                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                                  Manage Subscription
-                                </DropdownMenuItem>
-                              )}
-                              {business.subscriptionStatus === 'past_due' && (
-                                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                                  Update Payment
-                                </DropdownMenuItem>
-                              )}
-                              {business.subscriptionStatus === 'canceled' && (
-                                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                                  Reactivate
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="w-[140px]" onClick={(e) => e.stopPropagation()}>
+                            <InputSelect
+                              name={`actions-${business._id}`}
+                              label=""
+                              value=""
+                              onChange={(e) => handleActionChange(e, business._id)}
+                              options={getActionOptions(business)}
+                            />
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -544,7 +561,12 @@ export default function BusinessesContent() {
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-2">
                             <Card>
                               <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Contact Information</CardTitle>
+                                <div>
+                                  <h2 className="text-lg font-bold tracking-tight">Contact Information</h2>
+                                  <p className="text-sm text-muted-foreground mt-2">
+                                    User contact details
+                                  </p>
+                                </div>
                               </CardHeader>
                               <CardContent className="space-y-2 pt-2">
                                 <div className="flex items-center">
@@ -566,7 +588,12 @@ export default function BusinessesContent() {
 
                             <Card>
                               <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Subscription Details</CardTitle>
+                                <div>
+                                  <h2 className="text-lg font-bold tracking-tight">Subscription Details</h2>
+                                  <p className="text-sm text-muted-foreground mt-2">
+                                    Current subscription information
+                                  </p>
+                                </div>
                               </CardHeader>
                               <CardContent className="space-y-2 pt-2">
                                 <div className="flex items-center">
@@ -598,7 +625,12 @@ export default function BusinessesContent() {
 
                             <Card>
                               <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Additional Information</CardTitle>
+                                <div>
+                                  <h2 className="text-lg font-bold tracking-tight">Additional Information</h2>
+                                  <p className="text-sm text-muted-foreground mt-2">
+                                    Business details and history
+                                  </p>
+                                </div>
                               </CardHeader>
                               <CardContent className="space-y-2 pt-2">
                                 <div className="flex items-center">
@@ -635,17 +667,19 @@ export default function BusinessesContent() {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Rows per page</span>
-                  <InputSelect
-                    name="pageSize"
-                    label=""
-                    value={itemsPerPage.toString()}
-                    onChange={(e) => handleLimitChange(parseInt(e.target.value))}
-                    options={[
-                      { value: "10", label: "10" },
-                      { value: "20", label: "20" },
-                      { value: "50", label: "50" }
-                    ]}
-                  />
+                  <div className="w-20">
+                    <InputSelect
+                      name="pageSize"
+                      label=""
+                      value={itemsPerPage.toString()}
+                      onChange={handleLimitChange}
+                      options={[
+                        { value: "10", label: "10" },
+                        { value: "20", label: "20" },
+                        { value: "50", label: "50" }
+                      ]}
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex-1 flex items-center justify-center">
@@ -690,7 +724,7 @@ export default function BusinessesContent() {
                         />
                       </PaginationItem>
                     </PaginationContent>
-                    </Pagination>
+                  </Pagination>
                 </div>
 
                 <p className="text-sm text-muted-foreground min-w-[180px] text-right">
@@ -699,12 +733,12 @@ export default function BusinessesContent() {
                 </p>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
-      
-      {/* Add bottom spacing */}
-      <div className="h-4"></div>
-    </div>
-  );
-}
+            )}
+            </CardContent>
+          </Card>
+          
+          {/* Add bottom spacing */}
+          <div className="h-4"></div>
+        </div>
+      );
+    }
