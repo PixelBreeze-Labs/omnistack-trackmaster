@@ -127,6 +127,11 @@ export function StripeConfig() {
   }, [config, form]);
 
   const handleFormSubmit = async (data) => {
+    // Remove secretKey if it's empty
+    if (!data.stripeAccount.secretKey) {
+      data.stripeAccount.secretKey = '00-DONT-USE-11';
+    }
+    // Similarly for webhook.secret if needed
     try {
       await updateConfig(data);
       setConfigUpdated(true);
