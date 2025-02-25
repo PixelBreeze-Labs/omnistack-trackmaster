@@ -418,7 +418,7 @@ export function StripeProducts() {
                                     {formatInterval(price.interval, price.intervalCount)}
                                   </TableCell>
                                   <TableCell>
-                                    {price.trialPeriodDays ? `${price.trialPeriodDays} days` : 'No trial'}
+                                    {price.trialPeriodDays ? `${price.trialPeriodDays} days` : '14 Days'}
                                   </TableCell>
                                   <TableCell>
                                     <Badge 
