@@ -510,6 +510,9 @@ export function StripeProducts() {
         onClose={() => setSyncDialogOpen(false)}
         onSync={syncProducts}
       />
+
+         {/* Add bottom spacing */}
+         <div className="h-4"></div>
     </div>
   );
 }
