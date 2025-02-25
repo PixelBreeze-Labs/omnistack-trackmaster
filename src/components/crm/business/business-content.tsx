@@ -143,15 +143,12 @@ export default function BusinessesContent() {
         break;
       case "manage":
         // Manage subscription logic
-        console.log("Manage subscription for business", businessId);
         break;
       case "payment":
         // Update payment logic
-        console.log("Update payment for business", businessId);
         break;
       case "reactivate":
         // Reactivate logic
-        console.log("Reactivate business", businessId);
         break;
       default:
         break;

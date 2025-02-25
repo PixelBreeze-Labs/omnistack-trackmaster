@@ -130,11 +130,9 @@ export default function TrialBusinessesPage() {
         break;
       case "extend":
         // Implement logic to extend trial
-        console.log("Extend trial for business", businessId);
         break;
       case "remind":
         // Implement reminder email logic
-        console.log("Send reminder for business", businessId);
         break;
       default:
         break;

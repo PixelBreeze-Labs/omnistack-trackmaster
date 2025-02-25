@@ -38,7 +38,6 @@ async function main() {
   try {
     // First create the user in Supabase
     // const supabaseUser = await createSupabaseUser('contact@staffluent.co', 'S3L-LUENT!-2025x!')
-    // console.log('Created Supabase user:', supabaseUser)
 
     // Create the client
     const client = await prisma.client.create({
@@ -53,7 +52,7 @@ async function main() {
         omniGatewayApiKey: 'sk_2462670fcf9d668a3ce8e98d5845b3154ee13aa100e4f00e3103b054e9a0bacf'
       }
     })
-    console.log('Created client:', client)
+
 
     // Create the admin user in Prisma
     const hashedPassword = await bcrypt.hash('S3L-LUENT!-2025x!', 12)
@@ -67,9 +66,7 @@ async function main() {
         clientId: client.id,
       }
     })
-    console.log('Created Prisma user:', user)
 
-    console.log('Seeding completed successfully!')
   } catch (error) {
     console.error('Error during seeding:', error)
     throw error
