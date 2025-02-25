@@ -11,12 +11,10 @@ export const useGatewayClientApiKey = () => {
               
         const fetchApiKey = async () => {
             if (!clientId) {
-                console.log('No clientId available');
                 return;
             }
 
             try {
-                console.log('Fetching API key for clientId:', clientId);
                 const response = await fetch(`/api/client/gateway-api-key?clientId=${clientId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch API key');

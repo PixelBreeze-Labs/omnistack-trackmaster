@@ -46,7 +46,6 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     settings: []
   }
 
-  console.log('clientType', clientType);
   if (clientType === 'SAAS') {
     return {
       mainMenu: [

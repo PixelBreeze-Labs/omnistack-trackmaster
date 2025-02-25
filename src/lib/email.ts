@@ -15,7 +15,6 @@ export async function sendEmail(emailData: EmailData) {
   }
 
   try {
-    console.log('Attempting to send email to:', emailData.to);
     
     const result = await resend.emails.send({
       from: 'TrackMaster <info@trackmaster.omnistackhub.xyz>',
@@ -24,7 +23,6 @@ export async function sendEmail(emailData: EmailData) {
       html: emailData.html
     });
 
-    console.log('Email sent successfully:', result);
     return result;
   } catch (error) {
     console.error('Resend API Error:', error);

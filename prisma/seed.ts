@@ -38,7 +38,6 @@
 //   try {
 //     // // First create the user in Supabase
 //     // const supabaseUser = await createSupabaseUser('crm@metroshop.al', 'C3M-Mshop!-2025x')
-//     // console.log('Created Supabase user:', supabaseUser)
 
 //     // Create the client
 //     const client = await prisma.client.create({
@@ -51,7 +50,6 @@
 //         status: 'ACTIVE',
 //       }
 //     })
-//     console.log('Created client:', client)
 
 //     // Create the CRM admin user
 //     const hashedPassword = await bcrypt.hash('C3M-Mshop!-2025x', 12)
@@ -66,9 +64,6 @@
 //         clientId: client.id,
 //       }
 //     })
-//     console.log('Created Prisma user:', user)
-
-//     console.log('Seeding completed successfully!')
 //   } catch (error) {
 //     console.error('Error during seeding:', error)
 //     throw error
