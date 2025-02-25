@@ -12,11 +12,8 @@ import {
   Calendar,
   Mail,
   Phone,
-  MoreHorizontal,
-  Filter,
   ChevronDown,
   ChevronRight,
-  CalendarClock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +21,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Table,
@@ -34,14 +30,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Pagination,
   PaginationContent,
@@ -106,7 +94,8 @@ export default function TrialBusinessesPage() {
     updateUrlAndFetch();
   };
 
-  const handleSortChange = (sort: string) => {
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const sort = e.target.value;
     setSortBy(sort);
     updateUrlAndFetch(searchTerm, 1, itemsPerPage, sort);
   };
@@ -116,10 +105,46 @@ export default function TrialBusinessesPage() {
     updateUrlAndFetch(searchTerm, page, itemsPerPage, sortBy);
   };
 
-  const handleLimitChange = (limit: number) => {
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const limit = parseInt(e.target.value);
     setItemsPerPage(limit);
     setCurrentPage(1);
     updateUrlAndFetch(searchTerm, 1, limit, sortBy);
+  };
+
+  const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>, businessId: string) => {
+    const action = e.target.value;
+    if (!action) return;
+    
+    e.stopPropagation();
+    
+    switch(action) {
+      case "view":
+        router.push(`/crm/platform/businesses/${businessId}`);
+        break;
+      case "edit":
+        router.push(`/crm/platform/businesses/${businessId}/edit`);
+        break;
+      case "upgrade":
+        router.push(`/crm/platform/businesses/${businessId}/subscribe`);
+        break;
+      case "extend":
+        // Implement logic to extend trial
+        console.log("Extend trial for business", businessId);
+        break;
+      case "remind":
+        // Implement reminder email logic
+        console.log("Send reminder for business", businessId);
+        break;
+      default:
+        break;
+    }
+    
+    // Reset the select
+    setTimeout(() => {
+      const selectElement = document.getElementById(`actions-${businessId}`) as HTMLSelectElement;
+      if (selectElement) selectElement.value = "";
+    }, 100);
   };
 
   const updateUrlAndFetch = (
@@ -213,13 +238,12 @@ export default function TrialBusinessesPage() {
       {/* Trial Overview Card */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
         <CardHeader>
-          {/* <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-blue-500" />
-            Trial Conversions Overview
-          </CardTitle>
-          <CardDescription>
-            Monitor trial statuses and upcoming expirations
-          </CardDescription> */}
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Trial Conversions Overview</h2>
+            <p className="text-sm text-muted-foreground mt-2">
+              Monitor trial statuses and upcoming expirations
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
@@ -249,8 +273,8 @@ export default function TrialBusinessesPage() {
       <Card>
         <CardHeader className="pb-3">
           <div>
-            <h3 className="text-lg font-medium">Filter Trial Users</h3>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-lg font-medium">Filter Trial Users</h2>
+            <p className="text-sm text-muted-foreground mt-0">
               Search and sort businesses in trial period
             </p>
           </div>
@@ -269,29 +293,19 @@ export default function TrialBusinessesPage() {
               />
             </div>
             <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <Filter className="mr-2 h-4 w-4" /> 
-                    {sortBy === "endDate" ? "Sort by: Expiration Date" : 
-                     sortBy === "name" ? "Sort by: Business Name" : 
-                     "Sort by: Registration Date"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel>Sort By</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleSortChange("endDate")}>
-                    <Calendar className="mr-2 h-4 w-4" /> Expiration Date
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSortChange("name")}>
-                    <Building2 className="mr-2 h-4 w-4" /> Business Name
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSortChange("created")}>
-                    <CalendarClock className="mr-2 h-4 w-4" /> Registration Date
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="w-48">
+                <InputSelect
+                  name="sortBy"
+                  label=""
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  options={[
+                    { value: "endDate", label: "Sort by: Expiration Date" },
+                    { value: "name", label: "Sort by: Business Name" },
+                    { value: "created", label: "Sort by: Registration Date" }
+                  ]}
+                />
+              </div>
               <Button variant="outline" onClick={refreshData}>
                 <RefreshCcw className="mr-2 h-4 w-4" /> Refresh
               </Button>
@@ -402,50 +416,22 @@ export default function TrialBusinessesPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-end">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.push(`/crm/platform/businesses/${business._id}`);
-                                }}>
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.push(`/crm/platform/businesses/${business._id}/edit`);
-                                }}>
-                                  Edit Business
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.push(`/crm/platform/businesses/${business._id}/subscribe`);
-                                }}>
-                                  <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                  Upgrade to Paid
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  // Implement logic to extend trial
-                                }}>
-                                  <Clock className="mr-2 h-4 w-4 text-blue-500" />
-                                  Extend Trial
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  // Implement reminder email logic
-                                }}>
-                                  <Mail className="mr-2 h-4 w-4" />
-                                  Send Reminder
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <div className="w-[140px]" onClick={(e) => e.stopPropagation()}>
+                              <InputSelect
+                                name={`actions-${business._id}`}
+                                label=""
+                                value=""
+                                onChange={(e) => handleActionChange(e, business._id)}
+                                options={[
+                                  { value: "", label: "Actions" },
+                                  { value: "view", label: "View Details" },
+                                  { value: "edit", label: "Edit Business" },
+                                  { value: "upgrade", label: "Upgrade to Paid" },
+                                  { value: "extend", label: "Extend Trial" },
+                                  { value: "remind", label: "Send Reminder" }
+                                ]}
+                              />
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -457,7 +443,12 @@ export default function TrialBusinessesPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2">
                               <Card>
                                 <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">Business Information</CardTitle>
+                                  <div>
+                                    <h2 className="text-lg font-bold tracking-tight">Business Information</h2>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                      Contact and registration details
+                                    </p>
+                                  </div>
                                 </CardHeader>
                                 <CardContent className="space-y-2 pt-2">
                                   <div className="flex items-center">
@@ -485,7 +476,12 @@ export default function TrialBusinessesPage() {
                               
                               <Card>
                                 <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">Trial Status</CardTitle>
+                                  <div>
+                                    <h2 className="text-lg font-bold tracking-tight">Trial Status</h2>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                      Trial period details and actions
+                                    </p>
+                                  </div>
                                 </CardHeader>
                                 <CardContent className="space-y-2 pt-2">
                                   <div className="flex items-center">
@@ -542,17 +538,19 @@ export default function TrialBusinessesPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Rows per page</span>
-                  <InputSelect
-                    name="pageSize"
-                    label=""
-                    value={itemsPerPage.toString()}
-                    onChange={(e) => handleLimitChange(parseInt(e.target.value))}
-                    options={[
-                      { value: "10", label: "10" },
-                      { value: "20", label: "20" },
-                      { value: "50", label: "50" }
-                    ]}
-                  />
+                  <div className="w-20">
+                    <InputSelect
+                      name="pageSize"
+                      label=""
+                      value={itemsPerPage.toString()}
+                      onChange={handleLimitChange}
+                      options={[
+                        { value: "10", label: "10" },
+                        { value: "20", label: "20" },
+                        { value: "50", label: "50" }
+                      ]}
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex-1 flex items-center justify-center">

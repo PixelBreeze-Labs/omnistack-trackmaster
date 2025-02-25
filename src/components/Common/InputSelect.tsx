@@ -36,13 +36,15 @@ export default function InputSelect(props: InputSelectProps) {
 
   return (
     <div>
-      {/* Label */}
-      <label
-        htmlFor={name}
-        className="mb-2.5 block font-satoshi text-base font-medium text-dark dark:text-white"
-      >
-        {label}
-      </label>
+      {/* Label - only render if a label is provided */}
+      {label && (
+        <label
+          htmlFor={name}
+          className="mb-2.5 block font-satoshi text-base font-medium text-dark dark:text-white"
+        >
+          {label}
+        </label>
+      )}
 
       <div className="relative">
         {/* Native select with classes matching the Radix Trigger styling */}
