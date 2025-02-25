@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSubscriptionConfig } from "@/hooks/useSubscriptionConfig";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -30,7 +30,6 @@ import {
   Clock, 
   FileText,
   CheckCircle,
-  AlertCircle 
 } from "lucide-react";
 
 // Form schema validation with Zod
@@ -127,7 +126,7 @@ export function StripeConfig() {
     }
   }, [config, form]);
 
-  const onSubmit = async (data) => {
+  const handleFormSubmit = async (data) => {
     try {
       await updateConfig(data);
       setConfigUpdated(true);
@@ -160,7 +159,7 @@ export function StripeConfig() {
         </div>
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div>
             {configUpdated && (
               <Alert className="mb-6 border-green-500 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-500" />
@@ -174,14 +173,12 @@ export function StripeConfig() {
             {/* Main config settings */}
             <Card className="mb-6">
               <CardHeader>
-                
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">General Settings</h2>
-                    <p className="text-sm text-muted-foreground mt-2">
-                        Configure basic subscription settings for your platform
-                    </p>
+                  <h2 className="text-2xl font-bold tracking-tight">General Settings</h2>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Configure basic subscription settings for your platform
+                  </p>
                 </div>
-               
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -254,13 +251,12 @@ export function StripeConfig() {
               <TabsContent value="stripe">
                 <Card>
                   <CardHeader>
-                  <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Stripe Account</h2>
-                    <p className="text-sm text-muted-foreground mt-2">
-                    Connect your Stripe account for subscription and payment processing
-                    </p>
-                </div>
-                    
+                    <div>
+                      <h2 className="text-2xl font-bold tracking-tight">Stripe Account</h2>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Connect your Stripe account for subscription and payment processing
+                      </p>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -319,13 +315,12 @@ export function StripeConfig() {
               <TabsContent value="webhook">
                 <Card>
                   <CardHeader>
-                  <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Webhook Configuration</h2>
-                    <p className="text-sm text-muted-foreground mt-2">
-                    Configure webhooks to receive real-time updates from Stripe
-                    </p>
-                </div>
-                
+                    <div>
+                      <h2 className="text-2xl font-bold tracking-tight">Webhook Configuration</h2>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Configure webhooks to receive real-time updates from Stripe
+                      </p>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -398,13 +393,12 @@ export function StripeConfig() {
               <TabsContent value="trial">
                 <Card>
                   <CardHeader>
-                  <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Trial Settings</h2>
-                    <p className="text-sm text-muted-foreground mt-2">
-                    
-                    Configure trial settings for new subscriptions
-                    </p>
-                </div>
+                    <div>
+                      <h2 className="text-2xl font-bold tracking-tight">Trial Settings</h2>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Configure trial settings for new subscriptions
+                      </p>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -457,13 +451,12 @@ export function StripeConfig() {
               <TabsContent value="invoice">
                 <Card>
                   <CardHeader>
-                  <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Invoice Settings</h2>
-                    <p className="text-sm text-muted-foreground mt-2">
-                    Configure how invoices are generated and managed
-                    </p>
-                </div>
-                    
+                    <div>
+                      <h2 className="text-2xl font-bold tracking-tight">Invoice Settings</h2>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Configure how invoices are generated and managed
+                      </p>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <FormField
@@ -530,22 +523,30 @@ export function StripeConfig() {
               </TabsContent>
             </Tabs>
 
-            <div className="mt-6 flex justify-end">
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Configuration
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
+            {/* Form submission button - outside the Tabs component */}
+            <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+              <div className="mt-6 flex justify-end">
+                <Button 
+                  id="save-button"
+                  name="save-button"
+                  type="submit" 
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Configuration
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
         </Form>
       )}
     </div>
