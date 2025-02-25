@@ -549,6 +549,8 @@ export function StripeConfig() {
           </div>
         </Form>
       )}
+       {/* Add bottom spacing */}
+       <div className="h-4"></div>
     </div>
   );
 }
