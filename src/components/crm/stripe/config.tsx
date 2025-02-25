@@ -230,7 +230,7 @@ export function StripeConfig() {
             </Card>
 
             {/* Tabbed configuration sections */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-4">
                 <TabsTrigger value="stripe">
                   <CreditCard className="mr-2 h-4 w-4" />
