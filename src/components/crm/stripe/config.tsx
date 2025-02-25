@@ -141,7 +141,7 @@ export function StripeConfig() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Subscription Configuration</h2>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-2 mb-2">
             Configure your subscription settings and Stripe integration
           </p>
         </div>
@@ -175,7 +175,7 @@ export function StripeConfig() {
               <CardHeader>
                 <div>
                   <h2 className="text-2xl font-bold tracking-tight">General Settings</h2>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm text-muted-foreground mt-2 mb-2">
                     Configure basic subscription settings for your platform
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export function StripeConfig() {
                   <CardHeader>
                     <div>
                       <h2 className="text-2xl font-bold tracking-tight">Stripe Account</h2>
-                      <p className="text-sm text-muted-foreground mt-2">
+                      <p className="text-sm text-muted-foreground mt-2 mb-2">
                         Connect your Stripe account for subscription and payment processing
                       </p>
                     </div>
@@ -317,7 +317,7 @@ export function StripeConfig() {
                   <CardHeader>
                     <div>
                       <h2 className="text-2xl font-bold tracking-tight">Webhook Configuration</h2>
-                      <p className="text-sm text-muted-foreground mt-2">
+                      <p className="text-sm text-muted-foreground mt-2 mb-2">
                         Configure webhooks to receive real-time updates from Stripe
                       </p>
                     </div>
@@ -395,7 +395,7 @@ export function StripeConfig() {
                   <CardHeader>
                     <div>
                       <h2 className="text-2xl font-bold tracking-tight">Trial Settings</h2>
-                      <p className="text-sm text-muted-foreground mt-2">
+                      <p className="text-sm text-muted-foreground mt-2 mb-2">
                         Configure trial settings for new subscriptions
                       </p>
                     </div>
@@ -453,7 +453,7 @@ export function StripeConfig() {
                   <CardHeader>
                     <div>
                       <h2 className="text-2xl font-bold tracking-tight">Invoice Settings</h2>
-                      <p className="text-sm text-muted-foreground mt-2">
+                      <p className="text-sm text-muted-foreground mt-2 mb-2">
                         Configure how invoices are generated and managed
                       </p>
                     </div>
