@@ -52,10 +52,10 @@ import { format } from "date-fns";
 
 
 const productNameMapping = {
-  [process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_MONTHLY_ID]: "Basic Plan - Monthly",
-  [process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_YEARLY_ID]: "Basic Plan - Yearly",
-  [process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_MONTHLY_ID]: "Professional Plan - Monthly",
-  [process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_YEARLY_ID]: "Professional Plan - Yearly",
+  [process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_MONTHLY_ID as string]: "Basic Plan - Monthly",
+  [process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_YEARLY_ID as string]: "Basic Plan - Yearly",
+  [process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_MONTHLY_ID as string]: "Professional Plan - Monthly",
+  [process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_YEARLY_ID as string]: "Professional Plan - Yearly",
 };
 
 
