@@ -628,7 +628,7 @@ export default function SubscriptionsContent({ status }: SubscriptionsContentPro
                               <CardContent className="space-y-2 pt-2">
                                 <div className="flex items-center">
                                   <Package className="h-4 w-4 mr-2 text-muted-foreground" />
-                                  <span className="text-sm">{subscription.product?.name || 'Unknown Product'}</span>
+                                  <span className="text-sm"> {subscription.product?.name || productNameMapping[subscription.priceId] || 'Unknown Product'}</span>
                                 </div>
                                 <div className="flex items-center">
                                   <DollarSign className="h-4 w-4 mr-2 text-muted-foreground" />
