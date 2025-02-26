@@ -124,6 +124,9 @@ export default function RegisterBusinessContent() {
           router.push("/crm/platform/businesses");
         }}
       />
+
+        {/* Add empty space div at the bottom */}
+  <div className="h-2"></div>
     </div>
   );
 }
