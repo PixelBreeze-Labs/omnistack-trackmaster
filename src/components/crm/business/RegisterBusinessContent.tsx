@@ -6,14 +6,12 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import AdminRegisterBusinessForm from "@/components/crm/business/AdminRegisterBusinessForm";
 import RegistrationSuccessModal from "@/components/crm/business/RegistrationSuccessModal";
-import { useAdminSubscription } from "@/hooks/useAdminSubscription";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterBusinessContent() {
   const router = useRouter();
   const { toast } = useToast();
-  const { registerAndSubscribeBusiness, isLoading } = useAdminSubscription();
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [registrationResult, setRegistrationResult] = useState({
@@ -24,50 +22,16 @@ export default function RegisterBusinessContent() {
     password: "",
   });
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (responseData: any) => {
     try {
-      // Transform form data to match API expectations
-      const apiData = {
-        // Business details
-        businessName: data.businessName,
-        businessEmail: data.businessEmail,
-        businessType: data.businessType,
-        fullName: data.fullName,
-        phone: data.phone || undefined,
-        
-        // Address details (if provided)
-        address: {
-          street: data.street || undefined,
-          city: data.city || undefined,
-          state: data.state || undefined,
-          zip: data.zip || undefined,
-          country: data.country || undefined,
-        },
-        
-        // Tax information
-        taxId: data.taxId || undefined,
-        vatNumber: data.vatNumber || undefined,
-        
-        // Subscription details
-        subscription: {
-          planId: data.planId,
-          interval: data.interval,
-        },
-        
-        // Additional settings
-        autoVerifyEmail: data.autoVerifyEmail,
-        sendWelcomeEmail: data.sendWelcomeEmail,
-      };
-      
-      const response = await registerAndSubscribeBusiness(apiData);
-      
-      // Set values for success modal
+      // If we receive an API response directly, we can use it immediately
+      // Set values for success modal from the response
       setRegistrationResult({
-        businessId: response.businessId,
-        businessName: data.businessName,
-        businessEmail: data.businessEmail,
-        adminName: data.fullName,
-        password: response.password || "Unable to retrieve password",
+        businessId: responseData.businessId,
+        businessName: responseData.businessName || "",
+        businessEmail: responseData.email || "",
+        adminName: responseData.fullName || "",
+        password: responseData.password || "Unable to retrieve password",
       });
       
       // Show success modal
@@ -75,11 +39,10 @@ export default function RegisterBusinessContent() {
       
       toast({
         title: "Business Registered Successfully",
-        description: `${data.businessName} has been registered with a ${data.interval === 'month' ? 'monthly' : 'yearly'} subscription.`,
+        description: `Business has been registered successfully.`,
       });
-      
     } catch (error: any) {
-      console.error("Error registering business:", error);
+      console.error("Error handling registration response:", error);
       toast({
         title: "Registration Failed",
         description: error.message || "There was a problem registering the business.",
