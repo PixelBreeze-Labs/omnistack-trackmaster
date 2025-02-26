@@ -144,7 +144,7 @@ export default function BusinessActions({ business, onActionComplete }: Business
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeactivate}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700"
               disabled={isLoading}
             >
               Deactivate
