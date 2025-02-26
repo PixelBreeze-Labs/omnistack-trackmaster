@@ -21,10 +21,9 @@ export const createSubscriptionsApi = (apiKey: string) => {
       limit?: number;
       search?: string;
     } = {}) => {
-      const { data } = await api.get('/subscriptions', { 
+      const { data } = await api.get('/subscriptions/active', { 
         params: { 
-          ...params,
-          status: 'active'
+          ...params
         } 
       });
       return data;
