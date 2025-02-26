@@ -343,7 +343,7 @@ const refreshData = () => {
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
-            <div className="flex items-center space-x-2 mt-4">
+            <div className="flex items-center space-x-2">
   <Switch
     id="test-accounts"
     checked={showTestAccounts}
