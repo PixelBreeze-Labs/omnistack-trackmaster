@@ -128,10 +128,12 @@ export default function AdminRegisterBusinessForm({
             <TabsContent value="business">
               <Card>
                 <CardHeader>
-                  <CardTitle>Business Details</CardTitle>
-                  {/* <CardDescription>
-                    Enter the core information about the business
-                  </CardDescription> */}
+                    <div >
+                <h2 className="text-lg font-medium">Business Details</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Enter the core information about the business
+            </p>
+            </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -219,10 +221,13 @@ export default function AdminRegisterBusinessForm({
             <TabsContent value="address">
               <Card>
                 <CardHeader>
-                  <CardTitle>Address Information</CardTitle>
-                  {/* <CardDescription>
-                    Provide the business address details (optional)
-                  </CardDescription> */}
+                    <div>
+                <h2 className="text-lg font-medium">Address Information</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Provide the business address details (optional)
+            </p>
+            </div>
+                 
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -351,10 +356,13 @@ export default function AdminRegisterBusinessForm({
             <TabsContent value="admin">
               <Card>
                 <CardHeader>
-                  <CardTitle>Admin User</CardTitle>
-                  {/* <CardDescription>
-                    Set up the administrator account
-                  </CardDescription> */}
+                    <div>
+                <h2 className="text-lg font-medium">Admin User</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Set up the administrator account
+            </p>
+            </div>
+                 
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -441,10 +449,13 @@ export default function AdminRegisterBusinessForm({
             <TabsContent value="subscription">
               <Card>
                 <CardHeader>
-                  <CardTitle>Subscription Plan</CardTitle>
-                  {/* <CardDescription>
-                    Select the subscription plan for this business
-                  </CardDescription> */}
+                    <div>
+                <h2 className="text-lg font-medium">Subscription Plan</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Select the subscription plan for this business
+            </p>
+            </div>
+                  
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-6">
