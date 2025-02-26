@@ -202,7 +202,7 @@ export default function AdminRegisterBusinessForm({
                   </div>
                 </CardContent>
                 <div className="flex mt-4 justify-between">
-                  <Button variant="ghost" disabled>
+                  <Button variant="secondary" disabled>
                     Back
                   </Button>
                   <Button
@@ -332,7 +332,7 @@ export default function AdminRegisterBusinessForm({
                 <div className="flex mt-4 justify-between">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setActiveTab("business")}
                   >
                     Back
@@ -422,7 +422,7 @@ export default function AdminRegisterBusinessForm({
                 <div className="flex mt-4 justify-between">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setActiveTab("address")}
                   >
                     Back
@@ -595,7 +595,7 @@ export default function AdminRegisterBusinessForm({
                 <div className="flex mt-4 justify-between">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setActiveTab("admin")}
                   >
                     Back
