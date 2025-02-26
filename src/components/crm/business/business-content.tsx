@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Building2,
   Search,
-  Filter,
   Plus,
   RefreshCcw,
   Download,
@@ -18,7 +17,6 @@ import {
   Mail,
   Phone,
   DollarSign,
-  MoreHorizontal,
   ChevronDown,
   TrendingUp,
   TrendingDown,
@@ -264,11 +262,12 @@ export default function BusinessesContent() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Businesses</h1>
-          <p className="text-muted-foreground">
+
+        <h2 className="text-2xl font-bold tracking-tight">Businesses</h2>
+          <p className="text-sm text-muted-foreground mt-2">
             Manage all businesses and their subscription statuses
           </p>
         </div>

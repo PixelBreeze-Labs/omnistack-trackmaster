@@ -220,12 +220,12 @@ export default function TrialBusinessesPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Trial Businesses</h1>
-          <p className="text-muted-foreground">
-            Manage businesses currently in their trial period
+        <h2 className="text-2xl font-bold tracking-tight">Trial Businesses</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+          Manage businesses currently in their trial period
           </p>
         </div>
         <Button onClick={() => router.push("/crm/platform/businesses")}>
