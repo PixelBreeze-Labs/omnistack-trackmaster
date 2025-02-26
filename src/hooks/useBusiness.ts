@@ -46,7 +46,6 @@ export const useBusiness = () => {
       setMetrics(response.metrics);
       return response;
     } catch (error) {
-      console.error('Error fetching businesses:', error);
       toast.error('Failed to fetch businesses');
       throw error;
     } finally {
@@ -66,7 +65,6 @@ export const useBusiness = () => {
       setMetrics(response.metrics);
       return response;
     } catch (error) {
-      console.error('Error fetching trial businesses:', error);
       toast.error('Failed to fetch trial businesses');
       throw error;
     } finally {
@@ -80,23 +78,15 @@ export const useBusiness = () => {
     try {
       setIsLoading(true);
       const response = await api.deactivateBusiness(businessId);
-      toast({
-        title: "Success",
-        description: "Business deactivated successfully"
-      });
+      toast.success('Business deactivated successfully');
       return response;
     } catch (error) {
-      console.error('Error deactivating business:', error);
-      toast({
-        title: "Error",
-        description: "Failed to deactivate business",
-        variant: "destructive"
-      });
+      toast.error('Failed to deactivate business');
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [api, toast]);
+  }, [api]);
   
   // Activate a business
   const activateBusiness = useCallback(async (businessId: string) => {
@@ -104,23 +94,15 @@ export const useBusiness = () => {
     try {
       setIsLoading(true);
       const response = await api.activateBusiness(businessId);
-      toast({
-        title: "Success",
-        description: "Business activated successfully"
-      });
+      toast.success('Business activated successfully');
       return response;
     } catch (error) {
-      console.error('Error activating business:', error);
-      toast({
-        title: "Error",
-        description: "Failed to activate business",
-        variant: "destructive"
-      });
+      toast.error('Failed to activate business');
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [api, toast]);
+  }, [api]);
   
   // Toggle test account status
   const toggleTestAccountStatus = useCallback(async (businessId: string, isTestAccount: boolean) => {
@@ -128,25 +110,17 @@ export const useBusiness = () => {
     try {
       setIsLoading(true);
       const response = await api.updateTestAccountStatus(businessId, isTestAccount);
-      toast({
-        title: "Success",
-        description: isTestAccount 
-          ? "Business marked as test account" 
-          : "Business unmarked as test account"
-      });
+      toast.success(isTestAccount 
+        ? "Business marked as test account" 
+        : "Business unmarked as test account");
       return response;
     } catch (error) {
-      console.error('Error updating test account status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update test account status",
-        variant: "destructive"
-      });
+      toast.error('Failed to update test account status');
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [api, toast]);
+  }, [api]);
 
   return {
     isLoading,
