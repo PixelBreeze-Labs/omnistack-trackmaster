@@ -55,6 +55,7 @@ import {
   SubscriptionStatus 
 } from "@/app/api/external/omnigateway/types/business";
 import { format } from "date-fns";
+import BusinessActions from "@/components/crm/business/business-actions";
 
 export default function BusinessesContent() {
   const router = useRouter();
@@ -74,6 +75,7 @@ export default function BusinessesContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [expandedBusinesses, setExpandedBusinesses] = useState<Record<string, boolean>>({});
+  const [showTestAccounts, setShowTestAccounts] = useState(true);
 
   useEffect(() => {
     // Set initial filters from URL if present
@@ -120,44 +122,6 @@ export default function BusinessesContent() {
     updateUrlAndFetch(searchTerm, statusFilter, 1, limit);
   };
 
-  const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>, businessId: string) => {
-    const action = e.target.value;
-    if (!action) return;
-    
-    e.stopPropagation();
-    
-    switch(action) {
-      case "view":
-        router.push(`/crm/platform/businesses/${businessId}`);
-        break;
-      case "edit":
-        router.push(`/crm/platform/businesses/${businessId}/edit`);
-        break;
-      case "users":
-        router.push(`/crm/platform/businesses/${businessId}/users`);
-        break;
-      case "upgrade":
-        router.push(`/crm/platform/businesses/${businessId}/subscribe`);
-        break;
-      case "manage":
-        // Manage subscription logic
-        break;
-      case "payment":
-        // Update payment logic
-        break;
-      case "reactivate":
-        // Reactivate logic
-        break;
-      default:
-        break;
-    }
-    
-    // Reset the select
-    setTimeout(() => {
-      const selectElement = document.getElementById(`actions-${businessId}`) as HTMLSelectElement;
-      if (selectElement) selectElement.value = "";
-    }, 100);
-  };
 
   const updateUrlAndFetch = (
     search = searchTerm, 
@@ -228,37 +192,6 @@ export default function BusinessesContent() {
       style: 'currency',
       currency: currency.toUpperCase(),
     }).format(amount / 100); // Convert from cents
-  };
-
-  // Generate action options based on business status
-  const getActionOptions = (business: any) => {
-    const baseOptions = [
-      { value: "", label: "Actions" },
-      { value: "view", label: "View Details" },
-      { value: "edit", label: "Edit Business" },
-      { value: "users", label: "Manage Users" },
-    ];
-    
-    let statusSpecificOptions = [];
-    
-    switch(business.subscriptionStatus) {
-      case 'trialing':
-        statusSpecificOptions = [{ value: "upgrade", label: "Upgrade to Paid" }];
-        break;
-      case 'active':
-        statusSpecificOptions = [{ value: "manage", label: "Manage Subscription" }];
-        break;
-      case 'past_due':
-        statusSpecificOptions = [{ value: "payment", label: "Update Payment" }];
-        break;
-      case 'canceled':
-        statusSpecificOptions = [{ value: "reactivate", label: "Reactivate" }];
-        break;
-      default:
-        statusSpecificOptions = [];
-    }
-    
-    return [...baseOptions, ...statusSpecificOptions];
   };
 
   return (
@@ -535,19 +468,14 @@ export default function BusinessesContent() {
                           <span className="text-muted-foreground text-sm">No subscription</span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex justify-end">
-                          <div className="w-[140px]" onClick={(e) => e.stopPropagation()}>
-                            <InputSelect
-                              name={`actions-${business._id}`}
-                              label=""
-                              value=""
-                              onChange={(e) => handleActionChange(e, business._id)}
-                              options={getActionOptions(business)}
-                            />
-                          </div>
-                        </div>
-                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end">
+                      <BusinessActions 
+                        business={business} 
+                        onActionComplete={refreshData} 
+                      />
+                    </div>
+                  </TableCell>
                     </TableRow>
 
                     {/* Expanded details */}

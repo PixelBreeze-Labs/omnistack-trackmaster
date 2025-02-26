@@ -108,6 +108,8 @@ export enum BusinessType {
     search?: string;
     status?: string;
     isTrialing?: boolean;
+    isTestAccount?: boolean;
+    sort?: string;
   }
   
   export interface BusinessMetrics {
