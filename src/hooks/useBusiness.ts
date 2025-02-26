@@ -75,6 +75,79 @@ export const useBusiness = () => {
   }, [api]);
 
 
+  const deactivateBusiness = useCallback(async (businessId: string) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.deactivateBusiness(businessId);
+      toast({
+        title: "Success",
+        description: "Business deactivated successfully"
+      });
+      return response;
+    } catch (error) {
+      console.error('Error deactivating business:', error);
+      toast({
+        title: "Error",
+        description: "Failed to deactivate business",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api, toast]);
+  
+  // Activate a business
+  const activateBusiness = useCallback(async (businessId: string) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.activateBusiness(businessId);
+      toast({
+        title: "Success",
+        description: "Business activated successfully"
+      });
+      return response;
+    } catch (error) {
+      console.error('Error activating business:', error);
+      toast({
+        title: "Error",
+        description: "Failed to activate business",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api, toast]);
+  
+  // Toggle test account status
+  const toggleTestAccountStatus = useCallback(async (businessId: string, isTestAccount: boolean) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.updateTestAccountStatus(businessId, isTestAccount);
+      toast({
+        title: "Success",
+        description: isTestAccount 
+          ? "Business marked as test account" 
+          : "Business unmarked as test account"
+      });
+      return response;
+    } catch (error) {
+      console.error('Error updating test account status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update test account status",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api, toast]);
+
   return {
     isLoading,
     businesses,
@@ -83,6 +156,9 @@ export const useBusiness = () => {
     metrics,
     fetchBusinesses,
     fetchTrialBusinesses,
+    deactivateBusiness,
+    activateBusiness,
+    toggleTestAccountStatus,
     isInitialized: !!api
   };
 };
