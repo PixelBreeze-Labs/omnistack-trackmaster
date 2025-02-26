@@ -82,7 +82,6 @@ export function CustomerForm({ open, onClose, onSubmit, initialData, title }: Cu
       toast.success(initialData ? 'Customer updated successfully' : 'Customer created successfully');
       onClose();
     } catch (error) {
-      console.error('Form submission error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to submit customer form');
     } finally {
       setIsSubmitting(false);
