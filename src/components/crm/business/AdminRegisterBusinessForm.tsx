@@ -18,34 +18,22 @@ import {
   Card,
   CardContent,
 //   CardDescription,
-//   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Briefcase,
   Building2,
   CheckCircle,
   CreditCard,
   Loader,
-  Mail,
-  Phone,
   User,
-  ChevronsUpDown,
-  DollarSign,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { BusinessType } from "@/app/api/external/omnigateway/types/business";
+import InputSelect from "@/components/Common/InputSelect";
 
 const formSchema = z.object({
   // Business details
@@ -175,30 +163,28 @@ export default function AdminRegisterBusinessForm({
                   />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="businessType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select business type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {businessTypes.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+    control={form.control}
+    name="businessType"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Business Type</FormLabel>
+        <FormControl>
+          <InputSelect
+            name="businessType"
+            label=""
+            options={businessTypes.map((type) => ({
+              value: type.value,
+              label: type.label
+            }))}
+            value={field.value}
+            onChange={(e) => field.onChange(e.target.value)}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
 
                     <FormField
                       control={form.control}
