@@ -215,7 +215,7 @@ export default function AdminRegisterBusinessForm({
                     />
                   </div>
                 </CardContent>
-                <div className="flex justify-between">
+                <div className="flex mt-4 justify-between">
                   <Button variant="ghost" disabled>
                     Back
                   </Button>
@@ -343,7 +343,7 @@ export default function AdminRegisterBusinessForm({
                     />
                   </div>
                 </CardContent>
-                <div className="flex justify-between">
+                <div className="flex mt-4 justify-between">
                   <Button
                     type="button"
                     variant="ghost"
@@ -433,7 +433,7 @@ export default function AdminRegisterBusinessForm({
                     />
                   </div>
                 </CardContent>
-                <div className="flex justify-between">
+                <div className="flex mt-4 justify-between">
                   <Button
                     type="button"
                     variant="ghost"
@@ -606,7 +606,7 @@ export default function AdminRegisterBusinessForm({
                     />
                   </div>
                 </CardContent>
-                <div className="flex justify-between">
+                <div className="flex mt-4 justify-between">
                   <Button
                     type="button"
                     variant="ghost"
