@@ -62,7 +62,7 @@ export const createAdminSubscriptionApi = (apiKey: string) => {
   return {
     // Register and subscribe a business in one step (admin only)
     registerAndSubscribeBusiness: async (data: AdminRegisterBusinessRequest): Promise<AdminRegisterBusinessResponse> => {
-      const { data: response } = await api.post('/admin-subscription/register', data);
+      const { data: response } = await api.post('/admin-subscription/admin-register', data);
       return response;
     },
   };
