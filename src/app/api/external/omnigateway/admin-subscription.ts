@@ -1,7 +1,8 @@
 // app/api/external/omnigateway/admin-subscription.ts
 import { createOmniGateway } from './index';
 
-interface AdminRegisterBusinessRequest {
+// Update the interface to support location IDs
+export interface AdminRegisterBusinessRequest {
   // Business details
   businessName: string;
   businessEmail: string;
@@ -12,10 +13,10 @@ interface AdminRegisterBusinessRequest {
   // Address details (optional)
   address?: {
     street?: string;
-    city?: string;
-    state?: string;
+    cityId?: string; // Changed from city to cityId
+    stateId?: string; // Changed from state to stateId
+    countryId?: string; // Changed from country to countryId
     zip?: string;
-    country?: string;
   };
   
   // Tax info (optional)
@@ -33,7 +34,7 @@ interface AdminRegisterBusinessRequest {
   sendWelcomeEmail?: boolean;
 }
 
-interface AdminRegisterBusinessResponse {
+export interface AdminRegisterBusinessResponse {
   success: boolean;
   message: string;
   businessId: string;
@@ -62,7 +63,7 @@ export const createAdminSubscriptionApi = (apiKey: string) => {
   return {
     // Register and subscribe a business in one step (admin only)
     registerAndSubscribeBusiness: async (data: AdminRegisterBusinessRequest): Promise<AdminRegisterBusinessResponse> => {
-      const { data: response } = await api.post('/admin-subscription/register', data);
+      const { data: response } = await api.post('/admin-subscription/admin-register', data);
       return response;
     },
   };
