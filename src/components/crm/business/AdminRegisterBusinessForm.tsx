@@ -33,6 +33,17 @@ import { Switch } from "@/components/ui/switch";
 import { BusinessType } from "@/app/api/external/omnigateway/types/business";
 import InputSelect from "@/components/Common/InputSelect";
 
+const PLAN_IDS = {
+    basic: {
+      month: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_MONTHLY_ID,
+      year: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_YEARLY_ID,
+    },
+    professional: {
+      month: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_MONTHLY_ID,
+      year: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_YEARLY_ID,
+    }
+  };
+
 const formSchema = z.object({
   // Business details
   businessName: z.string().min(2, "Business name must be at least 2 characters"),
@@ -90,7 +101,26 @@ export default function AdminRegisterBusinessForm({
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
-      await onSubmit(values);
+
+      // Get the actual Stripe price ID from the plan and interval selection
+    const selectedPlanId = PLAN_IDS[values.planId][values.interval];
+    
+    if (!selectedPlanId) {
+      console.error("Missing plan ID for selection:", values.planId, values.interval);
+      throw new Error("Invalid plan selection");
+    }
+    
+    // Pass the price ID instead of the plan selection keys
+    const formDataWithPriceId = {
+      ...values,
+      subscription: {
+        planId: selectedPlanId,
+        interval: values.interval
+      }
+    };
+    
+
+    await onSubmit(formDataWithPriceId);
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
