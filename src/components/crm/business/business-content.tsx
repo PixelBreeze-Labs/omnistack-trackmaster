@@ -21,7 +21,8 @@ import {
   TrendingUp,
   TrendingDown,
   CreditCard,
-  ChevronRight
+  ChevronRight,
+  Beaker
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,8 @@ import {
 } from "@/app/api/external/omnigateway/types/business";
 import { format } from "date-fns";
 import BusinessActions from "@/components/crm/business/business-actions";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function BusinessesContent() {
   const router = useRouter();
@@ -77,26 +80,30 @@ export default function BusinessesContent() {
   const [expandedBusinesses, setExpandedBusinesses] = useState<Record<string, boolean>>({});
   const [showTestAccounts, setShowTestAccounts] = useState(true);
 
-  useEffect(() => {
-    // Set initial filters from URL if present
-    const status = searchParams?.get("status") || "all";
-    const search = searchParams?.get("search") || "";
-    const page = parseInt(searchParams?.get("page") || "1");
-    const limit = parseInt(searchParams?.get("limit") || "10");
-    
-    setStatusFilter(status);
-    setSearchTerm(search);
-    setCurrentPage(page);
-    setItemsPerPage(limit);
+// Update useEffect to handle the testAccounts parameter
+useEffect(() => {
+  // Set initial filters from URL if present
+  const status = searchParams?.get("status") || "all";
+  const search = searchParams?.get("search") || "";
+  const page = parseInt(searchParams?.get("page") || "1");
+  const limit = parseInt(searchParams?.get("limit") || "10");
+  const testAccounts = searchParams?.get("testAccounts") !== "false";
+  
+  setStatusFilter(status);
+  setSearchTerm(search);
+  setCurrentPage(page);
+  setItemsPerPage(limit);
+  setShowTestAccounts(testAccounts);
 
-    // Load businesses with these parameters
-    fetchBusinesses({
-      status: status !== "all" ? status : undefined,
-      search,
-      page,
-      limit
-    });
-  }, [searchParams, fetchBusinesses]);
+  // Load businesses with these parameters
+  fetchBusinesses({
+    status: status !== "all" ? status : undefined,
+    search,
+    page,
+    limit,
+    isTestAccount: testAccounts ? undefined : false
+  });
+}, [searchParams, fetchBusinesses]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -123,39 +130,44 @@ export default function BusinessesContent() {
   };
 
 
-  const updateUrlAndFetch = (
-    search = searchTerm, 
-    status = statusFilter, 
-    page = currentPage,
-    limit = itemsPerPage
-  ) => {
-    // Update URL with search parameters
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    if (status !== "all") params.set("status", status);
-    if (page > 1) params.set("page", page.toString());
-    if (limit !== 10) params.set("limit", limit.toString());
-    
-    const queryString = params.toString();
-    router.push(queryString ? `?${queryString}` : "");
-    
-    // Fetch businesses with the new filters
-    fetchBusinesses({
-      search,
-      status: status !== "all" ? status : undefined,
-      page,
-      limit
-    });
-  };
+  // Update this function to include the includeTestAccounts parameter
+const updateUrlAndFetch = (
+  search = searchTerm, 
+  status = statusFilter, 
+  page = currentPage,
+  limit = itemsPerPage,
+  includeTestAccounts = showTestAccounts
+) => {
+  // Update URL with search parameters
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (status !== "all") params.set("status", status);
+  if (page > 1) params.set("page", page.toString());
+  if (limit !== 10) params.set("limit", limit.toString());
+  if (!includeTestAccounts) params.set("testAccounts", "false");
+  
+  const queryString = params.toString();
+  router.push(queryString ? `?${queryString}` : "");
+  
+  // Fetch businesses with the new filters
+  fetchBusinesses({
+    search,
+    status: status !== "all" ? status : undefined,
+    page,
+    limit,
+    isTestAccount: includeTestAccounts ? undefined : false
+  });
+};
 
-  const refreshData = () => {
-    fetchBusinesses({
-      search: searchTerm,
-      status: statusFilter !== "all" ? statusFilter : undefined,
-      page: currentPage,
-      limit: itemsPerPage
-    });
-  };
+const refreshData = () => {
+  fetchBusinesses({
+    search: searchTerm,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    page: currentPage,
+    limit: itemsPerPage,
+    isTestAccount: showTestAccounts ? undefined : false
+  });
+};
 
   const toggleBusinessExpansion = (businessId: string) => {
     setExpandedBusinesses(prev => ({
@@ -331,6 +343,18 @@ export default function BusinessesContent() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
+            <div className="flex items-center space-x-2 mt-4">
+  <Switch
+    id="test-accounts"
+    checked={showTestAccounts}
+    onCheckedChange={(checked) => {
+      setShowTestAccounts(checked);
+      setCurrentPage(1);
+      updateUrlAndFetch(searchTerm, statusFilter, 1, itemsPerPage, checked);
+    }}
+  />
+  <Label htmlFor="test-accounts">Include test accounts</Label>
+</div>
             <div className="flex gap-2">
               <div className="w-48">
                 <InputSelect
@@ -428,7 +452,15 @@ export default function BusinessesContent() {
                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                           )}
                           <div>
-                            <div className="font-medium">{business.name}</div>
+                          <div className="font-medium flex items-center gap-2">
+  {business.name}
+  {business.metadata?.isTestAccount === 'true' && (
+    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
+      <Beaker className="h-3 w-3 mr-1" />
+      Test
+    </Badge>
+  )}
+</div>
                             <div className="text-sm text-muted-foreground">{business.email}</div>
                           </div>
                         </div>
