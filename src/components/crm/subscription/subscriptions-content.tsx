@@ -50,6 +50,15 @@ import InputSelect from "@/components/Common/InputSelect";
 import { useBusinessSubscription } from "@/hooks/useBusinessSubscription";
 import { format } from "date-fns";
 
+
+const productNameMapping = {
+  [process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_MONTHLY_ID as string]: "Basic Plan - Monthly",
+  [process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_YEARLY_ID as string]: "Basic Plan - Yearly",
+  [process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_MONTHLY_ID as string]: "Professional Plan - Monthly",
+  [process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PLAN_YEARLY_ID as string]: "Professional Plan - Yearly",
+};
+
+
 export interface SubscriptionsContentProps {
   status?: string;
 }
@@ -526,7 +535,9 @@ export default function SubscriptionsContent({ status }: SubscriptionsContentPro
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Package className="h-4 w-4 text-muted-foreground" />
-                          <span>{subscription.product?.name || 'Unknown Product'}</span>
+                          <span>
+                            {subscription.product?.name || productNameMapping[subscription.priceId] || 'Unknown Product'}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
