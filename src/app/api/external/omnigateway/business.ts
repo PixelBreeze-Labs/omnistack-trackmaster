@@ -64,6 +64,11 @@ export const createBusinessApi = (apiKey: string) => {
       
       const { data } = await api.get(endpoint);
       return data;
+    },
+
+    sendMagicLink: async (email: string) => {
+      const { data } = await api.post('/magic-link/send', { email });
+      return data;
     }
     
     

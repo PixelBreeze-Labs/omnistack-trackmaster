@@ -11,27 +11,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { 
-  MoreHorizontal, 
-  Trash, 
-  Search, 
-  Edit, 
-  ExternalLink, 
-  Power, 
-  PowerOff,
-  Beaker
+  Mail
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Business } from "@/app/api/external/omnigateway/types/business";
 import { useBusiness } from "@/hooks/useBusiness";
+import InputSelect from "@/components/Common/InputSelect";
+import { useToast } from "@/components/ui/use-toast";
 
 interface BusinessActionsProps {
   business: Business;
@@ -40,16 +27,20 @@ interface BusinessActionsProps {
 
 export default function BusinessActions({ business, onActionComplete }: BusinessActionsProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const { 
     deactivateBusiness, 
     activateBusiness, 
     toggleTestAccountStatus,
+    sendMagicLink,
     isLoading 
   } = useBusiness();
   
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showTestAccountDialog, setShowTestAccountDialog] = useState(false);
+  const [showMagicLinkDialog, setShowMagicLinkDialog] = useState(false);
+  const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
   
   const isActive = business.isActive;
   const isTestAccount = business.metadata?.isTestAccount === 'true';
@@ -92,44 +83,84 @@ export default function BusinessActions({ business, onActionComplete }: Business
     }
   };
 
+  const handleSendMagicLink = async () => {
+    try {
+      await sendMagicLink(business.adminUser?.email || business.email);
+      setShowMagicLinkDialog(false);
+      setIsSendingMagicLink(false);
+      if (onActionComplete) onActionComplete();
+    } catch (error) {
+      console.error("Error sending magic link:", error);
+    }
+  };
+
+  const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const action = e.target.value;
+    if (!action) return;
+    
+    switch(action) {
+      case "view":
+        handleView();
+        break;
+      case "edit":
+        handleEdit();
+        break;
+      case "deactivate":
+        setShowDeactivateDialog(true);
+        break;
+      case "activate":
+        setShowActivateDialog(true);
+        break;
+      case "test-account":
+        setShowTestAccountDialog(true);
+        break;
+      case "magic-link":
+        setShowMagicLinkDialog(true);
+        break;
+      default:
+        break;
+    }
+    
+    // Reset the select value
+    setTimeout(() => {
+      e.target.value = "";
+    }, 100);
+  };
+
+  const getActionOptions = () => {
+    const options = [
+      { value: "", label: "Actions" },
+      { value: "view", label: "View Details" },
+      { value: "edit", label: "Edit Business" },
+      { value: "magic-link", label: "Send Magic Link" },
+    ];
+    
+    // Add conditional actions
+    if (isActive) {
+      options.push({ value: "deactivate", label: "Deactivate" });
+    } else {
+      options.push({ value: "activate", label: "Activate" });
+    }
+    
+    options.push({ 
+      value: "test-account", 
+      label: isTestAccount ? "Unmark as Test Account" : "Mark as Test Account" 
+    });
+    
+    return options;
+  };
+
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleView}>
-            <Search className="mr-2 h-4 w-4" />
-            <span>View Details</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span>Edit Business</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          
-          {isActive ? (
-            <DropdownMenuItem onClick={() => setShowDeactivateDialog(true)}>
-              <PowerOff className="mr-2 h-4 w-4 text-destructive" />
-              <span className="text-destructive">Deactivate</span>
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem onClick={() => setShowActivateDialog(true)}>
-              <Power className="mr-2 h-4 w-4 text-green-600" />
-              <span className="text-green-600">Activate</span>
-            </DropdownMenuItem>
-          )}
-          
-          <DropdownMenuItem onClick={() => setShowTestAccountDialog(true)}>
-            <Beaker className="mr-2 h-4 w-4" />
-            <span>{isTestAccount ? "Unmark as Test Account" : "Mark as Test Account"}</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="w-[150px]">
+        <InputSelect
+          name="business-actions"
+          label=""
+          options={getActionOptions()}
+          value=""
+          onChange={handleActionChange}
+        />
+      </div>
 
       {/* Deactivate Dialog */}
       <AlertDialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
@@ -195,6 +226,31 @@ export default function BusinessActions({ business, onActionComplete }: Business
               disabled={isLoading}
             >
               {isTestAccount ? "Remove Flag" : "Mark as Test"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Magic Link Dialog */}
+      <AlertDialog open={showMagicLinkDialog} onOpenChange={setShowMagicLinkDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Send Magic Link
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Send a login link to {business.adminUser?.email || business.email}. The user will be able to log in without entering a password.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleSendMagicLink}
+              disabled={isSendingMagicLink}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Send Link
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
