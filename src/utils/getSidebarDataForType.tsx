@@ -52,13 +52,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 1,
           title: "Dashboard",
-          path: `/crm/platform/dashboard`,
+          path: `/crm/platform/staffluent-dashboard`,
           icon: <LayoutDashboard className="w-5 h-5"/>,
         },
         {
           id: 2,
           title: "Analytics",
-          path: `/crm/platform/analytics`,
+          path: `/crm/platform/staffluent-analytics`,
           icon: <BarChart3 className="w-5 h-5"/>,
         }
       ],

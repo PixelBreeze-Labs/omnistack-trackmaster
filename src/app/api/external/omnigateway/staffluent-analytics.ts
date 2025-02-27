@@ -12,7 +12,7 @@ export const createAnalyticsApi = (apiKey: string) => {
       if (period) params.append('period', period);
       
       const queryString = params.toString();
-      const endpoint = `/analytics/businesses${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `/staffluent-analytics/businesses${queryString ? `?${queryString}` : ''}`;
       
       const { data } = await api.get<BusinessAnalyticsResponse>(endpoint);
       return data;
@@ -24,7 +24,7 @@ export const createAnalyticsApi = (apiKey: string) => {
       if (period) params.append('period', period);
       
       const queryString = params.toString();
-      const endpoint = `/analytics/users${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `/staffluent-analytics/users${queryString ? `?${queryString}` : ''}`;
       
       const { data } = await api.get<UserAnalyticsResponse>(endpoint);
       return data;

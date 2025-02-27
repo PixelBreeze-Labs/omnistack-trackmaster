@@ -8,7 +8,7 @@ export const createDashboardApi = (apiKey: string) => {
   return {
     // Get dashboard summary data
     getDashboardSummary: async () => {
-      const { data } = await api.get<DashboardSummaryResponse>('/dashboard/summary');
+      const { data } = await api.get<DashboardSummaryResponse>('/staffluent-dashboard/summary');
       return data;
     }
   };

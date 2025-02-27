@@ -1,6 +1,6 @@
 // hooks/useStaffluentAnalytics.ts
 import { useState, useCallback, useMemo } from 'react';
-import { createAnalyticsApi } from '@/app/api/external/omnigateway/stafflient-analytics';
+import { createAnalyticsApi } from '@/app/api/external/omnigateway/staffluent-analytics';
 import { 
   BusinessAnalyticsResponse, 
   UserAnalyticsResponse 
