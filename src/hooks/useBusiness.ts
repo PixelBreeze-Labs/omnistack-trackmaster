@@ -122,6 +122,21 @@ export const useBusiness = () => {
     }
   }, [api]);
 
+  const sendMagicLink = useCallback(async (email: string) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.sendMagicLink(email);
+      toast.success('Magic link sent successfully');
+      return response;
+    } catch (error) {
+      toast.error('Failed to send magic link');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api]);
+
   return {
     isLoading,
     businesses,
@@ -133,6 +148,7 @@ export const useBusiness = () => {
     deactivateBusiness,
     activateBusiness,
     toggleTestAccountStatus,
+    sendMagicLink,
     isInitialized: !!api
   };
 };
