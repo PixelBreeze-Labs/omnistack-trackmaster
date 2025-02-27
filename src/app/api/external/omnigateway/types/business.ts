@@ -20,6 +20,11 @@ export enum BusinessType {
     INCOMPLETE = 'incomplete',
     TRIALING = 'trialing'
   }
+
+  export enum BusinessStatus {
+    ACTIVE = 'active',
+    INACTIVE = 'inactive',
+  }
   
   export interface BusinessAddress {
     street?: string;

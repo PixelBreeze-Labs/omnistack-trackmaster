@@ -53,7 +53,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import InputSelect from "@/components/Common/InputSelect";
 import { useBusiness } from "@/hooks/useBusiness";
 import {
-  SubscriptionStatus 
+  SubscriptionStatus, BusinessStatus
 } from "@/app/api/external/omnigateway/types/business";
 import { format } from "date-fns";
 import BusinessActions from "@/components/crm/business/business-actions";
@@ -174,6 +174,17 @@ const refreshData = () => {
       ...prev,
       [businessId]: !prev[businessId]
     }));
+  };
+
+  const getBusinessStatusBadge = (status: BusinessStatus) => {
+    switch (status) {
+      case BusinessStatus.ACTIVE:
+        return <Badge className="bg-green-500 hover:bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> Active</Badge>;
+      case BusinessStatus.INACTIVE:
+        return <Badge className="bg-red-500 hover:bg-red-600"><XCircle className="w-3 h-3 mr-1" /> Inactive</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   // Utility function to get status badge color
@@ -392,6 +403,7 @@ const refreshData = () => {
                 <TableHead>Business</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Admin</TableHead>
+                <TableHead>IsActive?</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Subscription</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -479,6 +491,9 @@ const refreshData = () => {
                             <div className="text-xs text-muted-foreground">{business.adminUser?.email}</div>
                           </div>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                      {getBusinessStatusBadge(business.isActive ? BusinessStatus.ACTIVE : BusinessStatus.INACTIVE)}
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(business.subscriptionStatus)}
