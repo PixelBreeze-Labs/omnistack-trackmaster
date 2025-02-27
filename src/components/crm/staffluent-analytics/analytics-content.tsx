@@ -274,30 +274,19 @@ export default function AnalyticsContent() {
                   <CardContent>
                     {isLoading ? (
                       <Skeleton className="h-[300px] w-full" />
-                    ) : businessAnalytics?.statusDistribution ? (
-                      <div className="h-[300px]">
+                    ) : businessAnalytics?.subscriptionDistribution ? (
                         <PieChart
                           data={{
-                            labels: Object.keys(businessAnalytics.statusDistribution).map(status => 
-                              status.charAt(0).toUpperCase() + status.slice(1)
-                            ),
+                            labels: businessAnalytics.subscriptionDistribution.labels,
                             datasets: [
                               {
-                                data: Object.values(businessAnalytics.statusDistribution),
-                                backgroundColor: [
-                                  '#4CAF50', // active - green
-                                  '#2196F3', // trialing - blue
-                                  '#FFC107', // past_due - amber
-                                  '#F44336', // canceled - red
-                                  '#9E9E9E'  // incomplete - grey
-                                ],
+                                data: businessAnalytics.subscriptionDistribution.data,
+                                backgroundColor: businessAnalytics.subscriptionDistribution.backgroundColor,
                               },
                             ],
                           }}
-                          height={300}
                         />
-                      </div>
-                    ) : (
+                      ): (
                       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                         No data available
                       </div>
@@ -459,32 +448,19 @@ export default function AnalyticsContent() {
                   <CardContent>
                     {isLoading ? (
                       <Skeleton className="h-[300px] w-full" />
-                    ) : userAnalytics?.registrationSources ? (
-                      <div className="h-[300px]">
+                    ) : userAnalytics?.registrationSourceDistribution ? (
                         <PieChart
                           data={{
-                            labels: Object.keys(userAnalytics.registrationSources).map(source => 
-                              source.charAt(0).toUpperCase() + source.slice(1)
-                            ),
+                            labels: userAnalytics.registrationSourceDistribution.labels,
                             datasets: [
                               {
-                                data: Object.values(userAnalytics.registrationSources),
-                                backgroundColor: [
-                                  '#8884d8', // purple
-                                  '#82ca9d', // green
-                                  '#ffc658', // yellow
-                                  '#ff8042', // orange
-                                  '#0088FE', // blue
-                                  '#00C49F', // teal
-                                  '#FFBB28', // amber
-                                ],
+                                data: userAnalytics.registrationSourceDistribution.data,
+                                backgroundColor: userAnalytics.registrationSourceDistribution.backgroundColor,
                               },
                             ],
                           }}
-                          height={300}
                         />
-                      </div>
-                    ) : (
+                      ) : (
                       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                         No data available
                       </div>

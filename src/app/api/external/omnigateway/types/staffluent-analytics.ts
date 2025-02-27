@@ -27,7 +27,7 @@ export interface MetricWithGrowth {
         currency: string;
       };
     };
-    statusDistribution: Record<string, number>;
+    subscriptionDistribution: Record<string, number>;
     businessGrowth: {
       labels: string[];
       data: Array<{
@@ -51,7 +51,7 @@ export interface MetricWithGrowth {
         percentage: number;
       };
     };
-    registrationSources: Record<string, number>;
+    registrationSourceDistribution: Record<string, number>;
     userGrowth: {
       labels: string[];
       data: Array<{

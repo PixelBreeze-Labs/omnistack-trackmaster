@@ -86,7 +86,7 @@ export default function DashboardContent() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-0 mb-4">
             Overview of your business and platform metrics
           </p>
         </div>
@@ -218,8 +218,13 @@ export default function DashboardContent() {
             {/* Business Growth Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Business Growth</CardTitle>
-                {/* <CardDescription>Monthly new businesses over the last 6 months</CardDescription> */}
+              <div>
+              <h2 className="text-lg font-medium">Business Growth</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Monthly new businesses over the last 6 months
+            </p>
+            </div>
+                
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -249,8 +254,13 @@ export default function DashboardContent() {
             {/* User Growth Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>User Growth</CardTitle>
-                {/* <CardDescription>Monthly new users over the last 6 months</CardDescription> */}
+              <div>
+              <h2 className="text-lg font-medium">User Growth</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Monthly new users over the last 6 months
+            </p>
+            </div>
+               
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -283,8 +293,13 @@ export default function DashboardContent() {
             {/* Subscription Status Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Subscription Status</CardTitle>
-                {/* <CardDescription>Distribution of subscription statuses</CardDescription> */}
+              <div>
+              <h2 className="text-lg font-medium">Subscription Status</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Distribution of subscription statuses
+            </p>
+            </div>
+                
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -315,8 +330,13 @@ export default function DashboardContent() {
             {/* Recent Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                {/* <CardDescription>Latest businesses and users</CardDescription> */}
+              <div>
+              <h2 className="text-lg font-medium">Recent Activity</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Latest businesses and users
+            </p>
+            </div>
+               
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="businesses" className="w-full">
@@ -415,8 +435,13 @@ export default function DashboardContent() {
         <TabsContent value="businesses" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Business Overview</CardTitle>
-              {/* <CardDescription>Detailed view of your businesses</CardDescription> */}
+                <div>
+            <h2 className="text-lg font-medium">Business Overview</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Detailed view of your businesses
+            </p>
+            </div>
+             
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -555,8 +580,13 @@ export default function DashboardContent() {
         <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>User Overview</CardTitle>
-              {/* <CardDescription>Detailed view of your users</CardDescription> */}
+            <div>
+            <h2 className="text-lg font-medium">User Overview</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Detailed view of your users
+            </p>
+            </div>
+             
             </CardHeader>
             <CardContent>
               {isLoading ? (
