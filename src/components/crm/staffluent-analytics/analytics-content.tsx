@@ -496,6 +496,8 @@ export default function AnalyticsContent() {
           </Collapsible>
         </TabsContent>
       </Tabs>
+       {/* Add bottom spacing */}
+       <div className="h-8"></div>
     </div>
   );
 }

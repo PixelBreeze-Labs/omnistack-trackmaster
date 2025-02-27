@@ -654,6 +654,9 @@ export default function DashboardContent() {
           </Card>
         </TabsContent>
       </Tabs>
+       
+      {/* Add bottom spacing */}
+      <div className="h-8"></div>
     </div>
   );
 }
