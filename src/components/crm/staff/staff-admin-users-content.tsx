@@ -458,7 +458,7 @@ export default function StaffAdminUsersContent() {
       </Card>
       
       {/* Add bottom spacing */}
-      <div className="h-4"></div>
+      <div className="h-8"></div>
     </div>
   );
 }
