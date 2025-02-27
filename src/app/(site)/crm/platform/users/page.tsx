@@ -4,7 +4,7 @@ import StaffUsersContent from "@/components/crm/staff/staff-users-content";
 
 export const metadata: Metadata = {
   title: "Staff Users | Admin Dashboard",
-  description: "Manage staff users registered via Staffluent and their businesses",
+  description: "Manage staff users registered and their businesses",
 };
 
 export default function StaffUsersPage() {

@@ -28,6 +28,20 @@ export const createOmniStackUserApi = (apiKey: string) => {
       
       const { data } = await api.get<StaffUsersResponse>(endpoint);
       return data;
+    },
+    getStaffAdminUsers: async (params: StaffUserParams = {}) => {
+      const queryParams = new URLSearchParams();
+      
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.limit) queryParams.append('limit', params.limit.toString());
+      if (params.search) queryParams.append('search', params.search);
+      if (params.sort) queryParams.append('sort', params.sort);
+      
+      const queryString = queryParams.toString();
+      const endpoint = `/users/staff/admin${queryString ? `?${queryString}` : ''}`;
+      
+      const { data } = await api.get<StaffUsersResponse>(endpoint);
+      return data;
     }
   };
 };
