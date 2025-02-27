@@ -36,9 +36,7 @@ export default function AnalyticsContent() {
   const { 
     isLoading, 
     businessAnalytics, 
-    userAnalytics, 
-    fetchBusinessAnalytics, 
-    fetchUserAnalytics, 
+    userAnalytics,
     fetchAllAnalytics 
   } = useAnalytics();
   
@@ -129,12 +127,15 @@ export default function AnalyticsContent() {
           {/* Time Period Info */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Business Analytics</CardTitle>
-              {/* <CardDescription> */}
-                {period === 'week' ? 'Last 7 days' : 
+            <div>
+              <h2 className="text-lg font-medium">Business Analytics</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-0">
+            {period === 'week' ? 'Last 7 days' : 
                  period === 'month' ? 'Last 30 days' : 'Last 12 months'}
                 {businessAnalytics?.timeframe ? ` (${new Date(businessAnalytics.timeframe.start).toLocaleDateString()} - ${new Date(businessAnalytics.timeframe.end).toLocaleDateString()})` : ''}
-              {/* </CardDescription> */}
+            </p>
+            </div>
+              
             </CardHeader>
           </Card>
 
@@ -219,7 +220,7 @@ export default function AnalyticsContent() {
           <Collapsible 
             open={isBusinessStatsOpen} 
             onOpenChange={setIsBusinessStatsOpen}
-            className="space-y-4"
+            className="space-y-"
           >
             <CollapsibleTrigger asChild>
               <div className="flex items-center justify-between cursor-pointer bg-muted p-4 rounded-md">
@@ -230,13 +231,17 @@ export default function AnalyticsContent() {
                 <ChevronDown className={`h-5 w-5 transition-transform ${isBusinessStatsOpen ? 'transform rotate-180' : ''}`} />
               </div>
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4">
+            <CollapsibleContent className="space-y-0">
               <div className="grid gap-4 md:grid-cols-2">
                 {/* Business Growth Chart */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Business Growth</CardTitle>
-                    {/* <CardDescription>Total businesses over time</CardDescription> */}
+                  <div>
+              <h2 className="text-lg font-medium">Business Growth</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Total businesses over time
+             </p>
+            </div>
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
@@ -268,8 +273,14 @@ export default function AnalyticsContent() {
                 {/* Subscription Status Distribution */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Subscription Status</CardTitle>
-                    {/* <CardDescription>Distribution of subscription statuses</CardDescription> */}
+                    
+                  <div>
+              <h2 className="text-lg font-medium">Subscription Status</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Distribution of subscription statuses
+             </p>
+            </div>
+                   
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
@@ -303,12 +314,14 @@ export default function AnalyticsContent() {
           {/* Time Period Info */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">User Analytics</CardTitle>
-              {/* <CardDescription> */}
-                {/* {period === 'week' ? 'Last 7 days' : 
+            <div>
+              <h2 className="text-lg font-medium">User Analytics</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            {period === 'week' ? 'Last 7 days' : 
                  period === 'month' ? 'Last 30 days' : 'Last 12 months'}
                 {userAnalytics?.timeframe ? ` (${new Date(userAnalytics.timeframe.start).toLocaleDateString()} - ${new Date(userAnalytics.timeframe.end).toLocaleDateString()})` : ''}
-              </CardDescription> */}
+             </p>
+            </div>
             </CardHeader>
           </Card>
 
@@ -409,8 +422,13 @@ export default function AnalyticsContent() {
                 {/* User Growth Chart */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>User Growth</CardTitle>
-                    {/* <CardDescription>Total users over time</CardDescription> */}
+                  <div>
+              <h2 className="text-lg font-medium">User Growth</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Total users over time
+             </p>
+            </div>
+                    
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
@@ -442,8 +460,12 @@ export default function AnalyticsContent() {
                 {/* Registration Source Distribution */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Registration Sources</CardTitle>
-                    {/* <CardDescription>Distribution of user registration sources</CardDescription> */}
+                  <div>
+              <h2 className="text-lg font-medium">Registration Sources</h2>
+            <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Distribution of user registration sources
+             </p>
+            </div>
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
