@@ -40,6 +40,7 @@ import InputSelect from "@/components/Common/InputSelect";
 import { useSubscription } from "@/hooks/useSubscription";
 import { StripeProduct } from "@/app/api/external/omnigateway/types/stripe-products";
 import { SyncDialog } from "./SyncDialog";
+import { useRouter } from "next/navigation"
 
 export function StripeProducts() {
   const {
@@ -56,6 +57,7 @@ export function StripeProducts() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [status, setStatus] = useState("all");
+  const router = useRouter()
   
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -228,6 +230,26 @@ export function StripeProducts() {
           </CardContent>
         </Card>
       </div>
+
+    {/* Plan Comparison CTA */}
+    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <CardContent className="py-0">
+        <div className="flex flex-col md:flex-row items-center justify-between">
+          <div className="space-y-2 mb-4 md:mb-0">
+            <h3 className="font-medium">Need to compare plans?</h3>
+            <p className="text-sm text-muted-foreground">
+              View all features and limits across different subscription tiers
+            </p>
+          </div>
+          <Button 
+            onClick={() => router.push('/crm/platform/stripe-products/plan-details')}
+            variant="outline"
+          >
+            Compare Plans <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
 
       {/* Search and Filters */}
       <Card>

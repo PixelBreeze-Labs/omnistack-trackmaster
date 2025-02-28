@@ -122,7 +122,7 @@ export default function BusinessFeaturesContent({ businessId }) {
   const loadBusinessFeatures = async () => {
     try {
       const result = await getBusinessFeatures(businessId);
-      setBusinessDetails(result.business);
+      setBusinessDetails(result?.business);
       setBusinessFeatures(result.features || []);
       setCustomFeatures(result.customFeatures || []);
       setBusinessLimits(result.limits || {});
