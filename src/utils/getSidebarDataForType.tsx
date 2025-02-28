@@ -32,7 +32,8 @@ import {
   Boxes,
   Gift,
   UsersRound,
-  Heart
+  Heart,
+  Layers
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -122,6 +123,12 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
           title: "Stripe Config",
           path: `/crm/platform/stripe-config`,
           icon: <Tags className="w-5 h-5"/>,
+        },
+        {
+          id: 7,
+          title: "Features Management",
+          path: `/crm/platform/features`,
+          icon: <Layers className="w-5 h-5"/>,
         }
       ],
       users: [
