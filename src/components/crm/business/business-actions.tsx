@@ -12,7 +12,8 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { 
-  Mail
+  Mail,
+  Settings
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Business } from "@/app/api/external/omnigateway/types/business";
@@ -117,6 +118,9 @@ export default function BusinessActions({ business, onActionComplete }: Business
       case "magic-link":
         setShowMagicLinkDialog(true);
         break;
+      case "manage-features":
+        router.push(`/crm/platform/businesses/${business._id}/features`);
+        break;
       default:
         break;
     }
@@ -133,6 +137,7 @@ export default function BusinessActions({ business, onActionComplete }: Business
       { value: "view", label: "View Details" },
       { value: "edit", label: "Edit Business" },
       { value: "magic-link", label: "Send Magic Link" },
+      { value: "manage-features", label: "Manage Features" },
     ];
     
     // Add conditional actions
