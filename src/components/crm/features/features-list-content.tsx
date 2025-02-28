@@ -292,16 +292,18 @@ export default function FeaturesListContent() {
               {Object.entries(groupedFeatures).map(([category, categoryFeatures]) => (
                 <Card key={category}>
                   <CardHeader>
-                    <CardTitle>{category}</CardTitle>
-                    {/* <CardDescription>
-                      {categoryFeatures.length} feature{categoryFeatures.length !== 1 ? 's' : ''}
-                    </CardDescription> */}
+                    <div>
+                  <h3 className="text-2xl font-bold tracking-tight">{category}</h3>
+          <p className="text-sm text-muted-foreground mt-0 mb-2">
+            {categoryFeatures.length} feature{categoryFeatures.length !== 1 ? 's' : ''}
+          </p>
+          </div>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {categoryFeatures.map(([key, value]) => (
                         <Card key={key} className="bg-slate-50">
-                          <CardContent className="p-4">
+                          <CardContent className="p-2">
                             <div className="font-medium flex items-center gap-2">
                               {getCategoryIcon(value)}
                               <span>{key}</span>
