@@ -159,7 +159,7 @@ export default function PlanDetailsContent() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs  defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
           <TabsTrigger value="basic">Basic Plan</TabsTrigger>
           <TabsTrigger value="professional">Professional Plan</TabsTrigger>
@@ -170,28 +170,32 @@ export default function PlanDetailsContent() {
         {['basic', 'professional', 'enterprise', 'trialing'].map(tier => (
           <TabsContent key={tier} value={tier} className="space-y-6">
             {/* Plan Header */}
-            <Card className={`border-l-4 ${TIER_COLORS[tier].border}`}>
-              <CardHeader>
-                <div className="flex justify-between">
-                  <div>
-                  <h2 className="text-2xl font-bold tracking-tight">{tier === 'trialing' ? 'Trial' : tier} Plan</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-          {tier === 'basic' && 'Essential features for small teams'}
-                      {tier === 'professional' && 'Advanced features for growing businesses'}
-                      {tier === 'enterprise' && 'Complete solution for large organizations'}
-                      {tier === 'trialing' && 'Try out all features before subscribing'}
-          </p>
-                   
-                  </div>
-                  <Badge className={TIER_COLORS[tier].secondary}>
-                    {tier === 'basic' && 'Essential'}
-                    {tier === 'professional' && 'Most Popular'}
-                    {tier === 'enterprise' && 'Full Featured'}
-                    {tier === 'trialing' && '14 Day Trial'}
-                  </Badge>
-                </div>
-              </CardHeader>
-            </Card>
+            <Card className={`border-l-4 ml-4 ${TIER_COLORS[tier].border}`}>
+  <CardHeader>
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-bold tracking-tight">
+          {tier === 'trialing' ? 'Trial' : 
+           tier === 'basic' ? 'Basic' : 
+           tier === 'professional' ? 'Professional' : 
+           tier === 'enterprise' ? 'Enterprise' : tier} Plan
+        </h2>
+        <Badge className={TIER_COLORS[tier].secondary}>
+          {tier === 'basic' && 'Essential'}
+          {tier === 'professional' && 'Most Popular'}
+          {tier === 'enterprise' && 'Full Featured'}
+          {tier === 'trialing' && '14 Day Trial'}
+        </Badge>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        {tier === 'basic' && 'Essential features for small teams'}
+        {tier === 'professional' && 'Advanced features for growing businesses'}
+        {tier === 'enterprise' && 'Complete solution for large organizations'}
+        {tier === 'trialing' && 'Try out all features before subscribing'}
+      </p>
+    </div>
+  </CardHeader>
+</Card>
 
             {/* Resource Limits */}
             <Card>

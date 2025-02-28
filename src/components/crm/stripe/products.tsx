@@ -233,7 +233,7 @@ export function StripeProducts() {
 
     {/* Plan Comparison CTA */}
     <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-      <CardContent className="py-4">
+      <CardContent className="py-0">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="space-y-2 mb-4 md:mb-0">
             <h3 className="font-medium">Need to compare plans?</h3>
