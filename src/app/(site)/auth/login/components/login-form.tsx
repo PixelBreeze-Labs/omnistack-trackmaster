@@ -37,8 +37,31 @@ export function LoginForm() {
             }
 
             if (result?.ok) {
-                // Refresh the page to get the new session
-                router.push("/crm/platform/dashboard")
+                // Get user data after successful login
+                const userResponse = await fetch('/api/auth/session')
+                const sessionData = await userResponse.json()
+                
+                const user = sessionData.user
+                const userRole = user?.role
+                const clientType = user?.clientType
+                
+                // Redirect based on user role and client type
+                if (userRole === "ADMIN") {
+                    
+                    if (clientType) {
+                        const unifiedClientType = 'platform' // Adjust as needed
+                        
+                        if (clientType === 'SAAS') {
+                            router.push(`/crm/${unifiedClientType.toLowerCase()}/staffluent-dashboard`)
+                        } else {
+                            router.push(`/crm/${unifiedClientType.toLowerCase()}/dashboard`)
+                        }
+                    } else {
+                        // Default fallback
+                        router.push("/crm/platform/dashboard")
+                    }
+                } 
+                
                 router.refresh()
             }
         } catch (error) {
