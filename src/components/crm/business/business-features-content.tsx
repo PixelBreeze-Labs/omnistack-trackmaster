@@ -146,7 +146,6 @@ export default function BusinessFeaturesContent({ businessId }) {
       }
     } catch (error) {
       console.error("Error loading business features:", error);
-      toast.error("Failed to load business features");
     }
   };
 
