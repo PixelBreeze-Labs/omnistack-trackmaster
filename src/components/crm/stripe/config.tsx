@@ -233,24 +233,30 @@ export function StripeConfig() {
 
             {/* Tabbed configuration sections */}
             <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4">
-                <TabsTrigger value="stripe">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Stripe Account
-                </TabsTrigger>
-                <TabsTrigger value="webhook">
-                  <WebhookIcon className="mr-2 h-4 w-4" />
-                  Webhooks
-                </TabsTrigger>
-                <TabsTrigger value="trial">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Trial Settings
-                </TabsTrigger>
-                <TabsTrigger value="invoice">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Invoice Settings
-                </TabsTrigger>
-              </TabsList>
+            <div className="overflow-auto">
+    <TabsList className="mb-4 w-full sm:w-auto flex flex-nowrap">
+      <TabsTrigger value="stripe" className="min-w-max whitespace-nowrap">
+        <CreditCard className="mr-2 h-4 w-4" />
+        <span className="hidden sm:inline">Stripe Account</span>
+        <span className="inline sm:hidden">Stripe</span>
+      </TabsTrigger>
+      <TabsTrigger value="webhook" className="min-w-max whitespace-nowrap">
+        <WebhookIcon className="mr-2 h-4 w-4" />
+        <span className="hidden sm:inline">Webhooks</span>
+        <span className="inline sm:hidden">Webhooks</span>
+      </TabsTrigger>
+      <TabsTrigger value="trial" className="min-w-max whitespace-nowrap">
+        <Clock className="mr-2 h-4 w-4" />
+        <span className="hidden sm:inline">Trial Settings</span>
+        <span className="inline sm:hidden">Trial</span>
+      </TabsTrigger>
+      <TabsTrigger value="invoice" className="min-w-max whitespace-nowrap">
+        <FileText className="mr-2 h-4 w-4" />
+        <span className="hidden sm:inline">Invoice Settings</span>
+        <span className="inline sm:hidden">Invoice</span>
+      </TabsTrigger>
+    </TabsList>
+  </div>
 
               {/* Stripe Account Tab */}
               <TabsContent value="stripe">
