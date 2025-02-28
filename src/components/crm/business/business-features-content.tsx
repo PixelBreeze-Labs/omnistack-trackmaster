@@ -60,6 +60,7 @@ import { useFeatures } from "@/hooks/useFeatures";
 import { useBusiness } from "@/hooks/useBusiness";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
+import InputSelect from "@/components/Common/InputSelect";
 
 export default function BusinessFeaturesContent({ businessId }) {
   const router = useRouter();
@@ -228,13 +229,7 @@ export default function BusinessFeaturesContent({ businessId }) {
     <div className="container mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Manage Business Features</h2>
             <p className="text-sm text-muted-foreground mt-2">
@@ -610,21 +605,16 @@ export default function BusinessFeaturesContent({ businessId }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="feature-select">Select Feature</Label>
-              <Select value={selectedFeatureToAdd} onValueChange={setSelectedFeatureToAdd}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a feature to add" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredFeatures.map(([key, value]) => (
-                    <SelectItem key={key} value={key}>
-                      <div className="flex items-center gap-2">
-                        {getCategoryIcon(value)}
-                        <span>{key}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <InputSelect
+                name="feature-select"
+                label=""
+                options={filteredFeatures.map(([key, value]) => ({
+                  value: key,
+                  label: key
+                }))}
+                value={selectedFeatureToAdd}
+                onChange={(e) => setSelectedFeatureToAdd(e.target.value)}
+              />
               {selectedFeatureToAdd && (
                 <div className="mt-2 text-sm text-muted-foreground">
                   {getDisplayName(selectedFeatureToAdd)}
@@ -653,20 +643,18 @@ export default function BusinessFeaturesContent({ businessId }) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
+          <div className="space-y-2">
               <Label htmlFor="limit-key">Resource</Label>
-              <Select value={selectedLimitKey} onValueChange={setSelectedLimitKey}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a resource" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(tierLimits?.['enterprise'] || {}).map((key) => (
-                    <SelectItem key={key} value={key}>
-                      {key.replace(/_/g, ' ')}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <InputSelect
+                name="limit-key"
+                label=""
+                options={Object.keys(tierLimits?.['enterprise'] || {}).map((key) => ({
+                  value: key,
+                  label: key.replace(/_/g, ' ')
+                }))}
+                value={selectedLimitKey}
+                onChange={(e) => setSelectedLimitKey(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="limit-value">Limit Value</Label>
