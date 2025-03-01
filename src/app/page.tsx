@@ -2,35 +2,39 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function Home() {
-  // Get the current user with client info
-  const user = await getCurrentUser();
+  try {
+    // Get the current user with client info
+    const user = await getCurrentUser();
 
-  if (user) {
-    // Check user role and client type
+    // If no user, redirect to login
+    if (!user) {
+      return redirect("/auth/login");
+    }
+
     const userRole = user.role;
-    const clientType = user?.clientType;
+    const clientType = user?.clientType || "";
 
+    // Admin user handling
     if (userRole === "ADMIN") {
-                    
-      if (clientType) {
-          const unifiedClientType = 'platform' // Adjust as needed
-          
-          if (clientType === 'SAAS') {
-            redirect(`/crm/${unifiedClientType.toLowerCase()}/staffluent-dashboard`);
-          } else {
-            redirect("/crm/platform/dashboard");
-          }
-      } else {
-          // Default fallback
-          redirect("/crm/platform/dashboard");
+      // For SAAS client type, go to staffluent dashboard
+      if (clientType === 'SAAS') {
+        return redirect("/crm/platform/staffluent-dashboard");
+      } 
+      // For all other client types, go to regular dashboard
+      else {
+        return redirect("/crm/platform/dashboard");
       }
-  } else {
-    redirect("/auth/login");
-  }
-  } else {
-    redirect("/auth/login");
+    } 
+    // Non-admin users go to login
+    else {
+      return redirect("/auth/login");
+    }
+  } catch (error) {
+    console.error("Error in home page redirection:", error);
+    return redirect("/auth/login");
   }
 
-  // If no user or redirection, render login page
+  // This line will never be reached due to redirects,
+  // but it's needed to satisfy TypeScript/React requirements
   return null;
 }
