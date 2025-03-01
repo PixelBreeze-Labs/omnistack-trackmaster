@@ -14,7 +14,10 @@ import {
   ChevronDown,
   Mail,
   Calendar,
-  Briefcase
+  Briefcase,
+  Shield,
+  UserCog,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +49,21 @@ import InputSelect from "@/components/Common/InputSelect";
 import { useStaffUsers } from "@/hooks/useStaffUsers";
 import { format } from "date-fns";
 import { BusinessStatus } from '@/app/api/external/omnigateway/types/business';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Define user types for clear differentiation
+enum UserType {
+  CLIENT_USER = "CLIENT_USER",
+  BUSINESS_ADMIN = "BUSINESS_ADMIN",
+  BUSINESS_STAFF = "BUSINESS_STAFF",
+  UNKNOWN = "UNKNOWN"
+}
 
 export default function StaffUsersContent() {
   const router = useRouter();
@@ -63,22 +81,26 @@ export default function StaffUsersContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [expandedUsers, setExpandedUsers] = useState<Record<string, boolean>>({});
+  const [userTypeFilter, setUserTypeFilter] = useState<string>("all");
 
   useEffect(() => {
     // Set initial filters from URL if present
     const search = searchParams?.get("search") || "";
     const page = parseInt(searchParams?.get("page") || "1");
     const limit = parseInt(searchParams?.get("limit") || "10");
+    const type = searchParams?.get("type") || "all";
     
     setSearchTerm(search);
     setCurrentPage(page);
     setItemsPerPage(limit);
+    setUserTypeFilter(type);
 
     // Load staff users with these parameters
     fetchStaffUsers({
       search,
       page,
-      limit
+      limit,
+      type
     });
   }, [searchParams, fetchStaffUsers]);
 
@@ -99,16 +121,24 @@ export default function StaffUsersContent() {
     updateUrlAndFetch(searchTerm, 1, limit);
   };
 
+  const handleUserTypeChange = (value: string) => {
+    setUserTypeFilter(value);
+    setCurrentPage(1);
+    updateUrlAndFetch(searchTerm, 1, itemsPerPage, value);
+  };
+
   const updateUrlAndFetch = (
     search = searchTerm, 
     page = currentPage,
-    limit = itemsPerPage
+    limit = itemsPerPage,
+    type = userTypeFilter
   ) => {
     // Update URL with search parameters
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (page > 1) params.set("page", page.toString());
     if (limit !== 10) params.set("limit", limit.toString());
+    if (type !== "all") params.set("type", type);
     
     const queryString = params.toString();
     router.push(queryString ? `?${queryString}` : "");
@@ -117,7 +147,8 @@ export default function StaffUsersContent() {
     fetchStaffUsers({
       search,
       page,
-      limit
+      limit,
+      type
     });
   };
 
@@ -125,7 +156,8 @@ export default function StaffUsersContent() {
     fetchStaffUsers({
       search: searchTerm,
       page: currentPage,
-      limit: itemsPerPage
+      limit: itemsPerPage,
+      type: userTypeFilter
     });
   };
 
@@ -136,12 +168,60 @@ export default function StaffUsersContent() {
     }));
   };
 
+  // Determine user type based on their relationship with businesses
+  const determineUserType = (staffUser: any): UserType => {
+    if (!staffUser.businesses || staffUser.businesses.length === 0) {
+      return UserType.CLIENT_USER;
+    }
+    
+    // Check if user is an admin of any business
+    const isAdmin = staffUser.businesses.some(
+      (business: any) => business.adminUserId === staffUser.user._id
+    );
+    
+    if (isAdmin) {
+      return UserType.BUSINESS_ADMIN;
+    }
+    
+    return UserType.BUSINESS_STAFF;
+  };
+
+  // Get user type badge based on user type
+  const getUserTypeBadge = (userType: UserType) => {
+    switch (userType) {
+      case UserType.BUSINESS_ADMIN:
+        return (
+          <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+            <Shield className="w-3 h-3 mr-1" /> Business Admin
+          </Badge>
+        );
+      case UserType.BUSINESS_STAFF:
+        return (
+          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+            <UserCog className="w-3 h-3 mr-1" /> Staff Member
+          </Badge>
+        );
+      case UserType.CLIENT_USER:
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <User className="w-3 h-3 mr-1" /> Client User
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline">
+            <User className="w-3 h-3 mr-1" /> User
+          </Badge>
+        );
+    }
+  };
+
   const getBusinessStatusBadge = (status: BusinessStatus) => {
     switch (status) {
       case BusinessStatus.ACTIVE:
-        return <Badge className="bg-green-500 hover:bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> Active</Badge>;
+        return <Badge className="bg-green-100 text-green-700 border-green-200"><CheckCircle className="w-3 h-3 mr-1" /> Active</Badge>;
       case BusinessStatus.INACTIVE:
-        return <Badge className="bg-red-500 hover:bg-red-600"><XCircle className="w-3 h-3 mr-1" /> Inactive</Badge>;
+        return <Badge className="bg-red-100 text-red-700 border-red-200"><XCircle className="w-3 h-3 mr-1" /> Inactive</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -150,6 +230,15 @@ export default function StaffUsersContent() {
   const formatBusinessType = (type: string) => {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
+
+  // Filter users if needed based on user type
+  const filteredUsers = staffUsers?.map(staffUser => ({
+    ...staffUser,
+    userType: determineUserType(staffUser)
+  })).filter(staffUser => 
+    userTypeFilter === "all" || 
+    staffUser.userType === userTypeFilter
+  );
 
   return (
     <div className="container mx-auto space-y-6">
@@ -185,6 +274,19 @@ export default function StaffUsersContent() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
+            <div className="w-48">
+              <Select value={userTypeFilter} onValueChange={handleUserTypeChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Users" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value={UserType.BUSINESS_ADMIN}>Business Admins</SelectItem>
+                  <SelectItem value={UserType.BUSINESS_STAFF}>Staff Members</SelectItem>
+                  <SelectItem value={UserType.CLIENT_USER}>Client Users</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={refreshData}>
                 <RefreshCcw className="mr-2 h-4 w-4" /> Refresh
@@ -205,6 +307,7 @@ export default function StaffUsersContent() {
               <TableRow>
                 <TableHead>User</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>User Type</TableHead>
                 <TableHead>Registration Date</TableHead>
                 <TableHead>Associated Businesses</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -222,18 +325,19 @@ export default function StaffUsersContent() {
                     </TableCell>
                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-28" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-9 w-20 ml-auto" /></TableCell>
                   </TableRow>
                 ))
-              ) : !staffUsers || staffUsers.length === 0 ? (
+              ) : !filteredUsers || filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex flex-col items-center gap-3">
                       <Users className="h-12 w-12 text-muted-foreground" />
                       <h3 className="text-lg font-medium">No Staff Users Found</h3>
                       <p className="text-sm text-muted-foreground max-w-sm text-center">
-                        {searchTerm 
+                        {searchTerm || userTypeFilter !== "all" 
                           ? "No staff users match your search criteria. Try adjusting your filters." 
                           : "No staff users have been registered yet."}
                       </p>
@@ -241,10 +345,9 @@ export default function StaffUsersContent() {
                   </TableCell>
                 </TableRow>
               ) : (
-                staffUsers.map((staffUser) => (
-                  <>
+                filteredUsers.map((staffUser) => (
+                  <React.Fragment key={staffUser.user._id}>
                     <TableRow 
-                      key={staffUser.user._id}
                       className="cursor-pointer hover:bg-slate-50"
                       onClick={() => toggleUserExpansion(staffUser.user._id)}
                     >
@@ -258,17 +361,20 @@ export default function StaffUsersContent() {
                           <div className="flex items-center gap-2">
                             <Avatar className="h-8 w-8">
                               <AvatarFallback>
-                                {staffUser.user.name.charAt(0)}{staffUser.user.surname.charAt(0)}
+                                {staffUser.user.name.charAt(0)}{staffUser.user.surname?.charAt(0) || ''}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-medium">{staffUser.user.name} {staffUser.user.surname}</div>
+                              <div className="font-medium">{staffUser.user.name} {staffUser.user.surname || ''}</div>
                             </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">{staffUser.user.email}</div>
+                      </TableCell>
+                      <TableCell>
+                        {getUserTypeBadge(staffUser.userType)}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
@@ -298,7 +404,7 @@ export default function StaffUsersContent() {
                     {/* Expanded details */}
                     {expandedUsers[staffUser.user._id] && (
                       <TableRow className="bg-slate-50 border-t-0">
-                        <TableCell colSpan={5} className="p-4">
+                        <TableCell colSpan={6} className="p-4">
                           <div className="space-y-4">
                             <div>
                               <h3 className="text-lg font-medium mb-2">User Details</h3>
@@ -316,8 +422,17 @@ export default function StaffUsersContent() {
                                   </div>
                                 )}
                                 <div className="flex items-center gap-2">
-                                  <Users className="h-4 w-4 text-muted-foreground" />
-                                  <span>Staffluent Registration</span>
+                                  {staffUser.userType === UserType.BUSINESS_ADMIN ? (
+                                    <Shield className="h-4 w-4 text-purple-600" />
+                                  ) : staffUser.userType === UserType.BUSINESS_STAFF ? (
+                                    <UserCog className="h-4 w-4 text-blue-600" />
+                                  ) : (
+                                    <User className="h-4 w-4 text-green-600" />
+                                  )}
+                                  <span>
+                                    {staffUser.userType === UserType.BUSINESS_ADMIN ? 'Business Administrator' : 
+                                     staffUser.userType === UserType.BUSINESS_STAFF ? 'Staff Member' : 'Client User'}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -342,12 +457,17 @@ export default function StaffUsersContent() {
                                             <div className="text-sm text-muted-foreground mt-1">
                                               {business.email}
                                             </div>
-                                            <div className="flex items-center gap-3 mt-2">
+                                            <div className="flex flex-wrap items-center gap-2 mt-2">
                                               <Badge>
                                                 <Briefcase className="w-3 h-3 mr-1" />
                                                 {formatBusinessType(business.type)}
                                               </Badge>
                                               {getBusinessStatusBadge(business.isActive ? BusinessStatus.ACTIVE : BusinessStatus.INACTIVE)}
+                                              {business.adminUserId === staffUser.user._id && (
+                                                <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+                                                  <Shield className="w-3 h-3 mr-1" /> Admin
+                                                </Badge>
+                                              )}
                                             </div>
                                           </div>
                                           <div className="flex items-center gap-2">
@@ -370,14 +490,14 @@ export default function StaffUsersContent() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </React.Fragment>
                 ))
               )}
             </TableBody>
           </Table>
 
           {/* Pagination */}
-          {staffUsers && staffUsers.length > 0 && (
+          {filteredUsers && filteredUsers.length > 0 && (
             <div className="border-t px-4 py-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
@@ -443,7 +563,7 @@ export default function StaffUsersContent() {
                 </div>
 
                 <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                  Showing <span className="font-medium">{staffUsers?.length}</span> of{" "}
+                  Showing <span className="font-medium">{filteredUsers?.length}</span> of{" "}
                   <span className="font-medium">{totalItems}</span> staff users
                 </p>
               </div>
