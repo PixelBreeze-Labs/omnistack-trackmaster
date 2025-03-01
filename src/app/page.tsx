@@ -10,17 +10,23 @@ export default async function Home() {
     const userRole = user.role;
     const clientType = user?.clientType;
 
-    // Replicate middleware logic for redirection
     if (userRole === "ADMIN") {
-      redirect("/crm/platform/dashboard");
-    } else if (clientType) {
-      const unifiedClientType = clientType ? 'platform' : 'platform'
-      if (clientType === 'SAAS') {
-        redirect(`/crm/${unifiedClientType.toLowerCase()}/staffluent-dashboard`);
+                    
+      if (clientType) {
+          const unifiedClientType = 'platform' // Adjust as needed
+          
+          if (clientType === 'SAAS') {
+            redirect(`/crm/${unifiedClientType.toLowerCase()}/staffluent-dashboard`);
+          } else {
+            redirect("/crm/platform/dashboard");
+          }
       } else {
-        redirect(`/crm/${unifiedClientType.toLowerCase()}/dashboard`);
+          // Default fallback
+          redirect("/crm/platform/dashboard");
       }
-    }
+  } else {
+    redirect("/auth/login");
+  }
   } else {
     redirect("/auth/login");
   }
