@@ -490,6 +490,49 @@ export default function StaffUsersContent() {
                         </TableCell>
                       </TableRow>
                     )}
+
+                    {/* Add this inside the expanded details, right after the User Details section */}
+{staffUser.userType === UserType.CLIENT_USER && (
+  <div>
+    <h3 className="text-lg font-medium mb-2">Connected Business</h3>
+    {staffUser.user.businessId ? (
+      <div className="grid grid-cols-1 gap-3">
+        <Card className="border rounded-md">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <div className="font-medium flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  {staffUser.user.businessName || "Business Name"}
+                </div>
+                {staffUser.user.businessEmail && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {staffUser.user.businessEmail}
+                  </div>
+                )}
+              </div>
+              {staffUser.user.businessId && (
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => router.push(`/crm/platform/businesses/${staffUser.user.businessId}`)}
+                  >
+                    View Business
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    ) : (
+      <p className="text-sm text-muted-foreground">
+        No business connection found for this client.
+      </p>
+    )}
+  </div>
+)}
                   </React.Fragment>
                 ))
               )}
