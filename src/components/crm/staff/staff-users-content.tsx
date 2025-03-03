@@ -104,13 +104,6 @@ export default function StaffUsersContent() {
     });
   }, [searchParams, fetchStaffUsers]);
 
-  // Add debugging effect
-  useEffect(() => {
-    if (staffUsers) {
-      console.log("Staff users data:", staffUsers);
-    }
-  }, [staffUsers]);
-
   const handleSearch = () => {
     setCurrentPage(1);
     updateUrlAndFetch();
