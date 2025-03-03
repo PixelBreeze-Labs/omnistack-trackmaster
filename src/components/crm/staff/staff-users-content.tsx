@@ -170,6 +170,18 @@ export default function StaffUsersContent() {
 
   // Determine user type based on their relationship with businesses
   const determineUserType = (staffUser: any): UserType => {
+    // Check if user has appClients, if yes, they're client users
+    if (staffUser.appClients && staffUser.appClients.length > 0) {
+      return UserType.CLIENT_USER;
+    }
+    
+    // Check if we have metadata-based client info
+    if (staffUser.user.metadata && 
+        (staffUser.user.metadata.appClientCount || 
+         Object.keys(staffUser.user.metadata).some(key => key.startsWith('appClient_')))) {
+      return UserType.CLIENT_USER;
+    }
+    
     if (!staffUser.businesses || staffUser.businesses.length === 0) {
       return UserType.CLIENT_USER;
     }
@@ -240,6 +252,22 @@ export default function StaffUsersContent() {
     staffUser.userType === userTypeFilter
   );
 
+  // Get the total count of connections (businesses + app clients)
+  const getTotalConnections = (staffUser: any) => {
+    let count = staffUser.businesses?.length || 0;
+    
+    // Add app clients count if available
+    if (staffUser.appClients && staffUser.appClients.length > 0) {
+      count += staffUser.appClients.length;
+    } else if (staffUser.user.metadata) {
+      // Try to get it from metadata
+      const appClientCount = parseInt(staffUser.user.metadata.appClientCount) || 0;
+      count += appClientCount;
+    }
+    
+    return count;
+  };
+
   return (
     <div className="container mx-auto space-y-6">
       <div className="flex justify-between items-center">
@@ -309,7 +337,7 @@ export default function StaffUsersContent() {
                 <TableHead>Email</TableHead>
                 <TableHead>User Type</TableHead>
                 <TableHead>Registration Date</TableHead>
-                <TableHead>Associated Businesses</TableHead>
+                <TableHead>Total Connections</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -384,7 +412,7 @@ export default function StaffUsersContent() {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                            {staffUser.businesses.length} business{staffUser.businesses.length !== 1 ? 'es' : ''}
+                            {getTotalConnections(staffUser)} connection{getTotalConnections(staffUser) !== 1 ? 's' : ''}
                           </Badge>
                         </div>
                       </TableCell>
@@ -436,6 +464,168 @@ export default function StaffUsersContent() {
                                 </div>
                               </div>
                             </div>
+
+                          {/* Direct AppClients */}
+{staffUser.userType === UserType.CLIENT_USER && 
+ staffUser.appClients && 
+ staffUser.appClients.length > 0 && (
+  <div>
+    <h3 className="text-lg font-medium mb-2">Client Details</h3>
+    <div className="grid grid-cols-1 gap-3">
+      {staffUser.appClients.map((appClient) => (
+        <Card key={appClient._id} className="border rounded-md">
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4">
+              {/* Client Information - Left Side */}
+              <div className="flex flex-col md:flex-row justify-between">
+                <div>
+                  <div className="font-medium flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="text-md font-bold">Client:</span> {appClient.name}
+                  </div>
+                  {appClient.email && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      <Mail className="h-4 w-4 inline mr-1" />
+                      {appClient.email}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <Badge>
+                      <Briefcase className="w-3 h-3 mr-1" />
+                      {appClient.type}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Connected Business - Separate Section */}
+              {appClient.businessId && (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="font-medium flex items-center gap-2 mb-2">
+                    <Building2 className="h-4 w-4" />
+                    <span className="text-md font-bold">Connected Business:</span> 
+                    {typeof appClient.businessId === 'object' ? appClient.businessId.name : "Business"}
+                  </div>
+                  
+                  {typeof appClient.businessId === 'object' && appClient.businessId.email && (
+                    <div className="text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4 inline mr-1" />
+                      {appClient.businessId.email}
+                    </div>
+                  )}
+                  
+                  <div className="mt-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => router.push(`/crm/platform/businesses/${typeof appClient.businessId === 'object' ? appClient.businessId._id : appClient.businessId}`)}
+                    >
+                      View Business
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+)}
+
+                            {/* AppClients from metadata */}
+                            {staffUser.userType === UserType.CLIENT_USER && 
+                             staffUser.user.metadata && 
+                             staffUser.user.metadata.appClientCount && 
+                             !staffUser.appClients && (
+                              <div>
+                                <h3 className="text-lg font-medium mb-2">Client Connections</h3>
+                                <div className="grid grid-cols-1 gap-3">
+                                  {Array.from({ length: parseInt(staffUser.user.metadata.appClientCount) }).map((_, index) => (
+                                    <Card key={index} className="border rounded-md">
+                                      <CardContent className="p-4">
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                          <div>
+                                            <div className="font-medium flex items-center gap-2">
+                                              <Building2 className="h-4 w-4" />
+                                              {staffUser.user.metadata[`appClient_${index}_name`] || "Client"}
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                                              <Badge>
+                                                <Briefcase className="w-3 h-3 mr-1" />
+                                                {staffUser.user.metadata[`appClient_${index}_type`] || "Unknown Type"}
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                          {staffUser.user.metadata[`appClient_${index}_businessId`] && (
+                                            <div className="flex items-center gap-2">
+                                              <Button 
+                                                variant="outline" 
+                                                size="sm"
+                                                onClick={() => router.push(`/crm/platform/businesses/${staffUser.user.metadata[`appClient_${index}_businessId`]}`)}
+                                              >
+                                                View Business
+                                              </Button>
+                                              <div className="text-sm text-muted-foreground">
+                                                {staffUser.user.metadata[`appClient_${index}_businessName`] || "Connected Business"}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Check for individual appClient entries in metadata */}
+                            {staffUser.userType === UserType.CLIENT_USER && 
+                             staffUser.user.metadata && 
+                             !staffUser.user.metadata.appClientCount && 
+                             !staffUser.appClients &&
+                             Object.keys(staffUser.user.metadata).some(key => key.startsWith('appClient_')) && (
+                              <div>
+                                <h3 className="text-lg font-medium mb-2">Client Connections</h3>
+                                <div className="grid grid-cols-1 gap-3">
+                                  <Card className="border rounded-md">
+                                    <CardContent className="p-4">
+                                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        <div>
+                                          <div className="font-medium flex items-center gap-2">
+                                            <Building2 className="h-4 w-4" />
+                                            {staffUser.user.metadata.appClient_0_name || 
+                                             staffUser.user.metadata.connectedBusinessName || "Client"}
+                                          </div>
+                                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                                            <Badge>
+                                              <Briefcase className="w-3 h-3 mr-1" />
+                                              {staffUser.user.metadata.appClient_0_type || "Client"}
+                                            </Badge>
+                                          </div>
+                                        </div>
+                                        {(staffUser.user.metadata.appClient_0_businessId || 
+                                          staffUser.user.metadata.connectedBusinessId) && (
+                                          <div className="flex items-center gap-2">
+                                            <Button 
+                                              variant="outline" 
+                                              size="sm"
+                                              onClick={() => router.push(`/crm/platform/businesses/${staffUser.user.metadata.appClient_0_businessId || staffUser.user.metadata.connectedBusinessId}`)}
+                                            >
+                                              View Business
+                                            </Button>
+                                            <div className="text-sm text-muted-foreground">
+                                              {staffUser.user.metadata.appClient_0_businessName || 
+                                               staffUser.user.metadata.connectedBusinessName || "Connected Business"}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              </div>
+                            )}
 
                             <div>
                               <h3 className="text-lg font-medium mb-2">Associated Businesses</h3>
@@ -490,49 +680,6 @@ export default function StaffUsersContent() {
                         </TableCell>
                       </TableRow>
                     )}
-
-                    {/* Add this inside the expanded details, right after the User Details section */}
-{staffUser.userType === UserType.CLIENT_USER && (
-  <div>
-    <h3 className="text-lg font-medium mb-2">Connected Business</h3>
-    {staffUser.user.businessId ? (
-      <div className="grid grid-cols-1 gap-3">
-        <Card className="border rounded-md">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <div className="font-medium flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  {staffUser.user.businessName || "Business Name"}
-                </div>
-                {staffUser.user.businessEmail && (
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {staffUser.user.businessEmail}
-                  </div>
-                )}
-              </div>
-              {staffUser.user.businessId && (
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => router.push(`/crm/platform/businesses/${staffUser.user.businessId}`)}
-                  >
-                    View Business
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    ) : (
-      <p className="text-sm text-muted-foreground">
-        No business connection found for this client.
-      </p>
-    )}
-  </div>
-)}
                   </React.Fragment>
                 ))
               )}
