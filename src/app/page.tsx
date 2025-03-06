@@ -39,13 +39,14 @@ export default async function Home() {
   
   // Admin user handling
   if (userRole === "ADMIN") {
-    // For SAAS client type, go to staffluent dashboard
-    if (clientType === 'SAAS') {
-      return redirect("/crm/platform/staffluent-dashboard");
-    } 
-    // For all other client types, go to regular dashboard
-    else {
-      return redirect("/crm/platform/dashboard");
+    // Handle different client types
+    switch(clientType) {
+      case 'SAAS':
+        return redirect("/crm/platform/staffluent-dashboard");
+      case 'BOOKING':
+        return redirect("/crm/platform/booking-dashboard");
+      default:
+        return redirect("/crm/platform/dashboard");
     }
   } 
   // Non-admin users go to login
