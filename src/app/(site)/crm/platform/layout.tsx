@@ -15,33 +15,65 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
 
   
   const getClientTypeFromPath = () => {
+    // For booking dashboard path, ensure we set client type as BOOKING
+    if (pathname.includes('/booking-dashboard') || 
+        pathname.includes('/bookings') || 
+        pathname.includes('/rental-units') || 
+        pathname.includes('/guests')) {
+      return 'BOOKING'
+    }
+    
+    // For SAAS path detection
+    if (pathname.includes('/staffluent-dashboard')) {
+      return 'SAAS'
+    }
+    
     const pathParts = pathname.split('/')
     const clientTypeIndex = pathParts.indexOf('crm') + 1
     return pathParts[clientTypeIndex]
   }
 
+  // First try to get client type from session, then from path
   const clientType = session?.user?.clientType || getClientTypeFromPath()
 
   const sidebarData = getSidebarDataForType(clientType)
 
-  // For SAAS, use different props structure
-  const sidebarProps = clientType === 'SAAS' ? {
-    mainMenu: sidebarData.mainMenu,
-    business: sidebarData.business,
-    products: sidebarData.products,
-    users: sidebarData.users,
-    support: sidebarData.support,
-    finance: sidebarData.finance,
-    settings: sidebarData.settings
-  } : {
-    mainMenu: sidebarData.mainMenu,
-    sales: sidebarData.sales,
-    crm: sidebarData.crm,
-    marketing: sidebarData.marketing, 
-    loyalty: sidebarData.loyalty, 
-    communication: sidebarData.communication,
-    finance: sidebarData.finance,
-    hr: sidebarData.hr
+  // Determine sidebar props based on client type
+  let sidebarProps = {}
+  
+  if (clientType === 'SAAS') {
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      business: sidebarData.business,
+      products: sidebarData.products,
+      users: sidebarData.users,
+      support: sidebarData.support,
+      finance: sidebarData.finance,
+      settings: sidebarData.settings
+    }
+  } else if (clientType === 'BOOKING') {
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      sales: sidebarData.sales,
+      crm: sidebarData.crm,
+      marketing: sidebarData.marketing, 
+      loyalty: sidebarData.loyalty, 
+      communication: sidebarData.communication,
+      finance: sidebarData.finance,
+      hr: sidebarData.hr
+    }
+  } else {
+    // Default ecommerce props
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      sales: sidebarData.sales,
+      crm: sidebarData.crm,
+      marketing: sidebarData.marketing, 
+      loyalty: sidebarData.loyalty, 
+      communication: sidebarData.communication,
+      finance: sidebarData.finance,
+      hr: sidebarData.hr
+    }
   }
 
   return (
