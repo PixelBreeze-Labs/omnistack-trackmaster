@@ -14,6 +14,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Benefit } from '@/hooks/useBenefits';
 import { LoyaltyProgram } from "@/app/api/external/omnigateway/types/loyalty-program";
 import InputSelect from '@/components/Common/InputSelect';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 
 interface BenefitFormProps {
   open: boolean;
@@ -123,6 +130,68 @@ export function BenefitForm({
         { value: 'FREE_SHIPPING', label: 'Free Shipping' }
       ];
 
+  // Get value field label and helper text based on benefit type
+  const getValueInfo = () => {
+    switch(formData.type) {
+      case 'DISCOUNT':
+        return {
+          label: 'Discount %',
+          helper: 'Percentage discount to apply',
+          tooltip: 'Enter a value from 1-100 representing the discount percentage'
+        };
+      case 'POINTS':
+        return {
+          label: 'Points',
+          helper: 'Number of points to award',
+          tooltip: 'Enter the number of loyalty points this benefit provides'
+        };
+      case 'CASHBACK':
+        return {
+          label: 'Cashback Amount',
+          helper: 'Amount in currency to return',
+          tooltip: 'Enter the amount of cashback to provide in the account currency'
+        };
+      case 'FREE_SHIPPING':
+        return {
+          label: 'Value',
+          helper: 'Set to 1 for free shipping',
+          tooltip: 'Typically set to 1 to indicate free shipping is enabled'
+        };
+      case 'ROOM_UPGRADE':
+        return {
+          label: 'Upgrade Level',
+          helper: 'Room category upgrade level',
+          tooltip: 'Enter the number of room categories to upgrade (e.g., 1 = one category upgrade)'
+        };
+      case 'LATE_CHECKOUT':
+        return {
+          label: 'Extra Hours',
+          helper: 'Hours past standard checkout',
+          tooltip: 'Enter the number of hours past standard checkout time (e.g., 2 = 2 extra hours)'
+        };
+      case 'EARLY_CHECKIN':
+        return {
+          label: 'Early Hours',
+          helper: 'Hours before standard checkin',
+          tooltip: 'Enter the number of hours before standard check-in time (e.g., 2 = 2 hours early)'
+        };
+      case 'FREE_BREAKFAST':
+        return {
+          label: 'Breakfasts',
+          helper: 'Number of complimentary breakfasts',
+          tooltip: 'Enter the number of free breakfasts included per stay'
+        };
+      default:
+        return {
+          label: 'Value',
+          helper: 'Benefit value',
+          tooltip: 'Enter the value for this benefit'
+        };
+    }
+  };
+
+  const valueInfo = getValueInfo();
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -174,9 +243,21 @@ export function BenefitForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="value">
-                {formData.type === 'DISCOUNT' ? 'Discount %' : 'Value'}
-              </Label>
+              <div className="flex items-center gap-2 mb-4">
+                <Label htmlFor="value">{valueInfo.label}</Label>
+                <TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <div style={{ cursor: 'pointer' }}>
+        <HelpCircle className="h-4 w-4 text-muted-foreground" style={{ cursor: 'pointer' }} />
+      </div>
+    </TooltipTrigger>
+    <TooltipContent className="z-[60] bg-white">
+      <p className="max-w-xs">{valueInfo.tooltip}</p>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+              </div>
               <Input
                 id="value"
                 type="number"
@@ -185,11 +266,12 @@ export function BenefitForm({
                   ...prev,
                   value: parseFloat(e.target.value)
                 }))}
-                placeholder="Enter value"
+                placeholder={`Enter ${valueInfo.label.toLowerCase()}`}
                 className={errors.value ? 'border-red-500' : ''}
                 min={0}
                 max={formData.type === 'DISCOUNT' ? 100 : undefined}
               />
+              <p className="text-xs text-muted-foreground">{valueInfo.helper}</p>
               {errors.value && <p className="text-sm text-red-500">{errors.value}</p>}
             </div>
           </div>
