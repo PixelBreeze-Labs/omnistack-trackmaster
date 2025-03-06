@@ -4,26 +4,41 @@ import { createBenefitsApi } from '@/app/api/external/omnigateway/benefits';
 import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
+export type BenefitType = 
+  'DISCOUNT' | 
+  'CASHBACK' | 
+  'POINTS' | 
+  'FREE_SHIPPING' | 
+  'ROOM_UPGRADE' | 
+  'LATE_CHECKOUT' | 
+  'EARLY_CHECKIN' | 
+  'FREE_BREAKFAST';
+
 export interface Benefit {
     _id: string;
     name: string;
     description: string;
-    type: 'DISCOUNT' | 'CASHBACK' | 'POINTS' | 'FREE_SHIPPING';
+    type: BenefitType;
     value: number;
     isActive: boolean;
+    applicableTiers?: string[];
+    minSpend?: number;
 }
 
 export interface CreateBenefitDto {
     name: string;
     description: string;
-    type: 'DISCOUNT' | 'CASHBACK' | 'POINTS' | 'FREE_SHIPPING';
+    type: BenefitType;
     value: number;
+    isActive?: boolean;
+    applicableTiers?: string[];
+    minSpend?: number;
 }
 
-// hooks/useBenefits.ts
 export const useBenefits = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [benefits, setBenefits] = useState<Benefit[]>([]);
+    const [error, setError] = useState<string | null>(null);
     
     const { apiKey } = useGatewayClientApiKey();
     const api = useMemo(() => apiKey ? createBenefitsApi(apiKey) : null, [apiKey]);
@@ -32,11 +47,13 @@ export const useBenefits = () => {
         if (!api) return;
         try {
             setIsLoading(true);
+            setError(null);
             const response = await api.getBenefits(tier);
             setBenefits(response);
             return response;
         } catch (error) {
             console.error('Error fetching benefits:', error);
+            setError('Failed to fetch benefits');
             toast.error('Failed to fetch benefits');
         } finally {
             setIsLoading(false);
@@ -52,8 +69,9 @@ export const useBenefits = () => {
         if (!api) return;
         try {
             setIsLoading(true);
+            setError(null);
             let response;
-
+            
             switch (action) {
                 case 'create':
                     response = await api.createBenefit(data);
@@ -71,12 +89,13 @@ export const useBenefits = () => {
                     response = await api.removeBenefitFromTier(benefitId!, tierId!);
                     break;
             }
-
+            
             toast.success(`Benefit ${action} successful`);
             await fetchBenefits();
             return response;
         } catch (error) {
             console.error(`Error ${action} benefit:`, error);
+            setError(`Failed to ${action} benefit`);
             toast.error(`Failed to ${action} benefit`);
             throw error;
         } finally {
@@ -87,6 +106,7 @@ export const useBenefits = () => {
     return {
         isLoading,
         benefits,
+        error,
         fetchBenefits,
         createBenefit: (data: CreateBenefitDto) => manageBenefit('create', data),
         updateBenefit: (id: string, data: Partial<CreateBenefitDto>) => 

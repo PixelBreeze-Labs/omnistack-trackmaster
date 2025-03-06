@@ -236,15 +236,23 @@ export function BenefitsContent() {
                    {benefit.description}
                  </p>
                  <div className="flex items-center gap-2 mt-2">
-                   <Badge variant="secondary">
-                     {benefit.value}{benefit.type === 'DISCOUNT' ? '%' : ' points'}
-                   </Badge>
-                   {benefit.minSpend > 0 && (
-                     <Badge variant="outline">
-                       Min. spend: {benefit.minSpend}€
-                     </Badge>
-                   )}
-                 </div>
+  <Badge variant="secondary">
+    {benefit.value}
+    {benefit.type === 'DISCOUNT' ? '%' : 
+     benefit.type === 'POINTS' ? ' points' :
+     benefit.type === 'ROOM_UPGRADE' ? ' category upgrade' :
+     benefit.type === 'LATE_CHECKOUT' ? ' hours late' :
+     benefit.type === 'EARLY_CHECKIN' ? ' hours early' :
+     benefit.type === 'FREE_BREAKFAST' ? ' breakfast(s)' :
+     benefit.type === 'FREE_SHIPPING' ? '' : 
+     ' value'}
+  </Badge>
+  {benefit.minSpend > 0 && (
+    <Badge variant="outline">
+      Min. spend: {benefit.minSpend}€
+    </Badge>
+  )}
+</div>
                </div>
              </div>
              <div className="w-35"> {/* Add width to control the select size */}
