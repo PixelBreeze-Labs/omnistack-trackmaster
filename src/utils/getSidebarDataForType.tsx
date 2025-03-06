@@ -293,7 +293,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         },
         {
           id: 8,
-          title: "Marketing Strategy",
+          title: "Campaigns",
           path: `/crm/platform/marketing-strategy`,
           icon: <Megaphone className="w-5 h-5"/>,
         }
