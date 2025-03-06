@@ -22,15 +22,15 @@ export function LoyaltyNav() {
   const navigation = [
     {
       name: 'Program',
-      href: `/crm/${clientTypePath}/loyalty/program`,
+      href: `/crm/${clientTypePath}/loyalty/programs`,
       icon: Settings,
-      current: pathname.endsWith('program') || pathname.endsWith('loyalty')
+      current: pathname.endsWith('programs') || pathname.endsWith('loyalty')
     },
     {
       name: 'Points & Rewards',
-      href: `/crm/${clientTypePath}/loyalty/points-rewards`,
+      href: `/crm/${clientTypePath}/loyalty/points`,
       icon: Award,
-      current: pathname.endsWith('points-rewards')
+      current: pathname.endsWith('points')
     },
     {
       name: 'Benefits',
@@ -51,7 +51,7 @@ export function LoyaltyNav() {
   }
 
   return (
-    <div className="flex space-x-2 py-4 bg-white border-b mb-6">
+    <div className="flex space-x-2 py-4 pl-4 bg-white border-b mb-6">
       {navigation.map((item) => (
         <Button
           key={item.name}
