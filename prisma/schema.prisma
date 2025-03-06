@@ -15,6 +15,7 @@ enum ClientType {
   RETAIL
   SERVICES
   OTHER
+  BOOKING
 }
 
 // Core User model with Supabase integration

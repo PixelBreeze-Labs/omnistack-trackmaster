@@ -53,6 +53,8 @@ export function LoginForm() {
                         
                         if (clientType === 'SAAS') {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/staffluent-dashboard`)
+                        } else if (clientType === 'BOOKING') {
+                            router.push(`/crm/${unifiedClientType.toLowerCase()}/booking-dashboard`)
                         } else {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/dashboard`)
                         }

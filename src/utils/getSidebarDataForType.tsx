@@ -33,7 +33,17 @@ import {
   Gift,
   UsersRound,
   Heart,
-  Layers
+  Layers,
+  Bed,
+  Home,
+  MapPin,
+  Calendar,
+  Search,
+  Map,
+  PlusCircle,
+  History,
+  Award,
+  Percent
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -202,6 +212,243 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
           id: 10,
           title: "Settings",
           path: `/crm/platform/settings`,
+          icon: <Settings className="w-5 h-5"/>,
+        }
+      ]
+    }
+  }
+
+  if (clientType === 'BOOKING') {
+    return {
+      mainMenu: [
+        {
+          id: 1,
+          title: "Dashboard",
+          path: `/crm/platform/booking-dashboard`,
+          icon: <LayoutDashboard className="w-5 h-5"/>,
+        },
+        {
+          id: 2,
+          title: "Analytics",
+          path: `/crm/platform/booking-analytics`,
+          icon: <BarChart3 className="w-5 h-5"/>,
+        }
+      ],
+      properties: [
+        {
+          id: 3,
+          title: "Properties",
+          path: `/crm/platform/properties`,
+          icon: <Home className="w-5 h-5"/>,
+          children: [
+            {
+              id: "3-1",
+              title: "All Properties",
+              path: `/crm/platform/properties`,
+              icon: <Bed className="w-4 h-4"/>
+            },
+            {
+              id: "3-2",
+              title: "Add Property",
+              path: `/crm/platform/properties/add`,
+              icon: <PlusCircle className="w-4 h-4"/>
+            },
+            {
+              id: "3-3",
+              title: "Categories",
+              path: `/crm/platform/properties/categories`,
+              icon: <Boxes className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 4,
+          title: "Locations",
+          path: `/crm/platform/locations`,
+          icon: <MapPin className="w-5 h-5"/>,
+        },
+        {
+          id: 5,
+          title: "Search",
+          path: `/crm/platform/property-search`,
+          icon: <Search className="w-5 h-5"/>,
+        },
+        {
+          id: 6,
+          title: "Map View",
+          path: `/crm/platform/map`,
+          icon: <Map className="w-5 h-5"/>,
+        }
+      ],
+      bookings: [
+        {
+          id: 7,
+          title: "Reservations",
+          path: `/crm/platform/reservations`,
+          icon: <Calendar className="w-5 h-5"/>,
+          children: [
+            {
+              id: "7-1",
+              title: "All Bookings",
+              path: `/crm/platform/reservations`,
+              icon: <ScrollText className="w-4 h-4"/>
+            },
+            {
+              id: "7-2",
+              title: "Calendar View",
+              path: `/crm/platform/reservations/calendar`,
+              icon: <CalendarDays className="w-4 h-4"/>
+            },
+            {
+              id: "7-3",
+              title: "Upcoming",
+              path: `/crm/platform/reservations/upcoming`,
+              icon: <Clock className="w-4 h-4"/>
+            },
+            {
+              id: "7-4",
+              title: "History",
+              path: `/crm/platform/reservations/history`,
+              icon: <History className="w-4 h-4"/>
+            },
+            {
+              id: "7-5",
+              title: "Cancellations",
+              path: `/crm/platform/reservations/cancellations`,
+              icon: <XCircle className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      users: [
+        {
+          id: 8,
+          title: "Guests",
+          path: `/crm/platform/guests`,
+          icon: <Users className="w-5 h-5"/>,
+          children: [
+            {
+              id: "8-1",
+              title: "All Guests",
+              path: `/crm/platform/guests`,
+              icon: <Users className="w-4 h-4"/>
+            },
+            {
+              id: "8-2",
+              title: "Registered Users",
+              path: `/crm/platform/guests/registered`,
+              icon: <UserCircle className="w-4 h-4"/>
+            },
+            {
+              id: "8-3",
+              title: "Guest Reviews",
+              path: `/crm/platform/guests/reviews`,
+              icon: <Star className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 9,
+          title: "Property Owners",
+          path: `/crm/platform/property-owners`,
+          icon: <UserCog className="w-5 h-5"/>,
+        }
+      ],
+      marketing: [
+        {
+          id: 10,
+          title: "Promotions",
+          path: `/crm/platform/booking-promotions`,
+          icon: <BadgePercent className="w-5 h-5"/>,
+          children: [
+            {
+              id: "10-1",
+              title: "Discount Offers",
+              path: `/crm/platform/booking-promotions/discounts`,
+              icon: <Percent className="w-4 h-4"/>
+            },
+            {
+              id: "10-2",
+              title: "Seasonal Deals",
+              path: `/crm/platform/booking-promotions/seasonal`,
+              icon: <CalendarDays className="w-4 h-4"/>
+            },
+            {
+              id: "10-3",
+              title: "Loyalty Programs",
+              path: `/crm/platform/booking-promotions/loyalty`,
+              icon: <Award className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 11,
+          title: "Campaigns",
+          path: `/crm/platform/booking-campaigns`,
+          icon: <Megaphone className="w-5 h-5"/>,
+        }
+      ],
+      finance: [
+        {
+          id: 12,
+          title: "Payments",
+          path: `/crm/platform/booking-payments`,
+          icon: <Wallet className="w-5 h-5"/>,
+          children: [
+            {
+              id: "12-1",
+              title: "Transactions",
+              path: `/crm/platform/booking-payments/transactions`,
+              icon: <CircleDollarSign className="w-4 h-4"/>
+            },
+            {
+              id: "12-2",
+              title: "Invoices",
+              path: `/crm/platform/booking-payments/invoices`,
+              icon: <Receipt className="w-4 h-4"/>
+            },
+            {
+              id: "12-3",
+              title: "Refunds",
+              path: `/crm/platform/booking-payments/refunds`,
+              icon: <CircleDollarSign className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 13,
+          title: "Pricing",
+          path: `/crm/platform/pricing`,
+          icon: <DollarSign className="w-5 h-5"/>,
+        }
+      ],
+      support: [
+        {
+          id: 14,
+          title: "Support",
+          path: `/crm/platform/booking-support`,
+          icon: <HelpCircle className="w-5 h-5"/>,
+          children: [
+            {
+              id: "14-1",
+              title: "Tickets",
+              path: `/crm/platform/booking-support/tickets`,
+              icon: <MessageSquare className="w-4 h-4"/>
+            },
+            {
+              id: "14-2",
+              title: "Knowledge Base",
+              path: `/crm/platform/booking-support/knowledge-base`,
+              icon: <BookOpen className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      settings: [
+        {
+          id: 15,
+          title: "Settings",
+          path: `/crm/platform/booking-settings`,
           icon: <Settings className="w-5 h-5"/>,
         }
       ]
