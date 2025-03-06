@@ -23,11 +23,11 @@ const MenuItem = ({ item, pathname, openMenus, toggleMenu }: any) => {
         }
         className={`group flex w-full items-center rounded-lg p-2 text-sm font-medium transition-colors ${
           isActive
-            ? "bg-[#2A8E9E]/10 text-[#2A8E9E] dark:bg-[#2A8E9E]/20 dark:text-white"
-            : "text-gray-600 hover:bg-[#2A8E9E]/5 hover:text-[#2A8E9E] dark:text-gray-300 dark:hover:bg-[#2A8E9E]/10 dark:hover:text-white"
+            ? "bg-[#5d23b8]/10 text-[#5d23b8] dark:bg-[#5d23b8]/20 dark:text-white"
+            : "text-gray-600 hover:bg-[#5d23b8]/5 hover:text-[#5d23b8] dark:text-gray-300 dark:hover:bg-[#5d23b8]/10 dark:hover:text-white"
         }`}
       >
-        <span className={`mr-3 ${isActive ? "text-[#2A8E9E]" : ""}`}>{item.icon}</span>
+        <span className={`mr-3 ${isActive ? "text-[#5d23b8]" : ""}`}>{item.icon}</span>
         <span className="flex-1">{item.title}</span>
         {item.children && (
           <span className="ml-auto">
@@ -48,11 +48,11 @@ const MenuItem = ({ item, pathname, openMenus, toggleMenu }: any) => {
               href={child.path}
               className={`group flex items-center rounded-lg p-2 text-sm font-medium transition-colors ${
                 pathname === child.path
-                  ? "bg-[#2A8E9E]/10 text-[#2A8E9E] dark:bg-[#2A8E9E]/20 dark:text-white"
-                  : "text-gray-600 hover:bg-[#2A8E9E]/5 hover:text-[#2A8E9E] dark:text-gray-300 dark:hover:bg-[#2A8E9E]/10 dark:hover:text-white"
+                  ? "bg-[#5d23b8]/10 text-[#5d23b8] dark:bg-[#5d23b8]/20 dark:text-white"
+                  : "text-gray-600 hover:bg-[#5d23b8]/5 hover:text-[#5d23b8] dark:text-gray-300 dark:hover:bg-[#5d23b8]/10 dark:hover:text-white"
               }`}
             >
-              <span className={`mr-3 ${pathname === child.path ? "text-[#2A8E9E]" : ""}`}>
+              <span className={`mr-3 ${pathname === child.path ? "text-[#5d23b8]" : ""}`}>
                 {child.icon}
               </span>
               <span className="flex-1">{child.title}</span>
@@ -79,6 +79,9 @@ interface SidebarProps {
   users?: any[];
   support?: any[];
   settings?: any[];
+  // Additional properties
+  properties?: any[];
+  bookings?: any[];
 }
 
 export default function Sidebar({
@@ -95,12 +98,21 @@ export default function Sidebar({
   products = [],
   users = [],
   support = [],
-  settings = []
+  settings = [],
+  // Additional properties
+  properties = [],
+  bookings = []
 }: SidebarProps) {
   const pathname = usePathname()
   
   // Determine if we're in SAAS mode
   const isSaas = business.length > 0
+  
+  // Determine if we're in booking mode
+  const isBooking = pathname.includes('/booking-dashboard') || 
+                   pathname.includes('/bookings') || 
+                   pathname.includes('/rental-units') || 
+                   pathname.includes('/guests')
 
   // Combine all menus for finding current open menu
   const allMenuItems = isSaas 
@@ -121,7 +133,9 @@ export default function Sidebar({
         ...loyalty, 
         ...communication,
         ...finance,
-        ...hr
+        ...hr,
+        ...properties,
+        ...bookings
       ]
   
   const currentOpenMenu = allMenuItems.find(
@@ -269,7 +283,151 @@ export default function Sidebar({
                 </div>
               )}
             </>
+          ) : isBooking ? (
+            // Booking client type specific sections
+            <>
+              {/* Properties Section for Booking */}
+              {properties.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Properties
+                  </h3>
+                  <nav className="space-y-1">
+                    {properties.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+              
+              {/* Bookings Section */}
+              {bookings.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Bookings
+                  </h3>
+                  <nav className="space-y-1">
+                    {bookings.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+              
+              {/* Sales Section */}
+              {sales.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Rental
+                  </h3>
+                  <nav className="space-y-1">
+                    {sales.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* CRM Section */}
+              {crm.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Guests
+                  </h3>
+                  <nav className="space-y-1">
+                    {crm.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Marketing Section */}
+              {marketing.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Marketing
+                  </h3>
+                  <nav className="space-y-1">
+                    {marketing.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Loyalty Program Section */}
+              {loyalty.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Loyalty Program
+                  </h3>
+                  <nav className="space-y-1">
+                    {loyalty.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Communication Section */}
+              {communication.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Communication
+                  </h3>
+                  <nav className="space-y-1">
+                    {communication.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+            </>
           ) : (
+            // Default ecommerce sections
             <>
               {/* Sales Section */}
               {sales.length > 0 && (
@@ -373,7 +531,7 @@ export default function Sidebar({
             </>
           )}
 
-          {/* Finance Section - Common to both modes */}
+          {/* Finance Section - Common to all modes */}
           {finance.length > 0 && (
             <div>
               <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -417,7 +575,7 @@ export default function Sidebar({
             hr.length > 0 && (
               <div className="mb-8">
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  HR
+                  Settings
                 </h3>
                 <nav className="space-y-1">
                   {hr.map((item) => (
