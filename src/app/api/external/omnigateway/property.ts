@@ -17,16 +17,12 @@ export const createOmniStackPropertyApi = (apiKey: string) => {
       if (params.type) queryParams.append('type', params.type);
       
       const queryString = queryParams.toString();
-      const endpoint = `/vb/rental-units${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `/properties${queryString ? `?${queryString}` : ''}`;
       
       const { data } = await api.get<RentalUnitsResponse>(endpoint);
       return data;
     },
     
-        getRentalUnitById: async (id: string) => {
-        const { data } = await api.get(`/properties/${id}`);
-        return data;
-        },
     
     syncRentalUnits: async () => {
       const { data } = await api.post<SyncResponse>('/properties/sync');
