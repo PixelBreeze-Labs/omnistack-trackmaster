@@ -87,7 +87,7 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role as "ADMIN" | "SALES" | "MARKETING"
                 token.id = user.id
                 token.clientId = user.clientId
-                token.clientType = user.clientType as "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER"
+                token.clientType = user.clientType as "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING"
                 token.supabaseId = user.supabaseId
             }
             return token

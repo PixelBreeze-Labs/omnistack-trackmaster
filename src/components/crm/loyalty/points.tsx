@@ -23,6 +23,8 @@ import { PointsConfigForm } from './PointsConfigForm';
 import { BonusDayForm } from './BonusDayForm';
 import { BonusDayDto } from '@/app/api/external/omnigateway/types/points-system';
 import { format } from 'date-fns';
+import { useSession } from "next-auth/react";
+
 
 export function PointsRewardsContent() {
   const {
@@ -35,9 +37,13 @@ export function PointsRewardsContent() {
     removeBonusDay
   } = useLoyaltyProgram();
 
+  const { data: session } = useSession();
+  const clientType = session?.user?.clientType;
+  
   const [configFormOpen, setConfigFormOpen] = useState(false);
   const [bonusDayFormOpen, setBonusDayFormOpen] = useState(false);
   const [selectedBonusDay, setSelectedBonusDay] = useState<BonusDayDto | null>(null);
+
 
   useEffect(() => {
     fetchProgram();
@@ -82,7 +88,35 @@ export function PointsRewardsContent() {
   const renderPointsStats = () => {
     if (!pointsSystem) return null;
 
-    const stats = [
+  
+    const stats = clientType === 'BOOKING' 
+    ? [
+        {
+          title: "Points Per Stay",
+          value: `${pointsSystem.earningPoints.spend} points`,
+          subtitle: "Base stay reward",
+          icon: ShoppingBag
+        },
+        {
+          title: "Sign-up Bonus",
+          value: `${pointsSystem.earningPoints.signUpBonus} points`,
+          subtitle: "New member bonus",
+          icon: Gift
+        },
+        {
+          title: "Review Points",
+          value: `${pointsSystem.earningPoints.reviewPoints} points`,
+          subtitle: "Per review",
+          icon: MessageSquare
+        },
+        {
+          title: "Stay Minimum",
+          value: `${program?.stayTracking?.stayDefinition?.minimumNights || 1} night`,
+          subtitle: "To qualify for points",
+          icon: Calendar
+        }
+      ]
+    : [
       {
         title: "Points Per Spend",
         value: `${pointsSystem.earningPoints.spend}€ = 1 point`,
@@ -107,7 +141,8 @@ export function PointsRewardsContent() {
         subtitle: "Per share",
         icon: Share2
       }
-    ];
+      ];
+
 
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

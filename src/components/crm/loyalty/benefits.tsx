@@ -17,7 +17,11 @@ import {
   AlertCircle,
   Info,
   Shield,
-  Heart
+  Heart,
+  ArrowUpCircle,
+  Clock,
+  AlarmClock,
+  Coffee
 } from "lucide-react";
 import { 
   Tooltip,
@@ -39,6 +43,10 @@ const BENEFIT_ICONS = {
   'CASHBACK': CreditCard,
   'POINTS': Award,
   'FREE_SHIPPING': Truck,
+  'ROOM_UPGRADE': ArrowUpCircle,
+  'LATE_CHECKOUT': Clock,
+  'EARLY_CHECKIN': AlarmClock,
+  'FREE_BREAKFAST': Coffee
 };
 
 const BENEFIT_COLORS = {
@@ -46,6 +54,10 @@ const BENEFIT_COLORS = {
   'CASHBACK': 'bg-green-50 text-green-600',
   'POINTS': 'bg-purple-50 text-purple-600',
   'FREE_SHIPPING': 'bg-amber-50 text-amber-600',
+  'ROOM_UPGRADE': 'bg-indigo-50 text-indigo-600',
+  'LATE_CHECKOUT': 'bg-pink-50 text-pink-600',
+  'EARLY_CHECKIN': 'bg-cyan-50 text-cyan-600',
+  'FREE_BREAKFAST': 'bg-orange-50 text-orange-600'
 };
 
 
