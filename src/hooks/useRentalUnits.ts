@@ -41,7 +41,6 @@ export const useRentalUnits = () => {
     try {
       setIsLoading(true);
       const response = await api.syncRentalUnits();
-      toast.success('Rental units synced successfully');
       return response;
     } catch (error) {
       toast.error('Failed to sync rental units');
