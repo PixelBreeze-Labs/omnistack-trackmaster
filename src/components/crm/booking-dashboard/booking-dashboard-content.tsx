@@ -159,7 +159,7 @@ export function BookingDashboardContent() {
             <Calendar className="h-4 w-4 mr-2" />
             Last 30 Days
           </Button>
-          <Button style={{ backgroundColor: "#5d23b8" }}>
+          <Button style={{ backgroundColor: "#2A8E9E" }}>
             <TrendingUp className="h-4 w-4 mr-2" />
             View Analytics
           </Button>
@@ -252,7 +252,7 @@ export function BookingDashboardContent() {
                   <Line 
                     type="monotone" 
                     dataKey="revenue" 
-                    stroke="#5d23b8" 
+                    stroke="#2A8E9E" 
                     strokeWidth={2} 
                   />
                 </LineChart>
@@ -346,7 +346,7 @@ export function BookingDashboardContent() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="occupancy" name="Occupancy Rate %" fill="#5d23b8" />
+                <Bar dataKey="occupancy" name="Occupancy Rate %" fill="#2A8E9E" />
               </BarChart>
             </ResponsiveContainer>
           </div>
