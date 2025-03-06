@@ -31,7 +31,7 @@ export function ProgramPreview({ open, onClose, program }: ProgramPreviewProps) 
         {/* Points System Summary */}
         <div className="grid gap-4 md:grid-cols-2 mb-6">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-2">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Coins className="h-5 w-5" />
                 Earning Points
@@ -70,7 +70,7 @@ export function ProgramPreview({ open, onClose, program }: ProgramPreviewProps) 
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-2">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Gift className="h-5 w-5" />
                 Redeeming Points
@@ -102,7 +102,7 @@ export function ProgramPreview({ open, onClose, program }: ProgramPreviewProps) 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {program.membershipTiers.map((tier) => (
               <Card key={tier.name}>
-                <CardContent className="pt-6">
+                <CardContent className="pt-2">
                   <div className="flex items-center justify-between mb-4">
                     <Badge 
                       variant="secondary" 
@@ -174,7 +174,7 @@ export function ProgramPreview({ open, onClose, program }: ProgramPreviewProps) 
             <div className="grid gap-4 md:grid-cols-3">
               {program.pointsSystem.earningPoints.bonusDays.map((day, index) => (
                 <Card key={index}>
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-2">
                     <div className="font-medium">{day.name}</div>
                     <div className="text-sm text-muted-foreground">
                       {new Date(day.date).toLocaleDateString()}
@@ -198,7 +198,7 @@ export function ProgramPreview({ open, onClose, program }: ProgramPreviewProps) 
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-2">
                   <h4 className="font-medium mb-2">Evaluation Period</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -214,7 +214,7 @@ export function ProgramPreview({ open, onClose, program }: ProgramPreviewProps) 
               </Card>
               
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-2">
                   <h4 className="font-medium mb-2">Stay Definition</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
