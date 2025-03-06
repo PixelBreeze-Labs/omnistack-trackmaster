@@ -82,7 +82,7 @@ const KEY_METRICS = [
 const UPCOMING_BOOKINGS = [
   {
     id: "BK-2024-001",
-    guest: "John Smith",
+    guest: "Griseld Gerveni",
     property: "Apartment 9B",
     checkIn: "Mar 10, 2024",
     checkOut: "Mar 15, 2024",
@@ -91,7 +91,7 @@ const UPCOMING_BOOKINGS = [
   },
   {
     id: "BK-2024-002",
-    guest: "Maria Gonzalez",
+    guest: "Klea Gonzalez",
     property: "Apartment 8A",
     checkIn: "Mar 12, 2024",
     checkOut: "Mar 18, 2024",
@@ -100,7 +100,7 @@ const UPCOMING_BOOKINGS = [
   },
   {
     id: "BK-2024-003",
-    guest: "Robert Chen",
+    guest: "Ejona Chen",
     property: "Apartment 9A",
     checkIn: "Mar 14, 2024",
     checkOut: "Mar 17, 2024",
