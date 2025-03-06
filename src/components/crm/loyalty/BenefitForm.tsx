@@ -1,5 +1,6 @@
 // components/benefits/BenefitForm.tsx
 import { useState, useEffect } from 'react';
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,9 @@ export function BenefitForm({
   title,
   loyaltyProgram
 }: BenefitFormProps) {
+  const { data: session } = useSession();
+  const clientType = session?.user?.clientType;
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -102,6 +106,23 @@ export function BenefitForm({
     }
   };
 
+  // Define benefit types based on client type
+  const benefitTypes = clientType === 'BOOKING' 
+    ? [
+        { value: 'DISCOUNT', label: 'Discount' },
+        { value: 'POINTS', label: 'Points' },
+        { value: 'ROOM_UPGRADE', label: 'Room Upgrade' },
+        { value: 'LATE_CHECKOUT', label: 'Late Checkout' },
+        { value: 'EARLY_CHECKIN', label: 'Early Check-in' },
+        { value: 'FREE_BREAKFAST', label: 'Free Breakfast' }
+      ]
+    : [
+        { value: 'DISCOUNT', label: 'Discount' },
+        { value: 'CASHBACK', label: 'Cashback' },
+        { value: 'POINTS', label: 'Points' },
+        { value: 'FREE_SHIPPING', label: 'Free Shipping' }
+      ];
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -140,20 +161,15 @@ export function BenefitForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-                            <InputSelect
+              <InputSelect
                 name="type"
-                label=""  // If you need a label, add it here
+                label=""
                 value={formData.type}
                 onChange={(e) => setFormData(prev => ({
                   ...prev,
                   type: e.target.value as Benefit['type']
                 }))}
-                options={[
-                  { value: 'DISCOUNT', label: 'Discount' },
-                  { value: 'CASHBACK', label: 'Cashback' },
-                  { value: 'POINTS', label: 'Points' },
-                  { value: 'FREE_SHIPPING', label: 'Free Shipping' }
-                ]}
+                options={benefitTypes}
               />
             </div>
 

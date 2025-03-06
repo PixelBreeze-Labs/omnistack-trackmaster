@@ -1,6 +1,8 @@
+// components/loyalty/ProgramContent.tsx
 "use client"
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,10 +22,12 @@ import {
 } from "@/components/ui/table";
 import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 import { ProgramPreview } from "./loyalty-program-preview";
-// import { toast } from "react-hot-toast";
 import { MembershipTier } from "@/app/api/external/omnigateway/types/loyalty-program";
 
 export function ProgramContent() {
+  const { data: session } = useSession();
+  const clientType = session?.user?.clientType;
+  
   const { 
     isLoading, 
     program, 
@@ -78,7 +82,7 @@ export function ProgramContent() {
       await updateProgram(localProgram);
       setHasChanges(false);
     } catch (error) {
-      // toast.error('Failed to update program');
+      console.error('Failed to update program:', error);
     }
   };
 
@@ -91,7 +95,8 @@ export function ProgramContent() {
       pointsMultiplier: 1,
       birthdayReward: 5,
       perks: [],
-      referralPoints: 5
+      referralPoints: 5,
+      ...(clientType === 'BOOKING' && { pointsPerStay: 100 })
     };
 
     setLocalProgram(prev => ({
@@ -132,6 +137,7 @@ export function ProgramContent() {
           <Button 
             onClick={handleSave}
             disabled={!hasChanges}
+            style={{ backgroundColor: "#5FC4D0" }}
           >
             <Crown className="h-4 w-4 mr-2" />
             Save Changes
@@ -188,6 +194,7 @@ export function ProgramContent() {
                 <TableHead>Points Multiplier</TableHead>
                 <TableHead>Birthday Reward</TableHead>
                 <TableHead>Referral Points</TableHead>
+                {clientType === 'BOOKING' && <TableHead>Points Per Stay</TableHead>}
                 <TableHead>Perks</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -253,6 +260,18 @@ export function ProgramContent() {
                       <span>points</span>
                     </div>
                   </TableCell>
+                  {clientType === 'BOOKING' && (
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Input 
+                          type="number"
+                          value={tier.pointsPerStay || 100}
+                          onChange={(e) => handleTierChange(index, 'pointsPerStay', parseInt(e.target.value))}
+                        />
+                        <span>points</span>
+                      </div>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Input 
                       value={tier.perks.join(', ')}
@@ -311,7 +330,6 @@ export function ProgramContent() {
       <div className="h-8" />
     </div>
   );
-
 }
 
 export default ProgramContent;
