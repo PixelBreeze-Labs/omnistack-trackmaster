@@ -30,7 +30,6 @@ import {
   Download,
   RefreshCcw,
   Plus,
-  ExternalLink,
   Newspaper,
   Megaphone,
   Share2,
@@ -39,7 +38,7 @@ import {
 import InputSelect from "@/components/Common/InputSelect";
 import { OperatingEntityForm } from "./OperatingEntityForm";
 import { OperatingEntity, OperatingEntityType } from "@/app/api/external/omnigateway/types/operating-entities";
-import { DeleteConfirmDialog } from "@/components/Common/DeleteConfirmDialog";
+import { DeleteConfirmDialog } from "@/components/crm/social/DeleteConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function AllOperatingEntities() {
