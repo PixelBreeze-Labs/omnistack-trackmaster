@@ -173,10 +173,17 @@ export function AllSocialProfiles() {
     }
   };
 
-  const getOperatingEntityName = (id: string) => {
-    const entity = operatingEntities.find(e => e._id === id);
+  const getOperatingEntityName = (operatingEntityId) => {
+    // Check if operatingEntityId is an object (from API response)
+    if (operatingEntityId && typeof operatingEntityId === 'object' && operatingEntityId._id) {
+      return operatingEntityId.name;
+    }
+    
+    // Otherwise, try to find the entity by ID in the operatingEntities array
+    const entity = operatingEntities.find(e => e._id === operatingEntityId);
     return entity ? entity.name : "Unknown";
   };
+  
 
   return (
     <div className="space-y-6 mb-8">
@@ -332,11 +339,12 @@ export function AllSocialProfiles() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                        {profile.operatingEntity ? profile.operatingEntity.name : getOperatingEntityName(profile.operatingEntityId)}
-                      </div>
-                    </TableCell>
+  <div className="flex items-center gap-1">
+    <Building className="h-3.5 w-3.5 text-muted-foreground" />
+    {profile.operatingEntity ? profile.operatingEntity.name : 
+     getOperatingEntityName(profile.operatingEntityId)}
+  </div>
+</TableCell>
                     <TableCell>
                       {profile.url ? (
                         <a 
