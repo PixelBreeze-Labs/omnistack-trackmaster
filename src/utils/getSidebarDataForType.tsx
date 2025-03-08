@@ -595,11 +595,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
               icon: <List className="w-4 h-4"/>
             }
           ]
+        },
+        {
+          id: 8,
+          title: "Operating Entities",
+          path: `/crm/platform/operating-entities`,
+          icon: <Users className="w-5 h-5"/>,
+          children: [
+            {
+              id: "7-1",
+              title: "List",
+              path: `/crm/platform/social-profiles/list`,
+              icon: <List className="w-4 h-4"/>
+            }
+          ]
         }
       ],
       settings: [
         {
-          id: 8,
+          id: 9,
           title: "Settings",
           path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
@@ -615,7 +629,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       ],
       finance: [
         {
-          id: 9,
+          id: 10,
           title: "Billing",
           path: `/crm/platform/billing`,
           icon: <CreditCard className="w-5 h-5"/>,
