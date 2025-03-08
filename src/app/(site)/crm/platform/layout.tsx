@@ -27,6 +27,16 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
     if (pathname.includes('/staffluent-dashboard')) {
       return 'SAAS'
     }
+
+    // For VenueBoost path detection
+    if (pathname.includes('/venueboost-dashboard')) {
+      return 'VENUEBOOST'
+    }
+
+    // For PIXELBREEZE path detection
+    if (pathname.includes('/pixelbreeze-dashboard')) {
+      return 'PIXELBREEZE'
+    }
     
     const pathParts = pathname.split('/')
     const clientTypeIndex = pathParts.indexOf('crm') + 1
