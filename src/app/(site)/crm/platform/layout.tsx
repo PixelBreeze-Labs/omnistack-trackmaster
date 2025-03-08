@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation"
 import getSidebarDataForType from "@/utils/getSidebarDataForType"
 import { useSession } from "next-auth/react"
 
-
 const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
   const [openSidebar, setOpenSidebar] = useState(false)
   const pathname = usePathname()
@@ -27,14 +26,18 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
     if (pathname.includes('/staffluent-dashboard')) {
       return 'SAAS'
     }
-
-    // For VenueBoost path detection
-    if (pathname.includes('/venueboost-dashboard')) {
+    
+    // For VenueBoost path detection - expanded to catch all possible paths
+    if (pathname.includes('/venueboost') || 
+        pathname.includes('/venues/') || 
+        pathname.includes('/venueboost-')) {
       return 'VENUEBOOST'
     }
-
+    
     // For PIXELBREEZE path detection
-    if (pathname.includes('/pixelbreeze-dashboard')) {
+    if (pathname.includes('/pixelbreeze') ||  
+        pathname.includes('/templates') || 
+        pathname.includes('/media/')) {
       return 'PIXELBREEZE'
     }
     
@@ -71,6 +74,28 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
       communication: sidebarData.communication,
       finance: sidebarData.finance,
       hr: sidebarData.hr
+    }
+  } else if (clientType === 'VENUEBOOST') {
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      business: sidebarData.business,
+      products: sidebarData.products,
+      venues: sidebarData.venues,
+      communication: sidebarData.communication,
+      hr: sidebarData.hr,
+      finance: sidebarData.finance,
+      settings: sidebarData.settings
+    }
+  } else if (clientType === 'PIXELBREEZE') {
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      content: sidebarData.content,
+      media: sidebarData.media,
+      generate: sidebarData.generate,
+      profiles: sidebarData.profiles,
+      users: sidebarData.users,
+      finance: sidebarData.finance,
+      settings: sidebarData.settings
     }
   } else {
     // Default ecommerce props

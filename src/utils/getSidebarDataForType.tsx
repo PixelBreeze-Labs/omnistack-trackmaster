@@ -524,7 +524,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     }
   }
 
-  if (clientType === 'SOCIALGEN') {
+  if (clientType === 'PIXELBREEZE') {
     return {
       mainMenu: [
         {
