@@ -43,7 +43,7 @@ import {
 import InputSelect from "@/components/Common/InputSelect";
 import { SocialProfileForm } from "./SocialProfileForm";
 import { SocialProfile, SocialProfileType } from "@/app/api/external/omnigateway/types/social-profiles";
-import { DeleteConfirmDialog } from "@/components/Common/DeleteConfirmDialog";
+import { DeleteConfirmDialog } from "@/components/crm/social/DeleteConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function AllSocialProfiles() {
