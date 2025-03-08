@@ -114,43 +114,99 @@ export default function Sidebar({
   settings = [],
   // Additional properties
   properties = [],
-  bookings = []
+  bookings = [],
+  // VenueBoost props
+  venues = [],
+  ticketing = [],
+  performers = [],
+  guests = [],
+  // PixelBreeze props
+  content = [],
+  creation = [],
+  campaigns = [],
+  themes = [],
+  media = [],
+  generate = [],
+  profiles = []
 }: SidebarProps) {
   const pathname = usePathname()
   
-  // Determine if we're in SAAS mode
-  const isSaas = business.length > 0
-  
-  // Determine if we're in booking mode
+  // Determine client type based on pathname
+  const isSaas = business.length > 0 && pathname.includes('/staffluent')
   const isBooking = pathname.includes('/booking-dashboard') || 
                    pathname.includes('/bookings') || 
                    pathname.includes('/rental-units') || 
                    pathname.includes('/guests')
+  const isVenueBoost = pathname.includes('/venueboost')
+  const isPixelBreeze = pathname.includes('/socialgen') || pathname.includes('/pixelbreeze')
 
   // Combine all menus for finding current open menu
-  const allMenuItems = isSaas 
-    ? [
-        ...mainMenu,
-        ...business,
-        ...products,
-        ...users,
-        ...support,
-        ...finance,
-        ...settings
-      ]
-    : [
-        ...mainMenu, 
-        ...sales, 
-        ...crm, 
-        ...marketing, 
-        ...loyalty, 
-        ...communication,
-        ...finance,
-        ...hr,
-        ...properties,
-        ...bookings
-      ]
+  let allMenuItems = []
+
+  if (isSaas) {
+    allMenuItems = [
+      ...mainMenu,
+      ...business,
+      ...products,
+      ...users,
+      ...support,
+      ...finance,
+      ...settings
+    ]
+  } else if (isVenueBoost) {
+    allMenuItems = [
+      ...mainMenu,
+      ...business,
+      ...products,
+      ...venues,
+      ...ticketing,
+      ...performers,
+      ...guests,
+      ...marketing,
+      ...finance,
+      ...settings
+    ]
+  } else if (isPixelBreeze) {
+    allMenuItems = [
+      ...mainMenu,
+      ...content,
+      ...media,
+      ...generate,
+      ...profiles,
+      ...themes,
+      ...creation,
+      ...campaigns,
+      ...users,
+      ...finance,
+      ...settings
+    ]
+  } else if (isBooking) {
+    allMenuItems = [
+      ...mainMenu, 
+      ...sales, 
+      ...crm, 
+      ...marketing, 
+      ...loyalty, 
+      ...communication,
+      ...finance,
+      ...hr,
+      ...properties,
+      ...bookings
+    ]
+  } else {
+    allMenuItems = [
+      ...mainMenu, 
+      ...sales, 
+      ...crm, 
+      ...marketing, 
+      ...loyalty, 
+      ...communication,
+      ...finance,
+      ...hr
+    ]
+  }
   
+  // Find the current open menu
   const currentOpenMenu = allMenuItems.find(
     (i: any) => pathname === i.path || pathname.startsWith(i.path + "/")
   )
@@ -213,8 +269,8 @@ export default function Sidebar({
             </nav>
           </div>
 
-          {/* Conditional Sections Based on Mode */}
-          {isSaas ? (
+          {/* SAAS sidebar sections */}
+          {isSaas && (
             <>
               {/* Business Section */}
               {business.length > 0 && (
@@ -296,8 +352,298 @@ export default function Sidebar({
                 </div>
               )}
             </>
-          ) : isBooking ? (
-            // Booking client type specific sections
+          )}
+
+          {/* VenueBoost sidebar sections */}
+          {isVenueBoost && (
+            <>
+              {/* Business Section */}
+              {business.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Business
+                  </h3>
+                  <nav className="space-y-1">
+                    {business.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Products Section */}
+              {products.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Products
+                  </h3>
+                  <nav className="space-y-1">
+                    {products.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Venues Section */}
+              {venues.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Venues
+                  </h3>
+                  <nav className="space-y-1">
+                    {venues.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Ticketing Section */}
+              {ticketing.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Ticketing
+                  </h3>
+                  <nav className="space-y-1">
+                    {ticketing.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Performers Section */}
+              {performers.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Performers
+                  </h3>
+                  <nav className="space-y-1">
+                    {performers.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Guests Section */}
+              {guests.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Guests
+                  </h3>
+                  <nav className="space-y-1">
+                    {guests.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Whitelabel (Communication) Section */}
+              {communication.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Whitelabel
+                  </h3>
+                  <nav className="space-y-1">
+                    {communication.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* PixelBreeze sidebar sections */}
+          {isPixelBreeze && (
+            <>
+              {/* Templates Section */}
+              {content.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Templates
+                  </h3>
+                  <nav className="space-y-1">
+                    {content.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Media Section */}
+              {media.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Media
+                  </h3>
+                  <nav className="space-y-1">
+                    {media.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Generate Section */}
+              {generate.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Generate
+                  </h3>
+                  <nav className="space-y-1">
+                    {generate.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Social Profiles Section */}
+              {profiles.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Social Profiles
+                  </h3>
+                  <nav className="space-y-1">
+                    {profiles.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Other sections as needed */}
+              {creation.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Creation
+                  </h3>
+                  <nav className="space-y-1">
+                    {creation.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {campaigns.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Campaigns
+                  </h3>
+                  <nav className="space-y-1">
+                    {campaigns.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {themes.length > 0 && (
+                <div>
+                  <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Themes
+                  </h3>
+                  <nav className="space-y-1">
+                    {themes.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        item={item}
+                        pathname={pathname}
+                        openMenus={openMenus}
+                        toggleMenu={toggleMenu}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Booking client type specific sections */}
+          {isBooking && (
             <>
               {/* Properties Section for Booking */}
               {properties.length > 0 && (
@@ -439,8 +785,10 @@ export default function Sidebar({
                 </div>
               )}
             </>
-          ) : (
-            // Default ecommerce sections
+          )}
+
+          {/* Default ecommerce sections (when no special client type is detected) */}
+          {!isSaas && !isBooking && !isVenueBoost && !isPixelBreeze && (
             <>
               {/* Sales Section */}
               {sales.length > 0 && (
@@ -526,7 +874,7 @@ export default function Sidebar({
               {communication.length > 0 && (
                 <div>
                   <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Communication
+                  Communication
                   </h3>
                   <nav className="space-y-1">
                     {communication.map((item) => (
@@ -565,7 +913,7 @@ export default function Sidebar({
           )}
 
           {/* Settings/HR Section based on mode */}
-          {isSaas ? (
+          {isSaas || isVenueBoost || isPixelBreeze ? (
             settings.length > 0 && (
               <div className="mb-8">
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">

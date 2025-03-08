@@ -44,7 +44,26 @@ import {
   History,
   Award,
   Percent,
-  Eye
+  Eye,
+  Image as PImage,
+  PenTool,
+  Grid,
+  FileImage,
+  Palette,
+  FileText,
+  Music,
+  Brush,
+  Ticket,
+  Mic,
+  Video,
+  Monitor,
+  ClipboardList,
+  CreditCard,
+  Coffee,
+  Hotel,
+  ShoppingBasket,
+  Film,
+  Layout
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -55,7 +74,20 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     users: [],
     support: [],
     finance: [],
-    settings: []
+    settings: [],
+    // VenueBoost props
+    venues: [],
+    ticketing: [],
+    performers: [],
+    guests: [],
+    // PixelBreeze props
+    content: [],
+    media: [],
+    generate: [],
+    creation: [],
+    campaigns: [],
+    themes: [],
+    profiles: []
   }
 
   if (clientType === 'SAAS') {
@@ -340,6 +372,250 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
           title: "Settings",
           path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
+        }
+      ]
+    }
+  }
+  
+  if (clientType === 'VENUEBOOST') {
+    return {
+      mainMenu: [
+        {
+          id: 1,
+          title: "Dashboard",
+          path: `/crm/platform/venueboost-dashboard`,
+          icon: <LayoutDashboard className="w-5 h-5"/>,
+        },
+        {
+          id: 2,
+          title: "Analytics",
+          path: `/crm/platform/venueboost-analytics`,
+          icon: <BarChart3 className="w-5 h-5"/>,
+        }
+      ],
+      business: [
+        {
+          id: 3,
+          title: "Businesses",
+          path: `/crm/platform/venueboost-businesses`,
+          icon: <Building2 className="w-5 h-5"/>,
+          children: [
+            {
+              id: "3-1",
+              title: "All Businesses",
+              path: `/crm/platform/venueboost-businesses`,
+              icon: <Building2 className="w-4 h-4"/>
+            },
+            {
+              id: "3-2",
+              title: "Trial Users",
+              path: `/crm/platform/venueboost-businesses/trials`,
+              icon: <Clock className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 4,
+          title: "Subscriptions",
+          path: `/crm/platform/venueboost-subscriptions`,
+          icon: <CircleDollarSign className="w-5 h-5"/>,
+          children: [
+            {
+              id: "4-1",
+              title: "Active",
+              path: `/crm/platform/venueboost-subscriptions/active`,
+              icon: <CheckCircle className="w-4 h-4"/>
+            },
+            {
+              id: "4-2",
+              title: "Past Due",
+              path: `/crm/platform/venueboost-subscriptions/past-due`,
+              icon: <AlertCircle className="w-4 h-4"/>
+            },
+            {
+              id: "4-3",
+              title: "Canceled",
+              path: `/crm/platform/venueboost-subscriptions/canceled`,
+              icon: <XCircle className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      products: [
+        {
+          id: 5,
+          title: "Products",
+          path: `/crm/platform/venueboost-products`,
+          icon: <Package className="w-5 h-5"/>,
+        }
+      ],
+      venues: [
+        {
+          id: 6,
+          title: "Food & Beverage",
+          path: `/crm/platform/venues/food-beverage`,
+          icon: <Coffee className="w-5 h-5"/>,
+        },
+        {
+          id: 7,
+          title: "Accommodation",
+          path: `/crm/platform/venues/accommodation`,
+          icon: <Hotel className="w-5 h-5"/>,
+        },
+        {
+          id: 8,
+          title: "Retail Management",
+          path: `/crm/platform/venues/retail`,
+          icon: <ShoppingBasket className="w-5 h-5"/>,
+        },
+        {
+          id: 9,
+          title: "Entertainment Venues",
+          path: `/crm/platform/venues/entertainment`,
+          icon: <Film className="w-5 h-5"/>,
+        }
+      ],
+      communication: [
+        {
+          id: 10,
+          title: "Whitelabel",
+          path: `/crm/platform/whitelabel/solutions`,
+          icon: <LayoutTemplate className="w-5 h-5"/>,
+          children: [
+            {
+              id: "10-1",
+              title: "Solutions",
+              path: `/crm/platform/whitelabel/solutions`,
+              icon: <Layout className="w-4 h-4"/>
+            },
+            {
+              id: "10-2",
+              title: "Configuration",
+              path: `/crm/platform/whitelabel/configuration`,
+              icon: <Settings className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      hr: [
+        {
+          id: 11,
+          title: "HR",
+          path: `/crm/platform/venueboost-hr`,
+          icon: <Users className="w-5 h-5"/>,
+        }
+      ],
+      finance: [
+        {
+          id: 12,
+          title: "Finance",
+          path: `/crm/platform/venueboost-finance`,
+          icon: <Wallet className="w-5 h-5"/>,
+        }
+      ],
+      settings: [
+        {
+          id: 13,
+          title: "Settings",
+          path: `/crm/platform/venueboost-settings`,
+          icon: <Settings className="w-5 h-5"/>,
+        }
+      ]
+    }
+  }
+
+  if (clientType === 'SOCIALGEN') {
+    return {
+      mainMenu: [
+        {
+          id: 1,
+          title: "Dashboard",
+          path: `/crm/platform/pixelbreeze-dashboard`,
+          icon: <LayoutDashboard className="w-5 h-5"/>,
+        },
+        {
+          id: 2,
+          title: "Analytics",
+          path: `/crm/platform/pixelbreeze-analytics`,
+          icon: <BarChart3 className="w-5 h-5"/>,
+        }
+      ],
+      content: [
+        {
+          id: 3,
+          title: "Templates",
+          path: `/crm/platform/templates`,
+          icon: <FileImage className="w-5 h-5"/>,
+          children: [
+            {
+              id: "3-1",
+              title: "All Templates",
+              path: `/crm/platform/templates/all`,
+              icon: <Grid className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      media: [
+        {
+          id: 4,
+          title: "Images",
+          path: `/crm/platform/media/images`,
+          icon: <PImage className="w-5 h-5"/>,
+        },
+        {
+          id: 5,
+          title: "Videos",
+          path: `/crm/platform/media/videos`,
+          icon: <Video className="w-5 h-5"/>,
+        }
+      ],
+      generate: [
+        {
+          id: 6,
+          title: "Images",
+          path: `/crm/platform/generate/images`,
+          icon: <PenTool className="w-5 h-5"/>,
+        }
+      ],
+      profiles: [
+        {
+          id: 7,
+          title: "Social Profiles",
+          path: `/crm/platform/social-profiles`,
+          icon: <Users className="w-5 h-5"/>,
+          children: [
+            {
+              id: "7-1",
+              title: "List",
+              path: `/crm/platform/social-profiles/list`,
+              icon: <List className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      settings: [
+        {
+          id: 8,
+          title: "Settings",
+          path: `/crm/platform/settings`,
+          icon: <Settings className="w-5 h-5"/>,
+          children: [
+            {
+              id: "8-1",
+              title: "Users",
+              path: `/crm/platform/settings/users`,
+              icon: <Users className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      finance: [
+        {
+          id: 9,
+          title: "Billing",
+          path: `/crm/platform/billing`,
+          icon: <CreditCard className="w-5 h-5"/>,
         }
       ]
     }
