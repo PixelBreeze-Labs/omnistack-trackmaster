@@ -20,14 +20,18 @@ const buttonVariants = cva(
         // Add a new variant “soft” (or “preview,” etc.)
         // In this example, we go for a soft gray background with darker text.
         // Tweak as you like or define a custom color in your tailwind.config.
-        soft: "bg-body text-white hover:bg-body-2"
+        soft: "bg-body text-white hover:bg-body-2",
+        cta: "bg-gradient-to-r from-primary to-secondary text-white shadow-md hover:shadow-lg transition-shadow duration-200 hover:from-primary/90 hover:to-secondary/90"
+
     },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
-        'x-sm': "h-8 w-8"
+        'x-sm': "h-8 w-8",
+        'cta': "h-10 px-4 py-2 rounded-lg"
+
       },
     },
     defaultVariants: {

@@ -12,8 +12,10 @@ import {
   ChevronUp,
   Clock,
   DollarSign,
+  Download,
   Grid,
   Image as ImageIcon,
+  Link as LinkIcon,
   PenTool,
   PieChart,
   PlusCircle,
@@ -93,24 +95,52 @@ const popularTemplates = [
 export default function PixelBreezeDashboardContent() {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">PixelBreeze Dashboard</h2>
-        <p className="text-sm text-muted-foreground mt-2">
-          Your AI-powered social media content generation platform
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">PixelBreeze Dashboard</h2>
+          <p className="text-sm text-muted-foreground mt-0 mb-4">
+            Your AI-powered social media content generation platform
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Calendar className="mr-2 h-4 w-4" />
+            Date Range
+          </Button>
+          <Button variant="default" size="sm">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh Data
+          </Button>
+        </div>
       </div>
 
-      <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" size="sm">
-          <Calendar className="mr-2 h-4 w-4" />
-          Date Range
-        </Button>
-        <Button variant="default" size="sm">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh Data
-        </Button>
+      {/* Quick Actions - Redesigned as a card with icon buttons */}
+      <div className="flex flex-col gap-2">
+  <div className="flex items-center">
+    <Wand2 className="h-4 w-4 mr-2 text-primary" />
+    <span className="text-sm font-medium">Quick Actions</span>
+  </div>
+  <div className="grid grid-cols-3 gap-2">
+    <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+      <div className="flex items-center">
+        <PenTool className="h-4 w-4 mr-2 flex-shrink-0" />
+        <span className="whitespace-nowrap text-ellipsis overflow-hidden">Generate Image</span>
       </div>
-
+    </Button>
+    <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+      <div className="flex items-center">
+        <Grid className="h-4 w-4 mr-2 flex-shrink-0" />
+        <span className="whitespace-nowrap text-ellipsis overflow-hidden">Templates</span>
+      </div>
+    </Button>
+    <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+      <div className="flex items-center">
+        <PlusCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+        <span className="whitespace-nowrap text-ellipsis overflow-hidden">Connect Social Profile</span>
+      </div>
+    </Button>
+  </div>
+</div>
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -141,43 +171,27 @@ export default function PixelBreezeDashboardContent() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Engagement Rate</CardTitle>
-            <ThumbsUp className="h-4 w-4 text-gray-500" />
+            <CardTitle className="text-sm font-medium">Connected Profiles</CardTitle>
+            <LinkIcon className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4.6%</div>
+            <div className="text-2xl font-bold">5</div>
             <div className="flex items-center text-xs text-green-500">
               <ChevronUp className="h-3 w-3 mr-1" />
-              <span>0.8% increase</span>
+              <span>2 added recently</span>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Credits Used</CardTitle>
-            <Zap className="h-4 w-4 text-gray-500" />
+            <CardTitle className="text-sm font-medium">Downloaded Images</CardTitle>
+            <Download className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">843/1000</div>
-            <p className="text-xs text-gray-500">Renews in 9 days</p>
+            <div className="text-2xl font-bold">843</div>
+            <p className="text-xs text-gray-500">67% of generations</p>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Button className="h-20">
-          <PenTool className="mr-2 h-5 w-5" />
-          Create New Image
-        </Button>
-        <Button className="h-20" variant="outline">
-          <Grid className="mr-2 h-5 w-5" />
-          Browse Templates
-        </Button>
-        <Button className="h-20" variant="outline">
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Connect Social Account
-        </Button>
       </div>
 
       {/* Tabs for different views */}
@@ -197,7 +211,7 @@ export default function PixelBreezeDashboardContent() {
               <CardHeader>
                 <div>
                   <h3 className="text-lg font-semibold tracking-tight">Template Categories</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-0 mb-4">
                     Distribution of templates by type
                   </p>
                 </div>
@@ -226,7 +240,7 @@ export default function PixelBreezeDashboardContent() {
               <CardHeader>
                 <div>
                   <h3 className="text-lg font-semibold tracking-tight">Generation Trend</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-0 mb-4">
                     Number of images generated per month
                   </p>
                 </div>
@@ -261,7 +275,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Recent Generations</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Your recently generated content
                 </p>
               </div>
@@ -303,7 +317,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Popular Templates</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Your most-used templates by generation count
                 </p>
               </div>
@@ -386,7 +400,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Template Library</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Browse and manage your templates
                 </p>
               </div>
@@ -402,7 +416,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Performance Analytics</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Track your content performance metrics
                 </p>
               </div>
@@ -418,7 +432,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Connected Social Accounts</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Manage your connected social media platforms
                 </p>
               </div>
@@ -429,6 +443,8 @@ export default function PixelBreezeDashboardContent() {
           </Card>
         </TabsContent>
       </Tabs>
+      {/* Add bottom spacing */}
+      <div className="h-8"></div>
     </div>
   )
 }
