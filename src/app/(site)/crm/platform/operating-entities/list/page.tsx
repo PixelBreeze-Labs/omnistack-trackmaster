@@ -1,4 +1,4 @@
-// src/app/crm/platform/operating-entities/page.tsx
+// src/app/crm/platform/operating-entities/list/page.tsx
 import { Metadata } from "next"
 import { AllOperatingEntities } from "@/components/crm/social/operating-entities"
 
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     description: "Manage your operating entities for social media profiles",
 }
 
-export default function OperatingEntitiesPage() {
+export default function OperatingEntitiesListPage() {
     return (
         <div className="px-3">
             <AllOperatingEntities />
