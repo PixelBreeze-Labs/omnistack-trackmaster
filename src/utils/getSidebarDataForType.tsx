@@ -590,7 +590,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
             {
               id: "7-1",
               title: "List",
-              path: `/crm/platform/social-profiles/list`,
+              path: `/crm/platform/operating-entities`,
               icon: <List className="w-4 h-4"/>
             }
           ]
