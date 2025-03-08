@@ -462,34 +462,32 @@ const onSubmitNote = async (values) => {
 
      {/* Communication Tabs */}
 <Card className="md:col-span-2">
-  <Tabs defaultValue="history">
-    <CardHeader className="relative pb-2">
-      <div className="absolute top-4 right-4">
-        <TabsList>
-          <TabsTrigger value="history">
-            <Clock className="h-4 w-4 mr-2" />
-            History
-          </TabsTrigger>
-          <TabsTrigger 
-            value="send" 
-            disabled={!canSendEmail && !canSendSMS}
-          >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Send Message
-          </TabsTrigger>
-          <TabsTrigger value="note">
-            <Pencil className="h-4 w-4 mr-2" />
-            Leave Note
-          </TabsTrigger>
-        </TabsList>
-      </div>
-      
+<Tabs defaultValue="history">
+    <CardHeader className="flex justify-between items-start">
       <div>
         <h3 className="text-xl font-bold tracking-tight">Communications</h3>
-        <p className="text-sm text-muted-foreground mt-0 mb-4">
+        <p className="text-sm text-muted-foreground mt-0 mb-0">
           Message history and sending options
         </p>
       </div>
+      
+      <TabsList className="mt-1">
+        <TabsTrigger value="history">
+          <Clock className="h-4 w-4 mr-2" />
+          History
+        </TabsTrigger>
+        <TabsTrigger 
+          value="send" 
+          disabled={!canSendEmail && !canSendSMS}
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Send Message
+        </TabsTrigger>
+        <TabsTrigger value="note">
+          <Pencil className="h-4 w-4 mr-2" />
+          Leave Note
+        </TabsTrigger>
+      </TabsList>
     </CardHeader>
     
     {/* Communication History Tab */}
