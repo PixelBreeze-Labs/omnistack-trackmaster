@@ -57,7 +57,7 @@ export function LoginForm() {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/booking-dashboard`)
                         } else if (clientType === 'VENUEBOOST') {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/venueboost-dashboard`)
-                        } else if (clientType === 'PIXEELBREZE') {
+                        } else if (clientType === 'PIXELBREEZE') {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/pixelbreeze-dashboard`)
                         } else {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/dashboard`)

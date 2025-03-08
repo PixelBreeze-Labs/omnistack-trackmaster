@@ -10,7 +10,7 @@
     "db:seed": "prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node prisma/venueboost-seed.ts"
+    "seed": "ts-node prisma/pixelbreeze-seed.ts"
   },
   "overrides": {
     "react-quill": {
