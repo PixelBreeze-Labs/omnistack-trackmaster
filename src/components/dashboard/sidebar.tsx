@@ -129,8 +129,9 @@ export default function Sidebar({
   const isSaas = pathname.includes('/staffluent')
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
-  const isPixelBreeze = pathname.includes('/pixelbreeze')
+  const isPixelBreeze = pathname.includes('/pixelbreeze') || pathname.includes('/social-profiles') || pathname.includes('/operating-entities')
 
+  console.log('isPixelBreeze', isPixelBreeze);
   // Combine all menus for finding current open menu
   let allMenuItems = []
 
@@ -196,6 +197,8 @@ export default function Sidebar({
     ]
   }
   
+
+  console.log('allMenuItems', allMenuItems);
   // Find the current open menu
   const currentOpenMenu = allMenuItems.find(
     (i: any) => pathname === i.path || pathname.startsWith(i.path + "/")

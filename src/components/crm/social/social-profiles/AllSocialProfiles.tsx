@@ -96,8 +96,27 @@ export function AllSocialProfiles() {
   };
 
   const handleCreateProfile = async (data) => {
-    await createSocialProfile(data);
-    handleRefresh();
+    try {
+      // Add detailed logging to see exactly what's being passed
+      console.log('Creating profile with data:', JSON.stringify(data, null, 2));
+      
+      // Ensure we have the createSocialProfile function
+      if (!createSocialProfile) {
+        console.error('createSocialProfile function is not available');
+        return;
+      }
+      
+      // Call the API with proper error handling
+      const result = await createSocialProfile(data);
+      console.log('Profile created successfully:', result);
+      
+      // Close the form and refresh the list
+      setProfileFormOpen(false);
+      handleRefresh();
+    } catch (error) {
+      console.error('Error in handleCreateProfile:', error);
+      // Error is already handled in the hook, but we want to see it here too
+    }
   };
 
   const handleUpdateProfile = async (data) => {
@@ -154,10 +173,17 @@ export function AllSocialProfiles() {
     }
   };
 
-  const getOperatingEntityName = (id: string) => {
-    const entity = operatingEntities.find(e => e._id === id);
+  const getOperatingEntityName = (operatingEntityId) => {
+    // Check if operatingEntityId is an object (from API response)
+    if (operatingEntityId && typeof operatingEntityId === 'object' && operatingEntityId._id) {
+      return operatingEntityId.name;
+    }
+    
+    // Otherwise, try to find the entity by ID in the operatingEntities array
+    const entity = operatingEntities.find(e => e._id === operatingEntityId);
     return entity ? entity.name : "Unknown";
   };
+  
 
   return (
     <div className="space-y-6 mb-8">
@@ -230,7 +256,7 @@ export function AllSocialProfiles() {
                 ]}
               />
             </div>
-            <div className="w-full md:w-60 mt-2">
+            <div className="w-full md:w-60 mt-1">
               <InputSelect
                 name="operatingEntity"
                 label=""
@@ -313,11 +339,12 @@ export function AllSocialProfiles() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                        {profile.operatingEntity ? profile.operatingEntity.name : getOperatingEntityName(profile.operatingEntityId)}
-                      </div>
-                    </TableCell>
+  <div className="flex items-center gap-1">
+    <Building className="h-3.5 w-3.5 text-muted-foreground" />
+    {profile.operatingEntity ? profile.operatingEntity.name : 
+     getOperatingEntityName(profile.operatingEntityId)}
+  </div>
+</TableCell>
                     <TableCell>
                       {profile.url ? (
                         <a 

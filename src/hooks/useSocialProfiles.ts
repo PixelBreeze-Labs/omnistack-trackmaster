@@ -11,7 +11,7 @@ export const useSocialProfiles = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
-    const { apiKey, clientId } = useGatewayClientApiKey();
+    const { apiKey } = useGatewayClientApiKey();
     const api = useMemo(() => apiKey ? createSocialProfilesApi(apiKey) : null, [apiKey]);
 
     const fetchSocialProfiles = useCallback(async (params: SocialProfileParams = {}) => {
@@ -32,14 +32,11 @@ export const useSocialProfiles = () => {
         }
     }, [api]);
 
-    const createSocialProfile = useCallback(async (data: Omit<CreateSocialProfileDto, 'clientId'>) => {
-        if (!api || !clientId) return;
+    const createSocialProfile = useCallback(async (data: CreateSocialProfileDto) => {
+        if (!api) return;
         try {
             setIsLoading(true);
-            const response = await api.createSocialProfile({
-                ...data,
-                clientId
-            });
+            const response = await api.createSocialProfile(data);
             toast.success('Social profile created successfully');
             return response;
         } catch (error) {
@@ -49,7 +46,7 @@ export const useSocialProfiles = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [api, clientId]);
+    }, [api]);
 
     const updateSocialProfile = useCallback(async (id: string, data: UpdateSocialProfileDto) => {
         if (!api) return;
