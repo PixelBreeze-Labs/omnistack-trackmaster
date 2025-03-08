@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 // GET handler to fetch staff communications
 export async function GET(
@@ -17,6 +17,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    console.log('session', session);
+
     // Check if client type is BOOKING (MetroSuites)
     if (session.user.clientType !== 'BOOKING') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
@@ -26,7 +28,6 @@ export async function GET(
     const staff = await prisma.staff.findUnique({
       where: { id: params.id },
       include: {
-        department: true,
         communications: {
           orderBy: { sentAt: 'desc' },
         }
@@ -42,7 +43,7 @@ export async function GET(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    return NextResponse.json(staff);
+    return NextResponse.json(staff.communications || []);
   } catch (error) {
     console.error('Error fetching staff communications:', error);
     return NextResponse.json({ error: 'Failed to fetch staff communications' }, { status: 500 });
@@ -115,31 +116,73 @@ export async function POST(
       );
     }
 
-    // Here you would integrate with your email or SMS service
-    // For now, we'll just create the record
-
+    // Create the communication record
     const communication = await prisma.staffCommunication.create({
-      data: {
-        staffId: params.id,
-        type,
-        subject,
-        message,
-        status: 'SENT',
-        sentAt: new Date(),
+        data: {
+          staffId: params.id,
+          type,
+          subject,
+          message,
+          status: 'SENT',
+          sentAt: new Date(),
+        }
+      });
+      
+      // In a real-world scenario, you would:
+      // 1. Send the actual email or SMS here based on type
+      // 2. Update the status based on the delivery response
+      // 3. Include delivery information in metadata
+      
+      // For email, you might use a service like SendGrid, Mailgun, etc.
+      // Example (pseudo-code):
+      // if (type === 'EMAIL') {
+      //   const emailResult = await emailService.send({
+      //     to: staff.email,
+      //     subject,
+      //     body: message,
+      //   });
+      //   
+      //   // Update status based on result
+      //   if (emailResult.success) {
+      //     await prisma.staffCommunication.update({
+      //       where: { id: communication.id },
+      //       data: { 
+      //         status: 'DELIVERED',
+      //         deliveredAt: new Date(),
+      //         metadata: { deliveryId: emailResult.id } 
+      //       }
+      //     });
+      //   } else {
+      //     await prisma.staffCommunication.update({
+      //       where: { id: communication.id },
+      //       data: { 
+      //         status: 'FAILED',
+      //         metadata: { error: emailResult.error } 
+      //       }
+      //     });
+      //   }
+      // }
+      //
+      // For SMS, you might use Twilio, Nexmo, etc.
+      // Example (pseudo-code):
+      // if (type === 'SMS') {
+      //   const smsResult = await smsService.send({
+      //     to: staff.phone,
+      //     message
+      //   });
+      //
+      //   // Update status based on result
+      //   // Similar to email handling
+      // }
+      
+      return NextResponse.json(communication);
+      
+      } catch (error) {
+        console.error('Error sending communication:', error);
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : 'Failed to send communication' }, 
+          { status: 500 }
+        );
       }
-    });
 
-    // In a real-world scenario, you would:
-    // 1. Send the email or SMS
-    // 2. Update the communication status based on the response
-    // 3. Include delivery tracking information in metadata
-
-    return NextResponse.json(communication);
-  } catch (error) {
-    console.error('Error sending communication:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to send communication' }, 
-      { status: 500 }
-    );
-  }
 }

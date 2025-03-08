@@ -8,7 +8,8 @@ import {
   CardHeader, 
   CardTitle, 
   CardContent, 
-  CardDescription,
+//   CardDescription,
+//   CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,6 +53,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useClient } from '@/hooks/useClient';
 
 // Communication form schema
 const communicationFormSchema = z.object({
@@ -102,10 +104,11 @@ interface Staff {
   updatedAt: string;
 }
 
-export default function StaffDetailsPage() {
+export default function StaffDetailsContent() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { clientId } = useClient();
   const [staff, setStaff] = useState<Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -134,7 +137,8 @@ export default function StaffDetailsPage() {
       
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/staff/${params.id}/communications`);
+        // First fetch basic staff details
+        const response = await fetch(`/api/staff/${params.id}`);
         
         if (!response.ok) {
           const error = await response.json();
@@ -142,6 +146,21 @@ export default function StaffDetailsPage() {
         }
         
         const data = await response.json();
+        
+        // Then fetch communications if they exist
+        try {
+          const commsResponse = await fetch(`/api/staff/${params.id}/communications`);
+          if (commsResponse.ok) {
+            const commsData = await commsResponse.json();
+            data.communications = commsData;
+          } else {
+            data.communications = [];
+          }
+        } catch (error) {
+          console.warn('Failed to fetch communications, using empty array', error);
+          data.communications = [];
+        }
+        
         setStaff(data);
       } catch (error) {
         console.error('Error fetching staff details:', error);
@@ -152,7 +171,7 @@ export default function StaffDetailsPage() {
     };
 
     fetchStaffDetails();
-  }, [params.id]);
+  }, [params.id, clientId]);
 
   // Handle sending new communication
   const onSubmit = async (values: z.infer<typeof communicationFormSchema>) => {
@@ -171,10 +190,15 @@ export default function StaffDetailsPage() {
         throw new Error(error.error || 'Failed to send communication');
       }
       
-      // Refresh staff data to show new communication
-      const refreshResponse = await fetch(`/api/staff/${staff.id}/communications`);
-      const refreshedData = await refreshResponse.json();
-      setStaff(refreshedData);
+      // Add the new communication to the list
+      const newComm = await response.json();
+      setStaff(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          communications: [newComm, ...(prev.communications || [])]
+        };
+      });
       
       // Reset form
       form.reset();
@@ -254,7 +278,7 @@ export default function StaffDetailsPage() {
 
   const canSendEmail = staff.communicationPreferences?.email;
   const canSendSMS = staff.communicationPreferences?.sms;
-  const hasCommunicationHistory = staff.communications.length > 0;
+  const hasCommunicationHistory = staff.communications && staff.communications.length > 0;
 
   return (
     <div className="p-8 space-y-6">
