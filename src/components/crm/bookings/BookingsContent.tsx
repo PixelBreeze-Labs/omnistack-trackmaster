@@ -324,7 +324,7 @@ export function BookingsContent() {
                     </TableCell>
                     <TableCell>
                       <div className="font-medium">
-                        {formatCurrency(booking.totalAmount)}
+                        {formatCurrency(booking.totalAmount, 'EUR')}
                       </div>
                       {booking.discountAmount > 0 && (
                         <div className="text-xs text-green-600 mt-0.5">
