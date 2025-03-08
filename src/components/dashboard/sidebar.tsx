@@ -89,9 +89,6 @@ interface SidebarProps {
   guests?: any[];
   // PixelBreeze props
   content?: any[];
-  creation?: any[];
-  campaigns?: any[];
-  themes?: any[];
   media?: any[];
   generate?: any[];
   profiles?: any[];
@@ -122,9 +119,6 @@ export default function Sidebar({
   guests = [],
   // PixelBreeze props
   content = [],
-  creation = [],
-  campaigns = [],
-  themes = [],
   media = [],
   generate = [],
   profiles = []
@@ -172,9 +166,6 @@ export default function Sidebar({
       ...media,
       ...generate,
       ...profiles,
-      ...themes,
-      ...creation,
-      ...campaigns,
       ...users,
       ...finance,
       ...settings
@@ -491,58 +482,6 @@ export default function Sidebar({
                 </h3>
                 <nav className="space-y-1">
                   {profiles.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      item={item}
-                      pathname={pathname}
-                      openMenus={openMenus}
-                      toggleMenu={toggleMenu}
-                    />
-                  ))}
-                </nav>
-              </div>
-
-              {/* Other sections as needed */}
-              <div>
-                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Creation
-                </h3>
-                <nav className="space-y-1">
-                  {creation.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      item={item}
-                      pathname={pathname}
-                      openMenus={openMenus}
-                      toggleMenu={toggleMenu}
-                    />
-                  ))}
-                </nav>
-              </div>
-
-              <div>
-                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Campaigns
-                </h3>
-                <nav className="space-y-1">
-                  {campaigns.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      item={item}
-                      pathname={pathname}
-                      openMenus={openMenus}
-                      toggleMenu={toggleMenu}
-                    />
-                  ))}
-                </nav>
-              </div>
-
-              <div>
-                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Themes
-                </h3>
-                <nav className="space-y-1">
-                  {themes.map((item) => (
                     <MenuItem
                       key={item.id}
                       item={item}

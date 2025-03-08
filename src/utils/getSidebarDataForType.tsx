@@ -84,9 +84,6 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     content: [],
     media: [],
     generate: [],
-    creation: [],
-    campaigns: [],
-    themes: [],
     profiles: []
   }
 
