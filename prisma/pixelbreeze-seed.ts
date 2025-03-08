@@ -38,7 +38,7 @@ async function main() {
   try {
     // First create the user in Supabase
     // Uncomment the line below when you want to create the Supabase user
-    const supabaseUser = await createSupabaseUser('admin@pixelbreeze.xyz', 'PixelBreeze2025!x!')
+    // const supabaseUser = await createSupabaseUser('admin@pixelbreeze.xyz', 'PixelBreeze2025!x!')
 
     // Create the client
     const client = await prisma.client.create({
