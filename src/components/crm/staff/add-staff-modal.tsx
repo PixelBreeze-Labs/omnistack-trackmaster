@@ -1,5 +1,5 @@
 // components/staff/add-staff-modal.tsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { StaffRole, StaffStatus, MetroSuitesStaffRole } from '@/types/staff';
 import InputSelect from "@/components/Common/InputSelect";
+import { useSession } from "next-auth/react";
 
 // Create a schema that includes the communication preferences
 const staffFormSchema = z.object({
@@ -70,26 +71,10 @@ interface AddStaffModalProps {
 
 export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientId }: AddStaffModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMetroSuitesClient, setIsMetroSuitesClient] = useState(false);
-  const [clientType, setClientType] = useState<string>("");
+  const { data: session } = useSession();
+  const isMetroSuitesClient = session?.user?.clientType === 'BOOKING';
 
-  // Fetch client type when modal opens
-  useEffect(() => {
-    const fetchClientType = async () => {
-      if (!clientId) return;
-      try {
-        const response = await fetch(`/api/clients/${clientId}`);
-        const data = await response.json();
-        setClientType(data.type || "");
-        setIsMetroSuitesClient(data.type === "BOOKING");
-      } catch (error) {
-        console.error("Failed to fetch client type:", error);
-      }
-    };
-
-    fetchClientType();
-  }, [clientId]);
-
+ 
   const form = useForm<z.infer<typeof staffFormSchema>>({
     resolver: zodResolver(staffFormSchema),
     defaultValues: {
@@ -115,11 +100,6 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
     try {
       setIsSubmitting(true);
       const formattedDate = new Date(values.dateOfJoin).toISOString();
-      
-      // If this is a MetroSuites client and password is required for communication
-      if (isMetroSuitesClient && !values.password) {
-        throw new Error('Password is required for MetroSuites staff for user account creation and communication preferences');
-      }
       
       const response = await fetch('/api/staff', {
         method: 'POST',
@@ -395,16 +375,14 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
             )}
 
             {/* For non-MetroSuites with app access or MetroSuites staff (for user creation) */}
-            {(form.watch('canAccessApp') || isMetroSuitesClient) && (
+            {form.watch('canAccessApp') && (
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {isMetroSuitesClient 
-                        ? 'Password for User Account' 
-                        : 'Password for App Access'}
+                        Password for App Access
                     </FormLabel>
                     <FormControl>
                       <Input 
@@ -413,11 +391,7 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
                         placeholder="Enter password (min. 6 characters)"
                       />
                     </FormControl>
-                    {isMetroSuitesClient && (
-                      <FormDescription>
-                        Required for user communication preferences
-                      </FormDescription>
-                    )}
+                    
                     <FormMessage />
                   </FormItem>
                 )}

@@ -505,6 +505,18 @@ export function StaffContent() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
+
+                        {/* For MetroSuites, show the View Details button */}
+    {clientType === 'BOOKING' && (
+      <Button 
+        variant="outline" 
+        size="sm"
+        onClick={() => router.push(`/crm/platform/hr/staff/${member.id}`)}
+      >
+        <MessageCircle className="h-4 w-4 mr-2" />
+        View Details
+      </Button>
+    )}
                         {/* Only show store connections for non-MetroSuites clients */}
                         {!(clientType === 'BOOKING') && (
                           <>
