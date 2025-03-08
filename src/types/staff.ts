@@ -29,6 +29,10 @@ export interface Department {
     address?: string;
     emergencyContact?: string;
     notes?: string;
+    communicationPreferences?: {
+      email: boolean;
+      sms: boolean;
+    };
     createdAt: Date;
     updatedAt: Date;
   }
@@ -37,6 +41,7 @@ export interface Department {
     ADMIN = 'ADMIN',
     MANAGER = 'MANAGER',
     SUPERVISOR = 'SUPERVISOR',
+    CONTRACTOR = "CONTRACTOR",
     SALES = 'SALES',
     STAFF = 'STAFF',
     SUPPORT = 'SUPPORT'
@@ -48,3 +53,12 @@ export interface Department {
     INACTIVE = 'INACTIVE',
     SUSPENDED = 'SUSPENDED'
   }
+
+  export enum MetroSuitesStaffRole {
+    CLEANER = "CLEANER",
+    MAINTENANCE = "MAINTENANCE",
+    RECEPTIONIST = "RECEPTIONIST",
+    PROPERTY_MANAGER = "PROPERTY_MANAGER",
+    ADMIN = "ADMIN"
+  }
+  
