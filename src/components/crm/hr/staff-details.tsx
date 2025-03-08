@@ -340,7 +340,7 @@ const onSubmitNote = async (values) => {
   const hasCommunicationHistory = staff.communications && staff.communications.length > 0;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Button 
           variant="outline" 
@@ -463,7 +463,7 @@ const onSubmitNote = async (values) => {
      {/* Communication Tabs */}
 <Card className="md:col-span-2">
 <Tabs defaultValue="history">
-    <CardHeader className="flex justify-between items-start">
+    <CardHeader className="flex justify-between items-start px-4">
       <div>
         <h3 className="text-xl font-bold tracking-tight">Communications</h3>
         <p className="text-sm text-muted-foreground mt-0 mb-0">
@@ -491,7 +491,7 @@ const onSubmitNote = async (values) => {
     </CardHeader>
     
     {/* Communication History Tab */}
-    <TabsContent value="history" className="space-y-4">
+    <TabsContent value="history" className="space-y-4 px-4">
       <CardContent>
         {!hasCommunicationHistory ? (
           <div className="p-8 text-center border rounded-md">
@@ -565,7 +565,7 @@ const onSubmitNote = async (values) => {
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-2">
               <FormField
                 control={form.control}
                 name="type"
@@ -668,7 +668,7 @@ const onSubmitNote = async (values) => {
     <TabsContent value="note">
       <CardContent>
         <Form {...noteForm}>
-          <form onSubmit={noteForm.handleSubmit(onSubmitNote)} className="space-y-6">
+          <form onSubmit={noteForm.handleSubmit(onSubmitNote)} className="space-y-6 px-2">
             <FormField
               control={noteForm.control}
               name="subject"
