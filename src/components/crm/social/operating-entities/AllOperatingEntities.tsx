@@ -62,6 +62,9 @@ export function AllOperatingEntities() {
   const [selectedEntity, setSelectedEntity] = useState<OperatingEntity | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [entityToDelete, setEntityToDelete] = useState<OperatingEntity | null>(null);
+  const [selectedAction, setSelectedAction] = useState({});
+
+
 
   useEffect(() => {
     fetchOperatingEntities({
@@ -81,6 +84,22 @@ export function AllOperatingEntities() {
     });
   };
 
+
+  const handleActionChange = (e, entity) => {
+    const action = e.target.value;
+    
+    if (action === "edit") {
+      setSelectedEntity(entity);
+      setEntityFormOpen(true);
+    } else if (action === "delete") {
+      setEntityToDelete(entity);
+      setDeleteDialogOpen(true);
+    }
+    
+    // Reset the select to default value
+    setSelectedAction({ ...selectedAction, [entity._id]: "" });
+  };
+  
   const handleCreateEntity = async (data) => {
     await createOperatingEntity(data);
     handleRefresh();
@@ -280,32 +299,23 @@ export function AllOperatingEntities() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setSelectedEntity(entity);
-                                setEntityFormOpen(true);
-                              }}
-                            >
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="text-destructive"
-                              onClick={() => {
-                                setEntityToDelete(entity);
-                                setDeleteDialogOpen(true);
-                              }}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      
+                      
+                      <div className="w-32">
+  <InputSelect
+    name={`action-${entity._id}`}
+    label=""
+    value={selectedAction[entity._id] || ""}
+    onChange={(e) => handleActionChange(e, entity)}
+    options={[
+      { value: "", label: "Actions" },
+      { value: "edit", label: "Edit" },
+      { value: "delete", label: "Delete" }
+    ]}
+  />
+</div>
+
+
                       </div>
                     </TableCell>
                   </TableRow>
