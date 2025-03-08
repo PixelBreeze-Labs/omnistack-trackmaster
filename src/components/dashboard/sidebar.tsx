@@ -82,6 +82,19 @@ interface SidebarProps {
   // Additional properties
   properties?: any[];
   bookings?: any[];
+  // VenueBoost props
+  venues?: any[];
+  ticketing?: any[];
+  performers?: any[];
+  guests?: any[];
+  // PixelBreeze props
+  content?: any[];
+  creation?: any[];
+  campaigns?: any[];
+  themes?: any[];
+  media?: any[];
+  generate?: any[];
+  profiles?: any[];
 }
 
 export default function Sidebar({
