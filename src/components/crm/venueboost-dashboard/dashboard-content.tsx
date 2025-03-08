@@ -65,18 +65,22 @@ export default function VenueBoostDashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">VenueBoost Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Calendar className="mr-2 h-4 w-4" />
-            Date Range
-          </Button>
-          <Button variant="default" size="sm">
-            <Activity className="mr-2 h-4 w-4" />
-            Refresh Data
-          </Button>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">VenueBoost Dashboard</h2>
+        <p className="text-sm text-muted-foreground mt-2">
+          Comprehensive overview of your venue management platform
+        </p>
+      </div>
+
+      <div className="flex items-center justify-end gap-2">
+        <Button variant="outline" size="sm">
+          <Calendar className="mr-2 h-4 w-4" />
+          Date Range
+        </Button>
+        <Button variant="default" size="sm">
+          <Activity className="mr-2 h-4 w-4" />
+          Refresh Data
+        </Button>
       </div>
 
       {/* Overview Cards */}
@@ -147,10 +151,12 @@ export default function VenueBoostDashboard() {
             {/* Venue Types */}
             <Card>
               <CardHeader>
-                <CardTitle>Venue Categories</CardTitle>
-                {/* <CardDescription>
-                  Breakdown of venues by type
-                </CardDescription> */}
+                <div>
+                  <h3 className="text-lg font-semibold tracking-tight">Venue Categories</h3>
+                  <p className="text-sm text-muted-foreground mt-0 mb-4">
+                    Breakdown of venues by type
+                  </p>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -174,8 +180,12 @@ export default function VenueBoostDashboard() {
             {/* Revenue Trend */}
             <Card>
               <CardHeader>
-                <CardTitle>Revenue Trend</CardTitle>
-                {/* <CardDescription>Monthly revenue for the past year</CardDescription> */}
+                <div>
+                  <h3 className="text-lg font-semibold tracking-tight">Revenue Trend</h3>
+                  <p className="text-sm text-muted-foreground mt-0 mb-4">
+                    Monthly revenue for the past year
+                  </p>
+                </div>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <div className="h-full w-full">
@@ -205,8 +215,12 @@ export default function VenueBoostDashboard() {
           {/* Upcoming Events */}
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Events</CardTitle>
-              {/* <CardDescription>Events scheduled in the next 90 days</CardDescription> */}
+              <div>
+                <h3 className="text-lg font-semibold tracking-tight">Upcoming Events</h3>
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
+                  Events scheduled in the next 90 days
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -304,8 +318,12 @@ export default function VenueBoostDashboard() {
         <TabsContent value="venues">
           <Card>
             <CardHeader>
-              <CardTitle>Venue Management</CardTitle>
-              {/* <CardDescription>View and manage all your venues</CardDescription> */}
+              <div>
+                <h3 className="text-lg font-semibold tracking-tight">Venue Management</h3>
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
+                  View and manage all your venues
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">Select the "Venues" section from the sidebar to manage your venues in detail.</p>
@@ -316,8 +334,12 @@ export default function VenueBoostDashboard() {
         <TabsContent value="events">
           <Card>
             <CardHeader>
-              <CardTitle>Event Calendar</CardTitle>
-              {/* <CardDescription>View and manage upcoming events</CardDescription> */}
+              <div>
+                <h3 className="text-lg font-semibold tracking-tight">Event Calendar</h3>
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
+                  View and manage upcoming events
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">Select the "Events" section from the sidebar to manage your events in detail.</p>
@@ -328,8 +350,12 @@ export default function VenueBoostDashboard() {
         <TabsContent value="reports">
           <Card>
             <CardHeader>
-              <CardTitle>Performance Reports</CardTitle>
-              {/* <CardDescription>Detailed analytics and reports</CardDescription> */}
+              <div>
+                <h3 className="text-lg font-semibold tracking-tight">Performance Reports</h3>
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
+                  Detailed analytics and reports
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">Select specific report types from the sidebar for detailed performance metrics.</p>
@@ -337,6 +363,9 @@ export default function VenueBoostDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+       {/* Add bottom spacing */}
+       <div className="h-8"></div>
     </div>
   )
 }
