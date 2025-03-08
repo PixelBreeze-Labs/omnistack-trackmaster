@@ -6,10 +6,7 @@ import { useSession } from 'next-auth/react';
 import { 
   Card, 
   CardHeader, 
-  CardTitle, 
   CardContent, 
-//   CardDescription,
-//   CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,12 +44,13 @@ import {
   MessageSquare,
   Check, 
   Clock,
-  AlertCircle
+  AlertCircle,
+  Pencil
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from "react-hot-toast";
 import { useClient } from '@/hooks/useClient';
 
 // Communication form schema
@@ -67,15 +65,15 @@ const communicationFormSchema = z.object({
 
 // Types
 interface StaffCommunication {
-  id: string;
-  type: 'EMAIL' | 'SMS';
-  subject: string;
-  message: string;
-  status: 'DRAFT' | 'SENT' | 'DELIVERED' | 'FAILED' | 'READ';
-  sentAt: string;
-  deliveredAt?: string;
-  readAt?: string;
-}
+    id: string;
+    type: 'EMAIL' | 'SMS' | 'NOTE';  // Added 'NOTE' type
+    subject: string;
+    message: string;
+    status: 'DRAFT' | 'SENT' | 'DELIVERED' | 'FAILED' | 'READ';
+    sentAt: string;
+    deliveredAt?: string;
+    readAt?: string;
+  }
 
 interface Staff {
   id: string;
@@ -112,6 +110,8 @@ export default function StaffDetailsContent() {
   const [staff, setStaff] = useState<Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [isAddingNote, setIsAddingNote] = useState(false);
+
 
   const form = useForm<z.infer<typeof communicationFormSchema>>({
     resolver: zodResolver(communicationFormSchema),
@@ -192,6 +192,7 @@ export default function StaffDetailsContent() {
       
       // Add the new communication to the list
       const newComm = await response.json();
+      toast.success(`${values.type === 'EMAIL' ? 'Email' : 'SMS'} sent successfully`);
       setStaff(prev => {
         if (!prev) return prev;
         return {
@@ -203,7 +204,7 @@ export default function StaffDetailsContent() {
       // Reset form
       form.reset();
       
-      toast.success(`${values.type === 'EMAIL' ? 'Email' : 'SMS'} sent successfully`);
+     
     } catch (error) {
       console.error('Error sending communication:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to send communication');
@@ -211,6 +212,63 @@ export default function StaffDetailsContent() {
       setIsSending(false);
     }
   };
+
+
+  // Create a separate form for notes
+const noteForm = useForm({
+    resolver: zodResolver(z.object({
+      subject: z.string().min(1, 'Title is required'),
+      message: z.string().min(1, 'Note content is required')
+    })),
+    defaultValues: {
+      subject: '',
+      message: ''
+    }
+  });
+  
+
+  // Handle note submission
+const onSubmitNote = async (values) => {
+    try {
+      setIsAddingNote(true);
+      
+      const response = await fetch(`/api/staff/${staff.id}/communications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'NOTE',
+          subject: values.subject,
+          message: values.message
+        })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save note');
+      }
+      
+      // Add the new note to the list
+      const newNote = await response.json();
+
+      toast.success('Note saved successfully');
+      setStaff(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          communications: [newNote, ...(prev.communications || [])]
+        };
+      });
+      
+      // Reset form
+      noteForm.reset();
+      
+    } catch (error) {
+      console.error('Error adding note:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to save note');
+    } finally {
+      setIsAddingNote(false);
+    }
+}
 
   // Get status badge style
   const getStatusBadge = (status: string) => {
@@ -281,7 +339,7 @@ export default function StaffDetailsContent() {
   const hasCommunicationHistory = staff.communications && staff.communications.length > 0;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Button 
           variant="outline" 
@@ -295,23 +353,26 @@ export default function StaffDetailsContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Staff Details Card */}
         <Card className="md:col-span-1">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>Staff Profile</CardTitle>
-                {/* <CardDescription>Personal and job information</CardDescription> */}
-              </div>
-              <Badge 
-                className={
-                  staff.status === 'ACTIVE' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }
-              >
-                {staff.status}
-              </Badge>
-            </div>
-          </CardHeader>
+        <CardHeader className="relative">
+    <div className="absolute top-4 right-4">
+      <Badge 
+        className={
+          staff.status === 'ACTIVE' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800'
+        }
+      >
+        {staff.status}
+      </Badge>
+    </div>
+    
+    <div>
+      <h3 className="text-xl font-bold tracking-tight">Staff Profile</h3>
+      <p className="text-sm text-muted-foreground mt-0 mb-4">
+        Personal and job information
+      </p>
+    </div>
+  </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col items-center text-center gap-3">
               <Avatar className="h-24 w-24">
@@ -398,190 +459,259 @@ export default function StaffDetailsContent() {
           </CardContent>
         </Card>
 
-        {/* Communication Tabs */}
-        <Card className="md:col-span-2">
-          <Tabs defaultValue="history">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Communications</CardTitle>
-                <TabsList>
-                  <TabsTrigger value="history">
-                    <Clock className="h-4 w-4 mr-2" />
-                    History
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="send" 
-                    disabled={!canSendEmail && !canSendSMS}
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Send Message
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            </CardHeader>
-            
-            {/* Communication History Tab */}
-            <TabsContent value="history" className="space-y-4">
-              <CardContent>
-                {!hasCommunicationHistory ? (
-                  <div className="p-8 text-center border rounded-md">
-                    <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                    <h3 className="text-lg font-medium">No Communication History</h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
-                      There are no recorded communications with this staff member yet.
-                      {(canSendEmail || canSendSMS) && " Use the 'Send Message' tab to start a conversation."}
-                    </p>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Subject</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {staff.communications.map((comm) => (
-                        <TableRow key={comm.id} className="cursor-pointer hover:bg-muted/50">
-                          <TableCell>{formatDate(comm.sentAt)}</TableCell>
-                          <TableCell>
-                            {comm.type === 'EMAIL' ? (
-                              <Badge variant="outline" className="bg-blue-50">
-                                <Mail className="h-3 w-3 mr-1" /> Email
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="bg-green-50">
-                                <Phone className="h-3 w-3 mr-1" /> SMS
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{comm.subject}</div>
-                            <div className="text-xs text-muted-foreground truncate max-w-[250px]">
-                              {comm.message}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusBadge(comm.status)}>
-                              {React.createElement(getStatusIcon(comm.status), { className: "h-3 w-3 mr-1" })}
-                              {comm.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+     {/* Communication Tabs */}
+<Card className="md:col-span-2">
+<Tabs defaultValue="history">
+    <CardHeader className="flex justify-between items-start px-4">
+      <div>
+        <h3 className="text-xl font-bold tracking-tight">Communications</h3>
+        <p className="text-sm text-muted-foreground mt-0 mb-0">
+          Message history and sending options
+        </p>
+      </div>
+      
+      <TabsList className="mt-1">
+        <TabsTrigger value="history">
+          <Clock className="h-4 w-4 mr-2" />
+          History
+        </TabsTrigger>
+        <TabsTrigger 
+          value="send" 
+          disabled={!canSendEmail && !canSendSMS}
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Send Message
+        </TabsTrigger>
+        <TabsTrigger value="note">
+          <Pencil className="h-4 w-4 mr-2" />
+          Leave Note
+        </TabsTrigger>
+      </TabsList>
+    </CardHeader>
+    
+    {/* Communication History Tab */}
+    <TabsContent value="history" className="space-y-4 px-4">
+      <CardContent>
+        {!hasCommunicationHistory ? (
+          <div className="p-8 text-center border rounded-md">
+            <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+            <h3 className="text-lg font-medium">No Communication History</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
+              There are no recorded communications with this staff member yet.
+              {(canSendEmail || canSendSMS) && " Use the 'Send Message' tab to start a conversation."}
+            </p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Subject</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {staff.communications.map((comm) => (
+                <TableRow key={comm.id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell>{formatDate(comm.sentAt)}</TableCell>
+                  <TableCell>
+                    {comm.type === 'EMAIL' ? (
+                      <Badge variant="outline" className="bg-blue-50">
+                        <Mail className="h-3 w-3 mr-1" /> Email
+                      </Badge>
+                    ) : comm.type === 'SMS' ? (
+                      <Badge variant="outline" className="bg-green-50">
+                        <Phone className="h-3 w-3 mr-1" /> SMS
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-purple-50">
+                        <Pencil className="h-3 w-3 mr-1" /> Note
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{comm.subject || "No Subject"}</div>
+                    <div className="text-xs text-muted-foreground truncate max-w-[250px]">
+                      {comm.message}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getStatusBadge(comm.status)}>
+                      {React.createElement(getStatusIcon(comm.status), { className: "h-3 w-3 mr-1" })}
+                      {comm.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </TabsContent>
+    
+    {/* Send Communication Tab */}
+    <TabsContent value="send">
+      <CardContent>
+        {!canSendEmail && !canSendSMS ? (
+          <div className="p-8 text-center border rounded-md">
+            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+            <h3 className="text-lg font-medium">Cannot Send Communications</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
+              This staff member has not enabled any communication preferences.
+              Update their profile to enable email or SMS communications.
+            </p>
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-2">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Communication Type</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Reset subject for SMS
+                          if (value === 'SMS') {
+                            form.setValue('subject', 'SMS Message');
+                          }
+                        }}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem 
+                              value="EMAIL" 
+                              disabled={!canSendEmail}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal cursor-pointer">
+                            <Mail className="h-4 w-4 inline mr-2" />
+                            Email
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem 
+                              value="SMS" 
+                              disabled={!canSendSMS} 
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal cursor-pointer">
+                            <Phone className="h-4 w-4 inline mr-2" />
+                            SMS
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </CardContent>
-            </TabsContent>
-            
-            {/* Send Communication Tab */}
-            <TabsContent value="send">
-              <CardContent>
-                {!canSendEmail && !canSendSMS ? (
-                  <div className="p-8 text-center border rounded-md">
-                    <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                    <h3 className="text-lg font-medium">Cannot Send Communications</h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
-                      This staff member has not enabled any communication preferences.
-                      Update their profile to enable email or SMS communications.
-                    </p>
-                  </div>
-                ) : (
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                          <FormItem className="space-y-3">
-                            <FormLabel>Communication Type</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="flex flex-col space-y-1"
-                              >
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem 
-                                      value="EMAIL" 
-                                      disabled={!canSendEmail}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="font-normal cursor-pointer">
-                                    <Mail className="h-4 w-4 inline mr-2" />
-                                    Email
-                                  </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem 
-                                      value="SMS" 
-                                      disabled={!canSendSMS} 
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="font-normal cursor-pointer">
-                                    <Phone className="h-4 w-4 inline mr-2" />
-                                    SMS
-                                  </FormLabel>
-                                </FormItem>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+              />
 
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Subject</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter subject" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+              {/* Only show subject field for Email */}
+              {form.watch('type') === 'EMAIL' && (
+                <FormField
+                  control={form.control}
+                  name="subject"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subject</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter subject" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
-                      <FormField
-                        control={form.control}
-                        name="message"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Message</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Enter your message" 
-                                className="min-h-[120px]"
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {form.watch('type') === 'SMS' 
-                                ? 'SMS messages should be concise and under 160 characters for best delivery.' 
-                                : 'Enter the email content to be sent to the staff member.'}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Enter your message" 
+                        className="min-h-[120px]"
+                        {...field} 
                       />
-
-                      <Button type="submit" disabled={isSending}>
-                        {isSending ? 'Sending...' : 'Send Communication'}
-                      </Button>
-                    </form>
-                  </Form>
+                    </FormControl>
+                    <FormDescription>
+                      {form.watch('type') === 'SMS' 
+                        ? 'SMS messages should be concise and under 160 characters for best delivery.' 
+                        : 'Enter the email content to be sent to the staff member.'}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </CardContent>
-            </TabsContent>
-          </Tabs>
-        </Card>
+              />
+
+              <Button type="submit" disabled={isSending}>
+                {isSending ? 'Sending...' : 'Send Communication'}
+              </Button>
+            </form>
+          </Form>
+        )}
+      </CardContent>
+    </TabsContent>
+    
+    {/* Leave Note Tab */}
+    <TabsContent value="note">
+      <CardContent>
+        <Form {...noteForm}>
+          <form onSubmit={noteForm.handleSubmit(onSubmitNote)} className="space-y-6 px-2">
+            <FormField
+              control={noteForm.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter note title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={noteForm.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note Content</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Enter your note" 
+                      className="min-h-[120px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    This note will be saved to the staff member's communication history.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" disabled={isAddingNote}>
+              {isAddingNote ? 'Saving...' : 'Save Note'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </TabsContent>
+  </Tabs>
+</Card>
       </div>
     </div>
   );

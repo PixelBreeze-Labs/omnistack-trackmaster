@@ -386,6 +386,7 @@ model StaffCommunication {
 enum CommunicationType {
   EMAIL
   SMS
+  NOTE
 }
 
 enum CommunicationStatus {
