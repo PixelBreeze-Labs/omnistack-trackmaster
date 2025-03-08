@@ -101,11 +101,6 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
       setIsSubmitting(true);
       const formattedDate = new Date(values.dateOfJoin).toISOString();
       
-      // If this is a MetroSuites client and password is required for communication
-      if (isMetroSuitesClient && !values.password) {
-        throw new Error('Password is required for MetroSuites staff for user account creation and communication preferences');
-      }
-      
       const response = await fetch('/api/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

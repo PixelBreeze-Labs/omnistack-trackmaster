@@ -110,6 +110,7 @@ model Staff {
   address          String?
   emergencyContact String?
   documents        Json? // Store document URLs or references
+  communicationPreferences Json?  // New field for MetroSuites staff
   notes            String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
@@ -127,6 +128,10 @@ enum StaffRole {
   SALES
   STAFF
   SUPPORT
+  CLEANER
+  MAINTENANCE
+  RECEPTIONIST
+  PROPERTY_MANAGER
 }
 
 enum StaffStatus {
