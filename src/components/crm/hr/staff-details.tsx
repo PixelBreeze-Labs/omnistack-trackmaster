@@ -295,23 +295,26 @@ export default function StaffDetailsContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Staff Details Card */}
         <Card className="md:col-span-1">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>Staff Profile</CardTitle>
-                {/* <CardDescription>Personal and job information</CardDescription> */}
-              </div>
-              <Badge 
-                className={
-                  staff.status === 'ACTIVE' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }
-              >
-                {staff.status}
-              </Badge>
-            </div>
-          </CardHeader>
+        <CardHeader className="relative">
+    <div className="absolute top-4 right-4">
+      <Badge 
+        className={
+          staff.status === 'ACTIVE' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800'
+        }
+      >
+        {staff.status}
+      </Badge>
+    </div>
+    
+    <div>
+      <h3 className="text-xl font-bold tracking-tight">Staff Profile</h3>
+      <p className="text-sm text-muted-foreground mt-0 mb-4">
+        Personal and job information
+      </p>
+    </div>
+  </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col items-center text-center gap-3">
               <Avatar className="h-24 w-24">
