@@ -37,7 +37,8 @@ import {
   Smartphone,
   Store,
   X,
-  Trash2
+  Trash2,
+  MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { Staff, StaffRole, StaffStatus, MetroSuitesStaffRole } from '@/types/staff';
@@ -48,6 +49,7 @@ import { useRouter } from 'next/navigation';
 import { ConnectStoreModal } from '../staff/connect-store-modal';
 import { useStores } from "@/hooks/useStores";
 import { DeleteConfirmationModal } from './delete-confirmation-modal';
+import { useSession } from 'next-auth/react';
 
 
 export function StaffContent() {
@@ -67,8 +69,9 @@ export function StaffContent() {
     staff: null,
     isLoading: false
   });
-  const [isMetroSuitesClient, setIsMetroSuitesClient] = useState(false);
-  const [clientType, setClientType] = useState<string>("");
+
+  const { data: session } = useSession();
+  const clientType = session?.user?.clientType;
 
   const [stats, setStats] = useState({
     totalStaff: 0,
@@ -91,21 +94,6 @@ export function StaffContent() {
   });
 
   // Fetch client type
-  useEffect(() => {
-    const fetchClientType = async () => {
-      if (!clientId) return;
-      try {
-        const response = await fetch(`/api/clients/${clientId}`);
-        const data = await response.json();
-        setClientType(data.type || "");
-        setIsMetroSuitesClient(data.type === "BOOKING");
-      } catch (error) {
-        console.error("Failed to fetch client type:", error);
-      }
-    };
-
-    fetchClientType();
-  }, [clientId]);
 
   // Fetch staff and departments
   useEffect(() => {
@@ -148,10 +136,10 @@ export function StaffContent() {
 
   // Then your useEffect - only needed for non-MetroSuites clients
   useEffect(() => {
-    if (!isMetroSuitesClient) {
+    if (!(clientType==='BOOKING')) {
       listConnectedStores().catch(console.error);
     }
-  }, [listConnectedStores, isMetroSuitesClient]);
+  }, [listConnectedStores, clientType]);
 
   const fetchDepartments = async () => {
     if (!clientId) return;
@@ -205,7 +193,7 @@ export function StaffContent() {
 
   // Get the appropriate roles for filtering based on client type
   const getRoleOptions = () => {
-    if (isMetroSuitesClient) {
+    if (clientType === 'BOOKING') {
       return [
         { value: "all", label: "All Roles" },
         ...Object.values(MetroSuitesStaffRole).map(role => ({
@@ -230,7 +218,7 @@ export function StaffContent() {
       {
         title: "Total Staff",
         value: stats.totalStaff,
-        subtitle: isMetroSuitesClient 
+        subtitle: clientType === 'BOOKING' 
           ? `${stats.totalManagers} property managers` 
           : `${stats.totalManagers} managers`,
         icon: Users
@@ -249,18 +237,30 @@ export function StaffContent() {
       }
     ];
 
-    // Add App Users stat only for non-MetroSuites clients
-    if (!isMetroSuitesClient) {
+  
+  
+    // Only add App Users stat for non-MetroSuites clients (where client type is not BOOKING)
+    if (!(clientType === 'BOOKING')) {
       baseStats.push({
         title: "App Users",
         value: staff?.filter(s => s.canAccessApp).length || 0,
         subtitle: "Sales app access",
         icon: Smartphone
       });
+    } else {
+      // Add a MetroSuites-specific stat card
+      baseStats.push({
+        title: "Communication",
+        value: staff?.filter(s => 
+          s.communicationPreferences?.email || s.communicationPreferences?.sms
+        ).length || 0,
+        subtitle: "Staff with notifications",
+        icon: MessageCircle
+      });
     }
-
+  
     return baseStats;
-  };
+  }
   
   return (
     <div className="space-y-6">
@@ -506,7 +506,7 @@ export function StaffContent() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {/* Only show store connections for non-MetroSuites clients */}
-                        {!isMetroSuitesClient && (
+                        {!(clientType === 'BOOKING') && (
                           <>
                             {member.documents?.storeConnections?.map((connection) => (
                               <div key={connection.storeId} className="flex items-center gap-1">
@@ -650,7 +650,7 @@ export function StaffContent() {
       )}
 
       {/* Only show ConnectStoreModal for non-MetroSuites clients */}
-      {!isMetroSuitesClient && showConnectStore && selectedStaff && (
+      {!(clientType === 'BOOKING' ) && showConnectStore && selectedStaff && (
         <ConnectStoreModal
           isOpen={showConnectStore}
           onClose={() => {
