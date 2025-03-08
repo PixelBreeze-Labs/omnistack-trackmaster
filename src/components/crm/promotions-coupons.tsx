@@ -399,6 +399,7 @@ const [pageSize, setPageSize] = useState(10);
     </div>
         </CardContent>
       </Card>
+      
        {/* Add bottom spacing */}
        <div className="h-8"></div>
     </div>

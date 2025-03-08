@@ -443,6 +443,7 @@ export default function PixelBreezeDashboardContent() {
           </Card>
         </TabsContent>
       </Tabs>
+      
       {/* Add bottom spacing */}
       <div className="h-8"></div>
     </div>
