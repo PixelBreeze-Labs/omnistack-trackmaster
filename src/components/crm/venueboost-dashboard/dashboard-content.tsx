@@ -9,18 +9,12 @@ import {
   Building,
   Calendar,
   ChevronUp,
-  Clock,
   Coffee,
   DollarSign,
   Hotel,
-  Percent,
   ShoppingBasket,
-  Tag,
   Ticket,
-  Users,
   Film,
-  BarChart3,
-  ArrowDown,
   ArrowUp,
 } from "lucide-react"
 
