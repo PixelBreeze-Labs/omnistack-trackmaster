@@ -713,6 +713,8 @@ const onSubmitNote = async (values) => {
   </Tabs>
 </Card>
       </div>
+         {/* Bottom spacing */}
+         <div className="h-8"></div>
     </div>
   );
 }
