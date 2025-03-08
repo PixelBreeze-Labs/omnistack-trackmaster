@@ -98,7 +98,7 @@ export default function PixelBreezeDashboardContent() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">PixelBreeze Dashboard</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-0 mb-4">
             Your AI-powered social media content generation platform
           </p>
         </div>
@@ -211,7 +211,7 @@ export default function PixelBreezeDashboardContent() {
               <CardHeader>
                 <div>
                   <h3 className="text-lg font-semibold tracking-tight">Template Categories</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-0 mb-4">
                     Distribution of templates by type
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export default function PixelBreezeDashboardContent() {
               <CardHeader>
                 <div>
                   <h3 className="text-lg font-semibold tracking-tight">Generation Trend</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-0 mb-4">
                     Number of images generated per month
                   </p>
                 </div>
@@ -275,7 +275,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Recent Generations</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Your recently generated content
                 </p>
               </div>
@@ -317,7 +317,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Popular Templates</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Your most-used templates by generation count
                 </p>
               </div>
@@ -400,7 +400,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Template Library</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Browse and manage your templates
                 </p>
               </div>
@@ -416,7 +416,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Performance Analytics</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Track your content performance metrics
                 </p>
               </div>
@@ -432,7 +432,7 @@ export default function PixelBreezeDashboardContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Connected Social Accounts</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-0 mb-4">
                   Manage your connected social media platforms
                 </p>
               </div>
@@ -443,6 +443,8 @@ export default function PixelBreezeDashboardContent() {
           </Card>
         </TabsContent>
       </Tabs>
+      {/* Add bottom spacing */}
+      <div className="h-8"></div>
     </div>
   )
 }
