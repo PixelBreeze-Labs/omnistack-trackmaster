@@ -181,7 +181,7 @@ export function AllOperatingEntities() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-full md:w-auto">
+            <div className="w-full md:w-auto mt-2">
               <InputSelect
                 name="type"
                 label=""

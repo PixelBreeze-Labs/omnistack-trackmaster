@@ -230,7 +230,7 @@ export function AllSocialProfiles() {
                 ]}
               />
             </div>
-            <div className="w-full md:w-60 mt-2">
+            <div className="w-full md:w-60 mt-1">
               <InputSelect
                 name="operatingEntity"
                 label=""
