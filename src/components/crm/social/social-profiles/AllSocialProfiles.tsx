@@ -96,8 +96,27 @@ export function AllSocialProfiles() {
   };
 
   const handleCreateProfile = async (data) => {
-    await createSocialProfile(data);
-    handleRefresh();
+    try {
+      // Add detailed logging to see exactly what's being passed
+      console.log('Creating profile with data:', JSON.stringify(data, null, 2));
+      
+      // Ensure we have the createSocialProfile function
+      if (!createSocialProfile) {
+        console.error('createSocialProfile function is not available');
+        return;
+      }
+      
+      // Call the API with proper error handling
+      const result = await createSocialProfile(data);
+      console.log('Profile created successfully:', result);
+      
+      // Close the form and refresh the list
+      setProfileFormOpen(false);
+      handleRefresh();
+    } catch (error) {
+      console.error('Error in handleCreateProfile:', error);
+      // Error is already handled in the hook, but we want to see it here too
+    }
   };
 
   const handleUpdateProfile = async (data) => {

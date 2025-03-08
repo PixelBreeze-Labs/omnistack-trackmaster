@@ -72,14 +72,21 @@ export function SocialProfileForm({ open, onClose, onSubmit, initialData, title 
 
   const handleSubmit = async (values: z.infer<typeof socialProfileFormSchema>) => {
     try {
+      console.log('Form values before submission:', values);
       setIsSubmitting(true);
-      await onSubmit({
+      
+      // Prepare the data in the exact format required by the API
+      const submissionData = {
         ...values,
         url: values.url || undefined
-      });
+      };
+      
+      console.log('Submitting data to parent component:', submissionData);
+      await onSubmit(submissionData);
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
+      // You might want to display an error message to the user here
     } finally {
       setIsSubmitting(false);
     }
