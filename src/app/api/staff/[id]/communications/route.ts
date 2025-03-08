@@ -86,9 +86,16 @@ export async function POST(
         );
       }
   
-      // Get the staff member
+      // Get the staff member with client info to access API key
       const staff = await prisma.staff.findUnique({
         where: { id: params.id },
+        include: {
+          client: {
+            select: {
+              omniGatewayApiKey: true
+            }
+          }
+        }
       });
   
       if (!staff) {
@@ -135,34 +142,69 @@ export async function POST(
           type,
           subject: subject || (type === 'NOTE' ? 'Staff Note' : 'No Subject'),
           message,
-          status: 'SENT',  // Notes are always marked as sent
+          status: type === 'NOTE' ? 'SENT' : 'PENDING',  // Notes are sent, others pending
           sentAt: new Date(),
         }
       });
   
-      // For actual email/SMS communications, handle delivery logic
+      // For actual email/SMS communications, use the OmniStack API
       if (type !== 'NOTE') {
-        // In a real-world scenario, you would:
-        // 1. Send the actual email or SMS here based on type
-        // 2. Update the status based on the delivery response
-        // 3. Include delivery information in metadata
+        if (!staff.client?.omniGatewayApiKey) {
+          return NextResponse.json(
+            { error: 'Client OmniGateway API key not found' }, 
+            { status: 500 }
+          );
+        }
+        // Import and use the communication API
+        const { createOmniStackCommunicationApi } = await import('@/app/api/external/omnigateway/communications');
+        const communicationApi = createOmniStackCommunicationApi(staff.client.omniGatewayApiKey);
         
-        // Example email sending (commented out)
-        // if (type === 'EMAIL') {
-        //   const emailResult = await emailService.send({
-        //     to: staff.email,
-        //     subject,
-        //     body: message,
-        //   });
-        // }
-        
-        // Example SMS sending (commented out)
-        // if (type === 'SMS') {
-        //   const smsResult = await smsService.send({
-        //     to: staff.phone,
-        //     message
-        //   });
-        // }
+        try {
+          // Send the communication
+          const result = await communicationApi.sendCommunication({
+            type,
+            recipient: type === 'EMAIL' ? staff.email : staff.phone,
+            subject,
+            message,
+            metadata: {
+              staffId: params.id,
+              staffName: `${staff.firstName} ${staff.lastName}`,
+              communicationId: communication.id
+            },
+            template: type === 'EMAIL' ? 'metrosuites-staff' : undefined
+          });
+          
+          // Update the communication with delivery info
+          const updatedCommunication = await prisma.staffCommunication.update({
+            where: { id: communication.id },
+            data: {
+              status: 'DELIVERED',
+              deliveredAt: new Date(),
+              metadata: {
+                deliveryId: result.deliveryId,
+                provider: result.provider
+              }
+            }
+          });
+          
+          return NextResponse.json(updatedCommunication);
+        } catch (error) {
+          // Update status to FAILED if sending fails
+          const failedCommunication = await prisma.staffCommunication.update({
+            where: { id: communication.id },
+            data: {
+              status: 'FAILED',
+              metadata: {
+                error: error instanceof Error ? error.message : 'Unknown error'
+              }
+            }
+          });
+          
+          return NextResponse.json(
+            { error: 'Failed to send communication', details: failedCommunication }, 
+            { status: 500 }
+          );
+        }
       }
   
       return NextResponse.json(communication);
