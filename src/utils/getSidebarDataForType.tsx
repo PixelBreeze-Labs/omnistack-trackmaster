@@ -365,6 +365,12 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       ],
       hr: [
         {
+          id: 13,
+          title: "Staff",
+          path: `/crm/platform/hr/staff`,
+          icon: <Building2 className="w-5 h-5"/>,
+        },
+        {
           id: 14,
           title: "Settings",
           path: `/crm/platform/settings`,
