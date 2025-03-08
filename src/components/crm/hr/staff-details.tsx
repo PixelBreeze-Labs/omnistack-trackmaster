@@ -6,10 +6,7 @@ import { useSession } from 'next-auth/react';
 import { 
   Card, 
   CardHeader, 
-  CardTitle, 
   CardContent, 
-//   CardDescription,
-//   CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,7 +50,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from "react-hot-toast";
 import { useClient } from '@/hooks/useClient';
 
 // Communication form schema
@@ -195,6 +192,7 @@ export default function StaffDetailsContent() {
       
       // Add the new communication to the list
       const newComm = await response.json();
+      toast.success(`${values.type === 'EMAIL' ? 'Email' : 'SMS'} sent successfully`);
       setStaff(prev => {
         if (!prev) return prev;
         return {
@@ -206,7 +204,7 @@ export default function StaffDetailsContent() {
       // Reset form
       form.reset();
       
-      toast.success(`${values.type === 'EMAIL' ? 'Email' : 'SMS'} sent successfully`);
+     
     } catch (error) {
       console.error('Error sending communication:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to send communication');
@@ -251,6 +249,8 @@ const onSubmitNote = async (values) => {
       
       // Add the new note to the list
       const newNote = await response.json();
+
+      toast.success('Note saved successfully');
       setStaff(prev => {
         if (!prev) return prev;
         return {
@@ -262,7 +262,6 @@ const onSubmitNote = async (values) => {
       // Reset form
       noteForm.reset();
       
-      toast.success('Note saved successfully');
     } catch (error) {
       console.error('Error adding note:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to save note');
