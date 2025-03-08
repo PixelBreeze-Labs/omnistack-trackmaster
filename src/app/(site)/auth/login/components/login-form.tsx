@@ -55,6 +55,10 @@ export function LoginForm() {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/staffluent-dashboard`)
                         } else if (clientType === 'BOOKING') {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/booking-dashboard`)
+                        } else if (clientType === 'VENUEBOOST') {
+                            router.push(`/crm/${unifiedClientType.toLowerCase()}/venueboost-dashboard`)
+                        } else if (clientType === 'PIXEELBREZE') {
+                            router.push(`/crm/${unifiedClientType.toLowerCase()}/pixelbreeze-dashboard`)
                         } else {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/dashboard`)
                         }

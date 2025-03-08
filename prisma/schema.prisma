@@ -16,6 +16,8 @@ enum ClientType {
   SERVICES
   OTHER
   BOOKING
+  VENUEBOOST
+  PIXELBREEZE
 }
 
 // Core User model with Supabase integration
