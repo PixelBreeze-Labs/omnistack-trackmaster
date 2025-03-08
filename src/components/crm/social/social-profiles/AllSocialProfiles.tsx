@@ -473,7 +473,9 @@ export function AllSocialProfiles() {
           accountName: selectedProfile.accountName,
           username: selectedProfile.username,
           url: selectedProfile.url,
-          operatingEntityId: selectedProfile.operatingEntityId
+          operatingEntityId: typeof selectedProfile.operatingEntityId === 'object' && selectedProfile.operatingEntityId._id 
+            ? selectedProfile.operatingEntityId._id 
+            : selectedProfile.operatingEntityId
         } : undefined}
         title={selectedProfile ? 'Edit Social Profile' : 'Add Social Profile'}
       />
