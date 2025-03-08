@@ -72,6 +72,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     profiles: []
   }
 
+
   if (clientType === 'SAAS') {
     // SAAS sidebar items (unchanged)
     return {
