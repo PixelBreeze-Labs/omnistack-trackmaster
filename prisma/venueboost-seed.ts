@@ -38,7 +38,7 @@ async function main() {
   try {
     // First create the user in Supabase
     // Uncomment the line below when you want to create the Supabase user
-    const supabaseUser = await createSupabaseUser('contact@venueboost.io', 'VenueBoost2025!x!')
+    // const supabaseUser = await createSupabaseUser('contact@venueboost.io', 'VenueBoost2025!x!')
 
     // Create the client
     const client = await prisma.client.create({
@@ -64,7 +64,7 @@ async function main() {
         name: 'VenueBoost Admin',
         password: hashedPassword,
         // Replace with the actual ID when you uncomment the createSupabaseUser line
-        supabaseId: supabaseUser.id, 
+        supabaseId: '611eb6c1-b912-4003-adef-a2a126dd022c', 
         role: 'ADMIN',
         clientId: client.id,
       }
