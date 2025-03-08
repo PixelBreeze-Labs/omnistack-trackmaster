@@ -142,7 +142,7 @@ export async function POST(
           type,
           subject: subject || (type === 'NOTE' ? 'Staff Note' : 'No Subject'),
           message,
-          status: type === 'NOTE' ? 'SENT' : 'PENDING',  // Notes are sent, others pending
+          status: type === 'NOTE' ? 'SENT' : 'DRAFT',  // Notes are sent, others pending
           sentAt: new Date(),
         }
       });
@@ -173,6 +173,7 @@ export async function POST(
             },
             template: type === 'EMAIL' ? 'metrosuites-staff' : undefined
           });
+          
           
           // Update the communication with delivery info
           const updatedCommunication = await prisma.staffCommunication.update({
