@@ -68,15 +68,15 @@ const communicationFormSchema = z.object({
 
 // Types
 interface StaffCommunication {
-  id: string;
-  type: 'EMAIL' | 'SMS';
-  subject: string;
-  message: string;
-  status: 'DRAFT' | 'SENT' | 'DELIVERED' | 'FAILED' | 'READ';
-  sentAt: string;
-  deliveredAt?: string;
-  readAt?: string;
-}
+    id: string;
+    type: 'EMAIL' | 'SMS' | 'NOTE';  // Added 'NOTE' type
+    subject: string;
+    message: string;
+    status: 'DRAFT' | 'SENT' | 'DELIVERED' | 'FAILED' | 'READ';
+    sentAt: string;
+    deliveredAt?: string;
+    readAt?: string;
+  }
 
 interface Staff {
   id: string;

@@ -52,137 +52,125 @@ export async function GET(
 
 // POST handler to send a new communication
 export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if client type is BOOKING (MetroSuites)
-    if (session.user.clientType !== 'BOOKING') {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-    }
-
-    const body = await req.json();
-    const { type, subject, message } = body;
-
-    if (!type || !subject || !message) {
-      return NextResponse.json(
-        { error: 'Type, subject, and message are required' }, 
-        { status: 400 }
-      );
-    }
-
-    // Get the staff member
-    const staff = await prisma.staff.findUnique({
-      where: { id: params.id },
-    });
-
-    if (!staff) {
-      return NextResponse.json({ error: 'Staff member not found' }, { status: 404 });
-    }
-
-    // Verify that staff belongs to user's client
-    if (staff.clientId !== session.user.clientId) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-    }
-
-    // Check if staff has the appropriate communication preference enabled
-    const communicationPreferences = staff.communicationPreferences as 
-      { email: boolean, sms: boolean } | null;
-
-    if (!communicationPreferences) {
-      return NextResponse.json(
-        { error: 'Staff member has no communication preferences set' }, 
-        { status: 400 }
-      );
-    }
-
-    if (type === 'EMAIL' && !communicationPreferences.email) {
-      return NextResponse.json(
-        { error: 'Staff member has not opted in for email communications' }, 
-        { status: 400 }
-      );
-    }
-
-    if (type === 'SMS' && !communicationPreferences.sms) {
-      return NextResponse.json(
-        { error: 'Staff member has not opted in for SMS communications' }, 
-        { status: 400 }
-      );
-    }
-
-    // Create the communication record
-    const communication = await prisma.staffCommunication.create({
+    req: Request,
+    { params }: { params: { id: string } }
+  ) {
+    try {
+      const session = await getServerSession(authOptions);
+      
+      if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+  
+      // Check if client type is BOOKING (MetroSuites)
+      if (session.user.clientType !== 'BOOKING') {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
+  
+      const body = await req.json();
+      const { type, subject, message } = body;
+  
+      // Basic validation - type and message are always required
+      if (!type || !message) {
+        return NextResponse.json(
+          { error: 'Type and message are required' }, 
+          { status: 400 }
+        );
+      }
+  
+      // Subject validation only for email/sms communications
+      if ((type === 'EMAIL' || type === 'SMS') && !subject) {
+        return NextResponse.json(
+          { error: 'Subject is required for communications' }, 
+          { status: 400 }
+        );
+      }
+  
+      // Get the staff member
+      const staff = await prisma.staff.findUnique({
+        where: { id: params.id },
+      });
+  
+      if (!staff) {
+        return NextResponse.json({ error: 'Staff member not found' }, { status: 404 });
+      }
+  
+      // Verify that staff belongs to user's client
+      if (staff.clientId !== session.user.clientId) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
+  
+      // Skip communication preferences validation for notes
+      if (type !== 'NOTE') {
+        // Check if staff has the appropriate communication preference enabled
+        const communicationPreferences = staff.communicationPreferences as 
+          { email: boolean, sms: boolean } | null;
+  
+        if (!communicationPreferences) {
+          return NextResponse.json(
+            { error: 'Staff member has no communication preferences set' }, 
+            { status: 400 }
+          );
+        }
+  
+        if (type === 'EMAIL' && !communicationPreferences.email) {
+          return NextResponse.json(
+            { error: 'Staff member has not opted in for email communications' }, 
+            { status: 400 }
+          );
+        }
+  
+        if (type === 'SMS' && !communicationPreferences.sms) {
+          return NextResponse.json(
+            { error: 'Staff member has not opted in for SMS communications' }, 
+            { status: 400 }
+          );
+        }
+      }
+  
+      // Create the communication record with default subject for notes if not provided
+      const communication = await prisma.staffCommunication.create({
         data: {
           staffId: params.id,
           type,
-          subject,
+          subject: subject || (type === 'NOTE' ? 'Staff Note' : 'No Subject'),
           message,
-          status: 'SENT',
+          status: 'SENT',  // Notes are always marked as sent
           sentAt: new Date(),
         }
       });
-      
-      // In a real-world scenario, you would:
-      // 1. Send the actual email or SMS here based on type
-      // 2. Update the status based on the delivery response
-      // 3. Include delivery information in metadata
-      
-      // For email, you might use a service like SendGrid, Mailgun, etc.
-      // Example (pseudo-code):
-      // if (type === 'EMAIL') {
-      //   const emailResult = await emailService.send({
-      //     to: staff.email,
-      //     subject,
-      //     body: message,
-      //   });
-      //   
-      //   // Update status based on result
-      //   if (emailResult.success) {
-      //     await prisma.staffCommunication.update({
-      //       where: { id: communication.id },
-      //       data: { 
-      //         status: 'DELIVERED',
-      //         deliveredAt: new Date(),
-      //         metadata: { deliveryId: emailResult.id } 
-      //       }
-      //     });
-      //   } else {
-      //     await prisma.staffCommunication.update({
-      //       where: { id: communication.id },
-      //       data: { 
-      //         status: 'FAILED',
-      //         metadata: { error: emailResult.error } 
-      //       }
-      //     });
-      //   }
-      // }
-      //
-      // For SMS, you might use Twilio, Nexmo, etc.
-      // Example (pseudo-code):
-      // if (type === 'SMS') {
-      //   const smsResult = await smsService.send({
-      //     to: staff.phone,
-      //     message
-      //   });
-      //
-      //   // Update status based on result
-      //   // Similar to email handling
-      // }
-      
-      return NextResponse.json(communication);
-      
-      } catch (error) {
-        console.error('Error sending communication:', error);
-        return NextResponse.json(
-          { error: error instanceof Error ? error.message : 'Failed to send communication' }, 
-          { status: 500 }
-        );
+  
+      // For actual email/SMS communications, handle delivery logic
+      if (type !== 'NOTE') {
+        // In a real-world scenario, you would:
+        // 1. Send the actual email or SMS here based on type
+        // 2. Update the status based on the delivery response
+        // 3. Include delivery information in metadata
+        
+        // Example email sending (commented out)
+        // if (type === 'EMAIL') {
+        //   const emailResult = await emailService.send({
+        //     to: staff.email,
+        //     subject,
+        //     body: message,
+        //   });
+        // }
+        
+        // Example SMS sending (commented out)
+        // if (type === 'SMS') {
+        //   const smsResult = await smsService.send({
+        //     to: staff.phone,
+        //     message
+        //   });
+        // }
       }
-
-}
+  
+      return NextResponse.json(communication);
+    } catch (error) {
+      console.error('Error sending communication:', error);
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Failed to send communication' }, 
+        { status: 500 }
+      );
+    }
+  }
