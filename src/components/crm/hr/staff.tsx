@@ -98,7 +98,7 @@ export function StaffContent() {
         const response = await fetch(`/api/clients/${clientId}`);
         const data = await response.json();
         setClientType(data.type || "");
-        setIsMetroSuitesClient(data.type === "METROSUITES");
+        setIsMetroSuitesClient(data.type === "BOOKING");
       } catch (error) {
         console.error("Failed to fetch client type:", error);
       }

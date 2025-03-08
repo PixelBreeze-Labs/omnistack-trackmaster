@@ -1,5 +1,5 @@
 // components/staff/add-staff-modal.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,15 +10,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { StaffRole, StaffStatus } from '@/types/staff';
+import { StaffRole, StaffStatus, MetroSuitesStaffRole } from '@/types/staff';
 import InputSelect from "@/components/Common/InputSelect";
 
+// Create a schema that includes the communication preferences
 const staffFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -33,7 +35,11 @@ const staffFormSchema = z.object({
   password: z.union([
     z.string().min(6, "Password must be at least 6 characters"),
     z.string().length(0)
-  ]).optional()
+  ]).optional(),
+  communicationPreferences: z.object({
+    email: z.boolean().default(true),
+    sms: z.boolean().default(false)
+  })
 }).refine((data) => {
   // If canAccessApp is true, password must be provided and at least 6 characters
   if (data.canAccessApp) {
@@ -43,6 +49,15 @@ const staffFormSchema = z.object({
 }, {
   message: "Password is required and must be at least 6 characters when app access is enabled",
   path: ["password"]
+}).refine((data) => {
+  // If SMS communication is enabled, phone must be provided
+  if (data.communicationPreferences.sms) {
+    return data.phone && data.phone.length > 0;
+  }
+  return true;
+}, {
+  message: "Phone number is required when SMS communication is enabled",
+  path: ["phone"]
 });
 
 interface AddStaffModalProps {
@@ -55,6 +70,25 @@ interface AddStaffModalProps {
 
 export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientId }: AddStaffModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMetroSuitesClient, setIsMetroSuitesClient] = useState(false);
+  const [clientType, setClientType] = useState<string>("");
+
+  // Fetch client type when modal opens
+  useEffect(() => {
+    const fetchClientType = async () => {
+      if (!clientId) return;
+      try {
+        const response = await fetch(`/api/clients/${clientId}`);
+        const data = await response.json();
+        setClientType(data.type || "");
+        setIsMetroSuitesClient(data.type === "BOOKING");
+      } catch (error) {
+        console.error("Failed to fetch client type:", error);
+      }
+    };
+
+    fetchClientType();
+  }, [clientId]);
 
   const form = useForm<z.infer<typeof staffFormSchema>>({
     resolver: zodResolver(staffFormSchema),
@@ -69,7 +103,11 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
       dateOfJoin: new Date().toISOString().split('T')[0],
       status: 'ACTIVE',
       canAccessApp: false,
-      password: ''
+      password: '',
+      communicationPreferences: {
+        email: true,
+        sms: false
+      }
     }
   });
 
@@ -77,12 +115,18 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
     try {
       setIsSubmitting(true);
       const formattedDate = new Date(values.dateOfJoin).toISOString();
+      
+      // If this is a MetroSuites client and password is required for communication
+      if (isMetroSuitesClient && !values.password) {
+        throw new Error('Password is required for MetroSuites staff for user account creation and communication preferences');
+      }
+      
       const response = await fetch('/api/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...values,
-          dateOfJoin: formattedDate, // Use the formatted date
+          dateOfJoin: formattedDate,
           clientId,
         }),
       });
@@ -104,6 +148,9 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
       setIsSubmitting(false);
     }
   };
+
+  // Watch SMS communication preference to validate phone field
+  const smsEnabled = form.watch('communicationPreferences.sms');
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -161,7 +208,9 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone (Optional)</FormLabel>
+                    <FormLabel>
+                      Phone {form.watch('communicationPreferences.sms') ? '*' : '(Optional)'}
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Enter phone number" />
                     </FormControl>
@@ -213,10 +262,16 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
                         onChange={field.onChange}
                         options={[
                           { value: "", label: "Select role" },
-                          ...Object.values(StaffRole).map((role) => ({
-                            value: role,
-                            label: role,
-                          }))
+                          ...(isMetroSuitesClient 
+                            ? Object.values(MetroSuitesStaffRole).map((role) => ({
+                                value: role,
+                                label: role,
+                              }))
+                            : Object.values(StaffRole).map((role) => ({
+                                value: role,
+                                label: role,
+                              }))
+                          )
                         ]}
                       />
                     </FormControl>
@@ -268,33 +323,89 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="canAccessApp"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Can access sales associate app
-                    </FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
+            {/* Communication preferences */}
+            <div className="p-4 border rounded-md">
+              <h4 className="font-medium mb-2">Communication Preferences</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="communicationPreferences.email"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Email communication</FormLabel>
+                        <FormDescription>
+                          Staff will receive email notifications
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
 
-            {form.watch('canAccessApp') && (
+                <FormField
+                  control={form.control}
+                  name="communicationPreferences.sms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>SMS communication</FormLabel>
+                        <FormDescription>
+                          Staff will receive SMS notifications
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Only show app access option for non-MetroSuites clients */}
+            {!isMetroSuitesClient && (
+              <FormField
+                control={form.control}
+                name="canAccessApp"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Can access sales associate app
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* For non-MetroSuites with app access or MetroSuites staff (for user creation) */}
+            {(form.watch('canAccessApp') || isMetroSuitesClient) && (
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>
+                      {isMetroSuitesClient 
+                        ? 'Password for User Account' 
+                        : 'Password for App Access'}
+                    </FormLabel>
                     <FormControl>
                       <Input 
                         type="password" 
@@ -302,6 +413,11 @@ export function AddStaffModal({ isOpen, onClose, onSuccess, departments, clientI
                         placeholder="Enter password (min. 6 characters)"
                       />
                     </FormControl>
+                    {isMetroSuitesClient && (
+                      <FormDescription>
+                        Required for user communication preferences
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

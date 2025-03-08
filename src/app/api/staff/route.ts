@@ -64,14 +64,17 @@ export async function POST(req: Request) {
     try {
       const body = await req.json();
       
-       // First verify the client exists
-       const client = await prisma.client.findUnique({
+      // First verify the client exists
+      const client = await prisma.client.findUnique({
         where: { id: body.clientId }
       });
 
       if (!client) {
         return NextResponse.json({ error: 'Client not found' }, { status: 404 });
       }
+      
+      // Check if client is MetroSuites type
+      const isMetroSuites = client.type === 'METROSUITES';
       
       const formatDate = (date: Date | null | undefined) => {
         if (!date) return '-';
@@ -82,8 +85,21 @@ export async function POST(req: Request) {
         });
       };
 
-        // Extract password for user creation but don't send it to staff model
-        const { password, ...staffData } = body;
+      // Extract password for user creation but don't send it to staff model
+      const { password, communicationPreferences, ...staffData } = body;
+      
+      // Validate communication preferences for MetroSuites
+      if (isMetroSuites) {
+        if (!body.email) {
+          return NextResponse.json({ error: 'Email is required for MetroSuites staff' }, { status: 400 });
+        }
+        
+        // Check if phone is provided for SMS communications
+        if (communicationPreferences?.sms && !body.phone) {
+          return NextResponse.json({ error: 'Phone number is required for SMS communication' }, { status: 400 });
+        }
+      }
+      
       // Start a transaction
       const result = await prisma.$transaction(async (prisma) => {
         // Create staff member first
@@ -92,24 +108,80 @@ export async function POST(req: Request) {
               ...staffData,
               employeeId: `EMP-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
               subRole: body.canAccessApp ? 'Sales Associate' : body.subRole,
-              dateOfJoin: new Date(body.dateOfJoin).toISOString()
+              dateOfJoin: new Date(body.dateOfJoin).toISOString(),
+              // Store communication preferences
+              communicationPreferences: communicationPreferences || {
+                email: false,
+                sms: false
+              }
             },
             include: {
               department: true,
               client: true
             }
           });
-  
-        // If staff member needs app access, create associated accounts
-        if (body.canAccessApp && password) {
-          // Create Supabase user
+
+        // Create accounts differently based on client type
+        if (isMetroSuites) {
+          // For MetroSuites, we only need OmniStack user for communication - no app access needed
+          if (staff.client.omniGatewayApiKey && password) {
+            // Create OmniStack user for communication purposes only, no app access
+            const omniStackApi = createOmniStackUserApi(staff.client.omniGatewayApiKey);
+            const omniStackUser = await omniStackApi.createUser({
+              name: body.firstName,
+              surname: body.lastName,
+              email: body.email,
+              password: password,
+              registrationSource: "manual", // Set registration source to manual
+              external_ids: { staffId: staff.id } // Add our staff ID as external ID
+            });
+
+            const hashedPassword = await bcrypt.hash(password, 12);
+            
+            // Create User record in our database
+            await prisma.user.create({
+              data: {
+                email: body.email,
+                name: `${body.firstName} ${body.lastName}`,
+                supabaseId: null, // No Supabase for MetroSuites as there's no app
+                role: 'STAFF',
+                clientId: body.clientId,
+                password: hashedPassword,
+                externalIds: {
+                  supabase: null,
+                  omnistack: omniStackUser._id
+                },
+                communicationPreferences: communicationPreferences || {
+                  email: false,
+                  sms: false
+                }
+              }
+            });
+
+            // Update staff record with note and external IDs
+            await prisma.staff.update({
+              where: { id: staff.id },
+              data: {
+                notes: `MetroSuites staff created on ${formatDate(new Date())}. Communication preferences setup.`,
+                documents: {
+                  externalIds: {
+                    omnistack: omniStackUser._id,
+                    supabase: null
+                  }
+                }
+              }
+            });
+          }
+        } else if (body.canAccessApp && password) {
+          // For non-MetroSuites with app access
+          // Create Supabase user for app access
           const supabaseUser = await createSupabaseUser(body.email, password);
-  
+
           // Get client's OmniStack API key
           if (!staff.client.omniGatewayApiKey) {
             throw new Error('Client OmniStack API key not configured');
           }
-  
+
           // Create OmniStack user
           const omniStackApi = createOmniStackUserApi(staff.client.omniGatewayApiKey);
           const omniStackUser = await omniStackApi.createUser({
@@ -117,9 +189,10 @@ export async function POST(req: Request) {
             surname: body.lastName,
             email: body.email,
             password: password,
-            external_ids: { staffId: staff.id } // Add our staff ID as external ID
+            registrationSource: "manual",
+            external_ids: { staffId: staff.id }
           });
-  
+
           const hashedPassword = await bcrypt.hash(password, 12);
           
           // Create User record in our database
@@ -134,10 +207,14 @@ export async function POST(req: Request) {
               externalIds: {
                 supabase: supabaseUser.id,
                 omnistack: omniStackUser._id
+              },
+              communicationPreferences: communicationPreferences || {
+                email: false,
+                sms: false
               }
             }
           });
-  
+
           // Update staff record with note and external IDs
           await prisma.staff.update({
             where: { id: staff.id },
