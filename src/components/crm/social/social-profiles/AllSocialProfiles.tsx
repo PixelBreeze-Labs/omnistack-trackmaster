@@ -212,7 +212,7 @@ export function AllSocialProfiles() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-full md:w-48">
+            <div className="w-full mt-1 md:w-48">
               <InputSelect
                 name="type"
                 label=""
@@ -230,7 +230,7 @@ export function AllSocialProfiles() {
                 ]}
               />
             </div>
-            <div className="w-full md:w-60">
+            <div className="w-full md:w-60 mt-2">
               <InputSelect
                 name="operatingEntity"
                 label=""
