@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     description: "Manage your social media profiles",
 }
 
-export default function SocialProfilesPage() {
+export default function SocialProfilesListPage() {
     return (
         <div className="px-3">
             <AllSocialProfiles />
