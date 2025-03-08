@@ -31,7 +31,6 @@ import {
   Download,
   RefreshCcw,
   Plus,
-  MoreHorizontal,
   Building,
   Facebook,
   Instagram,
@@ -44,7 +43,6 @@ import InputSelect from "@/components/Common/InputSelect";
 import { SocialProfileForm } from "./SocialProfileForm";
 import { SocialProfile, SocialProfileType } from "@/app/api/external/omnigateway/types/social-profiles";
 import { DeleteConfirmDialog } from "@/components/crm/social/DeleteConfirmDialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function AllSocialProfiles() {
   const {
@@ -65,6 +63,7 @@ export function AllSocialProfiles() {
   const [pageSize, setPageSize] = useState(10);
   const [typeFilter, setTypeFilter] = useState("all");
   const [operatingEntityFilter, setOperatingEntityFilter] = useState("all");
+  const [selectedAction, setSelectedAction] = useState({});
   
   const [profileFormOpen, setProfileFormOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<SocialProfile | null>(null);
@@ -133,6 +132,23 @@ export function AllSocialProfiles() {
       setProfileToDelete(null);
       handleRefresh();
     }
+  };
+
+  const handleActionChange = (e, profile) => {
+    const action = e.target.value;
+    
+    if (action === "edit") {
+      setSelectedProfile(profile);
+      setProfileFormOpen(true);
+    } else if (action === "delete") {
+      setProfileToDelete(profile);
+      setDeleteDialogOpen(true);
+    } else if (action === "visit" && profile.url) {
+      window.open(profile.url, '_blank');
+    }
+    
+    // Reset the select to default value
+    setSelectedAction({ ...selectedAction, [profile._id]: "" });
   };
 
   const getTypeIcon = (type: SocialProfileType) => {
@@ -339,12 +355,12 @@ export function AllSocialProfiles() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-  <div className="flex items-center gap-1">
-    <Building className="h-3.5 w-3.5 text-muted-foreground" />
-    {profile.operatingEntity ? profile.operatingEntity.name : 
-     getOperatingEntityName(profile.operatingEntityId)}
-  </div>
-</TableCell>
+                      <div className="flex items-center gap-1">
+                        <Building className="h-3.5 w-3.5 text-muted-foreground" />
+                        {profile.operatingEntity ? profile.operatingEntity.name : 
+                         getOperatingEntityName(profile.operatingEntityId)}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {profile.url ? (
                         <a 
@@ -365,39 +381,20 @@ export function AllSocialProfiles() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setSelectedProfile(profile);
-                                setProfileFormOpen(true);
-                              }}
-                            >
-                              Edit
-                            </DropdownMenuItem>
-                            {profile.url && (
-                              <DropdownMenuItem 
-                                onClick={() => window.open(profile.url, '_blank')}
-                              >
-                                Visit Profile
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem 
-                              className="text-destructive"
-                              onClick={() => {
-                                setProfileToDelete(profile);
-                                setDeleteDialogOpen(true);
-                              }}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="w-32">
+                          <InputSelect
+                            name={`action-${profile._id}`}
+                            label=""
+                            value={selectedAction[profile._id] || ""}
+                            onChange={(e) => handleActionChange(e, profile)}
+                            options={[
+                              { value: "", label: "Actions" },
+                              { value: "edit", label: "Edit" },
+                              ...(profile.url ? [{ value: "visit", label: "Visit Profile" }] : []),
+                              { value: "delete", label: "Delete" }
+                            ]}
+                          />
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -463,36 +460,38 @@ export function AllSocialProfiles() {
         </CardContent>
       </Card>
 
-       {/* Modals */}
-     <SocialProfileForm
-       open={profileFormOpen}
-       onClose={() => {
-         setProfileFormOpen(false);
-         setSelectedProfile(null);
-       }}
-       onSubmit={selectedProfile ? handleUpdateProfile : handleCreateProfile}
-       initialData={selectedProfile ? {
-         type: selectedProfile.type as SocialProfileType,
-         accountName: selectedProfile.accountName,
-         username: selectedProfile.username,
-         url: selectedProfile.url,
-         operatingEntityId: selectedProfile.operatingEntityId
-       } : undefined}
-       title={selectedProfile ? 'Edit Social Profile' : 'Add Social Profile'}
-     />
+      {/* Modals */}
+      <SocialProfileForm
+        open={profileFormOpen}
+        onClose={() => {
+          setProfileFormOpen(false);
+          setSelectedProfile(null);
+        }}
+        onSubmit={selectedProfile ? handleUpdateProfile : handleCreateProfile}
+        initialData={selectedProfile ? {
+          type: selectedProfile.type as SocialProfileType,
+          accountName: selectedProfile.accountName,
+          username: selectedProfile.username,
+          url: selectedProfile.url,
+          operatingEntityId: typeof selectedProfile.operatingEntityId === 'object' && selectedProfile.operatingEntityId._id 
+            ? selectedProfile.operatingEntityId._id 
+            : selectedProfile.operatingEntityId
+        } : undefined}
+        title={selectedProfile ? 'Edit Social Profile' : 'Add Social Profile'}
+      />
 
-     <DeleteConfirmDialog
-       open={deleteDialogOpen}
-       onClose={() => {
-         setDeleteDialogOpen(false);
-         setProfileToDelete(null);
-       }}
-       onConfirm={handleDeleteProfile}
-       title="Delete Social Profile"
-       description={`Are you sure you want to delete "${profileToDelete?.accountName}"? This action cannot be undone.`}
-     />
-   </div>
- );
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setProfileToDelete(null);
+        }}
+        onConfirm={handleDeleteProfile}
+        title="Delete Social Profile"
+        description={`Are you sure you want to delete "${profileToDelete?.accountName}"? This action cannot be undone.`}
+      />
+    </div>
+  );
 }
 
 export default AllSocialProfiles;
