@@ -338,7 +338,7 @@ export function AllGuests() {
 
                     <TableCell className="text-center">
                       <div className="font-medium">
-                        {guest.totalSpend?.toLocaleString() || 0} ALL
+                        {guest.totalSpend?.toLocaleString() || 0} EUR
                       </div>
                     </TableCell>
                   </TableRow>
