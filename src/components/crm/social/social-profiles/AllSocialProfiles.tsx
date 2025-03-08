@@ -31,7 +31,6 @@ import {
   Download,
   RefreshCcw,
   Plus,
-  ExternalLink,
   MoreHorizontal,
   Building,
   Facebook,
