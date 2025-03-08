@@ -90,30 +90,31 @@ model Department {
 }
 
 model Staff {
-  id               String      @id @default(auto()) @map("_id") @db.ObjectId
-  clientId         String      @db.ObjectId
-  client           Client      @relation(fields: [clientId], references: [id])
-  departmentId     String      @db.ObjectId
-  department       Department  @relation(fields: [departmentId], references: [id])
-  firstName        String
-  lastName         String
-  email            String
-  phone            String?
-  role             StaffRole   @default(STAFF)
-  subRole          String? // For specific roles like "Sales Associate"
-  status           StaffStatus @default(ACTIVE)
-  employeeId       String // Employee identification number
-  dateOfJoin       DateTime
-  canAccessApp     Boolean     @default(false)
-  performanceScore Float?
-  avatar           String?
-  address          String?
-  emergencyContact String?
-  documents        Json? // Store document URLs or references
-  communicationPreferences Json?  // New field for MetroSuites staff
-  notes            String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  id                       String               @id @default(auto()) @map("_id") @db.ObjectId
+  clientId                 String               @db.ObjectId
+  client                   Client               @relation(fields: [clientId], references: [id])
+  departmentId             String               @db.ObjectId
+  department               Department           @relation(fields: [departmentId], references: [id])
+  firstName                String
+  lastName                 String
+  email                    String
+  phone                    String?
+  role                     StaffRole            @default(STAFF)
+  subRole                  String? // For specific roles like "Sales Associate"
+  status                   StaffStatus          @default(ACTIVE)
+  employeeId               String // Employee identification number
+  dateOfJoin               DateTime
+  canAccessApp             Boolean              @default(false)
+  performanceScore         Float?
+  avatar                   String?
+  address                  String?
+  emergencyContact         String?
+  documents                Json?
+  communicationPreferences Json?
+  communications           StaffCommunication[]
+  notes                    String?
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
 
   @@unique([clientId, email])
   @@unique([clientId, employeeId])
@@ -360,6 +361,39 @@ model Contact {
   isPrimary Boolean     @default(false)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+model StaffCommunication {
+  id          String              @id @default(cuid()) @map("_id")
+  staffId     String
+  staff       Staff               @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  type        CommunicationType
+  subject     String
+  message     String
+  status      CommunicationStatus @default(SENT)
+  sentAt      DateTime            @default(now())
+  deliveredAt DateTime?
+  readAt      DateTime?
+  metadata    Json?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([staffId])
+  @@index([type])
+  @@index([status])
+}
+
+enum CommunicationType {
+  EMAIL
+  SMS
+}
+
+enum CommunicationStatus {
+  DRAFT
+  SENT
+  DELIVERED
+  FAILED
+  READ
 }
 
 // Enums
