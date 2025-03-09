@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
     try {
-        // Get clientId from the URL
         const { searchParams } = new URL(request.url);
         const clientId = searchParams.get('clientId');
 
@@ -12,9 +11,17 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Client ID is required' }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({
-            where: { id: clientId },
-            select: { omniGatewayApiKey: true }
+        // Use findFirst with explicit ID matching to avoid caching issues
+        const client = await prisma.client.findFirst({
+            where: {
+                id: clientId,
+            },
+            select: {
+                omniGatewayApiKey: true,
+            },
+            orderBy: {
+                updatedAt: 'desc', // Force newest record
+            },
         });
 
         if (!client) {
@@ -23,7 +30,6 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ apiKey: client.omniGatewayApiKey });
     } catch (error) {
-        console.error('Error fetching gateway API key:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
