@@ -79,9 +79,6 @@ interface SidebarProps {
   users?: any[];
   support?: any[];
   settings?: any[];
-  // Additional properties
-  properties?: any[];
-  bookings?: any[];
   // VenueBoost props
   venues?: any[];
   ticketing?: any[];
@@ -109,9 +106,6 @@ export default function Sidebar({
   users = [],
   support = [],
   settings = [],
-  // Additional properties
-  properties = [],
-  bookings = [],
   // VenueBoost props
   venues = [],
   ticketing = [],
@@ -180,9 +174,7 @@ export default function Sidebar({
       ...loyalty, 
       ...communication,
       ...finance,
-      ...hr,
-      ...properties,
-      ...bookings
+      ...hr
     ]
   } else {
     allMenuItems = [
@@ -501,39 +493,6 @@ export default function Sidebar({
           {/* Booking client type specific sections */}
           {isBooking && (
             <>
-              <div>
-                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Properties
-                </h3>
-                <nav className="space-y-1">
-                  {properties.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      item={item}
-                      pathname={pathname}
-                      openMenus={openMenus}
-                      toggleMenu={toggleMenu}
-                    />
-                  ))}
-                </nav>
-              </div>
-              
-              <div>
-                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Bookings
-                </h3>
-                <nav className="space-y-1">
-                  {bookings.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      item={item}
-                      pathname={pathname}
-                      openMenus={openMenus}
-                      toggleMenu={toggleMenu}
-                    />
-                  ))}
-                </nav>
-              </div>
               
               <div>
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
