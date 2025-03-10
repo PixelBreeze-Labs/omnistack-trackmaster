@@ -44,15 +44,18 @@ import { toast } from "react-hot-toast";
 import { formatCurrency } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/datepicker";
 import { format } from "date-fns";
+import { BookingActionSelect } from "@/components/crm/bookings/BookingActionComponent";
 
 export function BookingsContent() {
   const {
     isLoading,
+    isDeletingBooking,
     bookings,
     totalItems,
     totalPages,
     fetchBookings,
-    syncBookings
+    syncBookings,
+    deleteBooking
   } = useBookings();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -98,6 +101,11 @@ export function BookingsContent() {
     } finally {
       setIsSyncing(false);
     }
+  };
+
+  const handleDeleteBooking = async (booking) => {
+    await deleteBooking(booking);
+    // Note: no need to refresh as the hook updates the local state
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -353,14 +361,13 @@ export function BookingsContent() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => window.open(`/crm/platform/bookings/${booking.id}`, '_blank')}
-                        >
-                          <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                          View
-                        </Button>
+                        <div style={{ minWidth: "120px" }}>
+                          <BookingActionSelect
+                            booking={booking}
+                            onDeleteBooking={handleDeleteBooking}
+                            isDeleting={isDeletingBooking}
+                          />
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>

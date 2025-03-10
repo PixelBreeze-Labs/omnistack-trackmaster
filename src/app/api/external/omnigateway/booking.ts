@@ -24,10 +24,19 @@ export const createOmniStackBookingApi = (apiKey: string) => {
       return data;
     },
 
+    getBooking: async (id: string) => {
+      const { data } = await api.get<{ data: Booking }>(`/bookings/${id}`);
+      return data.data;
+    },
     
     syncBookings: async () => {
       const { data } = await api.post<SyncResponse>('/bookings/sync');
       return data;
     },
+
+    deleteBooking: async (id: string) => {
+      const { data } = await api.delete(`/bookings/${id}`);
+      return data;
+    }
   };
 };
