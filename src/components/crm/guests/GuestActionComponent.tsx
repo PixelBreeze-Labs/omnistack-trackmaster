@@ -105,7 +105,7 @@ export const DeleteGuestModal: React.FC<DeleteGuestModalProps> = ({
             Cancel
           </Button>
           <Button 
-            variant="destructive" 
+           className="bg-red-600 hover:bg-red-700"
             onClick={handleConfirm} 
             disabled={isDeleting}
           >
