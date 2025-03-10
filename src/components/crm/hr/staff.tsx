@@ -328,6 +328,7 @@ export function StaffContent() {
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
+              <div className="relative mt-2">
               <InputSelect
                 name="departmentId"
                 label=""
@@ -344,7 +345,9 @@ export function StaffContent() {
                   )
                 ]}
               />
+              </div>
 
+              <div className="relative mt-2">
               <InputSelect
                 name="role"
                 label=""
@@ -355,7 +358,9 @@ export function StaffContent() {
                 }))}
                 options={getRoleOptions()}
               />
+              </div>
 
+              <div className="relative mt-2">
               <InputSelect
                 name="status"
                 label=""
@@ -372,6 +377,7 @@ export function StaffContent() {
                   }))
                 ]}
               />
+              </div>
             </div>
           </div>
         </CardContent>
