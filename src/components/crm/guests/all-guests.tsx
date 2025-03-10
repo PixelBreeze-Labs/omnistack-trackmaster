@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { FilterSource, FilterStatus, Guest } from "@/app/api/external/omnigateway/types/guests";
-import { GuestActionMenu } from "@/components/crm/guests/DeleteGuestComponents";
+import { GuestActionSelect } from "@/components/crm/guests/GuestActionComponent";
 
 const getTierBadge = (tier: string) => {
   switch (tier) {
@@ -363,8 +363,8 @@ export function AllGuests() {
                       </div>
                     </TableCell>
 
-                    <TableCell className="text-right">
-                      <GuestActionMenu 
+                    <TableCell className="text-right" style={{ minWidth: "120px" }}>
+                      <GuestActionSelect 
                         guest={guest} 
                         onDeleteGuest={handleDeleteGuest} 
                       />

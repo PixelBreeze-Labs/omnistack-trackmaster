@@ -1,5 +1,5 @@
-// src/components/guests/DeleteGuestComponents.tsx
-import React, { useState } from "react";
+// src/components/guests/GuestActionComponent.tsx
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,20 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Trash, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Guest } from "@/app/api/external/omnigateway/types/guests";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
+import InputSelect from "@/components/Common/InputSelect";
 
 interface DeleteGuestModalProps {
   guest: Guest;
@@ -124,42 +117,43 @@ export const DeleteGuestModal: React.FC<DeleteGuestModalProps> = ({
   );
 };
 
-interface GuestActionMenuProps {
+interface GuestActionSelectProps {
   guest: Guest;
   onDeleteGuest: (guest: Guest, options: { forceDelete: boolean; deleteUser: boolean }) => Promise<void>;
 }
 
-export const GuestActionMenu: React.FC<GuestActionMenuProps> = ({
+export const GuestActionSelect: React.FC<GuestActionSelectProps> = ({
   guest,
   onDeleteGuest,
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
 
   const handleDelete = async (options: { forceDelete: boolean; deleteUser: boolean }) => {
     await onDeleteGuest(guest, options);
   };
 
+  // Watch for changes in the selected action
+  useEffect(() => {
+    if (selectedAction === "delete") {
+      setIsDeleteModalOpen(true);
+      // Reset the select after opening the modal
+      setSelectedAction("");
+    }
+  }, [selectedAction]);
+
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-destructive focus:text-destructive"
-            onClick={() => setIsDeleteModalOpen(true)}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            Delete Guest
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <InputSelect
+        name="guestAction"
+        label=""
+        value={selectedAction}
+        onChange={(e) => setSelectedAction(e.target.value)}
+        options={[
+          { value: "", label: "Actions" },
+          { value: "delete", label: "Delete Guest" },
+        ]}
+      />
 
       <DeleteGuestModal
         guest={guest}
