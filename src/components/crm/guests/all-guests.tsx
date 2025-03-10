@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGuests } from "@/hooks/useGuests";
+import { useDeleteGuest } from "@/hooks/useDeleteGuest";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -38,7 +39,8 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
-import { FilterSource, FilterStatus } from "@/app/api/external/omnigateway/types/guests";
+import { FilterSource, FilterStatus, Guest } from "@/app/api/external/omnigateway/types/guests";
+import { GuestActionSelect } from "@/components/crm/guests/GuestActionComponent";
 
 const getTierBadge = (tier: string) => {
   switch (tier) {
@@ -67,6 +69,17 @@ export function AllGuests() {
     fetchGuests
   } = useGuests();
 
+  const { deleteGuest } = useDeleteGuest(() => {
+    // Refresh the guest list after successful deletion
+    fetchGuests({
+      page,
+      limit: pageSize,
+      status: status !== 'ALL' ? status : undefined,
+      source: source !== 'ALL' ? source : undefined,
+      search: searchTerm
+    });
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -91,6 +104,13 @@ export function AllGuests() {
       source: source !== 'ALL' ? source : undefined,
       search: searchTerm
     });
+  };
+
+  const handleDeleteGuest = async (
+    guest: Guest, 
+    options: { forceDelete: boolean; deleteUser: boolean }
+  ) => {
+    await deleteGuest(guest, options);
   };
 
   const getTrendIcon = (percentage: number) => {
@@ -254,12 +274,13 @@ export function AllGuests() {
                 <TableHead>Registration</TableHead>
                 <TableHead className="text-center">Points</TableHead>
                 <TableHead className="text-center">Total Spend</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
@@ -267,7 +288,7 @@ export function AllGuests() {
                 </TableRow>
               ) : guests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     <div className="flex flex-col items-center gap-3">
                       <Users className="h-12 w-12 text-muted-foreground" />
                       <h3 className="text-lg font-medium">No Guests Found</h3>
@@ -340,6 +361,13 @@ export function AllGuests() {
                       <div className="font-medium">
                         {guest.totalSpend?.toLocaleString() || 0} EUR
                       </div>
+                    </TableCell>
+
+                    <TableCell className="text-right" style={{ minWidth: "120px" }}>
+                      <GuestActionSelect 
+                        guest={guest} 
+                        onDeleteGuest={handleDeleteGuest} 
+                      />
                     </TableCell>
                   </TableRow>
                 ))
