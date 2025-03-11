@@ -222,7 +222,7 @@ export function ChatsContent() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-48 mt-3">
+            <div className="w-48 mt-2">
               <InputSelect
                 name="status"
                 label=""
@@ -236,7 +236,7 @@ export function ChatsContent() {
                 ]}
               />
             </div>
-            <div className="w-48 mt-3">
+            <div className="w-48 mt-2">
               <InputSelect
                 name="type"
                 label=""
@@ -437,6 +437,8 @@ export function ChatsContent() {
         onConfirm={handleSyncConfirm}
         isSyncing={isSyncing}
       />
+         {/* Add empty space div at the bottom */}
+  <div className="h-4"></div>
     </div>
   );
 }

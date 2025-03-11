@@ -305,7 +305,7 @@ export function PromotionsContent() {
                     onChange={(e) => setPromotionsSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="w-36 mt-3">
+                <div className="w-36 mt-1">
                   <InputSelect
                     name="status"
                     label=""
@@ -318,7 +318,7 @@ export function PromotionsContent() {
                     ]}
                   />
                 </div>
-                <div className="w-36 mt-3">
+                <div className="w-36 mt-1">
                   <InputSelect
                     name="type"
                     label=""
@@ -728,6 +728,8 @@ export function PromotionsContent() {
         onConfirm={handleSyncConfirm}
         isSyncing={isSyncing}
       />
+       {/* Add empty space div at the bottom */}
+  <div className="h-4"></div>
     </div>
   );
 }
