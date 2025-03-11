@@ -91,7 +91,7 @@ export function PromotionsContent() {
     isSyncingDiscounts
   } = usePromotions();
 
-  // Load promotions on tab change or filter change
+  // Handle tab changes separately to ensure proper loading
   useEffect(() => {
     if (promotionsCurrentTab === "promotions") {
       fetchPromotions({
@@ -101,7 +101,20 @@ export function PromotionsContent() {
         status: promotionsStatusFilter !== 'all' ? promotionsStatusFilter === 'true' : undefined,
         type: promotionsTypeFilter !== 'all' ? promotionsTypeFilter : undefined
       });
-    } else if (promotionsCurrentTab === "discounts") {
+    }
+  }, [
+    fetchPromotions, 
+    promotionsCurrentTab,
+    promotionsPage, 
+    promotionsPageSize, 
+    promotionsSearchTerm, 
+    promotionsStatusFilter, 
+    promotionsTypeFilter
+  ]);
+
+  // Separate effect for discounts tab
+  useEffect(() => {
+    if (promotionsCurrentTab === "discounts") {
       fetchDiscounts({
         page: discountsPage,
         limit: discountsPageSize,
@@ -111,20 +124,37 @@ export function PromotionsContent() {
       });
     }
   }, [
-    fetchPromotions, 
-    fetchDiscounts, 
-    promotionsCurrentTab, 
-    promotionsPage, 
-    promotionsPageSize, 
-    promotionsSearchTerm, 
-    promotionsStatusFilter, 
-    promotionsTypeFilter, 
+    fetchDiscounts,
+    promotionsCurrentTab,
     discountsPage, 
     discountsPageSize, 
     discountsSearchTerm, 
     discountsStatusFilter, 
     discountsTypeFilter
   ]);
+
+  // Immediate tab change to ensure data loads right away
+  const handleTabChange = (tab: string) => {
+    setPromotionsCurrentTab(tab);
+    
+    if (tab === "promotions") {
+      fetchPromotions({
+        page: promotionsPage,
+        limit: promotionsPageSize,
+        search: promotionsSearchTerm,
+        status: promotionsStatusFilter !== 'all' ? promotionsStatusFilter === 'true' : undefined,
+        type: promotionsTypeFilter !== 'all' ? promotionsTypeFilter : undefined
+      });
+    } else if (tab === "discounts") {
+      fetchDiscounts({
+        page: discountsPage,
+        limit: discountsPageSize,
+        search: discountsSearchTerm,
+        status: discountsStatusFilter !== 'all' ? discountsStatusFilter === 'true' : undefined,
+        type: discountsTypeFilter !== 'all' ? discountsTypeFilter as DiscountType : undefined
+      });
+    }
+  };
 
   const handleRefresh = () => {
     if (promotionsCurrentTab === "promotions") {
@@ -270,7 +300,7 @@ export function PromotionsContent() {
         </div>
       </div>
 
-      <Tabs defaultValue="promotions" onValueChange={setPromotionsCurrentTab} value={promotionsCurrentTab}>
+      <Tabs defaultValue="promotions" onValueChange={handleTabChange} value={promotionsCurrentTab}>
         <TabsList>
           <TabsTrigger value="promotions">
             <TagIcon className="mr-2 h-4 w-4" />
@@ -518,7 +548,7 @@ export function PromotionsContent() {
                     onChange={(e) => setDiscountsSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="w-36 mt-3">
+                <div className="w-36 mt-1">
                   <InputSelect
                     name="status"
                     label=""
@@ -531,7 +561,7 @@ export function PromotionsContent() {
                     ]}
                   />
                 </div>
-                <div className="w-36 mt-3">
+                <div className="w-36 mt-1">
                   <InputSelect
                     name="type"
                     label=""

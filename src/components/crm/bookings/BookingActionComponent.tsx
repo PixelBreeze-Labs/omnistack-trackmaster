@@ -1,4 +1,4 @@
-// src/components/bookings/BookingActionComponent.tsx
+// src/components/crm/bookings/BookingActionComponent.tsx
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -91,12 +91,18 @@ export const BookingActionSelect: React.FC<BookingActionSelectProps> = ({
   const handleDelete = async (booking: Booking) => {
     await onDeleteBooking(booking);
   };
+  
+  const handleManageInVenueBoost = () => {
+    window.open('https://admin.venueboost.io', '_blank');
+  };
 
   // Watch for changes in the selected action
   useEffect(() => {
     if (selectedAction === "delete") {
       setIsDeleteModalOpen(true);
-      // Reset the select after opening the modal
+      setSelectedAction("");
+    } else if (selectedAction === "manage") {
+      handleManageInVenueBoost();
       setSelectedAction("");
     }
   }, [selectedAction]);
@@ -110,6 +116,7 @@ export const BookingActionSelect: React.FC<BookingActionSelectProps> = ({
         onChange={(e) => setSelectedAction(e.target.value)}
         options={[
           { value: "", label: "Actions" },
+          { value: "manage", label: "Manage in VenueBoost" },
           { value: "delete", label: "Delete Booking" },
         ]}
       />
