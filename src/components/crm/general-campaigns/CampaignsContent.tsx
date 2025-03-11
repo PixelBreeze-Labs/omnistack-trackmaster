@@ -214,7 +214,7 @@ export function CampaignsContent() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-36 mt-3">
+            <div className="w-36 mt-1">
               <InputSelect
                 name="status"
                 label=""
@@ -228,7 +228,7 @@ export function CampaignsContent() {
                 ]}
               />
             </div>
-            <div className="w-36 mt-3">
+            <div className="w-36 mt-1">
               <InputSelect
                 name="type"
                 label=""
@@ -241,7 +241,7 @@ export function CampaignsContent() {
                 ]}
               />
             </div>
-            <div className="w-36 mt-3">
+            <div className="w-36 mt-1">
               <InputSelect
                 name="sent"
                 label=""
@@ -456,6 +456,8 @@ export function CampaignsContent() {
         onConfirm={handleSyncConfirm}
         isSyncing={isSyncing}
       />
+       {/* Add empty space div at the bottom */}
+  <div className="h-4"></div>
     </div>
   );
 }

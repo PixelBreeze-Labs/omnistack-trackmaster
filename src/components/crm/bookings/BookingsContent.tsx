@@ -211,7 +211,7 @@ export function BookingsContent() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-48 mt-3">
+            <div className="w-48 mt-2">
               <InputSelect
                 name="status"
                 label=""
