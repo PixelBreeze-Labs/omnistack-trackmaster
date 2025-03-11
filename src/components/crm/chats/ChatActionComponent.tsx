@@ -91,11 +91,17 @@ export const ChatActionSelect: React.FC<ChatActionSelectProps> = ({
     await onDeleteChat(chat);
   };
 
+  const handleManageInVenueBoost = () => {
+    window.open('https://admin.venueboost.io', '_blank');
+  };
+
   // Watch for changes in the selected action
   useEffect(() => {
     if (selectedAction === "delete") {
       setIsDeleteModalOpen(true);
-      // Reset the select after opening the modal
+      setSelectedAction("");
+    } else if (selectedAction === "manage") {
+      handleManageInVenueBoost();
       setSelectedAction("");
     }
   }, [selectedAction]);
@@ -109,6 +115,7 @@ export const ChatActionSelect: React.FC<ChatActionSelectProps> = ({
         onChange={(e) => setSelectedAction(e.target.value)}
         options={[
           { value: "", label: "Actions" },
+          { value: "manage", label: "Manage in VenueBoost" },
           { value: "delete", label: "Delete Chat" },
         ]}
       />
