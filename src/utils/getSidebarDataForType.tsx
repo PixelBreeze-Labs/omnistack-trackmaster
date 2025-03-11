@@ -303,13 +303,13 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 7,
           title: "Promotions",
-          path: `/crm/platform/promotions`,
+          path: `/crm/platform/general-promotions`,
           icon: <BadgePercent className="w-5 h-5"/>,
         },
         {
           id: 8,
           title: "Campaigns",
-          path: `/crm/platform/marketing-strategy`,
+          path: `/crm/platform/general-campaigns`,
           icon: <Megaphone className="w-5 h-5"/>,
         }
       ],
