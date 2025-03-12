@@ -14,6 +14,14 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
 
   
   const getClientTypeFromPath = () => {
+    // For QYTETARET path detection
+    if (pathname.includes('/qytetaret') || 
+        pathname.includes('/reports') || 
+        pathname.includes('/citizens') || 
+        pathname.includes('/authorities')) {
+      return 'QYTETARET'
+    }
+    
     // For booking dashboard path, ensure we set client type as BOOKING
     if (pathname.includes('/booking-dashboard') || 
         pathname.includes('/bookings') || 
@@ -97,6 +105,17 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
       profiles: sidebarData.profiles,
       users: sidebarData.users,
       finance: sidebarData.finance,
+      settings: sidebarData.settings
+    }
+  } else if (clientType === 'QYTETARET') {
+    // New props for QYTETARET client type
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      reports: sidebarData.reports,
+      citizens: sidebarData.citizens,
+      authorities: sidebarData.authorities,
+      analytics: sidebarData.analytics,
+      communication: sidebarData.communication,
       settings: sidebarData.settings
     }
   } else {
