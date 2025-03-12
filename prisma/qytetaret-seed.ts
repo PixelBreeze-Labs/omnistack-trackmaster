@@ -38,7 +38,7 @@ async function main() {
   try {
     // First create the user in Supabase
     // Uncomment the line below when you want to create the Supabase user
-    const supabaseUser = await createSupabaseUser('admin@qytetaret.al', 'Qytetaret2025!x!')
+    // const supabaseUser = await createSupabaseUser('admin@qytetaret.al', 'Qytetaret2025!x!')
 
     // Create the client
     const client = await prisma.client.create({
@@ -64,7 +64,7 @@ async function main() {
         name: 'Qytetaret Admin',
         password: hashedPassword,
         // Replace with the actual ID when you uncomment the createSupabaseUser line
-        supabaseId: supabaseUser.id, 
+        supabaseId: 'd36c6adc-d269-4770-84de-2bc3e28efe92', 
         role: 'ADMIN',
         clientId: client.id,
       }

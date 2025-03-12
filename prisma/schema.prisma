@@ -18,6 +18,7 @@ enum ClientType {
   BOOKING
   VENUEBOOST
   PIXELBREEZE
+  QYTETARET
 }
 
 // Core User model with Supabase integration
