@@ -71,7 +71,7 @@ interface SidebarProps {
   marketing?: any[];
   loyalty?: any[];
   communication?: any[];
-  finance: any[];
+  finance?: any[];
   hr?: any[];
   // SAAS props
   business?: any[];
@@ -89,6 +89,11 @@ interface SidebarProps {
   media?: any[];
   generate?: any[];
   profiles?: any[];
+  // QYTETARET props
+  reports?: any[];
+  citizens?: any[];
+  authorities?: any[];
+  analytics?: any[];
 }
 
 export default function Sidebar({
@@ -115,7 +120,12 @@ export default function Sidebar({
   content = [],
   media = [],
   generate = [],
-  profiles = []
+  profiles = [],
+  // QYTETARET props
+  reports = [],
+  citizens = [],
+  authorities = [],
+  analytics = []
 }: SidebarProps) {
   const pathname = usePathname()
   
@@ -124,8 +134,8 @@ export default function Sidebar({
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = pathname.includes('/pixelbreeze') || pathname.includes('/social-profiles') || pathname.includes('/operating-entities')
+  const isQytetaret = pathname.includes('/qytetaret') || pathname.includes('/reports') || pathname.includes('/citizens') || pathname.includes('/authorities')
 
-  console.log('isPixelBreeze', isPixelBreeze);
   // Combine all menus for finding current open menu
   let allMenuItems = []
 
@@ -176,6 +186,16 @@ export default function Sidebar({
       ...finance,
       ...hr
     ]
+  } else if (isQytetaret) {
+    allMenuItems = [
+      ...mainMenu,
+      ...reports,
+      ...citizens,
+      ...authorities,
+      ...analytics,
+      ...communication,
+      ...settings
+    ]
   } else {
     allMenuItems = [
       ...mainMenu, 
@@ -189,8 +209,6 @@ export default function Sidebar({
     ]
   }
   
-
-  console.log('allMenuItems', allMenuItems);
   // Find the current open menu
   const currentOpenMenu = allMenuItems.find(
     (i: any) => pathname === i.path || pathname.startsWith(i.path + "/")
@@ -490,10 +508,99 @@ export default function Sidebar({
             </>
           )}
 
+          {/* QYTETARET sidebar sections */}
+          {isQytetaret && (
+            <>
+              <div>
+                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Reports Management
+                </h3>
+                <nav className="space-y-1">
+                  {reports.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      openMenus={openMenus}
+                      toggleMenu={toggleMenu}
+                    />
+                  ))}
+                </nav>
+              </div>
+
+              <div>
+                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Citizens Management
+                </h3>
+                <nav className="space-y-1">
+                  {citizens.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      openMenus={openMenus}
+                      toggleMenu={toggleMenu}
+                    />
+                  ))}
+                </nav>
+              </div>
+
+              <div>
+                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Authorities
+                </h3>
+                <nav className="space-y-1">
+                  {authorities.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      openMenus={openMenus}
+                      toggleMenu={toggleMenu}
+                    />
+                  ))}
+                </nav>
+              </div>
+
+              <div>
+                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Analytics
+                </h3>
+                <nav className="space-y-1">
+                  {analytics.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      openMenus={openMenus}
+                      toggleMenu={toggleMenu}
+                    />
+                  ))}
+                </nav>
+              </div>
+
+              <div>
+                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Communication
+                </h3>
+                <nav className="space-y-1">
+                  {communication.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      openMenus={openMenus}
+                      toggleMenu={toggleMenu}
+                    />
+                  ))}
+                </nav>
+              </div>
+            </>
+          )}
+
           {/* Booking client type specific sections */}
           {isBooking && (
             <>
-              
               <div>
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Rental
@@ -582,7 +689,7 @@ export default function Sidebar({
           )}
 
           {/* Default ecommerce sections (when no special client type is detected) */}
-          {!isSaas && !isBooking && !isVenueBoost && !isPixelBreeze && (
+          {!isSaas && !isBooking && !isVenueBoost && !isPixelBreeze && !isQytetaret && (
             <>
               <div>
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -672,25 +779,27 @@ export default function Sidebar({
           )}
 
           {/* Finance Section - Common to all modes */}
-          <div>
-            <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Finance
-            </h3>
-            <nav className="space-y-1">
-              {finance.map((item) => (
-                <MenuItem
-                  key={item.id}
-                  item={item}
-                  pathname={pathname}
-                  openMenus={openMenus}
-                  toggleMenu={toggleMenu}
-                />
-              ))}
-            </nav>
-          </div>
+          {(!isQytetaret || finance.length > 0) && (
+            <div>
+              <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Finance
+              </h3>
+              <nav className="space-y-1">
+                {finance.map((item) => (
+                  <MenuItem
+                    key={item.id}
+                    item={item}
+                    pathname={pathname}
+                    openMenus={openMenus}
+                    toggleMenu={toggleMenu}
+                  />
+                ))}
+              </nav>
+            </div>
+          )}
 
           {/* Settings/HR Section based on mode */}
-          {isSaas || isVenueBoost || isPixelBreeze ? (
+          {isSaas || isVenueBoost || isPixelBreeze || isQytetaret ? (
             <div className="mb-8">
               <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Settings
