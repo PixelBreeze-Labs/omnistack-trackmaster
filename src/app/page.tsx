@@ -47,6 +47,8 @@ export default async function Home() {
         return redirect("/crm/platform/booking-dashboard");
       case 'VENUEBOOST':
           return redirect("/crm/platform/venueboost-dashboard");
+      case 'QYTETARET':
+          return redirect("/crm/platform/qytetaret-dashboard");
       case 'PIXELBREEZE':
             return redirect("/crm/platform/pixelbreeze-dashboard");
       default:
