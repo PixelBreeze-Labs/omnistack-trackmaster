@@ -48,7 +48,14 @@ import {
   Hotel,
   ShoppingBasket,
   Film,
-  Layout
+  Layout,
+  MapPin,
+  Map,
+  Bell,
+  FileText,
+  Sliders,
+  Filter,
+  Mail
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -69,9 +76,244 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     content: [],
     media: [],
     generate: [],
-    profiles: []
+    profiles: [],
+    // QYTETARET props
+    reports: [],
+    citizens: [],
+    authorities: [],
+    analytics: [],
+    communication: []
   }
 
+  // Add QYTETARET case
+  if (clientType === 'QYTETARET') {
+    return {
+      mainMenu: [
+        {
+          id: 1,
+          title: "Dashboard",
+          path: `/crm/platform/qytetaret-dashboard`,
+          icon: <LayoutDashboard className="w-5 h-5"/>,
+        },
+        {
+          id: 2,
+          title: "Analytics",
+          path: `/crm/platform/qytetaret-analytics`,
+          icon: <BarChart3 className="w-5 h-5"/>,
+        }
+      ],
+      reports: [
+        {
+          id: 3,
+          title: "Reports",
+          path: `/crm/platform/reports`,
+          icon: <ScrollText className="w-5 h-5"/>,
+          children: [
+            {
+              id: "3-1",
+              title: "All Reports",
+              path: `/crm/platform/reports/all`,
+              icon: <List className="w-4 h-4"/>
+            },
+            {
+              id: "3-2",
+              title: "Pending",
+              path: `/crm/platform/reports/pending`,
+              icon: <Clock className="w-4 h-4"/>
+            },
+            {
+              id: "3-3",
+              title: "In Progress",
+              path: `/crm/platform/reports/in-progress`,
+              icon: <AlertCircle className="w-4 h-4"/>
+            },
+            {
+              id: "3-4",
+              title: "Resolved",
+              path: `/crm/platform/reports/resolved`,
+              icon: <CheckCircle className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 4,
+          title: "Categories",
+          path: `/crm/platform/categories`,
+          icon: <Tags className="w-5 h-5"/>,
+          children: [
+            {
+              id: "4-1",
+              title: "Infrastructure",
+              path: `/crm/platform/categories/infrastructure`,
+              icon: <Building2 className="w-4 h-4"/>
+            },
+            {
+              id: "4-2",
+              title: "Safety",
+              path: `/crm/platform/categories/safety`,
+              icon: <AlertCircle className="w-4 h-4"/>
+            },
+            {
+              id: "4-3",
+              title: "Environment",
+              path: `/crm/platform/categories/environment`,
+              icon: <Layers className="w-4 h-4"/>
+            },
+            {
+              id: "4-4",
+              title: "Public Services",
+              path: `/crm/platform/categories/public-services`,
+              icon: <Package className="w-4 h-4"/>
+            },
+            {
+              id: "4-5",
+              title: "Transportation",
+              path: `/crm/platform/categories/transportation`,
+              icon: <MapPin className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      citizens: [
+        {
+          id: 5,
+          title: "Citizens",
+          path: `/crm/platform/citizens`,
+          icon: <Users className="w-5 h-5"/>,
+          children: [
+            {
+              id: "5-1",
+              title: "All Citizens",
+              path: `/crm/platform/citizens/all`,
+              icon: <Users className="w-4 h-4"/>
+            },
+            {
+              id: "5-2",
+              title: "Active Reporters",
+              path: `/crm/platform/citizens/active`,
+              icon: <UserCog className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 6,
+          title: "Engagement",
+          path: `/crm/platform/engagement`,
+          icon: <Heart className="w-5 h-5"/>,
+        }
+      ],
+      authorities: [
+        {
+          id: 7,
+          title: "Authorities",
+          path: `/crm/platform/authorities`,
+          icon: <Building2 className="w-5 h-5"/>,
+          children: [
+            {
+              id: "7-1",
+              title: "Local Departments",
+              path: `/crm/platform/authorities/departments`,
+              icon: <Building2 className="w-4 h-4"/>
+            },
+            {
+              id: "7-2",
+              title: "Response Teams",
+              path: `/crm/platform/authorities/teams`,
+              icon: <Users className="w-4 h-4"/>
+            }
+          ]
+        },
+        {
+          id: 8,
+          title: "Performance",
+          path: `/crm/platform/performance`,
+          icon: <BarChart3 className="w-5 h-5"/>,
+          children: [
+            {
+              id: "8-1",
+              title: "Response Time",
+              path: `/crm/platform/performance/response-time`,
+              icon: <Clock className="w-4 h-4"/>
+            },
+            {
+              id: "8-2",
+              title: "Resolution Rate",
+              path: `/crm/platform/performance/resolution-rate`,
+              icon: <BarChart3 className="w-4 h-4"/>
+            }
+          ]
+        }
+      ],
+      analytics: [
+        {
+          id: 9,
+          title: "Reports Analytics",
+          path: `/crm/platform/analytics/reports`,
+          icon: <FileText className="w-5 h-5"/>,
+        },
+        {
+          id: 10,
+          title: "User Analytics",
+          path: `/crm/platform/analytics/users`,
+          icon: <Users className="w-5 h-5"/>,
+        },
+        {
+          id: 11,
+          title: "Geographical Data",
+          path: `/crm/platform/analytics/geographical`,
+          icon: <Map className="w-5 h-5"/>,
+        }
+      ],
+      communication: [
+        {
+          id: 12,
+          title: "Notifications",
+          path: `/crm/platform/notifications`,
+          icon: <Bell className="w-5 h-5"/>,
+        },
+        {
+          id: 13,
+          title: "Updates",
+          path: `/crm/platform/updates`,
+          icon: <MessageSquare className="w-5 h-5"/>,
+        },
+        {
+          id: 14,
+          title: "Email Templates",
+          path: `/crm/platform/email-templates`,
+          icon: <Mail className="w-5 h-5"/>,
+        }
+      ],
+      settings: [
+        {
+          id: 15,
+          title: "Settings",
+          path: `/crm/platform/settings`,
+          icon: <Settings className="w-5 h-5"/>,
+          children: [
+            {
+              id: "15-1",
+              title: "Platform Settings",
+              path: `/crm/platform/settings/platform`,
+              icon: <Settings className="w-4 h-4"/>
+            },
+            {
+              id: "15-2",
+              title: "Admin Users",
+              path: `/crm/platform/settings/admins`,
+              icon: <UserCog className="w-4 h-4"/>
+            },
+            {
+              id: "15-3",
+              title: "Configurations",
+              path: `/crm/platform/settings/configurations`,
+              icon: <Sliders className="w-4 h-4"/>
+            }
+          ]
+        }
+      ]
+    }
+  }
 
   if (clientType === 'SAAS') {
     // SAAS sidebar items (unchanged)
@@ -623,6 +865,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       ]
     }
   }
+  
   
   // Default return for other client types
   return {
