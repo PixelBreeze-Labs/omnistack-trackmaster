@@ -250,18 +250,24 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       communication: [
         {
           id: 12,
+          title: "Contacts",
+          path: `/crm/platform/contacts`,
+          icon: <Mail className="w-5 h-5"/>,
+        },
+        {
+          id: 13,
           title: "Notifications",
           path: `/crm/platform/notifications`,
           icon: <Bell className="w-5 h-5"/>,
         },
         {
-          id: 13,
+          id: 14,
           title: "Updates",
           path: `/crm/platform/updates`,
           icon: <MessageSquare className="w-5 h-5"/>,
         },
         {
-          id: 14,
+          id: 15,
           title: "Email Templates",
           path: `/crm/platform/email-templates`,
           icon: <Mail className="w-5 h-5"/>,
@@ -269,25 +275,25 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       ],
       settings: [
         {
-          id: 15,
+          id: 16,
           title: "Settings",
           path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
           children: [
             {
-              id: "15-1",
+              id: "16-1",
               title: "Platform Settings",
               path: `/crm/platform/settings/platform`,
               icon: <Settings className="w-4 h-4"/>
             },
             {
-              id: "15-2",
+              id: "16-2",
               title: "Admin Users",
               path: `/crm/platform/settings/admins`,
               icon: <UserCog className="w-4 h-4"/>
             },
             {
-              id: "15-3",
+              id: "16-3",
               title: "Configurations",
               path: `/crm/platform/settings/configurations`,
               icon: <Sliders className="w-4 h-4"/>
