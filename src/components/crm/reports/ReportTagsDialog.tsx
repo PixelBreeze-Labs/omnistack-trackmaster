@@ -71,12 +71,8 @@ export function ReportTagsDialog({
       // Use the Admin Reports API to update tags
       const adminReportsApi = createAdminReportsApi(apiKey);
       await adminReportsApi.updateReportTags(report._id, selectedTags);
-      
-      toast({
-        title: "Success",
-        description: "Report tags updated successfully",
-        variant: "default"
-      });
+      toast.success('Report tags updated successfully');
+    
       
       // Call the callback to refresh parent component
       if (onTagsUpdated) {
@@ -86,11 +82,7 @@ export function ReportTagsDialog({
       onClose();
     } catch (error) {
       console.error("Error updating tags:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update report tags",
-        variant: "destructive"
-      });
+      toast.error('Failed to update report tags');
     } finally {
       setIsProcessing(false);
     }
