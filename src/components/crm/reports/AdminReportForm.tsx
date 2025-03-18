@@ -22,7 +22,7 @@ import { createCitizensApi } from "@/app/api/external/omnigateway/citizens";
 import { createReportTagsApi } from "@/app/api/external/omnigateway/report-tags";
 import { useGatewayClientApiKey } from "@/hooks/useGatewayClientApiKey";
 import InputSelect from "@/components/Common/InputSelect";
-import { Plus, X, User, Tag, Image, Trash2 } from "lucide-react";
+import { X, Tag, Image, Trash2 } from "lucide-react";
 
 const reportFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -46,10 +46,7 @@ const reportFormSchema = z.object({
 interface AdminReportFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: z.infer<typeof reportFormSchema>, files: {
-    media?: File[],
-    audio?: File | null
-  }) => Promise<void>;
+  onSubmit: (formData: FormData) => Promise<void>;
   initialData?: Partial<z.infer<typeof reportFormSchema>>;
   title: string;
 }
@@ -190,10 +187,52 @@ export function AdminReportForm({ open, onClose, onSubmit, initialData, title }:
   const handleSubmit = async (values: z.infer<typeof reportFormSchema>) => {
     try {
       setIsSubmitting(true);
-      await onSubmit(values, {
-        media: uploadedImages,
-        audio: null // We're not handling audio uploads in this example
-      });
+      
+      // Convert form data to FormData for multipart/form-data
+      const formData = new FormData();
+      
+      // IMPORTANT: Add all basic fields first
+      formData.append('title', values.title || '');
+      formData.append('content', values.content || '');
+      formData.append('category', values.category || '');
+      formData.append('status', values.status || ReportStatus.ACTIVE);
+      
+      // Add boolean fields as strings
+      formData.append('isAnonymous', values.isAnonymous ? 'true' : 'false');
+      formData.append('isFeatured', values.isFeatured ? 'true' : 'false');
+      formData.append('visibleOnWeb', values.visibleOnWeb ? 'true' : 'false');
+      
+      // Add optional fields if they exist
+      if (values.authorId) {
+        formData.append('authorId', values.authorId);
+      }
+      
+      if (values.customAuthorName) {
+        formData.append('customAuthorName', values.customAuthorName);
+      }
+      
+      // Handle location object
+      if (values.location && 
+          ((values.location.lat !== undefined && values.location.lat !== null) || 
+           (values.location.lng !== undefined && values.location.lng !== null))) {
+        formData.append('location', JSON.stringify(values.location));
+      }
+      
+      if (values.reportTags && values.reportTags.length > 0) {
+        formData.append('reportTags', JSON.stringify(values.reportTags));
+        
+      }
+      
+      // Add media files LAST (important for some backends)
+      if (uploadedImages && uploadedImages.length > 0) {
+        uploadedImages.forEach(file => {
+          formData.append('media', file);
+        });
+      }
+        
+      
+      // Send to API
+      await onSubmit(formData);
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
