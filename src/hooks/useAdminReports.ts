@@ -33,87 +33,99 @@ export const useAdminReports = () => {
         }
     }, [api]);
 
-    const createReport = useCallback(async (reportData: any, files?: {
-        media?: File[],
-        audio?: File | null
-    }) => {
-        if (!api) return null;
-    
-        try {
-            setIsLoading(true);
-            
-            // Always use FormData since it handles both with and without files better
-            const formData = new FormData();
-            
-            // Clean up the reportData before adding to FormData
-            const cleanedData = { ...reportData };
-            
-            // Convert empty strings to null for certain fields
-            ['authorId', 'customAuthorName'].forEach(field => {
-                if (cleanedData[field] === '') {
-                    cleanedData[field] = null;
-                }
-            });
-            
-            // Handle location separately
-            if (cleanedData.location) {
-                // If lat or lng are empty, remove location
-                if (
-                    (cleanedData.location.lat === undefined || cleanedData.location.lat === null) && 
-                    (cleanedData.location.lng === undefined || cleanedData.location.lng === null)
-                ) {
-                    delete cleanedData.location;
-                } else {
-                    cleanedData.location = JSON.stringify(cleanedData.location);
-                }
-            }
-            
-            // Process arrays properly
-            const arrayFields = ['reportTags', 'tags'];
-            arrayFields.forEach(field => {
-                if (Array.isArray(cleanedData[field])) {
-                    cleanedData[field].forEach((item: any, index: number) => {
-                        formData.append(`${field}[${index}]`, item);
-                    });
-                    delete cleanedData[field]; // Remove the original field
-                }
-            });
-            
-            // Add all other fields
-            Object.entries(cleanedData).forEach(([key, value]) => {
-                if (value !== undefined && value !== null) {
-                    formData.append(key, value as string | Blob);
-                }
-            });
-            
-            // Add media files
-            if (files?.media && files.media.length > 0) {
-                files.media.forEach(file => {
-                    formData.append('media', file);
-                });
-            }
-            
-            // Add audio file if present
-            if (files?.audio) {
-                formData.append('audio', files.audio);
-            }
-            
-            // Submit the form
-            const report = await api.createReportFromAdmin(formData);
-            toast.success('Report created successfully');
-            
-            // Refresh the reports list
-            fetchReports();
-            return report;
-        } catch (error) {
-            console.error('Error creating report:', error);
-            toast.error('Failed to create report: ' + (error instanceof Error ? error.message : 'Unknown error'));
-            return null;
-        } finally {
-            setIsLoading(false);
-        }
-    }, [api, fetchReports]);
+    // Updated createReport function in useAdminReports.ts
+const createReport = useCallback(async (reportData: any, files?: {
+    media?: File[],
+    audio?: File | null
+}) => {
+    if (!api) return null;
 
+    try {
+        setIsLoading(true);
+        
+        // Create FormData for multipart submission
+        const formData = new FormData();
+        
+        // CRITICAL: Add media files first to ensure they're properly attached
+        // NOTE: The field name must be 'media' (not 'images' or other names)
+        if (files?.media && files.media.length > 0) {
+            console.log('Adding media files:', files.media.length);
+            files.media.forEach((file, index) => {
+                console.log(`Adding media file ${index}:`, file.name, file.type, file.size);
+                formData.append('media', file);
+            });
+        }
+        
+        // Add audio file if present
+        if (files?.audio && files.audio instanceof File) {
+            formData.append('audio', files.audio);
+        }
+
+        // Handle reportTags - FIXED APPROACH
+        if (reportData.reportTags && reportData.reportTags.length > 0) {
+            // Approach 1: Send as JSON string
+            formData.append('reportTags', JSON.stringify(reportData.reportTags));
+            
+            // Approach 2: Send as individual fields with array index
+            reportData.reportTags.forEach((tag, index) => {
+                formData.append(`reportTags[${index}]`, tag);
+            });
+        }
+        
+        // Handle location as a JSON string if it exists
+        if (reportData.location && 
+            ((reportData.location.lat !== undefined && reportData.location.lat !== null) || 
+            (reportData.location.lng !== undefined && reportData.location.lng !== null))) {
+            formData.append('location', JSON.stringify(reportData.location));
+        }
+        
+        // Add simple fields
+        formData.append('title', reportData.title || '');
+        formData.append('content', reportData.content || '');
+        formData.append('category', reportData.category || '');
+        formData.append('status', reportData.status || ReportStatus.ACTIVE);
+        
+        // Add boolean fields as strings
+        formData.append('isAnonymous', reportData.isAnonymous ? 'true' : 'false');
+        formData.append('isFeatured', reportData.isFeatured ? 'true' : 'false');
+        formData.append('visibleOnWeb', reportData.visibleOnWeb ? 'true' : 'false');
+        formData.append('isFromChatbot', 'false'); // Default for admin-created reports
+        
+        // Add optional fields if they exist and aren't empty
+        if (reportData.authorId) {
+            formData.append('authorId', reportData.authorId);
+        }
+        
+        if (reportData.customAuthorName) {
+            formData.append('customAuthorName', reportData.customAuthorName);
+        }
+        
+        // Log what we're sending (for debugging)
+        console.log('Submitting form data:');
+        for (const pair of formData.entries()) {
+            if (pair[1] instanceof File) {
+                console.log(pair[0], 'File:', (pair[1] as File).name, (pair[1] as File).type, (pair[1] as File).size);
+            } else {
+                console.log(pair[0], pair[1]);
+            }
+        }
+        
+        // Submit the form
+        const report = await api.createReportFromAdmin(formData);
+        toast.success('Report created successfully');
+        
+        // Refresh the reports list
+        fetchReports();
+        return report;
+    } catch (error) {
+        console.error('Error creating report:', error);
+        toast.error('Failed to create report: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        return null;
+    } finally {
+        setIsLoading(false);
+    }
+}, [api, fetchReports]);
+   
     const getReport = useCallback(async (id: string) => {
         if (!api) return null;
 
@@ -221,7 +233,6 @@ export const useAdminReports = () => {
             setIsLoading(false);
         }
     }, [api]);
-
 
     const deleteReport = useCallback(async (id: string) => {
         if (!api) return false;
