@@ -45,7 +45,11 @@ export function ReportTagsDialog({
   // When dialog opens, initialize selected tags from report
   useEffect(() => {
     if (open) {
-      setSelectedTags(Array.isArray(report.reportTags) ? report.reportTags : []);
+      // Handle both string IDs and full tag objects
+      const tagIds = Array.isArray(report.reportTags) 
+        ? report.reportTags.map(tag => typeof tag === 'string' ? tag : tag._id)
+        : [];
+      setSelectedTags(tagIds);
     }
   }, [open, report]);
 
