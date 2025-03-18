@@ -19,6 +19,7 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
         pathname.includes('/reports') || 
         pathname.includes('/citizens') ||
         pathname.includes('/report-tags') ||  
+        pathname.includes('/contacts') ||  
         pathname.includes('/authorities')) {
       return 'QYTETARET'
     }
