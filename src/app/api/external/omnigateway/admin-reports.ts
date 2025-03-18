@@ -11,15 +11,23 @@ export const createAdminReportsApi = (apiKey: string) => {
             return data;
         },
         
-        // Get report details
-        getReport: async (id: string) => {
-            const { data } = await api.get(`/community-reports/${id}`);
+       // Get report details (admin specific endpoint with better error handling)
+       getReport: async (id: string) => {
+        try {
+            const { data } = await api.get(`/community-reports/admin/${id}`);
             return data;
-        },
+        } catch (error) {
+            console.error('Error fetching report details:', error);
+            throw error;
+        }
+    },
         
-        // Create a new report from admin
-        createReportFromAdmin: async (reportData: any) => {
-            const { data } = await api.post('/community-reports/admin', reportData);
+        createReportFromAdmin: async (formData: FormData) => {
+            const { data } = await api.post('/community-reports/admin', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             return data;
         },
         
