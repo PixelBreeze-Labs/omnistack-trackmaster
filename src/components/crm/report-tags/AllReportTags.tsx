@@ -157,6 +157,7 @@ export function AllReportTags() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <div className="mt-2">
             <InputSelect
               name="sortBy"
               label=""
@@ -167,6 +168,8 @@ export function AllReportTags() {
                 { value: "createdAt", label: "Sort by Date Created" }
               ]}
             />
+            </div>
+            <div className="mt-2">
             <InputSelect
               name="sortOrder"
               label=""
@@ -177,6 +180,7 @@ export function AllReportTags() {
                 { value: "desc", label: "Descending" }
               ]}
             />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -360,6 +364,8 @@ export function AllReportTags() {
         onConfirm={handleDeleteTag}
         tagName={tagToDelete ? tagToDelete.name : ''}
       />
+        {/* Add bottom spacing */}
+        <div className="h-4"></div>
     </div>
   );
 }
