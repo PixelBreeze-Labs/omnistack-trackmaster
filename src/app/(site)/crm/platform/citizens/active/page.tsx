@@ -7,4 +7,10 @@ export const metadata: Metadata = {
   description: "View citizens who have submitted multiple reports",
 };
 
-export default function ActiveReportersPage()
+export default function ActiveReportsPage() {
+    return (
+      <div className="px-3">
+        <ActiveReporters />
+      </div>
+    );
+  }
