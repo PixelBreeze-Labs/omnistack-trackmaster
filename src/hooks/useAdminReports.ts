@@ -33,16 +33,59 @@ export const useAdminReports = () => {
         }
     }, [api]);
 
-    const createReport = useCallback(async (reportData: any) => {
+    const createReport = useCallback(async (reportData: any, files?: {
+        media?: File[],
+        audio?: File | null
+    }) => {
         if (!api) return null;
 
         try {
             setIsLoading(true);
-            const report = await api.createReportFromAdmin(reportData);
-            toast.success('Report created successfully');
-            // Refresh the reports list
-            fetchReports();
-            return report;
+            
+            // If we have files, we need to use FormData
+            if (files && (files.media?.length || files.audio)) {
+                const formData = new FormData();
+                
+                // Add all report data as form fields
+                Object.entries(reportData).forEach(([key, value]) => {
+                    // Handle nested objects like location
+                    if (typeof value === 'object' && value !== null && !(value instanceof File)) {
+                        formData.append(key, JSON.stringify(value));
+                    } else if (Array.isArray(value)) {
+                        // Handle arrays like tags
+                        value.forEach(item => {
+                            formData.append(`${key}[]`, item);
+                        });
+                    } else if (value !== undefined && value !== null) {
+                        formData.append(key, value as string | Blob);
+                    }
+                });
+                
+                // Add media files
+                if (files.media && files.media.length > 0) {
+                    files.media.forEach(file => {
+                        formData.append('media', file);
+                    });
+                }
+                
+                // Add audio file if present
+                if (files.audio) {
+                    formData.append('audio', files.audio);
+                }
+                
+                const report = await api.createReportFromAdminWithFiles(formData);
+                toast.success('Report created successfully');
+                // Refresh the reports list
+                fetchReports();
+                return report;
+            } else {
+                // No files, use regular JSON submission
+                const report = await api.createReportFromAdmin(reportData);
+                toast.success('Report created successfully');
+                // Refresh the reports list
+                fetchReports();
+                return report;
+            }
         } catch (error) {
             console.error('Error creating report:', error);
             toast.error('Failed to create report');
@@ -159,6 +202,7 @@ export const useAdminReports = () => {
             setIsLoading(false);
         }
     }, [api]);
+
 
     const deleteReport = useCallback(async (id: string) => {
         if (!api) return false;
