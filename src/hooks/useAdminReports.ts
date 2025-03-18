@@ -38,57 +38,76 @@ export const useAdminReports = () => {
         audio?: File | null
     }) => {
         if (!api) return null;
-
+    
         try {
             setIsLoading(true);
             
-            // If we have files, we need to use FormData
-            if (files && (files.media?.length || files.audio)) {
-                const formData = new FormData();
-                
-                // Add all report data as form fields
-                Object.entries(reportData).forEach(([key, value]) => {
-                    // Handle nested objects like location
-                    if (typeof value === 'object' && value !== null && !(value instanceof File)) {
-                        formData.append(key, JSON.stringify(value));
-                    } else if (Array.isArray(value)) {
-                        // Handle arrays like tags
-                        value.forEach(item => {
-                            formData.append(`${key}[]`, item);
-                        });
-                    } else if (value !== undefined && value !== null) {
-                        formData.append(key, value as string | Blob);
-                    }
-                });
-                
-                // Add media files
-                if (files.media && files.media.length > 0) {
-                    files.media.forEach(file => {
-                        formData.append('media', file);
-                    });
+            // Always use FormData since it handles both with and without files better
+            const formData = new FormData();
+            
+            // Clean up the reportData before adding to FormData
+            const cleanedData = { ...reportData };
+            
+            // Convert empty strings to null for certain fields
+            ['authorId', 'customAuthorName'].forEach(field => {
+                if (cleanedData[field] === '') {
+                    cleanedData[field] = null;
                 }
-                
-                // Add audio file if present
-                if (files.audio) {
-                    formData.append('audio', files.audio);
+            });
+            
+            // Handle location separately
+            if (cleanedData.location) {
+                // If lat or lng are empty, remove location
+                if (
+                    (cleanedData.location.lat === undefined || cleanedData.location.lat === null) && 
+                    (cleanedData.location.lng === undefined || cleanedData.location.lng === null)
+                ) {
+                    delete cleanedData.location;
+                } else {
+                    cleanedData.location = JSON.stringify(cleanedData.location);
                 }
-                
-                const report = await api.createReportFromAdminWithFiles(formData);
-                toast.success('Report created successfully');
-                // Refresh the reports list
-                fetchReports();
-                return report;
-            } else {
-                // No files, use regular JSON submission
-                const report = await api.createReportFromAdmin(reportData);
-                toast.success('Report created successfully');
-                // Refresh the reports list
-                fetchReports();
-                return report;
             }
+            
+            // Process arrays properly
+            const arrayFields = ['reportTags', 'tags'];
+            arrayFields.forEach(field => {
+                if (Array.isArray(cleanedData[field])) {
+                    cleanedData[field].forEach((item: any, index: number) => {
+                        formData.append(`${field}[${index}]`, item);
+                    });
+                    delete cleanedData[field]; // Remove the original field
+                }
+            });
+            
+            // Add all other fields
+            Object.entries(cleanedData).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, value as string | Blob);
+                }
+            });
+            
+            // Add media files
+            if (files?.media && files.media.length > 0) {
+                files.media.forEach(file => {
+                    formData.append('media', file);
+                });
+            }
+            
+            // Add audio file if present
+            if (files?.audio) {
+                formData.append('audio', files.audio);
+            }
+            
+            // Submit the form
+            const report = await api.createReportFromAdmin(formData);
+            toast.success('Report created successfully');
+            
+            // Refresh the reports list
+            fetchReports();
+            return report;
         } catch (error) {
             console.error('Error creating report:', error);
-            toast.error('Failed to create report');
+            toast.error('Failed to create report: ' + (error instanceof Error ? error.message : 'Unknown error'));
             return null;
         } finally {
             setIsLoading(false);
