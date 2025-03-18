@@ -1,6 +1,6 @@
 // app/crm/platform/reports/all/page.tsx
 import { Metadata } from "next";
-import AllReports from "@/components/crm/reports/AllReports";
+import AdminReportsList from "@/components/crm/reports/AdminReportsList";
 
 export const metadata: Metadata = {
   title: "All Reports | Qytetarët CRM",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function AllReportsPage() {
   return (
     <div className="px-3">
-      <AllReports />
+      <AdminReportsList />
     </div>
   );
 }
