@@ -3,7 +3,7 @@ import { createDashboardApi, DashboardStats } from '@/app/api/external/omnigatew
 import { useGatewayClientApiKey } from '@/hooks/useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
-export const useDashboard = () => {
+export const useQytetaretDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [reportsByCategory, setReportsByCategory] = useState<any[]>([]);
