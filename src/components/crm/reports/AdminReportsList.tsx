@@ -23,13 +23,8 @@ import {
 import {
   Search,
   RefreshCcw,
-  Eye,
-  EyeOff,
-  Star,
-  Clock,
   FileText,
   MapPin,
-  Tag,
   Building,
   ShieldAlert,
   Leaf,
@@ -37,11 +32,9 @@ import {
   Stethoscope,
   Bus,
   Users,
-  MessageSquare,
   Bot,
   MessagesSquare,
   User,
-  Trash2,
   Plus
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
@@ -60,7 +53,6 @@ export function AdminReportsList() {
     isLoading,
     reports,
     totalItems,
-    currentPage,
     totalPages,
     fetchReports,
     createReport,
