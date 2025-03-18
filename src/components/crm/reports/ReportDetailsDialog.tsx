@@ -139,7 +139,7 @@ import {
   
     return (
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl  max-h-[90vh] overflow-y-auto">
           {/* Improved header with title and status in one row */}
           <DialogHeader className="pb-2 border-b">
             <div className="flex items-center justify-between">
@@ -154,31 +154,31 @@ import {
                 {getStatusBadge(report?.status)}
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-1 ml-7 max-w-2xl">
+            {/* <p className="text-sm text-gray-500 mt-1 ml-7 max-w-2xl">
               {report?.description || "No description provided."}
-            </p>
+            </p> */}
           </DialogHeader>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4">
             {/* Left column - Report content (wider) */}
             <div className="md:col-span-2 space-y-5">
               {/* Report Content Card */}
-              <div className="rounded-lg border shadow-sm bg-white overflow-hidden">
-                <div className="bg-gray-50 px-4 py-3 border-b flex items-center justify-between">
-                  <h3 className="text-sm font-medium flex items-center gap-1.5">
-                    <MessageSquare className="h-4 w-4 text-gray-500" />
-                    <span>Report Content</span>
-                  </h3>
-                  <div className="text-xs text-gray-500">
-                    {formatDate(report?.createdAt)}
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="bg-gray-50 p-4 rounded-md border min-h-[120px] whitespace-pre-wrap">
-                    {content}
-                  </div>
-                </div>
-              </div>
+<div className="rounded-lg border shadow-sm bg-white overflow-hidden">
+  <div className="bg-gray-50 px-4 py-3 border-b flex items-center justify-between">
+    <h3 className="text-sm font-medium flex items-center gap-1.5">
+      <MessageSquare className="h-4 w-4 text-gray-500" />
+      <span>Report Content</span>
+    </h3>
+    <div className="text-xs text-gray-500">
+      {formatDate(report?.createdAt)}
+    </div>
+  </div>
+  <div className="p-4">
+    <div className="bg-gray-50 p-4 rounded-md border max-h-[300px] overflow-y-auto whitespace-pre-wrap">
+      {content}
+    </div>
+  </div>
+</div>
               
               {/* Media Content Card */}
               {media.length > 0 && (
