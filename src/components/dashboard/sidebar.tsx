@@ -134,7 +134,10 @@ export default function Sidebar({
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = pathname.includes('/pixelbreeze') || pathname.includes('/social-profiles') || pathname.includes('/operating-entities')
-  const isQytetaret = pathname.includes('/qytetaret') || pathname.includes('/reports') || pathname.includes('/citizens') || pathname.includes('/authorities')  || pathname.includes('/report-tags')
+  const isQytetaret = pathname.includes('/qytetaret') || pathname.includes('/reports') || pathname.includes('/citizens') 
+  || pathname.includes('/authorities')
+  || pathname.includes('/report-tags')
+  || pathname.includes('/contacts')
 
   // Combine all menus for finding current open menu
   let allMenuItems = []
