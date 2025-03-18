@@ -84,6 +84,12 @@ export function ReportTagsDialog({
       }
       
       onClose();
+
+       // Add a slight delay to ensure the dialog closing animation completes
+    setTimeout(() => {
+      // Force refresh the page after dialog is closed
+      window.location.reload();
+    }, 300);
     } catch (error) {
       console.error("Error updating tags:", error);
       toast.error('Failed to update report tags');
