@@ -17,7 +17,8 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
     // For QYTETARET path detection
     if (pathname.includes('/qytetaret') || 
         pathname.includes('/reports') || 
-        pathname.includes('/citizens') || 
+        pathname.includes('/citizens') ||
+        pathname.includes('/report-tags') ||  
         pathname.includes('/authorities')) {
       return 'QYTETARET'
     }
