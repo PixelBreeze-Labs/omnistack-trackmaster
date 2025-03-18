@@ -47,7 +47,8 @@ export function AllContacts() {
     currentPage,
     totalPages,
     fetchSubmissions,
-    updateSubmissionStatus
+    updateSubmissionStatus,
+    isInitialized
   } = useSubmissions();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,16 +62,18 @@ export function AllContacts() {
   const [selectedContact, setSelectedContact] = useState<Submission | null>(null);
 
   useEffect(() => {
-    fetchSubmissions({
-      page,
-      limit: pageSize,
-      search: searchTerm,
-      sortBy,
-      sortOrder,
-      type: 'contact',
-      status: statusFilter !== 'all' ? statusFilter : undefined
-    });
-  }, [fetchSubmissions, page, pageSize, searchTerm, sortBy, sortOrder, statusFilter]);
+    if (isInitialized) {
+      fetchSubmissions({
+        page,
+        limit: pageSize,
+        search: searchTerm,
+        sortBy,
+        sortOrder,
+        type: 'contact',
+        status: statusFilter !== 'all' ? statusFilter : undefined
+      });
+    }
+  }, [fetchSubmissions, page, pageSize, searchTerm, sortBy, sortOrder, statusFilter, isInitialized]);
 
   const handleRefresh = () => {
     fetchSubmissions({
