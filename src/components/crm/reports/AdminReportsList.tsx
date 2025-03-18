@@ -123,6 +123,11 @@ export function AdminReportsList() {
   };
 
   const handleStatusChange = async (reportId: string, newStatus: string) => {
+    // Ensure reportId exists before making API call
+    if (!reportId) {
+      console.error("Missing report ID for status update");
+      return false;
+    }
     const success = await updateStatus(reportId, newStatus);
     if (success) {
       setStatusDialogOpen(false);
@@ -131,6 +136,12 @@ export function AdminReportsList() {
   };
 
   const handleDelete = async (reportId: string) => {
+    // Ensure reportId exists before making API call
+    if (!reportId) {
+      console.error("Missing report ID for delete");
+      return false;
+    }
+    
     const success = await deleteReport(reportId);
     if (success) {
       setDeleteDialogOpen(false);
@@ -369,14 +380,19 @@ export function AdminReportsList() {
                     <TableCell>{getStatusBadge(report.status)}</TableCell>
                     <TableCell>{getCategoryBadge(report.category)}</TableCell>
                     <TableCell>
-                      <div className="flex items-center">
-                        {report.isAnonymous 
+                      <div className="flex flex-col">
+                        {report.isAnonymous || (!report.isAnonymous && !report.authorName)
                           ? <span className="text-muted-foreground flex items-center gap-1">
                               <User className="h-3.5 w-3.5" /> Anonymous
                             </span>
-                          : report.authorName || report.customAuthorName || '—'}
+                          : null
+                        } 
+                        {report.authorName
+                          ? <span>| {report.authorName}</span>
+                          :  null
+                        }
                       </div>
-                    </TableCell>
+                                          </TableCell>
                     <TableCell>
                       <TooltipProvider>
                         <Tooltip>
@@ -426,7 +442,7 @@ export function AdminReportsList() {
                           onChange={(e) => {
                             switch(e.target.value) {
                               case "view_details":
-                                setSelectedReport(report);
+                                setSelectedReport({...report});
                                 setDetailsDialogOpen(true);
                                 break;
                               case "toggle_visibility":
@@ -436,15 +452,15 @@ export function AdminReportsList() {
                                 handleFeaturedChange(report);
                                 break;
                               case "change_status":
-                                setReportToUpdateStatus(report);
+                                setReportToUpdateStatus({...report});
                                 setStatusDialogOpen(true);
                                 break;
                               case "manage_tags":
-                                setReportToUpdateTags(report);
+                                setReportToUpdateTags({...report});
                                 setTagsDialogOpen(true);
                                 break;
                               case "delete":
-                                setReportToDelete(report);
+                                setReportToDelete({...report});
                                 setDeleteDialogOpen(true);
                                 break;
                             }
