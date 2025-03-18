@@ -229,7 +229,7 @@ export function AdminReportForm({ open, onClose, onSubmit, initialData, title }:
           formData.append('media', file);
         });
       }
-      
+        
       
       // Send to API
       await onSubmit(formData);

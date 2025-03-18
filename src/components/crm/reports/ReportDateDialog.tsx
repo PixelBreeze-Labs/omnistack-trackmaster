@@ -7,16 +7,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { 
   Select,
   SelectContent, 
@@ -38,36 +31,45 @@ export function ReportDateDialog({
   onDateChange,
   currentDate
 }: ReportDateDialogProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date(currentDate));
+  // Format date for the input field (YYYY-MM-DD)
+  const formatDateForInput = (date: Date) => {
+    return format(date, "yyyy-MM-dd");
+  };
+
+  const [selectedDateStr, setSelectedDateStr] = useState<string>(
+    formatDateForInput(new Date(currentDate))
+  );
   const [isProcessing, setIsProcessing] = useState(false);
   const [hour, setHour] = useState<string>(format(new Date(currentDate), "HH"));
   const [minute, setMinute] = useState<string>(format(new Date(currentDate), "mm"));
 
   const handleDateChange = async () => {
-    // Compare if dates are different before submitting
-    const formattedCurrentDate = format(new Date(currentDate), "yyyy-MM-dd HH:mm");
-    const formattedSelectedDate = format(
-      new Date(
-        selectedDate.setHours(parseInt(hour), parseInt(minute))
-      ), 
-      "yyyy-MM-dd HH:mm"
-    );
-    
-    if (formattedCurrentDate === formattedSelectedDate) {
-      onClose();
-      return;
-    }
-    
-    setIsProcessing(true);
-    
-    // Create date with selected hour and minute
-    const dateToSubmit = new Date(selectedDate);
-    dateToSubmit.setHours(parseInt(hour), parseInt(minute));
-    
-    const success = await onDateChange(dateToSubmit);
-    setIsProcessing(false);
-    if (success) {
-      onClose();
+    try {
+      // Parse the date string from the input
+      const [year, month, day] = selectedDateStr.split("-").map(num => parseInt(num));
+      // Create new date (months are 0-indexed in JS Date)
+      const dateToSubmit = new Date(year, month - 1, day);
+      
+      // Add hours and minutes
+      dateToSubmit.setHours(parseInt(hour), parseInt(minute));
+      
+      // Compare if dates are different
+      const currentDateObj = new Date(currentDate);
+      if (dateToSubmit.getTime() === currentDateObj.getTime()) {
+        onClose();
+        return;
+      }
+      
+      setIsProcessing(true);
+      const success = await onDateChange(dateToSubmit);
+      setIsProcessing(false);
+      
+      if (success) {
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error processing date:", error);
+      setIsProcessing(false);
     }
   };
 
@@ -87,29 +89,13 @@ export function ReportDateDialog({
           </div>
           
           <div className="space-y-2">
-            <Label>New Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !selectedDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => setSelectedDate(date || new Date())}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="date-input">New Date</Label>
+            <Input
+              id="date-input"
+              type="date"
+              value={selectedDateStr}
+              onChange={(e) => setSelectedDateStr(e.target.value)}
+            />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -157,7 +143,7 @@ export function ReportDateDialog({
           </Button>
           <Button 
             onClick={handleDateChange}
-            disabled={isProcessing}
+            disabled={isProcessing || !selectedDateStr}
           >
             {isProcessing ? "Updating..." : "Update Date"}
           </Button>
