@@ -102,24 +102,26 @@ export function ReportStatusDialog({
           <RadioGroup 
             value={selectedStatus} 
             onValueChange={setSelectedStatus}
-            className="space-y-3"
+            className="space-y-4"
           >
             {Object.values(ReportStatus).map((status) => (
               <div
                 key={status}
-                className={`flex items-center space-x-2 border rounded-md p-3 transition-colors
+                className={`border rounded-md p-4 transition-colors
                 ${selectedStatus === status ? 'border-primary bg-primary/5' : 'border-muted'}`}
               >
-                <RadioGroupItem value={status} id={status} />
-                <Label htmlFor={status} className="flex-1 flex items-center cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(status)}
-                    <span className="font-medium">{status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                <div className="flex items-start">
+                  <RadioGroupItem value={status} id={status} className="mt-1" />
+                  <div className="ml-3 flex-1">
+                    <Label htmlFor={status} className="flex items-center cursor-pointer">
+                      {getStatusIcon(status)}
+                      <span className="font-medium ml-2">{status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-2 ml-6">
+                      {getStatusDescription(status)}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {getStatusDescription(status)}
-                  </p>
-                </Label>
+                </div>
               </div>
             ))}
           </RadioGroup>
