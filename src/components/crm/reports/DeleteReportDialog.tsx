@@ -54,7 +54,7 @@ export function DeleteReportDialog({
               handleDelete();
             }}
             disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-red-600 hover:bg-red-700"
           >
             {isDeleting ? "Deleting..." : "Delete Report"}
           </AlertDialogAction>
