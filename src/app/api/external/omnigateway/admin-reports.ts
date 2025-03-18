@@ -22,14 +22,32 @@ export const createAdminReportsApi = (apiKey: string) => {
         }
     },
         
-        createReportFromAdmin: async (formData: FormData) => {
-            const { data } = await api.post('/community-reports/admin', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            return data;
-        },
+    createReportFromAdmin: async (formData: FormData) => {
+        // Log form data being sent for debugging
+        const formDataEntries = Array.from(formData.entries()).map(entry => {
+          const [key, value] = entry;
+          if (value instanceof File) {
+            return [key, `File: ${value.name} (${value.size} bytes)`];
+          }
+          return entry;
+        });
+        console.log('Sending FormData to server:', Object.fromEntries(formDataEntries));
+        
+        try {
+          const { data } = await api.post('/community-reports/admin', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          return data;
+        } catch (error) {
+          console.error('Error creating report from admin:', error);
+          if (error.response?.data) {
+            console.error('Server error details:', error.response.data);
+          }
+          throw error;
+        }
+      },
         
         // Update report visibility
         updateVisibility: async (id: string, visibleOnWeb: boolean) => {

@@ -190,10 +190,65 @@ export function AdminReportForm({ open, onClose, onSubmit, initialData, title }:
   const handleSubmit = async (values: z.infer<typeof reportFormSchema>) => {
     try {
       setIsSubmitting(true);
+      
+      // Convert form data to FormData for multipart/form-data
+      const formData = new FormData();
+      
+      // IMPORTANT: Add all basic fields first
+      formData.append('title', values.title || '');
+      formData.append('content', values.content || '');
+      formData.append('category', values.category || '');
+      formData.append('status', values.status || ReportStatus.ACTIVE);
+      
+      // Add boolean fields as strings
+      formData.append('isAnonymous', values.isAnonymous ? 'true' : 'false');
+      formData.append('isFeatured', values.isFeatured ? 'true' : 'false');
+      formData.append('visibleOnWeb', values.visibleOnWeb ? 'true' : 'false');
+      
+      // Add optional fields if they exist
+      if (values.authorId) {
+        formData.append('authorId', values.authorId);
+      }
+      
+      if (values.customAuthorName) {
+        formData.append('customAuthorName', values.customAuthorName);
+      }
+      
+      // Handle location object
+      if (values.location && 
+          ((values.location.lat !== undefined && values.location.lat !== null) || 
+           (values.location.lng !== undefined && values.location.lng !== null))) {
+        formData.append('location', JSON.stringify(values.location));
+      }
+      
+      if (values.reportTags && values.reportTags.length > 0) {
+        formData.append('reportTags', JSON.stringify(values.reportTags));
+        
+      }
+      
+      // Add media files LAST (important for some backends)
+      if (uploadedImages && uploadedImages.length > 0) {
+        uploadedImages.forEach(file => {
+          formData.append('media', file);
+        });
+      }
+      
+      console.log('Submitting form with data:');
+      // Log what we're sending (for debugging)
+      for (const pair of formData.entries()) {
+        if (pair[1] instanceof File) {
+          console.log(pair[0], 'File:', (pair[1] as File).name, (pair[1] as File).type, (pair[1] as File).size);
+        } else {
+          console.log(pair[0], pair[1]);
+        }
+      }
+      
+      // Send to API
       await onSubmit(values, {
         media: uploadedImages,
-        audio: null // We're not handling audio uploads in this example
+        audio: null // Not handling audio uploads in this example
       });
+      
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
