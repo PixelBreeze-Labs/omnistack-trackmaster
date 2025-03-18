@@ -55,7 +55,8 @@ import {
   FileText,
   Sliders,
   Filter,
-  Mail
+  Mail,
+  FolderOpen
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -137,39 +138,21 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         },
         {
           id: 4,
-          title: "Categories",
-          path: `/crm/platform/categories`,
-          icon: <Tags className="w-5 h-5"/>,
+          title: "Platform Settings",
+          path: `/crm/platform`,
+          icon: <Settings className="w-5 h-5"/>,
           children: [
             {
               id: "4-1",
-              title: "Infrastructure",
-              path: `/crm/platform/categories/infrastructure`,
-              icon: <Building2 className="w-4 h-4"/>
+              title: "Categories",
+              path: `/crm/platform/categories`,
+              icon: <FolderOpen className="w-4 h-4"/>
             },
             {
               id: "4-2",
-              title: "Safety",
-              path: `/crm/platform/categories/safety`,
-              icon: <AlertCircle className="w-4 h-4"/>
-            },
-            {
-              id: "4-3",
-              title: "Environment",
-              path: `/crm/platform/categories/environment`,
-              icon: <Layers className="w-4 h-4"/>
-            },
-            {
-              id: "4-4",
-              title: "Public Services",
-              path: `/crm/platform/categories/public-services`,
-              icon: <Package className="w-4 h-4"/>
-            },
-            {
-              id: "4-5",
-              title: "Transportation",
-              path: `/crm/platform/categories/transportation`,
-              icon: <MapPin className="w-4 h-4"/>
+              title: "Report Tags",
+              path: `/crm/platform/report-tags`,
+              icon: <Tags className="w-4 h-4"/>
             }
           ]
         }
