@@ -26,8 +26,7 @@ import {
     ExternalLink,
     Info as InfoIcon,
     FileText as FileTextIcon,
-    Clock as ClockIcon,
-    Settings as SettingsIcon
+    Clock as ClockIcon
   } from "lucide-react";
   import { createReportTagsApi } from "@/app/api/external/omnigateway/report-tags";
   import { useGatewayClientApiKey } from "@/hooks/useGatewayClientApiKey";
@@ -318,68 +317,77 @@ import {
                       </dd>
                     </div>
                     
-                    {/* Display Name */}
-                    {report?.customAuthorName && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Display Name</dt>
-                        <dd className="font-medium">{report.customAuthorName}</dd>
-                      </div>
-                    )}
+                   {/* Display Name */}
+{report?.customAuthorName || (report?.authorId && typeof report.authorId === 'object' && report.authorId.name) ? (
+  <div className="flex justify-between">
+    <dt className="text-gray-500">Display Name</dt>
+    <dd className="font-medium">
+      {report.customAuthorName || 
+       (typeof report.authorId === 'object' ? 
+         `${report.authorId.name || ''} ${report.authorId.surname || ''}`.trim() : 
+         '')
+      }
+    </dd>
+  </div>
+) : null}
                     
-                    {/* Author ID */}
-                    {report?.authorId && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Author ID</dt>
-                        <dd className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                          {typeof report.authorId === 'string' && report.authorId.length > 12
-                            ? report.authorId.substring(0, 12) + '...'
-                            : report.authorId}
-                        </dd>
-                      </div>
-                    )}
+                   {/* Author ID */}
+{report?.authorId && (
+  <div className="flex justify-between">
+    <dt className="text-gray-500">Author ID</dt>
+    <dd className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+      {typeof report.authorId === 'object' && report.authorId._id 
+        ? report.authorId._id.substring(0, 12) + '...'
+        : typeof report.authorId === 'string' && report.authorId.length > 12
+          ? report.authorId.substring(0, 12) + '...'
+          : report.authorId._id || report.authorId}
+    </dd>
+  </div>
+)}    
                   </dl>
                 </div>
               </div>
-    
               {/* Tags Card */}
-              {((report?.reportTags && report.reportTags.length > 0) || (report?.tags && report.tags.length > 0)) && (
-                <div className="rounded-lg border shadow-sm bg-white overflow-hidden">
-                  <div className="bg-gray-50 px-4 py-3 border-b">
-                    <h3 className="text-sm font-medium flex items-center gap-1.5">
-                      <TagIcon className="h-4 w-4 text-gray-500" />
-                      <span>Tags</span>
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex flex-wrap gap-1">
-                      {report?.reportTags?.map((tagId) => {
-                        const tag = reportTags[tagId];
-                        return (
-                          <Badge 
-                            key={tagId} 
-                            variant="outline"
-                            className="mb-1"
-                            style={tag ? {
-                              backgroundColor: `${tag.color}20`,
-                              color: tag.color,
-                              borderColor: tag.color
-                            } : undefined}
-                          >
-                            {tag ? tag.name : tagId.substring(0, 8)}
-                          </Badge>
-                        );
-                      })}
-                      
-                      {report?.tags?.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="mb-1">
-                          {tag}
+            {((report?.reportTags && report.reportTags.length > 0) || (report?.tags && report.tags.length > 0)) && (
+              <div className="rounded-lg border shadow-sm bg-white overflow-hidden">
+                <div className="bg-gray-50 px-4 py-3 border-b">
+                  <h3 className="text-sm font-medium flex items-center gap-1.5">
+                    <TagIcon className="h-4 w-4 text-gray-500" />
+                    <span>Tags</span>
+                  </h3>
+                </div>
+                <div className="p-4">
+                  <div className="flex flex-wrap gap-1">
+                    {report?.reportTags?.map((tagId) => {
+                      // Check if tagId is a string or an object
+                      const tagIdStr = typeof tagId === 'string' ? tagId : (tagId._id || '');
+                      const tag = reportTags[tagIdStr];
+                      return (
+                        <Badge 
+                          key={tagIdStr} 
+                          variant="outline"
+                          className="mb-1"
+                          style={tag ? {
+                            backgroundColor: `${tag.color}20`,
+                            color: tag.color,
+                            borderColor: tag.color
+                          } : undefined}
+                        >
+                          {tag ? tag.name : (typeof tagIdStr === 'string' ? tagIdStr.substring(0, 8) : 'Unknown')}
                         </Badge>
-                      ))}
-                    </div>
+                      );
+                    })}
+                    
+                    {report?.tags?.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="mb-1">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
-              )}
-              
+              </div>
+            )}
+            
               {/* Location Card */}
               {report?.location && (typeof report.location.lat === 'number' || typeof report.location.lng === 'number') && (
                 <div className="rounded-lg border shadow-sm bg-white overflow-hidden">
