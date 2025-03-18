@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import CategoryTrendsChart from './CategoryTrendsChart'
 
 export default function ReportAnalyticsContent() {
   const {
@@ -399,7 +400,7 @@ export default function ReportAnalyticsContent() {
   <div className="relative w-full">
     <div>
       <h3 className="text-lg font-semibold tracking-tight">Resolution Metrics</h3>
-      <p className="text-sm text-muted-foreground mt-0">
+      <p className="text-sm text-muted-foreground mt-0 mb-2">
         Analysis of report resolution rates and efficiency
       </p>
     </div>
@@ -504,7 +505,7 @@ export default function ReportAnalyticsContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Category Analysis</h3>
-                <p className="text-sm text-muted-foreground mt-0">
+                <p className="text-sm text-muted-foreground mt-0 mb-2">
                   Distribution and trends of reports by category
                 </p>
               </div>
@@ -571,22 +572,18 @@ export default function ReportAnalyticsContent() {
                     )}
                   </div>
                   
-                  {/* Category trends visualization would go here */}
-                  <div>
-                    <h4 className="text-sm font-medium mb-3">Category Trends Over Time</h4>
-                    {categoryTrends?.trends && categoryTrends.trends.length > 0 ? (
-                      <div className="h-60 border rounded-md p-4">
-                        <p>Category trend visualization would appear here</p>
-                        <pre className="text-xs overflow-auto mt-2">
-                          {JSON.stringify(categoryTrends.trends, null, 2)}
-                        </pre>
-                      </div>
-                    ) : (
-                      <div className="h-60 border rounded-md flex items-center justify-center bg-gray-50">
-                        <p className="text-gray-500">No category trend data available</p>
-                      </div>
-                    )}
-                  </div>
+                 
+                  {/* Category trends visualization */}
+<div>
+  <h4 className="text-sm font-medium mb-3">Category Trends Over Time</h4>
+  {categoryTrends?.trends && categoryTrends.trends.length > 0 ? (
+    <CategoryTrendsChart data={categoryTrends.trends} />
+  ) : (
+    <div className="h-60 border rounded-md flex items-center justify-center bg-gray-50">
+      <p className="text-gray-500">No category trend data available</p>
+    </div>
+  )}
+</div>
                 </>
               )}
             </CardContent>
@@ -599,7 +596,7 @@ export default function ReportAnalyticsContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Geographic Analysis</h3>
-                <p className="text-sm text-muted-foreground mt-0">
+                <p className="text-sm text-muted-foreground mt-0 mb-2">
                   Spatial distribution of reports by region
                 </p>
               </div>
@@ -681,7 +678,7 @@ export default function ReportAnalyticsContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Response Time Analysis</h3>
-                <p className="text-sm text-muted-foreground mt-0">
+                <p className="text-sm text-muted-foreground mt-0 mb-2">
                   Metrics on report response and resolution times
                 </p>
               </div>
@@ -793,7 +790,7 @@ export default function ReportAnalyticsContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">User Engagement</h3>
-                <p className="text-sm text-muted-foreground mt-0">
+                <p className="text-sm text-muted-foreground mt-0 mb-2">
                   Citizen engagement and participation metrics
                 </p>
               </div>
@@ -883,7 +880,7 @@ export default function ReportAnalyticsContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Comparative Analysis</h3>
-                <p className="text-sm text-muted-foreground mt-0">
+                <p className="text-sm text-muted-foreground mt-0 mb-2">
                   Comparing current period with previous period
                 </p>
               </div>
@@ -1047,7 +1044,7 @@ export default function ReportAnalyticsContent() {
             <CardHeader>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">Keyword Analysis</h3>
-                <p className="text-sm text-muted-foreground mt-0">
+                <p className="text-sm text-muted-foreground mt-0 mb-2">
                   Trending keywords and topics from report content
                 </p>
               </div>
