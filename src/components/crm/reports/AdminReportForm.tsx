@@ -230,15 +230,6 @@ export function AdminReportForm({ open, onClose, onSubmit, initialData, title }:
         });
       }
       
-      console.log('Submitting form with data:');
-      // Log what we're sending (for debugging)
-      for (const pair of formData.entries()) {
-        if (pair[1] instanceof File) {
-          console.log(pair[0], 'File:', (pair[1] as File).name, (pair[1] as File).type, (pair[1] as File).size);
-        } else {
-          console.log(pair[0], pair[1]);
-        }
-      }
       
       // Send to API
       await onSubmit(formData);
