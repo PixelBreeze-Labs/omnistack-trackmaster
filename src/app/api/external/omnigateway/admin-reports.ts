@@ -85,6 +85,14 @@ export const createAdminReportsApi = (apiKey: string) => {
                 reportTags 
             });
             return data;
-        }
+        },
+
+        // Update report creation date
+        updateCreatedAt: async (id: string, createdAt: Date) => {
+            const { data } = await api.put(`/community-reports/${id}`, { 
+                createdAt: createdAt.toISOString() 
+            });
+            return data;
+        },
     };
 };

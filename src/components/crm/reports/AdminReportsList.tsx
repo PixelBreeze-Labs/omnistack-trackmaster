@@ -47,6 +47,7 @@ import { ReportStatusDialog } from "./ReportStatusDialog";
 import { ReportTagsDialog } from "./ReportTagsDialog";
 import { AdminReportForm } from "./AdminReportForm";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ReportDateDialog } from "./ReportDateDialog";
 
 export function AdminReportsList() {
   const {
@@ -60,6 +61,7 @@ export function AdminReportsList() {
     updateFeatured,
     updateStatus,
     deleteReport,
+    updateCreatedAt,
     isInitialized
   } = useAdminReports();
 
@@ -81,6 +83,8 @@ export function AdminReportsList() {
   const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
   const [reportToUpdateTags, setReportToUpdateTags] = useState<AdminReport | null>(null);
   const [createReportDialogOpen, setCreateReportDialogOpen] = useState(false);
+  const [dateDialogOpen, setDateDialogOpen] = useState(false);
+  const [reportToUpdateDate, setReportToUpdateDate] = useState<AdminReport | null>(null);
 
   useEffect(() => {
     if (isInitialized) {
@@ -112,6 +116,21 @@ export function AdminReportsList() {
 
   const handleCreateReport = async (formData: FormData) => {
     await createReport(formData);
+  };
+
+  const handleDateChange = async (reportId: string, newDate: Date) => {
+    // Ensure reportId exists before making API call
+    if (!reportId) {
+      console.error("Missing report ID for date update");
+      return false;
+    }
+    
+    const success = await updateCreatedAt(reportId, newDate);
+    if (success) {
+      setDateDialogOpen(false);
+      setReportToUpdateDate(null);
+    }
+    return success;
   };
 
 
@@ -468,6 +487,10 @@ export function AdminReportsList() {
                                 setReportToDelete({...report});
                                 setDeleteDialogOpen(true);
                                 break;
+                              case "change_date":
+                                setReportToUpdateDate({...report});
+                                setDateDialogOpen(true);
+                                break;
                             }
                           }}
                           options={[
@@ -477,7 +500,8 @@ export function AdminReportsList() {
                             { value: "toggle_featured", label: report.isFeatured ? "Remove Featured" : "Mark as Featured" },
                             { value: "change_status", label: "Change Status" },
                             { value: "manage_tags", label: "Manage Tags" },
-                            { value: "delete", label: "Delete Report" }
+                            { value: "delete", label: "Delete Report" },
+                            { value: "change_date", label: "Change Publication Date" }
                           ]}
                         />
                       </div>
@@ -597,6 +621,18 @@ export function AdminReportsList() {
         onSubmit={handleCreateReport}
         title="Create New Report"
       />
+
+{reportToUpdateDate && (
+  <ReportDateDialog
+    open={dateDialogOpen}
+    onClose={() => {
+      setDateDialogOpen(false);
+      setReportToUpdateDate(null);
+    }}
+    onDateChange={(date) => handleDateChange(reportToUpdateDate._id, date)}
+    currentDate={reportToUpdateDate.createdAt}
+  />
+)}
     </div>
   );
 }

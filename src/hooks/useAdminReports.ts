@@ -53,8 +53,7 @@ export const useAdminReports = () => {
         } finally {
           setIsLoading(false);
         }
-      }, [api, fetchReports]);
-
+    }, [api, fetchReports]);
       
     const getReport = useCallback(async (id: string) => {
         if (!api) return null;
@@ -164,6 +163,44 @@ export const useAdminReports = () => {
         }
     }, [api]);
 
+    // New function to update the report's creation date
+    const updateCreatedAt = useCallback(async (id: string, createdAt: Date) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.updateCreatedAt(id, createdAt);
+            
+            // Format the date for toast message
+            const formattedDate = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(createdAt);
+            
+            toast.success(`Report publication date updated to ${formattedDate}`);
+            
+            // Update local state
+            setReports(prev => 
+                prev.map(report => 
+                    report._id === id 
+                        ? { ...report, createdAt: createdAt.toISOString() } 
+                        : report
+                )
+            );
+            
+            return true;
+        } catch (error) {
+            console.error('Error updating report creation date:', error);
+            toast.error('Failed to update publication date');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
     const deleteReport = useCallback(async (id: string) => {
         if (!api) return false;
 
@@ -225,6 +262,7 @@ export const useAdminReports = () => {
         updateVisibility,
         updateFeatured,
         updateStatus,
+        updateCreatedAt, // New function exposed
         deleteReport,
         updateReportTags,
         isInitialized: !!api
