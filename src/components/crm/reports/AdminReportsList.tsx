@@ -41,7 +41,8 @@ import {
   Bot,
   MessagesSquare,
   User,
-  Trash2
+  Trash2,
+  Plus
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { useAdminReports } from "@/hooks/useAdminReports";
@@ -51,6 +52,7 @@ import { ReportDetailsDialog } from "./ReportDetailsDialog";
 import { DeleteReportDialog } from "./DeleteReportDialog";
 import { ReportStatusDialog } from "./ReportStatusDialog";
 import { ReportTagsDialog } from "./ReportTagsDialog";
+import { AdminReportForm } from "./AdminReportForm";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function AdminReportsList() {
@@ -61,6 +63,7 @@ export function AdminReportsList() {
     currentPage,
     totalPages,
     fetchReports,
+    createReport,
     updateVisibility,
     updateFeatured,
     updateStatus,
@@ -85,6 +88,7 @@ export function AdminReportsList() {
   const [reportToUpdateStatus, setReportToUpdateStatus] = useState<AdminReport | null>(null);
   const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
   const [reportToUpdateTags, setReportToUpdateTags] = useState<AdminReport | null>(null);
+  const [createReportDialogOpen, setCreateReportDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isInitialized) {
@@ -112,6 +116,13 @@ export function AdminReportsList() {
         sortOrder
       });
     }
+  };
+
+  const handleCreateReport = async (reportData: any) => {
+    await createReport({
+      ...reportData,
+      isFromChatbot: false
+    });
   };
 
   const handleVisibilityChange = async (report: AdminReport) => {
@@ -233,6 +244,10 @@ export function AdminReportsList() {
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             <RefreshCcw className="mr-2 h-4 w-4" />
             Refresh
+          </Button>
+          <Button size="sm" onClick={() => setCreateReportDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Report
           </Button>
         </div>
       </div>
@@ -392,7 +407,7 @@ export function AdminReportsList() {
                           :  null
                         }
                       </div>
-                                          </TableCell>
+                    </TableCell>
                     <TableCell>
                       <TooltipProvider>
                         <Tooltip>
@@ -584,6 +599,14 @@ export function AdminReportsList() {
           report={reportToUpdateTags}
         />
       )}
+
+      {/* Create Report Dialog */}
+      <AdminReportForm
+        open={createReportDialogOpen}
+        onClose={() => setCreateReportDialogOpen(false)}
+        onSubmit={handleCreateReport}
+        title="Create New Report"
+      />
     </div>
   );
 }
