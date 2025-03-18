@@ -67,8 +67,8 @@ export const createDashboardApi = (apiKey: string) => {
     
     // Get citizen engagement metrics
     getCitizenEngagementMetrics: async () => {
-      const { data } = await api.get('/users/engagement-metrics');
+      const { data } = await api.get('/community-reports/engagement-metrics');
       return data;
-    }
+    }   
   };
 };

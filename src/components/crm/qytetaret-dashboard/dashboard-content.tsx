@@ -23,6 +23,7 @@ import {
   Briefcase,
   Stethoscope,
   Bus,
+  MessageSquare,
 } from "lucide-react"
 import { useQytetaretDashboard } from '@/hooks/useQytetaretDashboard'
 import { format } from 'date-fns'
@@ -250,39 +251,34 @@ export default function DashboardContent() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex flex-col gap-2">
+     {/* Quick Actions - Redesigned as a card with icon buttons */}
+     <div className="flex flex-col gap-2">
         <div className="flex items-center">
           <Bell className="h-4 w-4 mr-2 text-primary" />
           <span className="text-sm font-medium">Quick Actions</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          <Link href="/crm/platform/reports/all">
-            <Button size="sm" variant="outline" className="h-10 flex justify-start px-3 overflow-hidden w-full">
-              <div className="flex items-center">
-                <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Reports</span>
-              </div>
-            </Button>
-          </Link>
-          <Link href="/crm/platform/map">
-            <Button size="sm" variant="outline" className="h-10 flex justify-start px-3 overflow-hidden w-full">
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Map</span>
-              </div>
-            </Button>
-          </Link>
-          <Link href="/crm/platform/analytics">
-            <Button size="sm" variant="outline" className="h-10 flex justify-start px-3 overflow-hidden w-full">
-              <div className="flex items-center">
-                <BarChart3 className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span className="whitespace-nowrap text-ellipsis overflow-hidden">Analytics</span>
-              </div>
-            </Button>
-          </Link>
+        <div className="grid grid-cols-3 gap-2">
+          <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+            <div className="flex items-center">
+              <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Reports</span>
+            </div>
+          </Button>
+          <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+            <div className="flex items-center">
+              <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Map</span>
+            </div>
+          </Button>
+          <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+            <div className="flex items-center">
+              <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="whitespace-nowrap text-ellipsis overflow-hidden">Send Notification</span>
+            </div>
+          </Button>
         </div>
       </div>
+      
       
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
