@@ -1,4 +1,3 @@
-// components/crm/reports/ReportTagsDialog.tsx
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -14,23 +13,29 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Tag, Search, Plus, X } from "lucide-react";
 import { useReportTags } from "@/hooks/useReportTags";
+import { createAdminReportsApi } from "@/app/api/external/omnigateway/admin-reports";
+import { useGatewayClientApiKey } from "@/hooks/useGatewayClientApiKey";
+import toast from 'react-hot-toast';
 
 interface ReportTagsDialogProps {
   open: boolean;
   onClose: () => void;
   report: AdminReport;
+  onTagsUpdated?: () => void; // Add callback for parent component refresh
 }
 
 export function ReportTagsDialog({ 
   open, 
   onClose, 
-  report
+  report,
+  onTagsUpdated
 }: ReportTagsDialogProps) {
   const { reportTags, fetchReportTags, isLoading, isInitialized } = useReportTags();
   const [selectedTags, setSelectedTags] = useState<string[]>(report.reportTags || []);
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const { apiKey } = useGatewayClientApiKey();
+
   useEffect(() => {
     if (open && isInitialized) {
       fetchReportTags();
@@ -40,7 +45,7 @@ export function ReportTagsDialog({
   // When dialog opens, initialize selected tags from report
   useEffect(() => {
     if (open) {
-      setSelectedTags(report.reportTags || []);
+      setSelectedTags(Array.isArray(report.reportTags) ? report.reportTags : []);
     }
   }, [open, report]);
 
@@ -55,16 +60,38 @@ export function ReportTagsDialog({
   };
 
   const handleSave = async () => {
+    if (!apiKey || !report._id) {
+        toast.error('Missing API key or report ID"');
+      
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      // This would call a method to update the report tags
-      // For example: await updateReportTags(report._id, selectedTags);
-      setTimeout(() => {
-        onClose();
-        setIsProcessing(false);
-      }, 500);
+      // Use the Admin Reports API to update tags
+      const adminReportsApi = createAdminReportsApi(apiKey);
+      await adminReportsApi.updateReportTags(report._id, selectedTags);
+      
+      toast({
+        title: "Success",
+        description: "Report tags updated successfully",
+        variant: "default"
+      });
+      
+      // Call the callback to refresh parent component
+      if (onTagsUpdated) {
+        onTagsUpdated();
+      }
+      
+      onClose();
     } catch (error) {
       console.error("Error updating tags:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update report tags",
+        variant: "destructive"
+      });
+    } finally {
       setIsProcessing(false);
     }
   };

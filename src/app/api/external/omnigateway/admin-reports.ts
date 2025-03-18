@@ -63,7 +63,7 @@ export const createAdminReportsApi = (apiKey: string) => {
         
         // Update report tags
         updateReportTags: async (id: string, reportTags: string[]) => {
-            const { data } = await api.put(`/community-reports/${id}`, { 
+            const { data } = await api.put(`/community-reports/${id}/tags`, { 
                 reportTags 
             });
             return data;
