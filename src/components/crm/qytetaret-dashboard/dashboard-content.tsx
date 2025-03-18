@@ -148,23 +148,31 @@ export default function DashboardContent() {
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+          <a href="https://qytetaret.al/reports">
             <div className="flex items-center">
               <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Reports</span>
             </div>
+            </a>
           </Button>
           <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+          <a href="https://qytetaret.al/map">
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Map</span>
             </div>
+            </a>
           </Button>
+          
           <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+          <a href="/crm/platform/contacts">
             <div className="flex items-center">
               <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">Send Notification</span>
             </div>
+            </a>
           </Button>
+        
         </div>
       </div>
       
@@ -622,7 +630,7 @@ export default function DashboardContent() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500 mb-4">Explore detailed insights and performance metrics.</p>
-              <Link href="/crm/platform/analytics">
+              <Link href="/crm/platform/qytetaret-analytics/reports">
                 <Button>Go to Analytics Dashboard</Button>
               </Link>
             </CardContent>
@@ -641,7 +649,7 @@ export default function DashboardContent() {
             </CardHeader>
             <CardContent>
             <p className="text-sm text-gray-500 mb-4">Access citizen profiles and engagement metrics.</p>
-              <Link href="/crm/platform/citizens">
+              <Link href="/crm/platform/citizens/all">
                 <Button>Go to Citizen Management</Button>
               </Link>
             </CardContent>
