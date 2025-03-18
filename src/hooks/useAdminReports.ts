@@ -1,4 +1,3 @@
-// hooks/useAdminReports.ts
 import { useState, useCallback, useMemo } from 'react';
 import { createAdminReportsApi } from '@/app/api/external/omnigateway/admin-reports';
 import { AdminReport, AdminReportParams, ReportStatus } from '@/app/api/external/omnigateway/types/admin-reports';
@@ -33,6 +32,25 @@ export const useAdminReports = () => {
             setIsLoading(false);
         }
     }, [api]);
+
+    const createReport = useCallback(async (reportData: any) => {
+        if (!api) return null;
+
+        try {
+            setIsLoading(true);
+            const report = await api.createReportFromAdmin(reportData);
+            toast.success('Report created successfully');
+            // Refresh the reports list
+            fetchReports();
+            return report;
+        } catch (error) {
+            console.error('Error creating report:', error);
+            toast.error('Failed to create report');
+            return null;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api, fetchReports]);
 
     const getReport = useCallback(async (id: string) => {
         if (!api) return null;
@@ -198,6 +216,7 @@ export const useAdminReports = () => {
         currentPage,
         totalPages,
         fetchReports,
+        createReport,
         getReport,
         updateVisibility,
         updateFeatured,

@@ -1,4 +1,3 @@
-// app/api/external/omnigateway/admin-reports.ts
 import { createOmniGateway } from './index';
 import { AdminReport, AdminReportParams } from './types/admin-reports';
 
@@ -15,6 +14,12 @@ export const createAdminReportsApi = (apiKey: string) => {
         // Get report details
         getReport: async (id: string) => {
             const { data } = await api.get(`/community-reports/${id}`);
+            return data;
+        },
+        
+        // Create a new report from admin
+        createReportFromAdmin: async (reportData: any) => {
+            const { data } = await api.post('/community-reports/admin', reportData);
             return data;
         },
         
@@ -57,4 +62,3 @@ export const createAdminReportsApi = (apiKey: string) => {
         }
     };
 };
-
