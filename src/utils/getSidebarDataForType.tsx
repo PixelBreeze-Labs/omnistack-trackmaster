@@ -95,12 +95,6 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
           title: "Dashboard",
           path: `/crm/platform/qytetaret-dashboard`,
           icon: <LayoutDashboard className="w-5 h-5"/>,
-        },
-        {
-          id: 2,
-          title: "Analytics",
-          path: `/crm/platform/qytetaret-analytics`,
-          icon: <BarChart3 className="w-5 h-5"/>,
         }
       ],
       reports: [
@@ -139,7 +133,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 4,
           title: "Platform Settings",
-          path: `/crm/platform`,
+          path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
           children: [
             {
@@ -236,8 +230,8 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         },
         {
           id: 10,
-          title: "User Analytics",
-          path: `/crm/platform/analytics/users`,
+          title: "Citiziens Analytics",
+          path: `/crm/platform/analytics/citiziens`,
           icon: <Users className="w-5 h-5"/>,
         },
         {
