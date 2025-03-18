@@ -57,6 +57,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import CategoryTrendsChart from './CategoryTrendsChart'
+import GeographicHotspotsMap from './GeographicHotspotsMap'
 
 export default function ReportAnalyticsContent() {
   const {
@@ -610,35 +611,35 @@ export default function ReportAnalyticsContent() {
                 </div>
               ) : (
                 <>
-                  {/* Hotspots */}
-                  <div>
-                    <h4 className="text-sm font-medium mb-3">Report Hotspots</h4>
-                    {geographicDistribution?.hotspots && geographicDistribution.hotspots.length > 0 ? (
-                      <div className="border rounded-lg p-4">
-                        <div className="h-80 mb-4 bg-gray-100 flex items-center justify-center">
-                          <p className="text-gray-500">Interactive map with hotspots would appear here</p>
-                        </div>
-                        <div className="space-y-2">
-                          {geographicDistribution.hotspots.map((spot, index) => (
-                            <div key={index} className="flex justify-between items-center text-sm">
-                              <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-2 text-primary" />
-                                <span>
-                                  Location ({spot.location?.lat?.toFixed(2) || '0'}, {spot.location?.lng?.toFixed(2) || '0'})
-                                </span>
-                              </div>
-                              <span className="font-medium">{spot.count || 0} reports</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border rounded-lg p-4 text-center py-8">
-                        <p className="text-gray-500">No geographic hotspot data available</p>
-                      </div>
-                    )}
-                  </div>
-                  
+                 {/* Hotspots */}
+<div>
+  <h4 className="text-sm font-medium mb-3">Report Hotspots</h4>
+  {geographicDistribution?.hotspots && geographicDistribution.hotspots.length > 0 ? (
+    <div className="border rounded-lg p-4">
+      <GeographicHotspotsMap 
+        hotspots={geographicDistribution.hotspots}
+        heatmapData={geographicDistribution.heatmapData || []}
+      />
+      <div className="space-y-2">
+        {geographicDistribution.hotspots.map((spot, index) => (
+          <div key={index} className="flex justify-between items-center text-sm">
+            <div className="flex items-center">
+              <MapPin className="h-4 w-4 mr-2 text-primary" />
+              <span>
+                Location ({spot.location?.lat?.toFixed(2) || '0'}, {spot.location?.lng?.toFixed(2) || '0'})
+              </span>
+            </div>
+            <span className="font-medium">{spot.count || 0} reports</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div className="border rounded-lg p-4 text-center py-8">
+      <p className="text-gray-500">No geographic hotspot data available</p>
+    </div>
+  )}
+</div>
                   {/* Category distribution by location */}
 {geographicDistribution?.hotspots && geographicDistribution.hotspots.length > 0 && (
   <div>
