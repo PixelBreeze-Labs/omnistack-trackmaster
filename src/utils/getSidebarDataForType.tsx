@@ -139,7 +139,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 4,
           title: "Platform Settings",
-          path: `/crm/platform`,
+          path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
           children: [
             {

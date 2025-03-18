@@ -44,7 +44,18 @@ import {
   Trash2,
   FileText,
   MapPin,
-  Tag
+  Tag,
+  Building,
+  ShieldAlert,
+  Leaf,
+  Briefcase,
+  Stethoscope,
+  Bus,
+  Users,
+  MessageSquare,
+  Bot,
+  MessagesSquare,
+  User
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { useAdminReports } from "@/hooks/useAdminReports";
@@ -54,6 +65,7 @@ import { ReportDetailsDialog } from "./ReportDetailsDialog";
 import { DeleteReportDialog } from "./DeleteReportDialog";
 import { ReportStatusDialog } from "./ReportStatusDialog";
 import { ReportTagsDialog } from "./ReportTagsDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function AdminReportsList() {
   const {
@@ -160,9 +172,55 @@ export function AdminReportsList() {
         return <Badge variant="outline" className="bg-gray-500/10 text-gray-600">Closed</Badge>;
       case ReportStatus.NO_RESOLUTION:
         return <Badge variant="outline" className="bg-orange-500/10 text-orange-600">No Resolution</Badge>;
+      case "pending":
+        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600">Pending</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">Unknown ({status})</Badge>;
     }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch(category.toLowerCase()) {
+      case 'infrastructure':
+        return <Building className="h-4 w-4 text-slate-600" />;
+      case 'safety':
+        return <ShieldAlert className="h-4 w-4 text-red-600" />;
+      case 'environment':
+        return <Leaf className="h-4 w-4 text-green-600" />;
+      case 'public_services':
+        return <Briefcase className="h-4 w-4 text-blue-600" />;
+      case 'health_services':
+        return <Stethoscope className="h-4 w-4 text-pink-600" />;
+      case 'transportation':
+        return <Bus className="h-4 w-4 text-orange-600" />;
+      case 'community':
+        return <Users className="h-4 w-4 text-purple-600" />;
+      default:
+        return <MapPin className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const colors: {[key: string]: string} = {
+      'infrastructure': 'bg-slate-100 text-slate-700',
+      'safety': 'bg-red-100 text-red-700',
+      'environment': 'bg-green-100 text-green-700',
+      'public_services': 'bg-blue-100 text-blue-700',
+      'health_services': 'bg-pink-100 text-pink-700',
+      'transportation': 'bg-orange-100 text-orange-700',
+      'community': 'bg-purple-100 text-purple-700',
+      'other': 'bg-gray-100 text-gray-700',
+      'dadasenvironment': 'bg-green-100 text-green-700', // Handling any typos in data
+    };
+    
+    const colorClass = colors[category.toLowerCase()] || 'bg-gray-100 text-gray-700';
+    
+    return (
+      <Badge variant="secondary" className={`flex items-center gap-1 ${colorClass}`}>
+        {getCategoryIcon(category)}
+        <span className="capitalize">{category.replace(/_/g, ' ')}</span>
+      </Badge>
+    );
   };
 
   return (
@@ -212,6 +270,7 @@ export function AdminReportsList() {
                 options={[
                   { value: "all", label: "All Statuses" },
                   { value: ReportStatus.PENDING_REVIEW, label: "Pending Review" },
+                  { value: "pending", label: "Pending" },
                   { value: ReportStatus.REJECTED, label: "Rejected" },
                   { value: ReportStatus.ACTIVE, label: "Active" },
                   { value: ReportStatus.IN_PROGRESS, label: "In Progress" },
@@ -234,7 +293,8 @@ export function AdminReportsList() {
                   { value: "environment", label: "Environment" },
                   { value: "public_services", label: "Public Services" },
                   { value: "health_services", label: "Health Services" },
-                  { value: "transportation", label: "Transportation" }
+                  { value: "transportation", label: "Transportation" },
+                  { value: "community", label: "Community" }
                 ]}
               />
             </div>
@@ -277,6 +337,7 @@ export function AdminReportsList() {
                 <TableHead>Status</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Author</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Visibility</TableHead>
                 <TableHead>Featured</TableHead>
                 <TableHead>Created At</TableHead>
@@ -286,7 +347,7 @@ export function AdminReportsList() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
@@ -294,7 +355,7 @@ export function AdminReportsList() {
                 </TableRow>
               ) : !reports || reports.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     <div className="flex flex-col items-center gap-3">
                       <FileText className="h-12 w-12 text-muted-foreground" />
                       <h3 className="text-lg font-medium">No Reports Found</h3>
@@ -320,15 +381,40 @@ export function AdminReportsList() {
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(report.status)}</TableCell>
+                    <TableCell>{getCategoryBadge(report.category)}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">
-                        {report.category}
-                      </Badge>
+                      <div className="flex items-center">
+                        {report.isAnonymous 
+                          ? <span className="text-muted-foreground flex items-center gap-1">
+                              <User className="h-3.5 w-3.5" /> Anonymous
+                            </span>
+                          : report.authorName || report.customAuthorName || '—'}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {report.isAnonymous 
-                        ? <span className="text-muted-foreground">Anonymous</span>
-                        : report.customAuthorName || '—'}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              {report.isFromChatbot 
+                                ? <Badge variant="outline" className="bg-blue-100 text-blue-700 flex items-center gap-1">
+                                    <Bot className="h-3 w-3" />
+                                    <span>Chatbot</span>
+                                  </Badge>
+                                : <Badge variant="outline" className="bg-purple-100 text-purple-700 flex items-center gap-1">
+                                    <MessagesSquare className="h-3 w-3" />
+                                    <span>Web Form</span>
+                                  </Badge>
+                              }
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {report.isFromChatbot 
+                              ? "Submitted via AI chatbot" 
+                              : "Submitted via web form"}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell>
                       {report.visibleOnWeb 
