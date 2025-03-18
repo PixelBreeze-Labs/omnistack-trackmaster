@@ -225,7 +225,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 9,
           title: "Reports Analytics",
-          path: `/crm/platform/analytics/reports`,
+          path: `/crm/platform/qytetaret-analytics/reports`,
           icon: <FileText className="w-5 h-5"/>,
         },
         {
