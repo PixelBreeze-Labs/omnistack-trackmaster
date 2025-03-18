@@ -93,7 +93,7 @@ export function ReportStatusDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Update Report Status</DialogTitle>
         </DialogHeader>

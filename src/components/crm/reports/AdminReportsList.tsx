@@ -1,4 +1,3 @@
-// components/crm/reports/AdminReportsList.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,26 +21,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Search,
   RefreshCcw,
-  Filter,
-  MoreVertical,
   Eye,
   EyeOff,
   Star,
   Clock,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  Trash2,
   FileText,
   MapPin,
   Tag,
@@ -55,7 +40,8 @@ import {
   MessageSquare,
   Bot,
   MessagesSquare,
-  User
+  User,
+  Trash2
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { useAdminReports } from "@/hooks/useAdminReports";
@@ -433,69 +419,46 @@ export function AdminReportsList() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() => {
+                        <InputSelect
+                          name={`action-${report._id}`}
+                          label=""
+                          value=""
+                          onChange={(e) => {
+                            switch(e.target.value) {
+                              case "view_details":
                                 setSelectedReport(report);
                                 setDetailsDialogOpen(true);
-                              }}
-                            >
-                              <FileText className="mr-2 h-4 w-4" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleVisibilityChange(report)}
-                            >
-                              {report.visibleOnWeb 
-                                ? <><EyeOff className="mr-2 h-4 w-4" />Hide from Public</>
-                                : <><Eye className="mr-2 h-4 w-4" />Make Public</>}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleFeaturedChange(report)}
-                            >
-                              {report.isFeatured
-                                ? <><Star className="mr-2 h-4 w-4" />Remove Featured</>
-                                : <><Star className="mr-2 h-4 w-4" />Mark as Featured</>}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
+                                break;
+                              case "toggle_visibility":
+                                handleVisibilityChange(report);
+                                break;
+                              case "toggle_featured":
+                                handleFeaturedChange(report);
+                                break;
+                              case "change_status":
                                 setReportToUpdateStatus(report);
                                 setStatusDialogOpen(true);
-                              }}
-                            >
-                              <Clock className="mr-2 h-4 w-4" />
-                              Change Status
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
+                                break;
+                              case "manage_tags":
                                 setReportToUpdateTags(report);
                                 setTagsDialogOpen(true);
-                              }}
-                            >
-                              <Tag className="mr-2 h-4 w-4" />
-                              Manage Tags
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-red-600"
-                              onClick={() => {
+                                break;
+                              case "delete":
                                 setReportToDelete(report);
                                 setDeleteDialogOpen(true);
-                              }}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Report
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                                break;
+                            }
+                          }}
+                          options={[
+                            { value: "", label: "Actions" },
+                            { value: "view_details", label: "View Details" },
+                            { value: "toggle_visibility", label: report.visibleOnWeb ? "Hide from Public" : "Make Public" },
+                            { value: "toggle_featured", label: report.isFeatured ? "Remove Featured" : "Mark as Featured" },
+                            { value: "change_status", label: "Change Status" },
+                            { value: "manage_tags", label: "Manage Tags" },
+                            { value: "delete", label: "Delete Report" }
+                          ]}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
