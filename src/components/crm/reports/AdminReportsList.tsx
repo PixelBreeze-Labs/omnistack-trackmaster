@@ -118,12 +118,10 @@ export function AdminReportsList() {
     }
   };
 
-  const handleCreateReport = async (reportData: any) => {
-    await createReport({
-      ...reportData,
-      isFromChatbot: false
-    });
+  const handleCreateReport = async (formData: FormData) => {
+    await createReport(formData);
   };
+
 
   const handleVisibilityChange = async (report: AdminReport) => {
     await updateVisibility(report._id, !report.visibleOnWeb);

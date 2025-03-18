@@ -1,5 +1,5 @@
 import { createOmniGateway } from './index';
-import { AdminReport, AdminReportParams } from './types/admin-reports';
+import { AdminReportParams } from './types/admin-reports';
 
 export const createAdminReportsApi = (apiKey: string) => {
     const api = createOmniGateway(apiKey);

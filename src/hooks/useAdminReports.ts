@@ -33,69 +33,13 @@ export const useAdminReports = () => {
         }
     }, [api]);
 
-    // Updated createReport function in useAdminReports.ts
-    const createReport = useCallback(async (reportData: any, files?: {
-        media?: File[],
-        audio?: File | null
-      }) => {
+    const createReport = useCallback(async (formData: FormData) => {
         if (!api) return null;
       
         try {
           setIsLoading(true);
           
-          // Create FormData for multipart submission
-          const formData = new FormData();
-          
-          // CRITICAL: Add media files first to ensure they're properly attached
-          // NOTE: The field name must match the controller's expected name
-          if (files?.media && files.media.length > 0) {
-            console.log('Adding media files:', files.media.length);
-            files.media.forEach((file, index) => {
-              console.log(`Adding media file ${index}:`, file.name, file.type, file.size);
-              formData.append('media', file);
-            });
-          }
-          
-          // Add audio file if present
-          if (files?.audio && files.audio instanceof File) {
-            formData.append('audio', files.audio);
-          }
-          
-          // Add all basic fields
-          formData.append('title', reportData.title || '');
-          formData.append('content', reportData.content || '');
-          formData.append('category', reportData.category || '');
-          formData.append('status', reportData.status || ReportStatus.ACTIVE);
-          
-          // Add boolean fields as strings
-          formData.append('isAnonymous', reportData.isAnonymous ? 'true' : 'false');
-          formData.append('isFeatured', reportData.isFeatured ? 'true' : 'false');
-          formData.append('visibleOnWeb', reportData.visibleOnWeb ? 'true' : 'false');
-          
-          // Add optional fields if they exist
-          if (reportData.authorId) {
-            formData.append('authorId', reportData.authorId);
-          }
-          
-          if (reportData.customAuthorName) {
-            formData.append('customAuthorName', reportData.customAuthorName);
-          }
-      
-          // Handle location as a JSON string if it exists
-          if (reportData.location && 
-              ((reportData.location.lat !== undefined && reportData.location.lat !== null) || 
-               (reportData.location.lng !== undefined && reportData.location.lng !== null))) {
-            formData.append('location', JSON.stringify(reportData.location));
-          }
-          
-          // Handle reportTags - CRITICAL FIX
-          if (reportData.reportTags && reportData.reportTags.length > 0) {
-          
-            formData.append('reportTags', JSON.stringify(reportData.reportTags));
-            
-          }
-          
-          // Submit the form
+          // Submit the form directly with the received FormData
           const report = await api.createReportFromAdmin(formData);
           toast.success('Report created successfully');
           
@@ -110,7 +54,8 @@ export const useAdminReports = () => {
           setIsLoading(false);
         }
       }, [api, fetchReports]);
-   
+
+      
     const getReport = useCallback(async (id: string) => {
         if (!api) return null;
 

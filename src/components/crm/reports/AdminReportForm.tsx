@@ -22,7 +22,7 @@ import { createCitizensApi } from "@/app/api/external/omnigateway/citizens";
 import { createReportTagsApi } from "@/app/api/external/omnigateway/report-tags";
 import { useGatewayClientApiKey } from "@/hooks/useGatewayClientApiKey";
 import InputSelect from "@/components/Common/InputSelect";
-import { Plus, X, User, Tag, Image, Trash2 } from "lucide-react";
+import { X, Tag, Image, Trash2 } from "lucide-react";
 
 const reportFormSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -46,10 +46,7 @@ const reportFormSchema = z.object({
 interface AdminReportFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: z.infer<typeof reportFormSchema>, files: {
-    media?: File[],
-    audio?: File | null
-  }) => Promise<void>;
+  onSubmit: (formData: FormData) => Promise<void>;
   initialData?: Partial<z.infer<typeof reportFormSchema>>;
   title: string;
 }
@@ -244,11 +241,7 @@ export function AdminReportForm({ open, onClose, onSubmit, initialData, title }:
       }
       
       // Send to API
-      await onSubmit(values, {
-        media: uploadedImages,
-        audio: null // Not handling audio uploads in this example
-      });
-      
+      await onSubmit(formData);
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
