@@ -1,12 +1,12 @@
-// hooks/useCheckinForms.ts
+// hooks/useCheckinForms.ts 
 import { useState, useCallback, useMemo } from 'react';
 import { createCheckinFormsApi } from '@/app/api/external/omnigateway/checkin-forms';
-import { 
-  CheckinFormConfig, 
-  CheckinFormMetrics, 
-  CreateCheckinFormConfigDto, 
-  UpdateCheckinFormConfigDto, 
-  CheckinFormParams 
+import {
+  CheckinFormConfig,
+  CheckinFormMetrics,
+  CreateCheckinFormConfigDto,
+  UpdateCheckinFormConfigDto,
+  CheckinFormParams
 } from "@/app/api/external/omnigateway/types/checkin-forms";
 import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 import toast from 'react-hot-toast';
@@ -37,10 +37,28 @@ export const useCheckinForms = () => {
     try {
       setIsLoading(true);
       const response = await api.getCheckinForms(params);
-      setForms(response.items);
-      setTotalItems(response.total);
-      setTotalPages(response.pages);
-      setMetrics(response.metrics);
+      
+      // Check the structure of the response and adapt accordingly
+      if (response.data) {
+        // Handle response format with data and pagination properties
+        setForms(response.data);
+        if (response.pagination) {
+          setTotalItems(response.pagination.total);
+          setTotalPages(response.pagination.totalPages);
+        }
+      } else if (response.items) {
+        // Handle response format with items, total, pages format
+        setForms(response.items);
+        setTotalItems(response.total);
+        setTotalPages(response.pages);
+      }
+      
+      // If metrics is available, set it
+      if (response.metrics) {
+        setMetrics(response.metrics);
+      }
+      
+      console.log("Forms fetched:", response); // Debug log
       return response;
     } catch (error) {
       console.error('Error fetching check-in forms:', error);
@@ -51,6 +69,8 @@ export const useCheckinForms = () => {
     }
   }, [api]);
 
+  // Rest of the hook remains the same...
+  
   const createForm = useCallback(async (data: CreateCheckinFormConfigDto) => {
     if (!api) return;
     try {
@@ -127,4 +147,3 @@ export const useCheckinForms = () => {
     isInitialized: !!api
   };
 };
-
