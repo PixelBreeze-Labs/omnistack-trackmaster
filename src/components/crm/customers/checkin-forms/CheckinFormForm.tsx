@@ -134,7 +134,8 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
   }, [open, initialData, form]);
 
   // Handle form submission
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  // Handle form submission
+const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
       
@@ -144,7 +145,23 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
         values.formConfig.sections = getDefaultFormSections();
       }
       
-      await onSubmit(values);
+      // Create a clean object for submission
+      const submitData = {
+        ...values,
+        // Don't include propertyId if it's empty
+        propertyId: values.propertyId ? values.propertyId : undefined,
+        // Don't include bookingId if it's empty
+        bookingId: values.bookingId ? values.bookingId : undefined
+      };
+      
+      // Filter out undefined values
+      Object.keys(submitData).forEach(key => {
+        if (submitData[key] === "" || submitData[key] === undefined) {
+          delete submitData[key];
+        }
+      });
+      
+      await onSubmit(submitData);
       onClose();
     } catch (error) {
       console.error('Form submission error:', error);
