@@ -11,43 +11,43 @@ export const createAdminReportsApi = (apiKey: string) => {
             return data;
         },
         
-       // Get report details (admin specific endpoint with better error handling)
-       getReport: async (id: string) => {
-        try {
-            const { data } = await api.get(`/community-reports/admin/${id}`);
-            return data;
-        } catch (error) {
-            console.error('Error fetching report details:', error);
-            throw error;
-        }
-    },
+        // Get report details (admin specific endpoint with better error handling)
+        getReport: async (id: string) => {
+            try {
+                const { data } = await api.get(`/community-reports/admin/${id}`);
+                return data;
+            } catch (error) {
+                console.error('Error fetching report details:', error);
+                throw error;
+            }
+        },
         
-    createReportFromAdmin: async (formData: FormData) => {
-        // Log form data being sent for debugging
-        const formDataEntries = Array.from(formData.entries()).map(entry => {
-          const [key, value] = entry;
-          if (value instanceof File) {
-            return [key, `File: ${value.name} (${value.size} bytes)`];
-          }
-          return entry;
-        });
-        console.log('Sending FormData to server:', Object.fromEntries(formDataEntries));
-        
-        try {
-          const { data } = await api.post('/community-reports/admin', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-          return data;
-        } catch (error) {
-          console.error('Error creating report from admin:', error);
-          if (error.response?.data) {
-            console.error('Server error details:', error.response.data);
-          }
-          throw error;
-        }
-      },
+        createReportFromAdmin: async (formData: FormData) => {
+            // Log form data being sent for debugging
+            const formDataEntries = Array.from(formData.entries()).map(entry => {
+                const [key, value] = entry;
+                if (value instanceof File) {
+                    return [key, `File: ${value.name} (${value.size} bytes)`];
+                }
+                return entry;
+            });
+            console.log('Sending FormData to server:', Object.fromEntries(formDataEntries));
+            
+            try {
+                const { data } = await api.post('/community-reports/admin', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                return data;
+            } catch (error) {
+                console.error('Error creating report from admin:', error);
+                if (error.response?.data) {
+                    console.error('Server error details:', error.response.data);
+                }
+                throw error;
+            }
+        },
         
         // Update report visibility
         updateVisibility: async (id: string, visibleOnWeb: boolean) => {
@@ -57,17 +57,20 @@ export const createAdminReportsApi = (apiKey: string) => {
             return data;
         },
         
-        // Update featured status
+        // Update featured status - using dedicated endpoint
         updateFeatured: async (id: string, isFeatured: boolean) => {
-            const { data } = await api.put(`/community-reports/${id}`, { 
+            const { data } = await api.put(`/community-reports/${id}/featured`, { 
                 isFeatured 
             });
             return data;
         },
         
-        // Update report status
+        // Update report status - using dedicated endpoint
         updateStatus: async (id: string, status: string) => {
-            const { data } = await api.put(`/community-reports/${id}`, { 
+            // Debug logging to verify what's being sent
+            console.log('Updating status for report:', id, 'New status:', status);
+            
+            const { data } = await api.put(`/community-reports/${id}/status`, { 
                 status 
             });
             return data;
