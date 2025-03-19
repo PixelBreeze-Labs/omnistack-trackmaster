@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import {
   ArrowUp,
-  BarChart3,
+  ArrowDown,
   Calendar,
   ChevronUp,
   Clock,
@@ -96,6 +96,7 @@ export default function DashboardContent() {
   }, [isInitialized, loadAllDashboardData]);
 
   const formatDateString = (dateString: string) => {
+    if (!dateString) return 'N/A';
     try {
       return format(new Date(dateString), 'MMMM do, yyyy');
     } catch (e) {
@@ -107,128 +108,16 @@ export default function DashboardContent() {
     loadAllDashboardData();
   };
 
-  // Generate mock data if real data is not available
-  const getCategoryData = () => {
-    if (reportsByCategory && reportsByCategory.length > 0) {
-      return reportsByCategory;
-    }
-    
-    // Fallback mock data
-    return [
-      { name: 'Infrastructure', count: 127, category: 'infrastructure' },
-      { name: 'Safety', count: 85, category: 'safety' },
-      { name: 'Environment', count: 64, category: 'environment' },
-      { name: 'Public Services', count: 103, category: 'public_services' },
-      { name: 'Health Services', count: 42, category: 'health_services' },
-      { name: 'Transportation', count: 73, category: 'transportation' }
-    ];
-  };
-
-  const getTrendData = () => {
-    if (monthlyTrends && monthlyTrends.length > 0) {
-      return monthlyTrends;
-    }
-    
-    // Fallback mock data
-    return [
-      { month: 'Jan', value: 87 },
-      { month: 'Feb', value: 95 },
-      { month: 'Mar', value: 112 },
-      { month: 'Apr', value: 108 },
-      { month: 'May', value: 125 },
-      { month: 'Jun', value: 136 },
-      { month: 'Jul', value: 142 },
-      { month: 'Aug', value: 156 },
-      { month: 'Sep', value: 168 },
-      { month: 'Oct', value: 173 },
-      { month: 'Nov', value: 182 },
-      { month: 'Dec', value: 195 }
-    ];
-  };
-
-  const getStatusData = () => {
-    if (reportsByStatus && reportsByStatus.length > 0) {
-      return reportsByStatus;
-    }
-    
-    // Fallback mock data
-    return [
-      { status: ReportStatus.PENDING_REVIEW, count: 43 },
-      { status: ReportStatus.ACTIVE, count: 156 },
-      { status: ReportStatus.IN_PROGRESS, count: 98 },
-      { status: ReportStatus.RESOLVED, count: 320 },
-      { status: ReportStatus.CLOSED, count: 87 },
-      { status: ReportStatus.NO_RESOLUTION, count: 32 },
-      { status: ReportStatus.REJECTED, count: 19 }
-    ];
-  };
-
-  const getLocationData = () => {
-    if (topLocations && topLocations.length > 0) {
-      return topLocations;
-    }
-    
-    // Fallback mock data
-    return [
-      { name: 'Central District', reports: 243, resolvedRate: 78 },
-      { name: 'Western District', reports: 187, resolvedRate: 82 },
-      { name: 'Southern District', reports: 156, resolvedRate: 75 },
-      { name: 'Eastern District', reports: 129, resolvedRate: 81 }
-    ];
-  };
-
-  const getRecentReportsData = () => {
-    if (recentReports && recentReports.length > 0) {
-      return recentReports;
-    }
-    
-    // Fallback mock data
-    return [
-      { 
-        title: 'Street Light Malfunction', 
-        category: 'infrastructure', 
-        createdAt: '2025-03-10T12:34:56Z', 
-        status: ReportStatus.IN_PROGRESS,
-        location: 'Main Street, Central District',
-        _id: '1'
-      },
-      { 
-        title: 'Garbage Collection Issue', 
-        category: 'public_services', 
-        createdAt: '2025-03-09T09:23:45Z', 
-        status: ReportStatus.PENDING_REVIEW,
-        location: 'Oak Avenue, Western District',
-        _id: '2'
-      },
-      { 
-        title: 'Pothole Reported', 
-        category: 'infrastructure', 
-        createdAt: '2025-03-08T15:12:33Z', 
-        status: ReportStatus.RESOLVED,
-        location: 'Maple Road, Southern District',
-        _id: '3'
-      },
-      { 
-        title: 'Park Maintenance Request', 
-        category: 'environment', 
-        createdAt: '2025-03-07T11:45:22Z',
-        status: ReportStatus.IN_PROGRESS,
-        location: 'Community Park, Eastern District',
-        _id: '4'
-      }
-    ];
-  };
-
-  // Extract metrics or use fallback values
-  const totalReports = dashboardStats?.totalReports || 1679;
-  const resolvedReports = dashboardStats?.resolvedReports || 1248;
-  const activeCitizens = dashboardStats?.activeCitizens || 3842;
-  const averageResponseTime = dashboardStats?.averageResponseTime || 38;
-  
   // Calculate metrics
-  const resolutionRate = Math.round((resolvedReports / totalReports) * 100);
-  const newCitizensThisMonth = citizenMetrics?.newUsersThisMonth || 146;
+  const totalReports = dashboardStats?.totalReports || 0;
+  const resolvedReports = dashboardStats?.resolvedReports || 0;
+  const activeCitizens = dashboardStats?.activeCitizens || 0;
+  const averageResponseTime = dashboardStats?.averageResponseTime || 0;
   const responseTimeTarget = 48; // Target in hours
+  
+  // Calculate additional metrics
+  const resolutionRate = totalReports > 0 ? Math.round((resolvedReports / totalReports) * 100) : 0;
+  const newCitizensThisMonth = citizenMetrics?.newUsersThisMonth || 0;
   
   return (
     <div className="flex flex-col gap-6">
@@ -259,23 +148,31 @@ export default function DashboardContent() {
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+          <a href="https://qytetaret.al/reports">
             <div className="flex items-center">
               <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Reports</span>
             </div>
+            </a>
           </Button>
           <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+          <a href="https://qytetaret.al/map">
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">View Map</span>
             </div>
+            </a>
           </Button>
+          
           <Button size="sm" variant="cta" className="h-10 flex justify-start px-3 overflow-hidden">
+          <a href="/crm/platform/contacts">
             <div className="flex items-center">
               <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">Send Notification</span>
             </div>
+            </a>
           </Button>
+        
         </div>
       </div>
       
@@ -293,10 +190,14 @@ export default function DashboardContent() {
             ) : (
               <>
                 <div className="text-2xl font-bold">{totalReports.toLocaleString()}</div>
-                <div className="flex items-center text-xs text-green-500">
-                  <ChevronUp className="h-3 w-3 mr-1" />
-                  <span>12% from last month</span>
-                </div>
+                {citizenMetrics ? (
+                  <div className="flex items-center text-xs text-green-500">
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    <span>{newCitizensThisMonth} new submissions this month</span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">Reports submitted</div>
+                )}
               </>
             )}
           </CardContent>
@@ -331,10 +232,14 @@ export default function DashboardContent() {
             ) : (
               <>
                 <div className="text-2xl font-bold">{activeCitizens.toLocaleString()}</div>
-                <div className="flex items-center text-xs text-green-500">
-                  <ChevronUp className="h-3 w-3 mr-1" />
-                  <span>{newCitizensThisMonth} new this month</span>
-                </div>
+                {citizenMetrics ? (
+                  <div className="flex items-center text-xs text-green-500">
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    <span>{newCitizensThisMonth} new this month</span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">Registered users</div>
+                )}
               </>
             )}
           </CardContent>
@@ -350,7 +255,19 @@ export default function DashboardContent() {
             ) : (
               <>
                 <div className="text-2xl font-bold">{averageResponseTime}h</div>
-                <p className="text-xs text-gray-500">Target: {responseTimeTarget} hours</p>
+                <div className="flex items-center text-xs">
+                  {averageResponseTime < responseTimeTarget ? (
+                    <div className="text-green-500 flex items-center">
+                      <ArrowDown className="h-3 w-3 mr-1" />
+                      <span>{responseTimeTarget - averageResponseTime}h faster than target</span>
+                    </div>
+                  ) : (
+                    <div className="text-red-500 flex items-center">
+                      <ArrowUp className="h-3 w-3 mr-1" />
+                      <span>{averageResponseTime - responseTimeTarget}h slower than target</span>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </CardContent>
@@ -386,9 +303,9 @@ export default function DashboardContent() {
                       <Skeleton key={i} className="h-12 w-full" />
                     ))}
                   </div>
-                ) : (
+                ) : reportsByCategory && reportsByCategory.length > 0 ? (
                   <div className="space-y-4">
-                    {getCategoryData().map((stat, index) => (
+                    {reportsByCategory.map((stat, index) => (
                       <div key={index} className="flex items-center">
                         <div className={`p-2 rounded-md mr-3 ${categoryColors[stat.category] || 'bg-gray-100'}`}>
                           {categoryIcons[stat.category] || <ClipboardList className="h-5 w-5" />}
@@ -401,6 +318,10 @@ export default function DashboardContent() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
+                    No category data available
                   </div>
                 )}
               </CardContent>
@@ -419,25 +340,35 @@ export default function DashboardContent() {
               <CardContent className="h-[300px]">
                 {isLoading ? (
                   <Skeleton className="h-[270px] w-full" />
-                ) : (
+                ) : monthlyTrends && monthlyTrends.length > 0 ? (
                   <div className="h-full w-full">
                     <div className="flex h-[270px] items-end gap-2">
-                      {getTrendData().map((month, i) => (
-                        <div key={i} className="flex-1 group relative">
-                          <div 
-                            className="bg-primary/90 rounded-sm hover:bg-primary w-full transition-all"
-                            style={{ height: `${(month.value / 200) * 100}%` }}
-                          >
-                            <div className="opacity-0 group-hover:opacity-100 absolute -top-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                              {month.value} reports
+                      {monthlyTrends.map((month, i) => {
+                        // Find max value to scale bars appropriately
+                        const maxValue = Math.max(...monthlyTrends.map(m => m.value || 0));
+                        const barHeight = maxValue > 0 ? ((month.value || 0) / maxValue) * 100 : 0;
+                        
+                        return (
+                          <div key={i} className="flex-1 group relative">
+                            <div 
+                              className="bg-primary/90 rounded-sm hover:bg-primary w-full transition-all"
+                              style={{ height: `${barHeight}%` }}
+                            >
+                              <div className="opacity-0 group-hover:opacity-100 absolute -top-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                                {month.value || 0} reports
+                              </div>
+                            </div>
+                            <div className="mt-1.5 text-[10px] text-muted-foreground text-center">
+                              {month.month}
                             </div>
                           </div>
-                          <div className="mt-1.5 text-[10px] text-muted-foreground text-center">
-                            {month.month}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    No trend data available
                   </div>
                 )}
               </CardContent>
@@ -457,14 +388,18 @@ export default function DashboardContent() {
             <CardContent>
               {isLoading ? (
                 <Skeleton className="h-20 w-full" />
-              ) : (
+              ) : reportsByStatus && reportsByStatus.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {getStatusData().map((item, index) => (
+                  {reportsByStatus.map((item, index) => (
                     <div key={index} className="flex flex-col items-center p-4 border rounded-md bg-card">
                       <div className="text-2xl font-bold mb-1">{item.count}</div>
                       <div className="text-xs text-center text-muted-foreground">{statusLabels[item.status] || item.status}</div>
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">
+                  No status data available
                 </div>
               )}
             </CardContent>
@@ -492,17 +427,17 @@ export default function DashboardContent() {
                     <Skeleton key={i} className="h-16 w-full" />
                   ))}
                 </div>
-              ) : (
+              ) : recentReports && recentReports.length > 0 ? (
                 <div className="space-y-4">
-                  {getRecentReportsData().map((report, index) => (
+                  {recentReports.map((report, index) => (
                     <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-3 border rounded-md hover:bg-gray-50 transition-colors">
                       <div className="md:col-span-2">
                         <Link href={`/crm/platform/reports/${report._id}`}>
-                          <p className="font-medium hover:text-primary">{report.title}</p>
+                          <p className="font-medium hover:text-primary">{report.title || 'Untitled Report'}</p>
                         </Link>
                         <p className="text-sm text-gray-500 flex items-center gap-1">
-                          {categoryIcons[report.category] || <ClipboardList className="h-3.5 w-3.5" />}
-                          <span>{report.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                          {categoryIcons[report.category || 'other'] || <ClipboardList className="h-3.5 w-3.5" />}
+                          <span>{(report.category || 'other').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                         </p>
                       </div>
                       <div className="text-sm">
@@ -515,15 +450,19 @@ export default function DashboardContent() {
                           report.status === ReportStatus.ACTIVE ? 'bg-purple-100 text-purple-800' : 
                           'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {statusLabels[report.status] || report.status}
+                          {statusLabels[report.status || 'pending'] || report.status || 'Pending'}
                         </span>
                       </div>
                       <div className="text-sm flex items-center">
                         <MapPin className="h-4 w-4 text-gray-500 mr-2" />
-                        {report.location}
+                        {report.location || 'Unknown location'}
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
+                  No recent reports available
                 </div>
               )}
             </CardContent>
@@ -546,25 +485,29 @@ export default function DashboardContent() {
                     <Skeleton key={i} className="h-14 w-full" />
                   ))}
                 </div>
-              ) : (
+              ) : topLocations && topLocations.length > 0 ? (
                 <div className="space-y-4">
-                  {getLocationData().map((location, index) => (
+                  {topLocations.map((location, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-md">
                       <div className="flex items-center">
                         <div className="bg-primary/10 p-2 rounded-md mr-3">
                           <MapPin className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium">{location.name}</p>
-                          <p className="text-sm text-gray-500">{location.reports} reports</p>
+                          <p className="font-medium">{location.name || 'Unknown Location'}</p>
+                          <p className="text-sm text-gray-500">{location.reports || 0} reports</p>
                         </div>
                       </div>
                       <div className="flex items-center">
                         <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                        <span>{location.resolvedRate}% resolved</span>
+                        <span>{location.resolvedRate || 0}% resolved</span>
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
+                  No location data available
                 </div>
               )}
             </CardContent>
@@ -579,16 +522,26 @@ export default function DashboardContent() {
               <CardContent className="pt-0">
                 {isLoading ? (
                   <Skeleton className="h-10 w-full" />
-                ) : (
+                ) : citizenMetrics ? (
                   <div>
                     <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold">26%</div>
+                      {totalReports > 0 && activeCitizens > 0 ? (
+                        <div className="text-2xl font-bold">
+                          {Math.round((citizenMetrics.reportingUserCount / activeCitizens) * 100) || 0}%
+                        </div>
+                      ) : (
+                        <div className="text-2xl font-bold">0%</div>
+                      )}
                       <div className="flex items-center text-green-500">
                         <ArrowUp className="h-4 w-4 mr-1" />
-                        <span className="text-sm">3.2%</span>
+                        <span className="text-sm">{citizenMetrics.newUsersThisMonth || 0}</span>
                       </div>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">Active reporting citizens</p>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-10 text-muted-foreground text-sm">
+                    No data available
                   </div>
                 )}
               </CardContent>
@@ -604,10 +557,12 @@ export default function DashboardContent() {
                   <div>
                     <div className="flex items-center justify-between">
                       <div className="text-2xl font-bold">{resolutionRate}%</div>
-                      <div className="flex items-center text-green-500">
-                        <ArrowUp className="h-4 w-4 mr-1" />
-                        <span className="text-sm">5%</span>
-                      </div>
+                      {resolvedReports > 0 && (
+                        <div className="flex items-center text-green-500">
+                          <ArrowUp className="h-4 w-4 mr-1" />
+                          <span className="text-sm">{resolvedReports}</span>
+                        </div>
+                      )}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">Issues resolved vs reported</p>
                   </div>
@@ -616,21 +571,27 @@ export default function DashboardContent() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Citizen Satisfaction</CardTitle>
+                <CardTitle className="text-sm font-medium">Average Reports Per User</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 {isLoading ? (
                   <Skeleton className="h-10 w-full" />
-                ) : (
+                ) : citizenMetrics ? (
                   <div>
                     <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold">4.2/5</div>
-                      <div className="flex items-center text-green-500">
-                        <ArrowUp className="h-4 w-4 mr-1" />
-                        <span className="text-sm">0.3</span>
-                      </div>
+                      <div className="text-2xl font-bold">{citizenMetrics.avgReportsPerUser?.toFixed(1) || '0'}</div>
+                      {citizenMetrics.reportingUserCount > 0 && (
+                        <div className="flex items-center text-green-500">
+                          <ArrowUp className="h-4 w-4 mr-1" />
+                          <span className="text-sm">{citizenMetrics.reportingUserCount}</span>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Based on issue resolution ratings</p>
+                    <p className="text-xs text-gray-500 mt-1">Reports submitted per active user</p>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-10 text-muted-foreground text-sm">
+                    No data available
                   </div>
                 )}
               </CardContent>
@@ -669,7 +630,7 @@ export default function DashboardContent() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500 mb-4">Explore detailed insights and performance metrics.</p>
-              <Link href="/crm/platform/analytics">
+              <Link href="/crm/platform/qytetaret-analytics/reports">
                 <Button>Go to Analytics Dashboard</Button>
               </Link>
             </CardContent>
@@ -688,7 +649,7 @@ export default function DashboardContent() {
             </CardHeader>
             <CardContent>
             <p className="text-sm text-gray-500 mb-4">Access citizen profiles and engagement metrics.</p>
-              <Link href="/crm/platform/citizens">
+              <Link href="/crm/platform/citizens/all">
                 <Button>Go to Citizen Management</Button>
               </Link>
             </CardContent>

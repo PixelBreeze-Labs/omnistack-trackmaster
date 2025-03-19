@@ -514,6 +514,12 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
               title: "Guest Preferences",
               path: `/crm/platform/guest-preferences`,
               icon: <Star className="w-4 h-4"/>
+            },
+            {
+              id: "5-4",
+              title: "Check-in Forms",
+              path: `/crm/platform/checkin-forms`,
+              icon: <FileText className="w-4 h-4"/>
             }
           ]
         },
