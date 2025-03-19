@@ -134,8 +134,7 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
   }, [open, initialData, form]);
 
   // Handle form submission
-  // Handle form submission
-const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
       
@@ -336,9 +335,9 @@ const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-2">
-                <TabsTrigger value="general">General Settings</TabsTrigger>
-                <TabsTrigger value="advanced">Advanced Settings</TabsTrigger>
+              <TabsList className="grid grid-cols-2" onClick={(e) => e.preventDefault()}>
+                <TabsTrigger value="general" type="button">General Settings</TabsTrigger>
+                <TabsTrigger value="advanced" type="button">Advanced Settings</TabsTrigger>
               </TabsList>
               
               <TabsContent value="general" className="space-y-4 pt-4">
