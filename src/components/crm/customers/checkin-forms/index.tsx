@@ -43,7 +43,8 @@ import { CheckinFormForm } from "./CheckinFormForm";
 import { DeleteFormDialog } from "./DeleteFormDialog";
 import { CheckinFormConfig } from "@/app/api/external/omnigateway/types/checkin-forms";
 import { useRouter } from "next/navigation";
-import { formatDate, formatDateTime } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 export function AllCheckinForms() {
   const router = useRouter();
@@ -383,7 +384,7 @@ export function AllCheckinForms() {
                           variant="ghost" 
                           size="icon" 
                           className="h-6 w-6" 
-                          onClick={() => copyToClipboard(form.shortCode)}
+                          onClick={() => copyToClipboard(`https://metrosuites.al/checkin-form/${form.shortCode}`)}
                         >
                           <Copy className="h-3 w-3" />
                         </Button>
@@ -458,7 +459,7 @@ export function AllCheckinForms() {
                                 });
                                 break;
                               case "copy-link":
-                                const formUrl = `${window.location.origin}/checkin/${form.shortCode}`;
+                                const formUrl = `https://metrosuites.al/checkin-form/${form.shortCode}`;
                                 copyToClipboard(formUrl);
                                 break;
                             }
