@@ -111,6 +111,14 @@ export function FormSubmissions({ shortCode }: { shortCode: string }) {
     router.push("/crm/platform/checkin-forms");
   };
 
+  // Helper function to convert snake_case or kebab-case to Title Case
+const toTitleCase = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/[-_]/g, ' ')
+    .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -285,95 +293,161 @@ export function FormSubmissions({ shortCode }: { shortCode: string }) {
               ) : (
                 submissions.map((submission) => (
                   <TableRow key={submission._id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">{`${submission.firstName} ${submission.lastName}`}</div>
-                          {submission.guestId && (
-                            <div className="text-xs text-muted-foreground">
-                              Existing Guest
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">{submission.email}</span>
-                        </div>
-                        {submission.phoneNumber && (
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-sm">{submission.phoneNumber}</span>
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(submission.status)}
-                    </TableCell>
-                    <TableCell>
-                      {submission.needsParkingSpot ? (
-                        <Badge variant="outline" className="text-green-600 bg-green-50">
-                          Yes
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground">No</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {submission.expectedArrivalTime ? (
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span>{submission.expectedArrivalTime}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">Not specified</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <span>{formatDateTime(submission.createdAt)}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <InputSelect
-                          name={`action-${submission._id}`}
-                          label=""
-                          value=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            switch (action) {
-                              case "view":
-                                // Implement view details functionality
-                                break;
-                              case "verify":
-                                handleStatusChange(submission._id, "verified");
-                                break;
-                              case "reject":
-                                handleStatusChange(submission._id, "rejected");
-                                break;
-                              case "reset":
-                                handleStatusChange(submission._id, "pending");
-                                break;
-                            }
-                          }}
-                          options={[
-                            { value: "", label: "Actions" },
-                            { value: "view", label: "View Details" },
-                            ...(submission.status !== "verified" ? [{ value: "verify", label: "Mark as Verified" }] : []),
-                            ...(submission.status !== "rejected" ? [{ value: "reject", label: "Mark as Rejected" }] : []),
-                            ...(submission.status !== "pending" ? [{ value: "reset", label: "Reset to Pending" }] : [])
-                          ]}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
+  <TableCell>
+    <div className="flex items-center gap-2">
+      <User className="h-4 w-4 text-muted-foreground" />
+      <div>
+        <div className="font-medium">{`${submission.firstName} ${submission.lastName}`}</div>
+        {submission.guestId && (
+          <div className="text-xs text-muted-foreground">
+            Existing Guest
+          </div>
+        )}
+        {/* Show ID information */}
+        {submission.formData?.idType && (
+          <div className="text-xs text-muted-foreground mt-1">
+            ID: {toTitleCase(submission.formData.idType)}
+          </div>
+        )}
+      </div>
+    </div>
+  </TableCell>
+  <TableCell>
+    <div className="space-y-1">
+      <div className="flex items-center gap-1">
+        <Mail className="h-3 w-3 text-muted-foreground" />
+        <span className="text-sm">{submission.email}</span>
+      </div>
+      {submission.phoneNumber && (
+        <div className="flex items-center gap-1">
+          <Phone className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm">{submission.phoneNumber}</span>
+        </div>
+      )}
+      {/* Display Address */}
+      {submission.formData?.addressLine1 && (
+        <div className="text-xs text-muted-foreground mt-1">
+          <div>{submission.formData.addressLine1}</div>
+          {submission.formData.addressLine2 && <div>{submission.formData.addressLine2}</div>}
+          <div>
+            {[
+              submission.formData.city,
+              submission.formData.state,
+              submission.formData.postalCode,
+            ]
+              .filter(Boolean)
+              .join(", ")}
+          </div>
+        </div>
+      )}
+    </div>
+  </TableCell>
+  <TableCell>
+    {getStatusBadge(submission.status)}
+    <div className="text-xs text-muted-foreground mt-2">
+      {submission.verifiedAt && (
+        <div className="mt-1">Verified: {formatDate(submission.verifiedAt)}</div>
+      )}
+    </div>
+  </TableCell>
+  <TableCell>
+    {submission.needsParkingSpot ? (
+      <div>
+        <Badge variant="outline" className="text-green-600 bg-green-50">
+          Yes
+        </Badge>
+        {/* Show Vehicle Info */}
+        {submission.formData?.vehicleMakeModel && (
+          <div className="mt-2 text-xs">
+            <div className="text-muted-foreground">{submission.formData.vehicleMakeModel}</div>
+            {submission.formData.vehicleColor && (
+              <div className="text-muted-foreground">
+                {submission.formData.vehicleColor}
+              </div>
+            )}
+            {submission.formData.vehicleLicensePlate && (
+              <div className="text-muted-foreground">
+                Plate: {submission.formData.vehicleLicensePlate}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    ) : (
+      <span className="text-muted-foreground">No</span>
+    )}
+  </TableCell>
+  <TableCell>
+    {submission.expectedArrivalTime ? (
+      <div>
+        <div className="flex items-center gap-1">
+          <Clock className="h-3 w-3 text-muted-foreground" />
+          <span>{submission.expectedArrivalTime}</span>
+        </div>
+        {/* Special Requests */}
+        {submission.specialRequests && submission.specialRequests.length > 0 && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            <strong>Special Requests:</strong>
+            <ul className="list-disc pl-4 mt-1">
+              {submission.specialRequests.map((request, index) => (
+                <li key={index}>{request}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    ) : (
+      <span className="text-muted-foreground">Not specified</span>
+    )}
+  </TableCell>
+  <TableCell>
+    <div className="flex items-center gap-1">
+      <Calendar className="h-3 w-3 text-muted-foreground" />
+      <span>{formatDateTime(submission.createdAt)}</span>
+    </div>
+    {/* Metadata */}
+    {submission.metadata && (
+      <div className="mt-1 text-xs text-muted-foreground">
+        {submission.metadata.submittedFrom && (
+          <div>Source: {submission.metadata.submittedFrom}</div>
+        )}
+        {submission.metadata.browserInfo && (
+          <div>Browser: {submission.metadata.browserInfo}</div>
+        )}
+      </div>
+    )}
+  </TableCell>
+  <TableCell>
+    <div className="flex justify-end">
+      <InputSelect
+        name={`action-${submission._id}`}
+        label=""
+        value=""
+        onChange={(e) => {
+          const action = e.target.value;
+          switch (action) {
+            case "verify":
+              handleStatusChange(submission._id, "verified");
+              break;
+            case "reject":
+              handleStatusChange(submission._id, "rejected");
+              break;
+            case "reset":
+              handleStatusChange(submission._id, "pending");
+              break;
+          }
+        }}
+        options={[
+          { value: "", label: "Actions" },
+          { value: "view", label: "View Details" },
+          ...(submission.status !== "verified" ? [{ value: "verify", label: "Mark as Verified" }] : []),
+          ...(submission.status !== "rejected" ? [{ value: "reject", label: "Mark as Rejected" }] : []),
+          ...(submission.status !== "pending" ? [{ value: "reset", label: "Reset to Pending" }] : [])
+        ]}
+      />
+    </div>
+  </TableCell>
+</TableRow>
                 ))
               )}
             </TableBody>
