@@ -7,10 +7,13 @@ export const metadata: Metadata = {
     description: "View submissions for this check-in form",
 }
 
-export default function FormSubmissionsPage({ params }: { params: { shortCode: string } }) {
+export default async function FormSubmissionsPage({ params }: { params: { shortCode: string } }) {
+    // Extract and await the parameter
+    const shortCode = await Promise.resolve(params.shortCode);
+    
     return (
         <div className="px-3">
-            <FormSubmissions shortCode={params.shortCode} />
+            <FormSubmissions shortCode={shortCode} />
         </div>
     )
 }

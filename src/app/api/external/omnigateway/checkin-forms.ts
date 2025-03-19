@@ -48,7 +48,7 @@ export const createCheckinFormsApi = (apiKey: string) => {
     },
     
     getFormSubmissions: async (formConfigId: string, params: CheckinSubmissionParams = {}): Promise<CheckinSubmissionsResponse> => {
-      const { data } = await api.get(`/checkin-forms/${formConfigId}/submissions`, { 
+      const { data } = await api.get(`/checkin-submissions`, { 
         params: { ...params, formConfigId } 
       });
       return data;

@@ -40,9 +40,20 @@ export const useCheckinSubmissions = () => {
     try {
       setIsLoading(true);
       const response = await api.getFormSubmissions(formConfigId, params);
-      setSubmissions(response.items);
-      setTotalItems(response.total);
-      setTotalPages(response.pages);
+      
+      // Check response structure and handle appropriately
+      if (response.data) {
+        setSubmissions(response.data);
+        if (response.pagination) {
+          setTotalItems(response.pagination.total);
+          setTotalPages(response.pagination.totalPages);
+        }
+      } else if (response.items) {
+        setSubmissions(response.items);
+        setTotalItems(response.total);
+        setTotalPages(response.pages);
+      }
+      
       return response;
     } catch (error) {
       console.error('Error fetching form submissions:', error);
