@@ -142,18 +142,29 @@ export function AdminReportsList() {
     await updateFeatured(report._id, !report.isFeatured);
   };
 
-  const handleStatusChange = async (reportId: string, newStatus: string) => {
-    // Ensure reportId exists before making API call
-    if (!reportId) {
-      console.error("Missing report ID for status update");
-      return false;
-    }
-    const success = await updateStatus(reportId, newStatus);
-    if (success) {
-      setStatusDialogOpen(false);
-      setReportToUpdateStatus(null);
-    }
-  };
+  // Fixed handleStatusChange function in AdminReportsList.tsx
+const handleStatusChange = async (newStatus: string) => {
+  // Ensure reportToUpdateStatus exists before making API call
+  if (!reportToUpdateStatus || !reportToUpdateStatus._id) {
+    console.error("Missing report ID for status update");
+    return false;
+  }
+  
+  // Log what's being passed to the API
+  console.log('List component: Updating status', {
+    id: reportToUpdateStatus._id,
+    newStatus
+  });
+  
+  const success = await updateStatus(reportToUpdateStatus._id, newStatus);
+  
+  if (success) {
+    setStatusDialogOpen(false);
+    setReportToUpdateStatus(null);
+  }
+  
+  return success;
+};
 
   const handleDelete = async (reportId: string) => {
     // Ensure reportId exists before making API call
@@ -598,7 +609,7 @@ export function AdminReportsList() {
             setStatusDialogOpen(false);
             setReportToUpdateStatus(null);
           }}
-          onStatusChange={(status) => handleStatusChange(reportToUpdateStatus._id, status)}
+          onStatusChange={(status) => handleStatusChange(status)}
           currentStatus={reportToUpdateStatus.status}
         />
       )}

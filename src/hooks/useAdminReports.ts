@@ -103,6 +103,7 @@ export const useAdminReports = () => {
 
         try {
             setIsLoading(true);
+            // Use the dedicated endpoint for updating featured status
             await api.updateFeatured(id, isFeatured);
             toast.success(`Report ${isFeatured ? 'featured' : 'unfeatured'} successfully`);
             
@@ -125,45 +126,54 @@ export const useAdminReports = () => {
         }
     }, [api]);
 
-    const updateStatus = useCallback(async (id: string, status: string) => {
-        if (!api) return false;
+   // Fixed updateStatus function in useAdminReports.ts
+const updateStatus = useCallback(async (id: string, status: string) => {
+    if (!api) return false;
 
-        try {
-            setIsLoading(true);
-            await api.updateStatus(id, status);
-            
-            const statusLabels = {
-                [ReportStatus.PENDING_REVIEW]: 'Pending Review',
-                [ReportStatus.REJECTED]: 'Rejected',
-                [ReportStatus.ACTIVE]: 'Active',
-                [ReportStatus.IN_PROGRESS]: 'In Progress',
-                [ReportStatus.RESOLVED]: 'Resolved',
-                [ReportStatus.CLOSED]: 'Closed',
-                [ReportStatus.NO_RESOLUTION]: 'No Resolution'
-            };
-            
-            toast.success(`Report status updated to ${statusLabels[status as ReportStatus] || status}`);
-            
-            // Update local state
-            setReports(prev => 
-                prev.map(report => 
-                    report._id === id 
-                        ? { ...report, status } 
-                        : report
-                )
-            );
-            
-            return true;
-        } catch (error) {
-            console.error('Error updating report status:', error);
-            toast.error('Failed to update status');
-            return false;
-        } finally {
-            setIsLoading(false);
+    try {
+        setIsLoading(true);
+        
+        // Log what's being sent to API
+        console.log('Hook: Updating status', { id, status });
+        
+        // Use the dedicated endpoint for updating status
+        await api.updateStatus(id, status);
+        
+        const statusLabels = {
+            [ReportStatus.PENDING_REVIEW]: 'Pending Review',
+            [ReportStatus.REJECTED]: 'Rejected',
+            [ReportStatus.ACTIVE]: 'Active',
+            [ReportStatus.IN_PROGRESS]: 'In Progress',
+            [ReportStatus.RESOLVED]: 'Resolved',
+            [ReportStatus.CLOSED]: 'Closed',
+            [ReportStatus.NO_RESOLUTION]: 'No Resolution'
+        };
+        
+        toast.success(`Report status updated to ${statusLabels[status as ReportStatus] || status}`);
+        
+        // Update local state
+        setReports(prev => 
+            prev.map(report => 
+                report._id === id 
+                    ? { ...report, status } 
+                    : report
+            )
+        );
+        
+        return true;
+    } catch (error) {
+        console.error('Error updating report status:', error);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
         }
-    }, [api]);
+        toast.error('Failed to update status');
+        return false;
+    } finally {
+        setIsLoading(false);
+    }
+}, [api]);
 
-    // New function to update the report's creation date
+    // Update the report's creation date
     const updateCreatedAt = useCallback(async (id: string, createdAt: Date) => {
         if (!api) return false;
 
@@ -262,7 +272,7 @@ export const useAdminReports = () => {
         updateVisibility,
         updateFeatured,
         updateStatus,
-        updateCreatedAt, // New function exposed
+        updateCreatedAt,
         deleteReport,
         updateReportTags,
         isInitialized: !!api

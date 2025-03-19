@@ -1,5 +1,5 @@
 // components/crm/reports/ReportStatusDialog.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ReportStatus } from "@/app/api/external/omnigateway/types/admin-reports";
@@ -25,7 +24,7 @@ import {
 interface ReportStatusDialogProps {
   open: boolean;
   onClose: () => void;
-  onStatusChange: (status: string) => void;
+  onStatusChange: (status: string) => Promise<boolean>;
   currentStatus: string;
 }
 
@@ -37,6 +36,11 @@ export function ReportStatusDialog({
 }: ReportStatusDialogProps) {
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Reset selected status when the dialog opens with a new currentStatus
+  useEffect(() => {
+    setSelectedStatus(currentStatus);
+  }, [currentStatus, open]);
 
   const handleStatusChange = async () => {
     if (selectedStatus === currentStatus) {
@@ -45,8 +49,14 @@ export function ReportStatusDialog({
     }
     
     setIsProcessing(true);
-    await onStatusChange(selectedStatus);
+    
+    // Log what's being sent to parent
+    console.log('Dialog: Sending status update', selectedStatus);
+    
+    const success = await onStatusChange(selectedStatus);
     setIsProcessing(false);
+    
+    // Dialog will be closed by the parent component if successful
   };
 
   const getStatusIcon = (status: string) => {
