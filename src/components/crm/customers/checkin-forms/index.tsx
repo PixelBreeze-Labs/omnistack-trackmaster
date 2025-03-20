@@ -36,7 +36,8 @@ import {
   Activity,
   TrendingUp,
   TrendingDown,
-  Copy
+  Copy,
+  Mail
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { CheckinFormForm } from "./CheckinFormForm";
@@ -360,122 +361,156 @@ export function AllCheckinForms() {
               </TableRow>
               ) : (
                 forms?.map((form) => (
-                  <TableRow key={form._id}>
-                    <TableCell>
-                      <div className="font-medium">{form.name}</div>
-                      <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                        {form.isPreArrival ? (
-                          <>
-                            <Calendar className="h-3 w-3" />
-                            <span>Pre-arrival</span>
-                          </>
-                        ) : (
-                          <>
-                            <Activity className="h-3 w-3" />
-                            <span>On-arrival</span>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Badge variant="outline">{form.shortCode}</Badge>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6" 
-                          onClick={() => copyToClipboard(`https://metrosuites.al/checkin-form/${form.shortCode}`)}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={form.isActive ? "success" : "secondary"}
-                      >
-                        {form.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {form.propertyId ? (
-                        <div className="flex items-center gap-1">
-                          <div className="font-medium">
-                            {typeof form.propertyId === 'object' ? form.propertyId.name : 'Property'}
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                        <span>{form.views}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {form.metadata?.submissionCount || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {formatDate(form.createdAt)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {form.expiresAt ? (
-                        <div className="text-sm">
-                          {formatDate(form.expiresAt)}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <InputSelect
-                          name="actions"
-                          label=""
-                          value=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            switch (action) {
-                              case "edit":
-                                setSelectedForm(form);
-                                setFormFormOpen(true);
-                                break;
-                              case "delete":
-                                setFormToDelete(form);
-                                setDeleteDialogOpen(true);
-                                break;
-                              case "view-submissions":
-                                viewSubmissions(form.shortCode);
-                                break;
-                              case "toggle-active":
-                                updateForm(form.shortCode, {
-                                  isActive: !form.isActive
-                                });
-                                break;
-                              case "copy-link":
-                                const formUrl = `https://metrosuites.al/checkin-form/${form.shortCode}`;
-                                copyToClipboard(formUrl);
-                                break;
-                            }
-                          }}
-                          options={[
-                            { value: "", label: "Actions" },
-                            { value: "edit", label: "Edit Form" },
-                            { value: "view-submissions", label: "View Submissions" },
-                            { value: "copy-link", label: "Copy Link" },
-                            { value: "toggle-active", label: form.isActive ? "Deactivate" : "Activate" },
-                            { value: "delete", label: "Delete Form" }
-                          ]}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
+<TableRow key={form._id}>
+  <TableCell>
+    <div className="font-medium">{form.name}</div>
+    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+      {form.isPreArrival ? (
+        <>
+          <Calendar className="h-3 w-3" />
+          <span>Pre-arrival</span>
+        </>
+      ) : (
+        <>
+          <Activity className="h-3 w-3" />
+          <span>On-arrival</span>
+        </>
+      )}
+      
+      {/* Booking Source Information */}
+      {form.bookingId ? (
+        <Badge variant="outline" className="ml-2 text-xs">Internal Booking</Badge>
+      ) : form.metadata?.externalBookingSource ? (
+        <Badge variant="outline" className="ml-2 text-xs capitalize">{form.metadata.externalBookingSource}</Badge>
+      ) : null}
+    </div>
+    
+    {/* Authentication and Email Receipt Data */}
+    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+      <span className={`px-1 rounded ${form.requiresAuthentication ? 'bg-blue-100 text-blue-700' : 'bg-gray-100'}`}>
+        {form.requiresAuthentication ? 'Auth Required' : 'No Auth'}
+      </span>
+      
+      {form.receiptEmail && (
+        <span className="flex items-center gap-1" title={`Receipt Email: ${form.receiptEmail}`}>
+          <Mail className="h-3 w-3" />
+          <span className="truncate max-w-[120px]">{form.receiptEmail}</span>
+        </span>
+      )}
+    </div>
+  </TableCell>
+  
+  <TableCell>
+    <div className="flex items-center gap-1">
+      <Badge variant="outline">{form.shortCode}</Badge>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="h-6 w-6" 
+        onClick={() => copyToClipboard(`https://metrosuites.al/checkin-form/${form.shortCode}`)}
+      >
+        <Copy className="h-3 w-3" />
+      </Button>
+    </div>
+    {form.metadata?.externalBookingId && (
+      <div className="text-xs text-muted-foreground mt-1">
+        Ref: {form.metadata.externalBookingId}
+      </div>
+    )}
+  </TableCell>
+  
+  <TableCell>
+    <Badge 
+      variant={form.isActive ? "success" : "secondary"}
+    >
+      {form.isActive ? "Active" : "Inactive"}
+    </Badge>
+  </TableCell>
+  
+  <TableCell>
+    {form.propertyId ? (
+      <div className="flex items-center gap-1">
+        <div className="font-medium">
+          {typeof form.propertyId === 'object' ? form.propertyId.name : 'Property'}
+        </div>
+      </div>
+    ) : (
+      <span className="text-muted-foreground">-</span>
+    )}
+  </TableCell>
+  
+  <TableCell>
+    <div className="flex items-center gap-1">
+      <Eye className="h-4 w-4 text-muted-foreground" />
+      <span>{form.views}</span>
+    </div>
+  </TableCell>
+  
+  <TableCell>
+    <Badge variant="outline">
+      {form.metadata?.submissionCount || 0}
+    </Badge>
+  </TableCell>
+  
+  <TableCell>
+    <div className="text-sm">
+      {formatDate(form.createdAt)}
+    </div>
+  </TableCell>
+  
+  <TableCell>
+    {form.expiresAt ? (
+      <div className="text-sm">
+        {formatDate(form.expiresAt)}
+      </div>
+    ) : (
+      <span className="text-muted-foreground">-</span>
+    )}
+  </TableCell>
+  
+  <TableCell>
+    <div className="flex justify-end">
+      <InputSelect
+        name="actions"
+        label=""
+        value=""
+        onChange={(e) => {
+          const action = e.target.value;
+          switch (action) {
+            case "edit":
+              setSelectedForm(form);
+              setFormFormOpen(true);
+              break;
+            case "delete":
+              setFormToDelete(form);
+              setDeleteDialogOpen(true);
+              break;
+            case "view-submissions":
+              viewSubmissions(form.shortCode);
+              break;
+            case "toggle-active":
+              updateForm(form.shortCode, {
+                isActive: !form.isActive
+              });
+              break;
+            case "copy-link":
+              const formUrl = `https://metrosuites.al/checkin-form/${form.shortCode}`;
+              copyToClipboard(formUrl);
+              break;
+          }
+        }}
+        options={[
+          { value: "", label: "Actions" },
+          { value: "edit", label: "Edit Form" },
+          { value: "view-submissions", label: "View Submissions" },
+          { value: "copy-link", label: "Copy Link" },
+          { value: "toggle-active", label: form.isActive ? "Deactivate" : "Activate" },
+          { value: "delete", label: "Delete Form" }
+        ]}
+      />
+    </div>
+  </TableCell>
+</TableRow>
                 ))
               )}
             </TableBody>

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -57,6 +56,8 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
   const { rentalUnits, fetchRentalUnits } = useRentalUnits();
   const { bookings, fetchBookings } = useBookings();
   const [activeTab, setActiveTab] = useState("general");
+  const [bookingSource, setBookingSource] = useState<string>("internal");
+  const [externalBookingId, setExternalBookingId] = useState<string>("");
 
   // Initialize the form with default values or initial data
   const form = useForm<z.infer<typeof formSchema>>({
@@ -109,8 +110,20 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
             sections: []
           }
         };
+        
+        // Set external booking data if present in metadata
+        if (initialData.metadata?.externalBookingSource) {
+          setBookingSource(initialData.metadata.externalBookingSource);
+          setExternalBookingId(initialData.metadata.externalBookingId || '');
+        } else {
+          setBookingSource(initialData.bookingId ? 'internal' : 'internal');
+          setExternalBookingId('');
+        }
+        
         form.reset(formData);
       } else {
+        setBookingSource("internal");
+        setExternalBookingId("");
         form.reset({
           name: '',
           propertyId: '',
@@ -149,8 +162,17 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
         ...values,
         // Don't include propertyId if it's empty
         propertyId: values.propertyId ? values.propertyId : undefined,
-        // Don't include bookingId if it's empty
-        bookingId: values.bookingId ? values.bookingId : undefined
+        // Don't include bookingId if it's empty and using internal booking
+        bookingId: bookingSource === "internal" && values.bookingId ? values.bookingId : undefined,
+        // Make sure to include external booking information in metadata
+        metadata: {
+          ...values.metadata,
+          // Only include external booking data if not using internal booking
+          ...(bookingSource !== "internal" ? {
+            externalBookingSource: bookingSource,
+            externalBookingId: externalBookingId
+          } : {})
+        }
       };
       
       // Filter out undefined values
@@ -355,54 +377,100 @@ export function CheckinFormForm({ open, onClose, onSubmit, initialData, title }:
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="propertyId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Property (Optional)</FormLabel>
-                        <FormControl>
-                          <InputSelect
-                            name="propertyId"
-                            label=""
-                            value={field.value}
-                            onChange={(e) => field.onChange(e.target.value)}
-                            options={[
-                              { value: "", label: "Select Property" },
-                              ...(rentalUnits?.map(property => ({
-                                value: property._id,
-                                label: property.name
-                              })) || [])
-                            ]}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="propertyId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Property (Optional)</FormLabel>
+                      <FormControl>
+                        <InputSelect
+                          name="propertyId"
+                          label=""
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          options={[
+                            { value: "", label: "Select Property" },
+                            ...(rentalUnits?.map(property => ({
+                              value: property._id,
+                              label: property.name
+                            })) || [])
+                          ]}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
                     name="bookingId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Booking (Optional)</FormLabel>
+                        <FormLabel>Booking Source</FormLabel>
                         <FormControl>
-                          <InputSelect
-                            name="bookingId"
-                            label=""
-                            value={field.value}
-                            onChange={(e) => field.onChange(e.target.value)}
-                            options={[
-                              { value: "", label: "Select Booking" },
-                              ...(bookings?.map(booking => ({
-                                value: booking._id,
-                                label: `#${booking.confirmationCode || booking._id.substring(0, 8)}`
-                              })) || [])
-                            ]}
-                          />
+                          <div className="space-y-4">
+                            <InputSelect
+                              name="bookingSource"
+                              label=""
+                              value={bookingSource}
+                              onChange={(e) => {
+                                setBookingSource(e.target.value);
+                                if (e.target.value === "internal") {
+                                  field.onChange("");
+                                } else {
+                                  field.onChange(""); // Clear internal booking ID
+                                }
+                              }}
+                              options={[
+                                { value: "internal", label: "Internal Booking" },
+                                { value: "airbnb", label: "Airbnb" },
+                                { value: "booking", label: "Booking.com" },
+                                { value: "vrbo", label: "VRBO" },
+                                { value: "other", label: "Other External" }
+                              ]}
+                            />
+                            
+                            {bookingSource === "internal" ? (
+                              <InputSelect
+                                name="internalBookingId"
+                                label=""
+                                value={field.value}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                options={[
+                                  { value: "", label: "Select Booking" },
+                                  ...(bookings?.map(booking => ({
+                                    value: booking._id,
+                                    label: `#${booking.confirmationCode || booking._id.substring(0, 8)}`
+                                  })) || [])
+                                ]}
+                              />
+                            ) : (
+                              <div className="space-y-2">
+                                <FormLabel className="text-sm">External Booking ID</FormLabel>
+                                <Input
+                                  value={externalBookingId}
+                                  onChange={(e) => {
+                                    setExternalBookingId(e.target.value);
+                                    // Store the booking source and ID in form.metadata
+                                    const currentMetadata = form.getValues("metadata") || {};
+                                    form.setValue("metadata", {
+                                      ...currentMetadata,
+                                      externalBookingSource: bookingSource,
+                                      externalBookingId: e.target.value
+                                    });
+                                  }}
+                                  placeholder={`Enter ${bookingSource} booking ID/reference`}
+                                />
+                              </div>
+                            )}
+                          </div>
                         </FormControl>
+                        <FormDescription>
+                          Select whether this form is for an internal booking or an external platform
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
