@@ -276,7 +276,7 @@ export function AllCheckinForms() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex flex-col mt-2 md:flex-row gap-2">
               <InputSelect
                 name="isActive"
                 label=""
@@ -594,6 +594,8 @@ export function AllCheckinForms() {
         onConfirm={handleDeleteForm}
         formName={formToDelete?.name || ''}
       />
+         {/* Add empty space div at the bottom */}
+  <div className="h-4"></div>
     </div>
   );
 }
