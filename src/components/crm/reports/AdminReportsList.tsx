@@ -644,6 +644,9 @@ const handleStatusChange = async (newStatus: string) => {
     currentDate={reportToUpdateDate.createdAt}
   />
 )}
+
+   {/* Add empty space div at the bottom */}
+   <div className="h-4"></div>
     </div>
   );
 }

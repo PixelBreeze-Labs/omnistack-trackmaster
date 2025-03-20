@@ -234,7 +234,7 @@ const toTitleCase = (str) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex flex-col mt-2 md:flex-row gap-2">
               <InputSelect
                 name="status"
                 label=""
@@ -509,6 +509,8 @@ const toTitleCase = (str) => {
           )}
         </CardContent>
       </Card>
+         {/* Add empty space div at the bottom */}
+  <div className="h-4"></div>
     </div>
   );
 }

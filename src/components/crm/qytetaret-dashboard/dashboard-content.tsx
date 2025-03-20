@@ -432,9 +432,10 @@ export default function DashboardContent() {
                   {recentReports.map((report, index) => (
                     <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-3 border rounded-md hover:bg-gray-50 transition-colors">
                       <div className="md:col-span-2">
-                        <Link href={`/crm/platform/reports/${report._id}`}>
+                        {/* TODO: internal view or redirect to web report details */}
+                        {/* <Link href={`/crm/platform/reports/${report._id}`}> */}
                           <p className="font-medium hover:text-primary">{report.title || 'Untitled Report'}</p>
-                        </Link>
+                        {/* </Link> */}
                         <p className="text-sm text-gray-500 flex items-center gap-1">
                           {categoryIcons[report.category || 'other'] || <ClipboardList className="h-3.5 w-3.5" />}
                           <span>{(report.category || 'other').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
