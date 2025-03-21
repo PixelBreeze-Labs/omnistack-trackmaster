@@ -11,18 +11,19 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Client ID is required' }, { status: 400 });
         }
 
-        // Use findFirst with explicit ID matching to avoid caching issues
-        const client = await prisma.client.findFirst({
+        // Use findUnique with exact ID match instead of findFirst
+        const client = await prisma.client.findUnique({
             where: {
-                id: clientId,
+                id: clientId, // Ensure this matches your schema's primary key field 
             },
             select: {
                 omniGatewayApiKey: true,
             },
-            orderBy: {
-                updatedAt: 'desc', // Force newest record
-            },
         });
+
+        // Debug output for development
+        console.log(`Looking for client with ID: ${clientId}`);
+        console.log(`Found client:`, client);
 
         if (!client) {
             return NextResponse.json({ error: 'Client not found' }, { status: 404 });
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ apiKey: client.omniGatewayApiKey });
     } catch (error) {
+        console.error("Error fetching API key:", error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
