@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { createAdminReportsApi } from '@/app/api/external/omnigateway/admin-reports';
-import { AdminReport, AdminReportParams, ReportStatus } from '@/app/api/external/omnigateway/types/admin-reports';
+import { AdminReport, AdminReportParams, CommentStatus, FlagStatus, ReportStatus } from '@/app/api/external/omnigateway/types/admin-reports';
 import { useGatewayClientApiKey } from '@/hooks/useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
@@ -127,51 +127,51 @@ export const useAdminReports = () => {
     }, [api]);
 
    // Fixed updateStatus function in useAdminReports.ts
-const updateStatus = useCallback(async (id: string, status: string) => {
-    if (!api) return false;
+    const updateStatus = useCallback(async (id: string, status: string) => {
+        if (!api) return false;
 
-    try {
-        setIsLoading(true);
-        
-        // Log what's being sent to API
-        console.log('Hook: Updating status', { id, status });
-        
-        // Use the dedicated endpoint for updating status
-        await api.updateStatus(id, status);
-        
-        const statusLabels = {
-            [ReportStatus.PENDING_REVIEW]: 'Pending Review',
-            [ReportStatus.REJECTED]: 'Rejected',
-            [ReportStatus.ACTIVE]: 'Active',
-            [ReportStatus.IN_PROGRESS]: 'In Progress',
-            [ReportStatus.RESOLVED]: 'Resolved',
-            [ReportStatus.CLOSED]: 'Closed',
-            [ReportStatus.NO_RESOLUTION]: 'No Resolution'
-        };
-        
-        toast.success(`Report status updated to ${statusLabels[status as ReportStatus] || status}`);
-        
-        // Update local state
-        setReports(prev => 
-            prev.map(report => 
-                report._id === id 
-                    ? { ...report, status } 
-                    : report
-            )
-        );
-        
-        return true;
-    } catch (error) {
-        console.error('Error updating report status:', error);
-        if (error.response) {
-            console.error('Response data:', error.response.data);
+        try {
+            setIsLoading(true);
+            
+            // Log what's being sent to API
+            console.log('Hook: Updating status', { id, status });
+            
+            // Use the dedicated endpoint for updating status
+            await api.updateStatus(id, status);
+            
+            const statusLabels = {
+                [ReportStatus.PENDING_REVIEW]: 'Pending Review',
+                [ReportStatus.REJECTED]: 'Rejected',
+                [ReportStatus.ACTIVE]: 'Active',
+                [ReportStatus.IN_PROGRESS]: 'In Progress',
+                [ReportStatus.RESOLVED]: 'Resolved',
+                [ReportStatus.CLOSED]: 'Closed',
+                [ReportStatus.NO_RESOLUTION]: 'No Resolution'
+            };
+            
+            toast.success(`Report status updated to ${statusLabels[status as ReportStatus] || status}`);
+            
+            // Update local state
+            setReports(prev => 
+                prev.map(report => 
+                    report._id === id 
+                        ? { ...report, status } 
+                        : report
+                )
+            );
+            
+            return true;
+        } catch (error) {
+            console.error('Error updating report status:', error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+            }
+            toast.error('Failed to update status');
+            return false;
+        } finally {
+            setIsLoading(false);
         }
-        toast.error('Failed to update status');
-        return false;
-    } finally {
-        setIsLoading(false);
-    }
-}, [api]);
+    }, [api]);
 
     // Update the report's creation date
     const updateCreatedAt = useCallback(async (id: string, createdAt: Date) => {
@@ -260,6 +260,139 @@ const updateStatus = useCallback(async (id: string, status: string) => {
         }
     }, [api]);
 
+    // Get comments for a report - updated to support admin endpoint
+    const getReportComments = useCallback(async (id: string, useAdminEndpoint: boolean = false) => {
+        if (!api) return { data: [], total: 0 };
+
+        try {
+            setIsLoading(true);
+            if (useAdminEndpoint) {
+                // Call the admin endpoint for all comments including pending ones
+                console.log('Using admin endpoint for comments');
+                const response = await api.getReportComments(id);
+                return response;
+            } else {
+                // Call the regular endpoint for approved comments only
+                console.log('Using regular endpoint for comments');
+                const response = await api.getReportComments(id);
+                return response;
+            }
+        } catch (error) {
+            console.error('Error fetching report comments:', error);
+            toast.error('Failed to fetch comments');
+            return { data: [], total: 0 };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Update comment status
+    const updateCommentStatus = useCallback(async (reportId: string, commentId: string, status: CommentStatus) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.updateCommentStatus(reportId, commentId, status);
+            
+            // const statusLabels = {
+            //     [CommentStatus.PENDING_REVIEW]: 'Pending Review',
+            //     [CommentStatus.APPROVED]: 'Approved',
+            //     [CommentStatus.REJECTED]: 'Rejected'
+            // };
+            
+            // toast.success(`Comment status updated to ${statusLabels[status]}`);
+            return true;
+        } catch (error) {
+            console.error('Error updating comment status:', error);
+            toast.error('Failed to update comment status');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Delete a comment
+    const deleteComment = useCallback(async (reportId: string, commentId: string) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.deleteComment(reportId, commentId);
+            toast.success('Comment deleted successfully');
+            
+            // Update comment count in local state
+            setReports(prev => 
+                prev.map(report => 
+                    report._id === reportId 
+                        ? { 
+                            ...report, 
+                            commentCount: Math.max(0, (report.commentCount || 0) - 1)
+                        } 
+                        : report
+                )
+            );
+            
+            return true;
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            toast.error('Failed to delete comment');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Get flags for a report - updated to support admin endpoint
+    const getReportFlags = useCallback(async (id: string, useAdminEndpoint: boolean = false) => {
+        if (!api) return { data: [], count: 0 };
+
+        try {
+            setIsLoading(true);
+            if (useAdminEndpoint) {
+                // Call the admin endpoint for detailed flag info
+                console.log('Using admin endpoint for flags');
+                const response = await api.getReportFlags(id);
+                return response;
+            } else {
+                // Call the regular endpoint for basic flag info
+                console.log('Using regular endpoint for flags');
+                const response = await api.getReportFlags(id);
+                return response;
+            }
+        } catch (error) {
+            console.error('Error fetching report flags:', error);
+            toast.error('Failed to fetch flags');
+            return { data: [], count: 0 };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Update flag status
+    const updateFlagStatus = useCallback(async (reportId: string, flagId: string, status: FlagStatus) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.updateFlagStatus(reportId, flagId, status);
+            
+            // const statusLabels = {
+            //     [FlagStatus.PENDING]: 'Pending',
+            //     [FlagStatus.REVIEWED]: 'Reviewed',
+            //     [FlagStatus.DISMISSED]: 'Dismissed'
+            // };
+            
+            // toast.success(`Flag status updated to ${statusLabels[status]}`);
+            return true;
+        } catch (error) {
+            console.error('Error updating flag status:', error);
+            toast.error('Failed to update flag status');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
     return {
         isLoading,
         reports,
@@ -275,6 +408,11 @@ const updateStatus = useCallback(async (id: string, status: string) => {
         updateCreatedAt,
         deleteReport,
         updateReportTags,
+        getReportComments,
+        updateCommentStatus,
+        deleteComment,
+        getReportFlags,
+        updateFlagStatus,
         isInitialized: !!api
     };
 };
