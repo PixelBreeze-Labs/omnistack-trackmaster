@@ -188,17 +188,17 @@ export function ReportCommentsList({ reportId, onRefreshNeeded }: ReportComments
                                   setStatusDialogOpen(true);
                                 }
                                 break;
-                              case "delete":
-                                setSelectedComment(comment);
-                                setDeleteDialogOpen(true);
-                                break;
+                            //   case "delete":
+                            //     setSelectedComment(comment);
+                            //     setDeleteDialogOpen(true);
+                            //     break;
                             }
                           }}
                           options={[
                             { value: "", label: "Actions" },
                             ...(comment.status !== CommentStatus.APPROVED ? [{ value: "approve", label: "Approve" }] : []),
                             ...(comment.status !== CommentStatus.REJECTED ? [{ value: "reject", label: "Reject" }] : []),
-                            { value: "delete", label: "Delete" }
+                            // { value: "delete", label: "Delete" }
                           ]}
                         />
                       </div>
