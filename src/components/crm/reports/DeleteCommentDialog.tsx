@@ -60,7 +60,7 @@ export function DeleteCommentDialog({
             Cancel
           </Button>
           <Button
-            variant="destructive"
+            className="bg-red-600 hover:bg-red-700"
             onClick={handleDelete}
             disabled={isDeleting}
           >

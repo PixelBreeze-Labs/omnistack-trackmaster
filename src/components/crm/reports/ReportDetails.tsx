@@ -108,7 +108,7 @@ export default function ReportDetailsPage() {
       <ReportMetricsCard report={report} />
 
       {/* Tabs for Comments and Flags */}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-6">
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="mt-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="comments">
             Comments {report.commentCount ? `(${report.commentCount})` : ''}
