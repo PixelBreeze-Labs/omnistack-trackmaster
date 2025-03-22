@@ -127,51 +127,51 @@ export const useAdminReports = () => {
     }, [api]);
 
    // Fixed updateStatus function in useAdminReports.ts
-const updateStatus = useCallback(async (id: string, status: string) => {
-    if (!api) return false;
+    const updateStatus = useCallback(async (id: string, status: string) => {
+        if (!api) return false;
 
-    try {
-        setIsLoading(true);
-        
-        // Log what's being sent to API
-        console.log('Hook: Updating status', { id, status });
-        
-        // Use the dedicated endpoint for updating status
-        await api.updateStatus(id, status);
-        
-        const statusLabels = {
-            [ReportStatus.PENDING_REVIEW]: 'Pending Review',
-            [ReportStatus.REJECTED]: 'Rejected',
-            [ReportStatus.ACTIVE]: 'Active',
-            [ReportStatus.IN_PROGRESS]: 'In Progress',
-            [ReportStatus.RESOLVED]: 'Resolved',
-            [ReportStatus.CLOSED]: 'Closed',
-            [ReportStatus.NO_RESOLUTION]: 'No Resolution'
-        };
-        
-        toast.success(`Report status updated to ${statusLabels[status as ReportStatus] || status}`);
-        
-        // Update local state
-        setReports(prev => 
-            prev.map(report => 
-                report._id === id 
-                    ? { ...report, status } 
-                    : report
-            )
-        );
-        
-        return true;
-    } catch (error) {
-        console.error('Error updating report status:', error);
-        if (error.response) {
-            console.error('Response data:', error.response.data);
+        try {
+            setIsLoading(true);
+            
+            // Log what's being sent to API
+            console.log('Hook: Updating status', { id, status });
+            
+            // Use the dedicated endpoint for updating status
+            await api.updateStatus(id, status);
+            
+            const statusLabels = {
+                [ReportStatus.PENDING_REVIEW]: 'Pending Review',
+                [ReportStatus.REJECTED]: 'Rejected',
+                [ReportStatus.ACTIVE]: 'Active',
+                [ReportStatus.IN_PROGRESS]: 'In Progress',
+                [ReportStatus.RESOLVED]: 'Resolved',
+                [ReportStatus.CLOSED]: 'Closed',
+                [ReportStatus.NO_RESOLUTION]: 'No Resolution'
+            };
+            
+            toast.success(`Report status updated to ${statusLabels[status as ReportStatus] || status}`);
+            
+            // Update local state
+            setReports(prev => 
+                prev.map(report => 
+                    report._id === id 
+                        ? { ...report, status } 
+                        : report
+                )
+            );
+            
+            return true;
+        } catch (error) {
+            console.error('Error updating report status:', error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+            }
+            toast.error('Failed to update status');
+            return false;
+        } finally {
+            setIsLoading(false);
         }
-        toast.error('Failed to update status');
-        return false;
-    } finally {
-        setIsLoading(false);
-    }
-}, [api]);
+    }, [api]);
 
     // Update the report's creation date
     const updateCreatedAt = useCallback(async (id: string, createdAt: Date) => {
@@ -260,14 +260,23 @@ const updateStatus = useCallback(async (id: string, status: string) => {
         }
     }, [api]);
 
-      // Get comments for a report
-      const getReportComments = useCallback(async (id: string) => {
+    // Get comments for a report - updated to support admin endpoint
+    const getReportComments = useCallback(async (id: string, useAdminEndpoint: boolean = false) => {
         if (!api) return { data: [], total: 0 };
 
         try {
             setIsLoading(true);
-            const response = await api.getReportComments(id);
-            return response;
+            if (useAdminEndpoint) {
+                // Call the admin endpoint for all comments including pending ones
+                console.log('Using admin endpoint for comments');
+                const response = await api.getReportComments(id);
+                return response;
+            } else {
+                // Call the regular endpoint for approved comments only
+                console.log('Using regular endpoint for comments');
+                const response = await api.getReportComments(id);
+                return response;
+            }
         } catch (error) {
             console.error('Error fetching report comments:', error);
             toast.error('Failed to fetch comments');
@@ -276,7 +285,6 @@ const updateStatus = useCallback(async (id: string, status: string) => {
             setIsLoading(false);
         }
     }, [api]);
-
 
     // Update comment status
     const updateCommentStatus = useCallback(async (reportId: string, commentId: string, status: CommentStatus) => {
@@ -334,14 +342,23 @@ const updateStatus = useCallback(async (id: string, status: string) => {
         }
     }, [api]);
 
-    // Get flags for a report
-    const getReportFlags = useCallback(async (id: string) => {
+    // Get flags for a report - updated to support admin endpoint
+    const getReportFlags = useCallback(async (id: string, useAdminEndpoint: boolean = false) => {
         if (!api) return { data: [], count: 0 };
 
         try {
             setIsLoading(true);
-            const response = await api.getReportFlags(id);
-            return response;
+            if (useAdminEndpoint) {
+                // Call the admin endpoint for detailed flag info
+                console.log('Using admin endpoint for flags');
+                const response = await api.getReportFlags(id);
+                return response;
+            } else {
+                // Call the regular endpoint for basic flag info
+                console.log('Using regular endpoint for flags');
+                const response = await api.getReportFlags(id);
+                return response;
+            }
         } catch (error) {
             console.error('Error fetching report flags:', error);
             toast.error('Failed to fetch flags');

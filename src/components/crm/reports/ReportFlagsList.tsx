@@ -31,6 +31,7 @@ import {
 import { useAdminReports } from "@/hooks/useAdminReports";
 import { FlagStatus, FlagReason, ReportFlag } from "@/app/api/external/omnigateway/types/admin-reports";
 import UpdateFlagStatusDialog from "./UpdateFlagStatusDialog";
+import toast from "react-hot-toast";
 
 interface ReportFlagsListProps {
   reportId: string;
@@ -41,17 +42,32 @@ export function ReportFlagsList({ reportId, onRefreshNeeded }: ReportFlagsListPr
   const [flags, setFlags] = useState<ReportFlag[]>([]);
   const [selectedFlag, setSelectedFlag] = useState<ReportFlag | null>(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const { isLoading, getReportFlags, updateFlagStatus } = useAdminReports();
+  const [loading, setLoading] = useState(true);
+  const { isLoading: apiLoading, getReportFlags, updateFlagStatus, isInitialized } = useAdminReports();
 
   useEffect(() => {
-    if (reportId) {
+    if (reportId && isInitialized) {
       fetchFlags();
     }
-  }, [reportId]);
+  }, [reportId, isInitialized]);
 
   const fetchFlags = async () => {
-    const response = await getReportFlags(reportId);
-    setFlags(response.data || []);
+    if (!reportId) return;
+    
+    console.log("Fetching flags for reportId:", reportId);
+    setLoading(true);
+    
+    try {
+      // Use the admin flags endpoint instead of the regular one
+      const response = await getReportFlags(reportId, true); // Use true flag to indicate admin view
+      console.log("Flags response:", response);
+      setFlags(response.data || []);
+    } catch (error) {
+      console.error("Error fetching flags:", error);
+      toast.error("Failed to load flags");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleStatusChange = async (status: FlagStatus) => {
@@ -67,6 +83,8 @@ export function ReportFlagsList({ reportId, onRefreshNeeded }: ReportFlagsListPr
       if (onRefreshNeeded) {
         onRefreshNeeded();
       }
+      
+      toast.success(`Flag ${status === FlagStatus.REVIEWED ? 'marked as reviewed' : 'dismissed'} successfully`);
     }
     
     return success;
@@ -107,18 +125,20 @@ export function ReportFlagsList({ reportId, onRefreshNeeded }: ReportFlagsListPr
     );
   };
 
+  const isLoadingFlags = loading || apiLoading;
+
   return (
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg font-medium">Flags</CardTitle>
-          <Button variant="outline" size="sm" onClick={fetchFlags} disabled={isLoading}>
-            <RefreshCcw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          <Button variant="outline" size="sm" onClick={fetchFlags} disabled={isLoadingFlags}>
+            <RefreshCcw className={`mr-2 h-4 w-4 ${isLoadingFlags ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoadingFlags ? (
             <div className="flex justify-center py-8">
               <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>

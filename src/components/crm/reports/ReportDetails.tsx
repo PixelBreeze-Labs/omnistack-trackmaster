@@ -21,6 +21,10 @@ export default function ReportDetailsPage() {
   const [report, setReport] = useState<AdminReport | null>(null);
   const [activeTab, setActiveTab] = useState("comments");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Force render flags - increment these to force a re-render of components
+  const [commentsKey, setCommentsKey] = useState(1);
+  const [flagsKey, setFlagsKey] = useState(1);
 
   useEffect(() => {
     if (params.id && isInitialized) {
@@ -35,6 +39,13 @@ export default function ReportDetailsPage() {
       console.log('reportData', reportData);
       if (reportData) {
         setReport(reportData);
+        
+        // Force re-render of the current tab's component when report is refreshed
+        if (activeTab === "comments") {
+          setCommentsKey(prev => prev + 1);
+        } else {
+          setFlagsKey(prev => prev + 1);
+        }
       }
     } catch (error) {
       console.error("Error fetching report:", error);
@@ -43,11 +54,22 @@ export default function ReportDetailsPage() {
     }
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    // Force a re-render of the component when tab is changed
+    if (value === "comments") {
+      setCommentsKey(prev => prev + 1);
+    } else if (value === "flags") {
+      setFlagsKey(prev => prev + 1);
+    }
+  };
+
   const goBack = () => {
     router.back();
   };
 
-  if (isLoading || isRefreshing) {
+  if (isLoading && !report) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -86,16 +108,21 @@ export default function ReportDetailsPage() {
       <ReportMetricsCard report={report} />
 
       {/* Tabs for Comments and Flags */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-6">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="comments">Comments</TabsTrigger>
-          <TabsTrigger value="flags">Flags</TabsTrigger>
+          <TabsTrigger value="comments">
+            Comments {report.commentCount ? `(${report.commentCount})` : ''}
+          </TabsTrigger>
+          <TabsTrigger value="flags">
+            Flags {report.flagsCount ? `(${report.flagsCount})` : ''}
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="comments" className="mt-6">
           <ReportCommentsList 
             reportId={report._id} 
             onRefreshNeeded={fetchReport} 
+            key={`comments-${report._id}-${commentsKey}`}
           />
         </TabsContent>
         
@@ -103,6 +130,7 @@ export default function ReportDetailsPage() {
           <ReportFlagsList 
             reportId={report._id} 
             onRefreshNeeded={fetchReport} 
+            key={`flags-${report._id}-${flagsKey}`}
           />
         </TabsContent>
       </Tabs>
