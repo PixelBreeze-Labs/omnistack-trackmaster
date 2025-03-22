@@ -294,13 +294,13 @@ export const useAdminReports = () => {
             setIsLoading(true);
             await api.updateCommentStatus(reportId, commentId, status);
             
-            const statusLabels = {
-                [CommentStatus.PENDING_REVIEW]: 'Pending Review',
-                [CommentStatus.APPROVED]: 'Approved',
-                [CommentStatus.REJECTED]: 'Rejected'
-            };
+            // const statusLabels = {
+            //     [CommentStatus.PENDING_REVIEW]: 'Pending Review',
+            //     [CommentStatus.APPROVED]: 'Approved',
+            //     [CommentStatus.REJECTED]: 'Rejected'
+            // };
             
-            toast.success(`Comment status updated to ${statusLabels[status]}`);
+            // toast.success(`Comment status updated to ${statusLabels[status]}`);
             return true;
         } catch (error) {
             console.error('Error updating comment status:', error);
@@ -376,13 +376,13 @@ export const useAdminReports = () => {
             setIsLoading(true);
             await api.updateFlagStatus(reportId, flagId, status);
             
-            const statusLabels = {
-                [FlagStatus.PENDING]: 'Pending',
-                [FlagStatus.REVIEWED]: 'Reviewed',
-                [FlagStatus.DISMISSED]: 'Dismissed'
-            };
+            // const statusLabels = {
+            //     [FlagStatus.PENDING]: 'Pending',
+            //     [FlagStatus.REVIEWED]: 'Reviewed',
+            //     [FlagStatus.DISMISSED]: 'Dismissed'
+            // };
             
-            toast.success(`Flag status updated to ${statusLabels[status]}`);
+            // toast.success(`Flag status updated to ${statusLabels[status]}`);
             return true;
         } catch (error) {
             console.error('Error updating flag status:', error);
