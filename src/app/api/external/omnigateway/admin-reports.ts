@@ -101,7 +101,7 @@ export const createAdminReportsApi = (apiKey: string) => {
          // Get comments for a report
          getReportComments: async (id: string) => {
             try {
-                const { data } = await api.get(`/community-reports/${id}/comments`);
+                const { data } = await api.get(`/community-reports/${id}/comments/admin`);
                 return data;
             } catch (error) {
                 console.error('Error fetching report comments:', error);
@@ -136,7 +136,7 @@ export const createAdminReportsApi = (apiKey: string) => {
         // Get flags for a report
         getReportFlags: async (id: string) => {
             try {
-                const { data } = await api.get(`/community-reports/${id}/flags`);
+                const { data } = await api.get(`/community-reports/${id}/flags/admin`);
                 return data;
             } catch (error) {
                 console.error('Error fetching report flags:', error);

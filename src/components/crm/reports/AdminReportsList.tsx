@@ -48,6 +48,7 @@ import { ReportTagsDialog } from "./ReportTagsDialog";
 import { AdminReportForm } from "./AdminReportForm";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ReportDateDialog } from "./ReportDateDialog";
+import { useRouter } from "next/navigation";
 
 export function AdminReportsList() {
   const {
@@ -85,6 +86,8 @@ export function AdminReportsList() {
   const [createReportDialogOpen, setCreateReportDialogOpen] = useState(false);
   const [dateDialogOpen, setDateDialogOpen] = useState(false);
   const [reportToUpdateDate, setReportToUpdateDate] = useState<AdminReport | null>(null);
+  const router = useRouter();
+
 
   useEffect(() => {
     if (isInitialized) {
@@ -480,6 +483,9 @@ const handleStatusChange = async (newStatus: string) => {
                                 setSelectedReport({...report});
                                 setDetailsDialogOpen(true);
                                 break;
+                              case "go_to_details":
+                                router.push(`/crm/platform/reports/${report._id}`);
+                                break;
                               case "toggle_visibility":
                                 handleVisibilityChange(report);
                                 break;
@@ -507,6 +513,7 @@ const handleStatusChange = async (newStatus: string) => {
                           options={[
                             { value: "", label: "Actions" },
                             { value: "view_details", label: "View Details" },
+                            { value: "go_to_details", label: "Comments & Flags" },
                             { value: "toggle_visibility", label: report.visibleOnWeb ? "Hide from Public" : "Make Public" },
                             { value: "toggle_featured", label: report.isFeatured ? "Remove Featured" : "Mark as Featured" },
                             { value: "change_status", label: "Change Status" },
