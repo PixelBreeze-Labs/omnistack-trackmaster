@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { createAdminReportsApi } from '@/app/api/external/omnigateway/admin-reports';
-import { AdminReport, AdminReportParams, ReportStatus } from '@/app/api/external/omnigateway/types/admin-reports';
+import { AdminReport, AdminReportParams, CommentStatus, FlagStatus, ReportStatus } from '@/app/api/external/omnigateway/types/admin-reports';
 import { useGatewayClientApiKey } from '@/hooks/useGatewayClientApiKey';
 import toast from 'react-hot-toast';
 
@@ -260,6 +260,122 @@ const updateStatus = useCallback(async (id: string, status: string) => {
         }
     }, [api]);
 
+      // Get comments for a report
+      const getReportComments = useCallback(async (id: string) => {
+        if (!api) return { data: [], total: 0 };
+
+        try {
+            setIsLoading(true);
+            const response = await api.getReportComments(id);
+            return response;
+        } catch (error) {
+            console.error('Error fetching report comments:', error);
+            toast.error('Failed to fetch comments');
+            return { data: [], total: 0 };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+
+    // Update comment status
+    const updateCommentStatus = useCallback(async (reportId: string, commentId: string, status: CommentStatus) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.updateCommentStatus(reportId, commentId, status);
+            
+            const statusLabels = {
+                [CommentStatus.PENDING_REVIEW]: 'Pending Review',
+                [CommentStatus.APPROVED]: 'Approved',
+                [CommentStatus.REJECTED]: 'Rejected'
+            };
+            
+            toast.success(`Comment status updated to ${statusLabels[status]}`);
+            return true;
+        } catch (error) {
+            console.error('Error updating comment status:', error);
+            toast.error('Failed to update comment status');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Delete a comment
+    const deleteComment = useCallback(async (reportId: string, commentId: string) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.deleteComment(reportId, commentId);
+            toast.success('Comment deleted successfully');
+            
+            // Update comment count in local state
+            setReports(prev => 
+                prev.map(report => 
+                    report._id === reportId 
+                        ? { 
+                            ...report, 
+                            commentCount: Math.max(0, (report.commentCount || 0) - 1)
+                        } 
+                        : report
+                )
+            );
+            
+            return true;
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            toast.error('Failed to delete comment');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Get flags for a report
+    const getReportFlags = useCallback(async (id: string) => {
+        if (!api) return { data: [], count: 0 };
+
+        try {
+            setIsLoading(true);
+            const response = await api.getReportFlags(id);
+            return response;
+        } catch (error) {
+            console.error('Error fetching report flags:', error);
+            toast.error('Failed to fetch flags');
+            return { data: [], count: 0 };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
+    // Update flag status
+    const updateFlagStatus = useCallback(async (reportId: string, flagId: string, status: FlagStatus) => {
+        if (!api) return false;
+
+        try {
+            setIsLoading(true);
+            await api.updateFlagStatus(reportId, flagId, status);
+            
+            const statusLabels = {
+                [FlagStatus.PENDING]: 'Pending',
+                [FlagStatus.REVIEWED]: 'Reviewed',
+                [FlagStatus.DISMISSED]: 'Dismissed'
+            };
+            
+            toast.success(`Flag status updated to ${statusLabels[status]}`);
+            return true;
+        } catch (error) {
+            console.error('Error updating flag status:', error);
+            toast.error('Failed to update flag status');
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [api]);
+
     return {
         isLoading,
         reports,
@@ -275,6 +391,11 @@ const updateStatus = useCallback(async (id: string, status: string) => {
         updateCreatedAt,
         deleteReport,
         updateReportTags,
+        getReportComments,
+        updateCommentStatus,
+        deleteComment,
+        getReportFlags,
+        updateFlagStatus,
         isInitialized: !!api
     };
 };

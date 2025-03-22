@@ -1,5 +1,5 @@
 import { createOmniGateway } from './index';
-import { AdminReportParams } from './types/admin-reports';
+import { AdminReportParams, CommentStatus, FlagStatus } from './types/admin-reports';
 
 export const createAdminReportsApi = (apiKey: string) => {
     const api = createOmniGateway(apiKey);
@@ -96,6 +96,65 @@ export const createAdminReportsApi = (apiKey: string) => {
                 createdAt: createdAt.toISOString() 
             });
             return data;
+        },
+
+         // Get comments for a report
+         getReportComments: async (id: string) => {
+            try {
+                const { data } = await api.get(`/community-reports/${id}/comments`);
+                return data;
+            } catch (error) {
+                console.error('Error fetching report comments:', error);
+                throw error;
+            }
+        },
+        
+        // Update comment status
+        updateCommentStatus: async (reportId: string, commentId: string, status: CommentStatus) => {
+            try {
+                const { data } = await api.put(`/community-reports/${reportId}/comments/${commentId}/status`, {
+                    status
+                });
+                return data;
+            } catch (error) {
+                console.error('Error updating comment status:', error);
+                throw error;
+            }
+        },
+
+          // Delete a comment
+          deleteComment: async (reportId: string, commentId: string) => {
+            try {
+                const { data } = await api.delete(`/community-reports/${reportId}/comments/${commentId}`);
+                return data;
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                throw error;
+            }
+        },
+        
+        // Get flags for a report
+        getReportFlags: async (id: string) => {
+            try {
+                const { data } = await api.get(`/community-reports/${id}/flags`);
+                return data;
+            } catch (error) {
+                console.error('Error fetching report flags:', error);
+                throw error;
+            }
+        },
+        
+        // Update flag status
+        updateFlagStatus: async (reportId: string, flagId: string, status: FlagStatus) => {
+            try {
+                const { data } = await api.put(`/community-reports/${reportId}/flags/${flagId}`, {
+                    status
+                });
+                return data;
+            } catch (error) {
+                console.error('Error updating flag status:', error);
+                throw error;
+            }
         },
     };
 };
