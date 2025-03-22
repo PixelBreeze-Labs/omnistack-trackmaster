@@ -17,17 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   RefreshCcw, 
-  CheckCircle, 
-  XCircle, 
-  Flag, 
-  MoreHorizontal 
+  Flag
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import InputSelect from "@/components/Common/InputSelect";
 import { useAdminReports } from "@/hooks/useAdminReports";
 import { FlagStatus, FlagReason, ReportFlag } from "@/app/api/external/omnigateway/types/admin-reports";
 import UpdateFlagStatusDialog from "./UpdateFlagStatusDialog";
@@ -176,40 +168,35 @@ export function ReportFlagsList({ reportId, onRefreshNeeded }: ReportFlagsListPr
                     </TableCell>
                     <TableCell>{getStatusBadge(flag.status)}</TableCell>
                     <TableCell>{formatDate(flag.createdAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {flag.status !== FlagStatus.REVIEWED && (
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setSelectedFlag(flag);
-                                setStatusDialogOpen(true);
-                              }}
-                              className="text-green-600"
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Mark as Reviewed
-                            </DropdownMenuItem>
-                          )}
-                          {flag.status !== FlagStatus.DISMISSED && (
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setSelectedFlag(flag);
-                                setStatusDialogOpen(true);
-                              }}
-                              className="text-red-600"
-                            >
-                              <XCircle className="mr-2 h-4 w-4" />
-                              Dismiss Flag
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <TableCell>
+                      <div className="flex justify-end">
+                        <InputSelect
+                          name={`flag-action-${flag.id}`}
+                          label=""
+                          value=""
+                          onChange={(e) => {
+                            switch(e.target.value) {
+                              case "review":
+                                if (flag.status !== FlagStatus.REVIEWED) {
+                                  setSelectedFlag(flag);
+                                  setStatusDialogOpen(true);
+                                }
+                                break;
+                              case "dismiss":
+                                if (flag.status !== FlagStatus.DISMISSED) {
+                                  setSelectedFlag(flag);
+                                  setStatusDialogOpen(true);
+                                }
+                                break;
+                            }
+                          }}
+                          options={[
+                            { value: "", label: "Actions" },
+                            ...(flag.status !== FlagStatus.REVIEWED ? [{ value: "review", label: "Mark as Reviewed" }] : []),
+                            ...(flag.status !== FlagStatus.DISMISSED ? [{ value: "dismiss", label: "Dismiss Flag" }] : [])
+                          ]}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

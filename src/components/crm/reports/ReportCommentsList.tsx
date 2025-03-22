@@ -17,18 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   RefreshCcw, 
-  CheckCircle, 
-  XCircle, 
-  MessageSquare, 
-  Trash2, 
-  MoreHorizontal 
+  MessageSquare
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import InputSelect from "@/components/Common/InputSelect";
 import { useAdminReports } from "@/hooks/useAdminReports";
 import { CommentStatus, ReportComment } from "@/app/api/external/omnigateway/types/admin-reports";
 import UpdateCommentStatusDialog from "./UpdateCommentStatusDialog";
@@ -177,50 +168,40 @@ export function ReportCommentsList({ reportId, onRefreshNeeded }: ReportComments
                     </TableCell>
                     <TableCell>{getStatusBadge(comment.status)}</TableCell>
                     <TableCell>{formatDate(comment.createdAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {comment.status !== CommentStatus.APPROVED && (
-                            <DropdownMenuItem 
-                              onClick={() => {
+                    <TableCell>
+                      <div className="flex justify-end">
+                        <InputSelect
+                          name={`comment-action-${comment.id}`}
+                          label=""
+                          value=""
+                          onChange={(e) => {
+                            switch(e.target.value) {
+                              case "approve":
+                                if (comment.status !== CommentStatus.APPROVED) {
+                                  setSelectedComment(comment);
+                                  setStatusDialogOpen(true);
+                                }
+                                break;
+                              case "reject":
+                                if (comment.status !== CommentStatus.REJECTED) {
+                                  setSelectedComment(comment);
+                                  setStatusDialogOpen(true);
+                                }
+                                break;
+                              case "delete":
                                 setSelectedComment(comment);
-                                setStatusDialogOpen(true);
-                              }}
-                              className="text-green-600"
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Approve
-                            </DropdownMenuItem>
-                          )}
-                          {comment.status !== CommentStatus.REJECTED && (
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setSelectedComment(comment);
-                                setStatusDialogOpen(true);
-                              }}
-                              className="text-amber-600"
-                            >
-                              <XCircle className="mr-2 h-4 w-4" />
-                              Reject
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              setSelectedComment(comment);
-                              setDeleteDialogOpen(true);
-                            }}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                                setDeleteDialogOpen(true);
+                                break;
+                            }
+                          }}
+                          options={[
+                            { value: "", label: "Actions" },
+                            ...(comment.status !== CommentStatus.APPROVED ? [{ value: "approve", label: "Approve" }] : []),
+                            ...(comment.status !== CommentStatus.REJECTED ? [{ value: "reject", label: "Reject" }] : []),
+                            { value: "delete", label: "Delete" }
+                          ]}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
