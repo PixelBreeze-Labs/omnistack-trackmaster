@@ -35,7 +35,10 @@ import {
   Bot,
   MessagesSquare,
   User,
-  Plus
+  Plus,
+  Eye,
+  MessageSquare,
+  Flag
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { useAdminReports } from "@/hooks/useAdminReports";
@@ -145,29 +148,29 @@ export function AdminReportsList() {
     await updateFeatured(report._id, !report.isFeatured);
   };
 
-  // Fixed handleStatusChange function in AdminReportsList.tsx
-const handleStatusChange = async (newStatus: string) => {
-  // Ensure reportToUpdateStatus exists before making API call
-  if (!reportToUpdateStatus || !reportToUpdateStatus._id) {
-    console.error("Missing report ID for status update");
-    return false;
-  }
-  
-  // Log what's being passed to the API
-  console.log('List component: Updating status', {
-    id: reportToUpdateStatus._id,
-    newStatus
-  });
-  
-  const success = await updateStatus(reportToUpdateStatus._id, newStatus);
-  
-  if (success) {
-    setStatusDialogOpen(false);
-    setReportToUpdateStatus(null);
-  }
-  
-  return success;
-};
+  // Fixed handleStatusChange function
+  const handleStatusChange = async (newStatus: string) => {
+    // Ensure reportToUpdateStatus exists before making API call
+    if (!reportToUpdateStatus || !reportToUpdateStatus._id) {
+      console.error("Missing report ID for status update");
+      return false;
+    }
+    
+    // Log what's being passed to the API
+    console.log('List component: Updating status', {
+      id: reportToUpdateStatus._id,
+      newStatus
+    });
+    
+    const success = await updateStatus(reportToUpdateStatus._id, newStatus);
+    
+    if (success) {
+      setStatusDialogOpen(false);
+      setReportToUpdateStatus(null);
+    }
+    
+    return success;
+  };
 
   const handleDelete = async (reportId: string) => {
     // Ensure reportId exists before making API call
@@ -373,6 +376,7 @@ const handleStatusChange = async (newStatus: string) => {
                 <TableHead>Category</TableHead>
                 <TableHead>Author</TableHead>
                 <TableHead>Source</TableHead>
+                <TableHead>Stats</TableHead>
                 <TableHead>Visibility</TableHead>
                 <TableHead>Featured</TableHead>
                 <TableHead>Created At</TableHead>
@@ -382,7 +386,7 @@ const handleStatusChange = async (newStatus: string) => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
@@ -390,7 +394,7 @@ const handleStatusChange = async (newStatus: string) => {
                 </TableRow>
               ) : !reports || reports.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     <div className="flex flex-col items-center gap-3">
                       <FileText className="h-12 w-12 text-muted-foreground" />
                       <h3 className="text-lg font-medium">No Reports Found</h3>
@@ -455,6 +459,22 @@ const handleStatusChange = async (newStatus: string) => {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1 text-xs">
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3.5 w-3.5 text-blue-600" /> 
+                          <span className="text-muted-foreground">Views:</span> {report.viewCount || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="h-3.5 w-3.5 text-green-600" /> 
+                          <span className="text-muted-foreground">Comments:</span> {report.commentCount || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Flag className="h-3.5 w-3.5 text-red-600" /> 
+                          <span className="text-muted-foreground">Flags:</span> {report.flagsCount || 0}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {report.visibleOnWeb 
@@ -640,20 +660,20 @@ const handleStatusChange = async (newStatus: string) => {
         title="Create New Report"
       />
 
-{reportToUpdateDate && (
-  <ReportDateDialog
-    open={dateDialogOpen}
-    onClose={() => {
-      setDateDialogOpen(false);
-      setReportToUpdateDate(null);
-    }}
-    onDateChange={(date) => handleDateChange(reportToUpdateDate._id, date)}
-    currentDate={reportToUpdateDate.createdAt}
-  />
-)}
+      {reportToUpdateDate && (
+        <ReportDateDialog
+          open={dateDialogOpen}
+          onClose={() => {
+            setDateDialogOpen(false);
+            setReportToUpdateDate(null);
+          }}
+          onDateChange={(date) => handleDateChange(reportToUpdateDate._id, date)}
+          currentDate={reportToUpdateDate.createdAt}
+        />
+      )}
 
-   {/* Add empty space div at the bottom */}
-   <div className="h-4"></div>
+      {/* Add empty space div at the bottom */}
+      <div className="h-4"></div>
     </div>
   );
 }
