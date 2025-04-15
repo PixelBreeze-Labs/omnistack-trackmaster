@@ -61,6 +61,8 @@ export function LoginForm() {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/pixelbreeze-dashboard`)
                         } else if (clientType === 'QYTETARET') {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/qytetaret-dashboard`)
+                        } else if (clientType === 'STUDIO') {
+                            router.push(`/crm/${unifiedClientType.toLowerCase()}/studio-dashboard`)
                         } else {
                             router.push(`/crm/${unifiedClientType.toLowerCase()}/dashboard`)
                         }

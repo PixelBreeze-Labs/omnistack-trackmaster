@@ -94,6 +94,8 @@ interface SidebarProps {
   citizens?: any[];
   authorities?: any[];
   analytics?: any[];
+  // STUDIO props
+  clients?: any[];
 }
 
 export default function Sidebar({
@@ -125,7 +127,9 @@ export default function Sidebar({
   reports = [],
   citizens = [],
   authorities = [],
-  analytics = []
+  analytics = [],
+  // STUDIO props
+  clients = []
 }: SidebarProps) {
   const pathname = usePathname()
   
@@ -135,9 +139,12 @@ export default function Sidebar({
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = pathname.includes('/pixelbreeze') || pathname.includes('/social-profiles') || pathname.includes('/operating-entities')
   const isQytetaret = pathname.includes('/qytetaret') || pathname.includes('/reports') || pathname.includes('/citizens') 
-  || pathname.includes('/authorities')
-  || pathname.includes('/report-tags')
-  || pathname.includes('/contacts')
+    || pathname.includes('/authorities')
+    || pathname.includes('/report-tags')
+    || pathname.includes('/contacts')
+  const isStudio = pathname.includes('/studio') || 
+    pathname.includes('/os-clients') || 
+    pathname.includes('/os-client-apps')
 
   // Combine all menus for finding current open menu
   let allMenuItems = []
@@ -197,6 +204,12 @@ export default function Sidebar({
       ...authorities,
       ...analytics,
       ...communication,
+      ...settings
+    ]
+  } else if (isStudio) {
+    allMenuItems = [
+      ...mainMenu,
+      ...clients,
       ...settings
     ]
   } else {
@@ -601,6 +614,26 @@ export default function Sidebar({
             </>
           )}
 
+          {/* STUDIO sidebar sections */}
+          {isStudio && (
+            <div>
+              <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Clients
+              </h3>
+              <nav className="space-y-1">
+                {clients.map((item) => (
+                  <MenuItem
+                    key={item.id}
+                    item={item}
+                    pathname={pathname}
+                    openMenus={openMenus}
+                    toggleMenu={toggleMenu}
+                  />
+                ))}
+              </nav>
+            </div>
+          )}
+
           {/* Booking client type specific sections */}
           {isBooking && (
             <>
@@ -692,7 +725,7 @@ export default function Sidebar({
           )}
 
           {/* Default ecommerce sections (when no special client type is detected) */}
-          {!isSaas && !isBooking && !isVenueBoost && !isPixelBreeze && !isQytetaret && (
+          {!isSaas && !isBooking && !isVenueBoost && !isPixelBreeze && !isQytetaret && !isStudio && (
             <>
               <div>
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -781,8 +814,8 @@ export default function Sidebar({
             </>
           )}
 
-          {/* Finance Section - Common to all modes */}
-          {(!isQytetaret || finance.length > 0) && (
+          {/* Finance Section - Common to most modes except Studio */}
+          {(!isQytetaret && !isStudio || finance.length > 0) && (
             <div>
               <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Finance
@@ -802,7 +835,7 @@ export default function Sidebar({
           )}
 
           {/* Settings/HR Section based on mode */}
-          {isSaas || isVenueBoost || isPixelBreeze || isQytetaret ? (
+          {isSaas || isVenueBoost || isPixelBreeze || isQytetaret || isStudio ? (
             <div className="mb-8">
               <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Settings

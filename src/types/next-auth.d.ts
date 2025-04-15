@@ -6,7 +6,7 @@ declare module "next-auth" {
         id: string;
         role: "ADMIN" | "SALES" | "MARKETING";
         clientId?: string;
-        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET";
+        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET" | "STUDIO";
         supabaseId: string;
     }
 
@@ -15,7 +15,7 @@ declare module "next-auth" {
             id: string;
             role: "ADMIN" | "SALES" | "MARKETING";
             clientId?: string;
-            clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET";
+            clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET" | "STUDIO";
             supabaseId: string;
         } & DefaultSession["user"]
     }
@@ -26,7 +26,7 @@ declare module "next-auth/jwt" {
         id: string;
         role: "ADMIN" | "SALES" | "MARKETING";
         clientId?: string;
-        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET";
+        clientType?: "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET" | "STUDIO";
         supabaseId: string;
     }
 }
