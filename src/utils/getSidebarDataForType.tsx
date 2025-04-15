@@ -56,7 +56,14 @@ import {
   Sliders,
   Filter,
   Mail,
-  FolderOpen
+  FolderOpen,
+  FolderClosed,
+  Code,
+  Monitor,
+  Briefcase,
+  Network,
+  Globe,
+  PanelLeft
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -83,7 +90,73 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
     citizens: [],
     authorities: [],
     analytics: [],
-    communication: []
+    communication: [],
+    // STUDIO props
+    clients: []
+  }
+
+  // Add STUDIO case
+  if (clientType === 'STUDIO') {
+    return {
+      mainMenu: [
+        {
+          id: 1,
+          title: "Dashboard",
+          path: `/crm/platform/studio-dashboard`,
+          icon: <LayoutDashboard className="w-5 h-5"/>,
+        },
+      ],
+      clients: [
+        {
+          id: 3,
+          title: "Client Management",
+          path: `/crm/platform/os-clients`,
+          icon: <Briefcase className="w-5 h-5"/>,
+          children: [
+            {
+              id: "3-1",
+              title: "Client Apps",
+              path: `/crm/platform/os-clients/apps`,
+              icon: <Building2 className="w-4 h-4"/>
+            },
+            {
+              id: "3-2",
+              title: "Clients",
+              path: `/crm/platform/os-clients/all`,
+              icon: <Clock className="w-4 h-4"/>
+            },
+          ]
+        },
+      ],
+      settings: [
+        {
+          id: 7,
+          title: "Settings",
+          path: `/crm/platform/studio-settings`,
+          icon: <Settings className="w-5 h-5"/>,
+          children: [
+            {
+              id: "7-1",
+              title: "User Management",
+              path: `/crm/platform/studio-settings/users`,
+              icon: <UserCog className="w-4 h-4"/>
+            },
+            {
+              id: "7-2",
+              title: "Studio Configuration",
+              path: `/crm/platform/studio-settings/configuration`,
+              icon: <Sliders className="w-4 h-4"/>
+            },
+            {
+              id: "7-3",
+              title: "Billing",
+              path: `/crm/platform/studio-settings/billing`,
+              icon: <CreditCard className="w-4 h-4"/>
+            }
+          ]
+        }
+      ]
+    }
   }
 
   // Add QYTETARET case
@@ -854,7 +927,6 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       ]
     }
   }
-  
   
   // Default return for other client types
   return {

@@ -132,7 +132,7 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
     // New props for STUDIO client type
     sidebarProps = {
       mainMenu: sidebarData.mainMenu,
-      reports: sidebarData.clients,
+      clients: sidebarData.clients,
       settings: sidebarData.settings
     }
   } else {
