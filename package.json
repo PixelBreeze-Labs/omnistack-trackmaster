@@ -10,7 +10,7 @@
     "db:seed": "prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node prisma/studio-seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "overrides": {
     "react-quill": {
