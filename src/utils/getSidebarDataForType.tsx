@@ -138,19 +138,19 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
             {
               id: "7-1",
               title: "User Management",
-              path: `/crm/platform/studio-settings/users`,
+              path: `#`,
               icon: <UserCog className="w-4 h-4"/>
             },
             {
               id: "7-2",
               title: "Studio Configuration",
-              path: `/crm/platform/studio-settings/configuration`,
+              path: `#`,
               icon: <Sliders className="w-4 h-4"/>
             },
             {
               id: "7-3",
               title: "Billing",
-              path: `/crm/platform/studio-settings/billing`,
+              path: `#`,
               icon: <CreditCard className="w-4 h-4"/>
             }
           ]
