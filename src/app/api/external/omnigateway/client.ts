@@ -25,9 +25,8 @@ export const createOmniStackClientApi = (apiKey: string) => {
       try {
         const { data } = await api.get<ClientsResponse>(endpoint);
         
-       
+        // If response is an array, transform it to expected format
         if (Array.isArray(data)) {
-         
           return {
             data: data,
             total: data.length,
@@ -54,6 +53,49 @@ export const createOmniStackClientApi = (apiKey: string) => {
       }
     },
 
+    // Get a single client by ID
+    getClient: async (id: string): Promise<Client> => {
+      try {
+        const { data } = await api.get<Client>(`/clients/${id}`);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching client ${id}:`, error);
+        throw error;
+      }
+    },
+    
+    // Create a new client
+    createClient: async (clientData: Partial<Client>): Promise<Client> => {
+      try {
+        const { data } = await api.post<Client>('/clients', clientData);
+        return data;
+      } catch (error) {
+        console.error('Error creating client:', error);
+        throw error;
+      }
+    },
+    
+    // Update an existing client
+    updateClient: async (id: string, clientData: Partial<Client>): Promise<Client> => {
+      try {
+        const { data } = await api.put<Client>(`/clients/${id}`, clientData);
+        return data;
+      } catch (error) {
+        console.error(`Error updating client ${id}:`, error);
+        throw error;
+      }
+    },
+    
+    // Delete a client
+    deleteClient: async (id: string): Promise<void> => {
+      try {
+        await api.delete(`/clients/${id}`);
+      } catch (error) {
+        console.error(`Error deleting client ${id}:`, error);
+        throw error;
+      }
+    },
+
     // Client Apps API
     getClientApps: async (params: ClientAppParams = {}) => {
       const queryParams = new URLSearchParams();
@@ -71,8 +113,6 @@ export const createOmniStackClientApi = (apiKey: string) => {
       
       const { data } = await api.get<ClientAppsResponse>(endpoint);
       return data;
-    },
-    
-
+    }
   };
 };

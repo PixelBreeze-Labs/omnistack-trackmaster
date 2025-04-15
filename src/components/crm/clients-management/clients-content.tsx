@@ -21,6 +21,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Briefcase,
   Search,
@@ -33,15 +41,196 @@ import {
   Building,
   TrendingUp,
   Copy,
-  
   Gift,
-  ClipboardCopy
+  ClipboardCopy,
+  Trash2,
+  PowerOff
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "react-hot-toast";
 import { format } from "date-fns";
 import { useClients } from "@/hooks/useClients";
 import { ClientStatus } from "@/app/api/external/omnigateway/types/clients";
+
+// Delete Client Modal Component
+const DeleteClientModal = ({ 
+  client, 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  isDeleting = false 
+}) => {
+  const handleConfirm = async () => {
+    try {
+      await onConfirm(client);
+      toast.success("Client deleted successfully");
+      onClose();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      // Error is handled by the hook and displayed there
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Trash2 className="h-5 w-5 text-destructive" />
+            Delete Client
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete client {client?.name}? This action cannot be undone and will remove all associated data.
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button 
+            className="bg-red-600 hover:bg-red-700"
+            onClick={handleConfirm} 
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete Client"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Toggle Status Modal Component
+const ToggleStatusModal = ({ 
+  client, 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  isProcessing = false 
+}) => {
+  const action = client?.isActive ? "deactivate" : "activate";
+
+  const handleConfirm = async () => {
+    try {
+      await onConfirm(client);
+    //   toast.success(`Client ${action}d successfully`);
+      onClose();
+    } catch (error) {
+      console.error(`Error ${action}ing client:`, error);
+      // Error is handled by the hook and displayed there
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PowerOff className="h-5 w-5 text-warning" />
+            {client?.isActive ? "Deactivate" : "Activate"} Client
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to {action} client {client?.name}? 
+            {client?.isActive 
+              ? " Deactivating will prevent access to the client's resources." 
+              : " Activating will restore access to the client's resources."
+            }
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isProcessing}>
+            Cancel
+          </Button>
+          <Button 
+            className={client?.isActive ? "bg-amber-600 hover:bg-amber-700" : "bg-green-600 hover:bg-green-700"}
+            onClick={handleConfirm} 
+            disabled={isProcessing}
+          >
+            {isProcessing 
+              ? `${client?.isActive ? "Deactivating" : "Activating"}...` 
+              : `${client?.isActive ? "Deactivate" : "Activate"} Client`
+            }
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Client Action Select Component
+const ClientActionSelect = ({ 
+  client, 
+  onDeleteClient, 
+  onToggleStatus,
+  isProcessing = false 
+}) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isToggleStatusModalOpen, setIsToggleStatusModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
+
+  const handleDelete = async (client) => {
+    await onDeleteClient(client);
+  };
+  
+  const handleToggleStatus = async (client) => {
+    await onToggleStatus(client);
+  };
+
+  // Watch for changes in the selected action
+  useEffect(() => {
+    if (selectedAction === "delete") {
+      setIsDeleteModalOpen(true);
+      setSelectedAction("");
+    } else if (selectedAction === "toggle-status") {
+      setIsToggleStatusModalOpen(true);
+      setSelectedAction("");
+    } else if (selectedAction === "copy-api-key") {
+      navigator.clipboard.writeText(client.apiKey);
+      toast.success("API Key copied to clipboard");
+      setSelectedAction("");
+    } else if (selectedAction === "copy-id") {
+      navigator.clipboard.writeText(client._id);
+      toast.success("Client ID copied to clipboard");
+      setSelectedAction("");
+    }
+  }, [selectedAction, client]);
+
+  return (
+    <>
+      <InputSelect
+        name={`clientAction-${client._id}`}
+        label=""
+        value={selectedAction}
+        onChange={(e) => setSelectedAction(e.target.value)}
+        options={[
+          { value: "", label: "Actions" },
+          { value: "copy-api-key", label: "Copy API Key" },
+          { value: "copy-id", label: "Copy ID" },
+          { value: "toggle-status", label: client.isActive ? "Deactivate" : "Activate" },
+          { value: "delete", label: "Delete Client" },
+        ]}
+      />
+
+      <DeleteClientModal
+        client={client}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        isDeleting={isProcessing}
+      />
+
+      <ToggleStatusModal
+        client={client}
+        isOpen={isToggleStatusModalOpen}
+        onClose={() => setIsToggleStatusModalOpen(false)}
+        onConfirm={handleToggleStatus}
+        isProcessing={isProcessing}
+      />
+    </>
+  );
+};
 
 export function ClientsContent() {
   const {
@@ -50,27 +239,24 @@ export function ClientsContent() {
     totalItems,
     totalPages,
     clientMetrics,
-    fetchClients
+    fetchClients,
+    updateClient,
+    deleteClient,
+    isProcessing
   } = useClients();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [fromDate, setFromDate] = useState(undefined);
-  const [toDate, setToDate] = useState(undefined);
-  const [selectedClientId, setSelectedClientId] = useState("");
-  const [clientAction, setClientAction] = useState("");
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
   const fetchParams = useCallback(() => ({
     page,
     limit: pageSize,
     status: statusFilter !== 'all' ? statusFilter as ClientStatus : undefined,
-    search: searchTerm,
-    fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-    toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
-  }), [page, pageSize, statusFilter, searchTerm, fromDate, toDate]);
+    search: searchTerm
+  }), [page, pageSize, statusFilter, searchTerm]);
 
   useEffect(() => {
     console.log("Fetching clients with params:", fetchParams());
@@ -88,42 +274,37 @@ export function ClientsContent() {
     toast.success("Refreshed client data");
   };
 
+  const handleDeleteClient = async (client) => {
+    try {
+      await deleteClient(client._id);
+      toast.success(`Client ${client.name} deleted successfully`);
+      // Refresh the list
+      fetchClients(fetchParams());
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      toast.error("Failed to delete client");
+    }
+  };
+
+  const handleToggleStatus = async (client) => {
+    try {
+      const updatedClient = { 
+        ...client, 
+        isActive: !client.isActive 
+      };
+      await updateClient(client._id, { isActive: !client.isActive });
+      toast.success(`Client ${client.name} ${client.isActive ? "deactivated" : "activated"} successfully`);
+      // Refresh the list
+      fetchClients(fetchParams());
+    } catch (error) {
+      console.error("Error updating client status:", error);
+      toast.error("Failed to update client status");
+    }
+  };
+
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
-  };
-
-  const handleActionChange = (e, client) => {
-    const action = e.target.value;
-    setSelectedClientId(client._id);
-    setClientAction(action);
-
-    // Execute the selected action
-    switch (action) {
-      case "copy-api-key":
-        copyToClipboard(client.apiKey);
-        break;
-      case "copy-id":
-        copyToClipboard(client._id);
-        break;
-      case "toggle-status":
-        // Here you would implement the toggle status logic
-        toast.success(`${client.isActive ? "Deactivated" : "Activated"} ${client.name}`);
-        break;
-      default:
-        // Reset after selection
-        setTimeout(() => {
-          setClientAction("");
-          setSelectedClientId("");
-        }, 500);
-        break;
-    }
-
-    // Reset the select after action
-    setTimeout(() => {
-      setClientAction("");
-      setSelectedClientId("");
-    }, 500);
   };
 
   const getStatusBadge = (status) => {
@@ -175,7 +356,8 @@ export function ClientsContent() {
     clientsCount: clients?.length || 0,
     totalItems,
     totalPages,
-    clientMetrics
+    clientMetrics,
+    isProcessing
   });
 
   return (
@@ -330,11 +512,11 @@ export function ClientsContent() {
                       <Briefcase className="h-12 w-12 text-muted-foreground" />
                       <h3 className="text-lg font-medium">No Clients Found</h3>
                       <p className="text-sm text-muted-foreground max-w-sm text-center">
-                        {searchTerm || statusFilter !== 'all' || fromDate || toDate
+                        {searchTerm || statusFilter !== 'all'
                           ? "No clients match your search criteria. Try adjusting your filters." 
                           : "Start by adding your first client."}
                       </p>
-                      {!searchTerm && statusFilter === 'all' && !fromDate && !toDate && (
+                      {!searchTerm && statusFilter === 'all' && (
                         <Button 
                           className="mt-4"
                         >
@@ -424,17 +606,11 @@ export function ClientsContent() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="w-36">
-                        <InputSelect
-                          name={`action-${client._id}`}
-                          label=""
-                          value={selectedClientId === client._id ? clientAction : ""}
-                          onChange={(e) => handleActionChange(e, client)}
-                          options={[
-                            { value: "", label: "Actions" },
-                            { value: "copy-api-key", label: "Copy API Key" },
-                            { value: "copy-id", label: "Copy ID" },
-                            { value: "toggle-status", label: client.isActive ? "Deactivate" : "Activate" }
-                          ]}
+                        <ClientActionSelect
+                          client={client}
+                          onDeleteClient={handleDeleteClient}
+                          onToggleStatus={handleToggleStatus}
+                          isProcessing={isProcessing}
                         />
                       </div>
                     </TableCell>
@@ -501,7 +677,7 @@ export function ClientsContent() {
         </CardContent>
       </Card>
        {/* Add empty space div at the bottom */}
-  <div className="h-4"></div>
+      <div className="h-4"></div>
     </div>
   );
 }
