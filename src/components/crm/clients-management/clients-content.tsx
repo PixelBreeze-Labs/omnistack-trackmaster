@@ -27,36 +27,19 @@ import {
   Download,
   RefreshCcw,
   Plus,
-  Calendar,
-  Code,
-  Globe,
-  ExternalLink,
-  MoreHorizontal,
   Check,
   Clock,
   AlertTriangle,
   Building,
-  Users,
-  Activity,
   TrendingUp,
   Copy,
-  Calendar as CalendarIcon,
+  
   Gift,
-  CreditCard,
   ClipboardCopy
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "react-hot-toast";
 import { format } from "date-fns";
-import { DatePicker } from "@/components/ui/datepicker";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useClients } from "@/hooks/useClients";
 import { ClientStatus } from "@/app/api/external/omnigateway/types/clients";
 
@@ -76,6 +59,8 @@ export function ClientsContent() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [fromDate, setFromDate] = useState(undefined);
   const [toDate, setToDate] = useState(undefined);
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [clientAction, setClientAction] = useState("");
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
   const fetchParams = useCallback(() => ({
@@ -106,6 +91,39 @@ export function ClientsContent() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
+  };
+
+  const handleActionChange = (e, client) => {
+    const action = e.target.value;
+    setSelectedClientId(client._id);
+    setClientAction(action);
+
+    // Execute the selected action
+    switch (action) {
+      case "copy-api-key":
+        copyToClipboard(client.apiKey);
+        break;
+      case "copy-id":
+        copyToClipboard(client._id);
+        break;
+      case "toggle-status":
+        // Here you would implement the toggle status logic
+        toast.success(`${client.isActive ? "Deactivated" : "Activated"} ${client.name}`);
+        break;
+      default:
+        // Reset after selection
+        setTimeout(() => {
+          setClientAction("");
+          setSelectedClientId("");
+        }, 500);
+        break;
+    }
+
+    // Reset the select after action
+    setTimeout(() => {
+      setClientAction("");
+      setSelectedClientId("");
+    }, 500);
   };
 
   const getStatusBadge = (status) => {
@@ -274,20 +292,6 @@ export function ClientsContent() {
                 ]}
               />
             </div>
-            <div className="w-40 mt-3">
-              <DatePicker 
-                date={fromDate} 
-                setDate={setFromDate} 
-                placeholder="From Date"
-              />
-            </div>
-            <div className="w-40 mt-3">
-              <DatePicker 
-                date={toDate} 
-                setDate={setToDate} 
-                placeholder="To Date"
-              />
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -418,51 +422,21 @@ export function ClientsContent() {
                     <TableCell>
                       {formatDate(client.createdAt)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => copyToClipboard(client.apiKey)}>
-                              <CreditCard className="h-4 w-4 mr-2" />
-                              Copy API Key
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => copyToClipboard(client._id)}>
-                              <ClipboardCopy className="h-4 w-4 mr-2" />
-                              Copy ID
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                              <Code className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            {client.venueBoostConnection ? (
-                              <DropdownMenuItem>
-                                <Calendar className="h-4 w-4 mr-2" />
-                                VenueBoost Settings
-                              </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem>
-                                <Calendar className="h-4 w-4 mr-2" />
-                                Connect VenueBoost
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem>
-                              <Gift className="h-4 w-4 mr-2" />
-                              Loyalty Settings
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <AlertTriangle className="h-4 w-4 mr-2" />
-                              {client.isActive ? "Deactivate" : "Activate"}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                    <TableCell className="text-right">
+                      <div className="w-36">
+                        <InputSelect
+                          name={`action-${client._id}`}
+                          label=""
+                          value={selectedClientId === client._id ? clientAction : ""}
+                          onChange={(e) => handleActionChange(e, client)}
+                          options={[
+                            { value: "", label: "Actions" },
+                            { value: "view-details", label: "View Details" },
+                            { value: "copy-api-key", label: "Copy API Key" },
+                            { value: "copy-id", label: "Copy ID" },
+                            { value: "toggle-status", label: client.isActive ? "Deactivate" : "Activate" }
+                          ]}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>

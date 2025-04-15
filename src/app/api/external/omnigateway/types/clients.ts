@@ -1,9 +1,8 @@
 // src/app/api/external/omnigateway/types/clients.ts
 
 export enum ClientStatus {
-    ACTIVE = 'active',
-    PENDING = 'pending',
-    INACTIVE = 'inactive'
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE'
 }
   
 export interface Client {
