@@ -23,6 +23,14 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
         pathname.includes('/authorities')) {
       return 'QYTETARET'
     }
+
+
+    // For STUDIO path detection
+    if (pathname.includes('/studio') || 
+        pathname.includes('/os-clients') || 
+        pathname.includes('/os-client-apps')) {
+      return 'STUDIO'
+    }
     
     // For booking dashboard path, ensure we set client type as BOOKING
     if (pathname.includes('/booking-dashboard') || 
@@ -118,6 +126,13 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
       authorities: sidebarData.authorities,
       analytics: sidebarData.analytics,
       communication: sidebarData.communication,
+      settings: sidebarData.settings
+    }
+  } else if (clientType === 'STUDIO') {
+    // New props for STUDIO client type
+    sidebarProps = {
+      mainMenu: sidebarData.mainMenu,
+      reports: sidebarData.clients,
       settings: sidebarData.settings
     }
   } else {

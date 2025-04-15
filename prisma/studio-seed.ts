@@ -37,7 +37,7 @@ async function createSupabaseUser(email: string, password: string) {
 async function main() {
   try {
     // First create the user in Supabase
-    const supabaseUser = await createSupabaseUser('contact@studio.omnistackhub.xyz', 'S3ST-DIO!-2026x!')
+    // const supabaseUser = await createSupabaseUser('contact@studio.omnistackhub.xyz', 'S3ST-DIO!-2026x!')
 
     // Create the client
     const client = await prisma.client.create({
@@ -61,7 +61,7 @@ async function main() {
         email: 'contact@studio.omnistackhub.xyz',
         name: 'Studio OS Admin',
         password: hashedPassword,
-        supabaseId: supabaseUser.id, // Using the ID from newly created Supabase user
+        supabaseId: 'ef34fe92-ab3e-4cb7-89ac-18003ab8a29b', // Using the ID from newly created Supabase user
         role: 'ADMIN',
         clientId: client.id,
       }
