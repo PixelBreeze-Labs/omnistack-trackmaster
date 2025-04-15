@@ -44,13 +44,203 @@ import {
   Gift,
   ClipboardCopy,
   Trash2,
-  PowerOff
+  PowerOff,
+  AlertCircle
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "react-hot-toast";
-import { format } from "date-fns";
 import { useClients } from "@/hooks/useClients";
 import { ClientStatus } from "@/app/api/external/omnigateway/types/clients";
+import { z } from "zod";
+import { useClientApps } from "@/hooks/useClientApps";
+
+// Define currencies
+const currencies = [
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "EUR", label: "EUR - Euro" }
+];
+
+// Zod validation schema
+const clientSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  code: z.string().min(2, "Code must be at least 2 characters"),
+  defaultCurrency: z.string().min(3, "Currency is required"),
+  clientAppIds: z.array(z.string()).optional(),
+});
+
+const CreateClientModal = ({ open, onClose, onSubmit, isSubmitting }) => {
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [currency, setCurrency] = useState("USD");
+  const [clientAppIds, setClientAppIds] = useState<string[]>([]);
+  const [errors, setErrors] = useState({});
+
+  // Load client apps
+  const { clientApps, fetchClientApps, isInitialized } = useClientApps();
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchClientApps();
+    }
+  }, [isInitialized]);
+
+  const generateCode = () => {
+    if (!name) return;
+    const generatedCode = name.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().substring(0, 10);
+    setCode(generatedCode);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const validData = clientSchema.parse({
+        name,
+        code,
+        defaultCurrency: currency,
+        clientAppIds
+      });
+
+      setErrors({});
+      await onSubmit(validData);
+      setName("");
+      setCode("");
+      setCurrency("USD");
+      setClientAppIds([]);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formattedErrors = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            formattedErrors[err.path[0].toString()] = err.message;
+          }
+        });
+        setErrors(formattedErrors);
+      }
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Building className="h-5 w-5 text-primary" />
+            Add New Client
+          </DialogTitle>
+          <DialogDescription>
+            Create a new client organization in the system. This will generate an API key and set up the client's account.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium">
+              Client Name <span className="text-red-500">*</span>
+            </label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Acme Corporation"
+              className={errors.name ? "border-red-500" : ""}
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label htmlFor="code" className="text-sm font-medium">
+                Client Code <span className="text-red-500">*</span>
+              </label>
+              <Button type="button" variant="ghost" size="sm" onClick={generateCode} className="text-xs h-6 px-2">
+                Generate from name
+              </Button>
+            </div>
+            <Input
+              id="code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="e.g. ACMECORP"
+              className={errors.code ? "border-red-500" : ""}
+            />
+            {errors.code ? (
+              <p className="text-red-500 text-xs mt-1">{errors.code}</p>
+            ) : (
+              <p className="text-gray-500 text-xs mt-1">
+                The client code will be used for internal references and should be unique.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="currency" className="text-sm font-medium">
+              Default Currency <span className="text-red-500">*</span>
+            </label>
+            <InputSelect
+              name="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              options={currencies}
+            />
+            {errors.defaultCurrency && <p className="text-red-500 text-xs mt-1">{errors.defaultCurrency}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="clientAppIds" className="text-sm font-medium">
+              Client Applications
+            </label>
+            <InputSelect
+              name="clientAppIds"
+              isMulti
+              value={clientAppIds}
+              onChange={(e) => {
+                const selected = Array.isArray(e) ? e.map(opt => opt.value) : [];
+                setClientAppIds(selected);
+              }}
+              options={clientApps.map(app => ({
+                value: app._id,
+                label: app.name || app.code
+              }))}
+            />
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 flex items-start gap-3 mt-4">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">Important information:</p>
+              <ul className="list-disc pl-5 mt-2 text-sm space-y-1">
+                <li>A unique API key will be generated automatically</li>
+                <li>The client will be created with active status</li>
+                <li>You can add client applications later</li>
+              </ul>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting} className="bg-primary">
+              {isSubmitting ? (
+                <>
+                  <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Client
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 
 // Delete Client Modal Component
 const DeleteClientModal = ({ 
@@ -114,7 +304,6 @@ const ToggleStatusModal = ({
   const handleConfirm = async () => {
     try {
       await onConfirm(client);
-    //   toast.success(`Client ${action}d successfully`);
       onClose();
     } catch (error) {
       console.error(`Error ${action}ing client:`, error);
@@ -240,6 +429,7 @@ export function ClientsContent() {
     totalPages,
     clientMetrics,
     fetchClients,
+    createClient,
     updateClient,
     deleteClient,
     isProcessing
@@ -249,6 +439,7 @@ export function ClientsContent() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
   const fetchParams = useCallback(() => ({
@@ -272,6 +463,19 @@ export function ClientsContent() {
   const handleRefresh = () => {
     fetchClients(fetchParams());
     toast.success("Refreshed client data");
+  };
+
+  const handleCreateClient = async (clientData) => {
+    try {
+      await createClient(clientData);
+      toast.success(`Client ${clientData.name} created successfully`);
+      setIsCreateModalOpen(false);
+      // Refresh the list to include the new client
+      fetchClients(fetchParams());
+    } catch (error) {
+      console.error("Error creating client:", error);
+      toast.error("Failed to create client");
+    }
   };
 
   const handleDeleteClient = async (client) => {
@@ -381,6 +585,7 @@ export function ClientsContent() {
           <Button 
             variant="default" 
             size="sm"
+            onClick={() => setIsCreateModalOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add New Client
@@ -519,6 +724,7 @@ export function ClientsContent() {
                       {!searchTerm && statusFilter === 'all' && (
                         <Button 
                           className="mt-4"
+                          onClick={() => setIsCreateModalOpen(true)}
                         >
                           <Plus className="mr-2 h-4 w-4" />
                           Add New Client
@@ -649,37 +855,46 @@ export function ClientsContent() {
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => (
                         <PaginationItem key={i + 1}>
                           <PaginationLink
-                            isActive={page === i + 1}
-                            onClick={() => setPage(i + 1)}
-                          >
-                            {i + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                          disabled={page === totalPages}
-                        />
+                          isActive={page === i + 1}
+                          onClick={() => setPage(i + 1)}
+                        >
+                          {i + 1}
+                        </PaginationLink>
                       </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
+                    ))}
 
-                <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                  Showing <span className="font-medium">{clients?.length}</span> of{" "}
-                  <span className="font-medium">{totalItems}</span> clients
-                </p>
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
+
+              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                Showing <span className="font-medium">{clients?.length}</span> of{" "}
+                <span className="font-medium">{totalItems}</span> clients
+              </p>
             </div>
-          )}
-        </CardContent>
-      </Card>
-       {/* Add empty space div at the bottom */}
-      <div className="h-4"></div>
-    </div>
-  );
+          </div>
+        )}
+      </CardContent>
+    </Card>
+    
+    {/* Create Client Modal */}
+    <CreateClientModal
+      open={isCreateModalOpen}
+      onClose={() => setIsCreateModalOpen(false)}
+      onSubmit={handleCreateClient}
+      isSubmitting={isProcessing}
+    />
+    
+    {/* Add empty space div at the bottom */}
+    <div className="h-4"></div>
+  </div>
+);
 }
 
 export default ClientsContent;
