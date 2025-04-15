@@ -431,7 +431,6 @@ export function ClientsContent() {
                           onChange={(e) => handleActionChange(e, client)}
                           options={[
                             { value: "", label: "Actions" },
-                            { value: "view-details", label: "View Details" },
                             { value: "copy-api-key", label: "Copy API Key" },
                             { value: "copy-id", label: "Copy ID" },
                             { value: "toggle-status", label: client.isActive ? "Deactivate" : "Activate" }
@@ -501,6 +500,8 @@ export function ClientsContent() {
           )}
         </CardContent>
       </Card>
+       {/* Add empty space div at the bottom */}
+  <div className="h-4"></div>
     </div>
   );
 }
