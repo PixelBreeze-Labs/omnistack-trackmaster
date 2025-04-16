@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,206 +21,400 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Briefcase,
   Search,
   Download,
   RefreshCcw,
   Plus,
-  Calendar,
-  Code,
-  Globe,
-  ExternalLink,
-  MoreHorizontal,
   Check,
   Clock,
   AlertTriangle,
-  Building
+  Building,
+  TrendingUp,
+  Copy,
+  Gift,
+  ClipboardCopy,
+  Trash2,
+  PowerOff,
+  AlertCircle
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "react-hot-toast";
-import { format } from "date-fns";
-import { DatePicker } from "@/components/ui/datepicker";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useClients } from "@/hooks/useClients";
+import { ClientStatus } from "@/app/api/external/omnigateway/types/clients";
+import { z } from "zod";
+import { useClientApps } from "@/hooks/useClientApps";
 
-// Sample client data
-const sampleClients = [
-  {
-    id: "67feacd0d5060f88345d005a",
-    name: "Studio OmniStack",
-    code: "STUDIOOS",
-    appIds: ["67feac94d5060f88345d0058"],
-    app: { name: "Studio", type: "react", domain: "https://studio.omnistackhub.xyz" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-04-15T19:00:32.094Z"
-  },
-  {
-    id: "67feac2cd5060f88345d0056",
-    name: "GazetaReforma",
-    code: "GAZETAREFORMA",
-    appIds: ["67bc762a2e1b619f6a026891"],
-    app: { name: "GazetaReforma", type: "wordpress", domain: "gazetareforma.com" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-04-15T18:57:48.799Z"
-  },
-  {
-    id: "67d6c95a72adfbad69d0a423",
-    name: "VisionTrack",
-    code: "VISIONTRACK",
-    appIds: ["67d6c93572adfbad69d0a421"],
-    app: { name: "VisionTrack", type: "other", domain: "https://visiontrack.xyz" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-03-16T12:51:38.859Z"
-  },
-  {
-    id: "67d1490fda40caa565077c90",
-    name: "Qytetaret",
-    code: "QYTETARET",
-    appIds: ["678d2de1abfabb117fbf5860"],
-    app: { name: "Qytetaret", type: "other", domain: "qytetaret.al" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-03-12T08:42:55.556Z"
-  },
-  {
-    id: "67cc3e32af1d976ffdf3e336",
-    name: "PixelBreeze",
-    code: "PIXELBREEZE",
-    appIds: ["67cc3c5baf1d976ffdf3e334"],
-    app: { name: "PixelBreeze", type: "other", domain: "https://pixelbreeze.xyz" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-03-08T12:55:14.288Z"
-  },
-  {
-    id: "67cc3620af1d976ffdf3e314",
-    name: "VenueBoost",
-    code: "VENUEBOOST",
-    appIds: ["67cc35fbaf1d976ffdf3e312"],
-    app: { name: "VenueBoost", type: "react", domain: "https://venueboost.io" },
-    currency: "USD",
-    status: "active",
-    createdAt: "2025-03-08T12:20:48.856Z"
-  },
-  {
-    id: "67c98d0d9ff7cc87063adf68",
-    name: "Metrosuites",
-    code: "METROSUITES",
-    appIds: ["67c98cf69ff7cc87063adf66"],
-    app: { name: "Metrosuites", type: "other", domain: "https://metrosuites.al" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-03-06T11:54:53.907Z"
-  },
-  {
-    id: "67b7f5562f3f468744d19336",
-    name: "Staffluent",
-    code: "STAFFLUENT",
-    appIds: ["67b7f5382f3f468744d19334"],
-    app: { 
-      name: "Staffluent", 
-      type: "other", 
-      domain: ["https://staffluent.co", "https://app.staffluent.co"]
-    },
-    currency: "USD",
-    status: "active",
-    createdAt: "2025-02-21T03:39:02.132Z"
-  },
-  {
-    id: "67b4e04b8a46d2a246b3ace8",
-    name: "SnapFood",
-    code: "SNAPFOOD",
-    appIds: ["67b4e0228a46d2a246b3ace6"],
-    app: { name: "SnapFood New Admin", type: "react", domain: "https://snapfood.omnistackhub.xyz/" },
-    currency: "EUR",
-    status: "active", 
-    createdAt: "2025-02-18T19:32:27.917Z"
-  },
-  {
-    id: "67ab31ee837a2adac2313ec8",
-    name: "Snapwell",
-    code: "SNAPWELL",
-    appIds: ["67ab314f837a2adac2313ec6"],
-    app: { name: "Snapwell", type: "react", domain: "snapwell.al" },
-    currency: "EUR",
-    status: "active",
-    createdAt: "2025-02-11T11:18:06.636Z"
-  }
+// Define currencies
+const currencies = [
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "EUR", label: "EUR - Euro" }
 ];
 
-// Mock hook for clients data - in a real implementation, this would be a proper API hook
-const useClients = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [clients, setClients] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+// Zod validation schema
+const clientSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  code: z.string().min(2, "Code must be at least 2 characters"),
+  defaultCurrency: z.string().min(3, "Currency is required"),
+  clientAppIds: z.array(z.string()).optional(),
+});
 
-  // Memoized fetchClients function to prevent infinite render loops
-  const fetchClients = useCallback(async (params) => {
-    setIsLoading(true);
-    try {
-      // In a real implementation, this would be an API call
-      setTimeout(() => {
-        const filteredClients = sampleClients.filter(client => {
-          if (params.search && !client.name.toLowerCase().includes(params.search.toLowerCase()) && 
-              !client.code.toLowerCase().includes(params.search.toLowerCase())) {
-            return false;
-          }
-          if (params.type && params.type !== "all" && client.app.type !== params.type) {
-            return false;
-          }
-          if (params.status && params.status !== "all" && client.status !== params.status) {
-            return false;
-          }
-          
-          if (params.fromDate) {
-            const clientDate = new Date(client.createdAt);
-            const fromDate = new Date(params.fromDate);
-            if (clientDate < fromDate) return false;
-          }
-          
-          if (params.toDate) {
-            const clientDate = new Date(client.createdAt);
-            const toDate = new Date(params.toDate);
-            if (clientDate > toDate) return false;
-          }
-          
-          return true;
-        });
-        
-        const start = (params.page - 1) * params.limit;
-        const end = start + params.limit;
-        const paginatedClients = filteredClients.slice(start, end);
-        
-        setClients(paginatedClients);
-        setTotalItems(filteredClients.length);
-        setTotalPages(Math.ceil(filteredClients.length / params.limit));
-        setIsLoading(false);
-      }, 500);
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-      setIsLoading(false);
-      toast.error("Failed to fetch clients");
+const CreateClientModal = ({ open, onClose, onSubmit, isSubmitting }) => {
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [currency, setCurrency] = useState("USD");
+  const [clientAppId, setClientAppId] = useState("");
+  const [errors, setErrors] = useState({});
+
+  // Load client apps
+  const { clientApps, fetchClientApps, isInitialized } = useClientApps();
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchClientApps();
     }
-  }, []); // Empty dependency array means this function never changes
+  }, [isInitialized]);
 
-  return {
-    isLoading,
-    clients,
-    totalItems,
-    totalPages,
-    fetchClients
+  const generateCode = () => {
+    if (!name) return;
+    const generatedCode = name.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().substring(0, 10);
+    setCode(generatedCode);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const validData = clientSchema.parse({
+        name,
+        code,
+        defaultCurrency: currency,
+        clientAppIds: clientAppId ? [clientAppId] : []
+    });
+
+      setErrors({});
+      await onSubmit(validData);
+      setName("");
+      setCode("");
+      setCurrency("USD");
+      setClientAppId([]);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formattedErrors = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            formattedErrors[err.path[0].toString()] = err.message;
+          }
+        });
+        setErrors(formattedErrors);
+      }
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Building className="h-5 w-5 text-primary" />
+            Add New Client
+          </DialogTitle>
+          <DialogDescription>
+            Create a new client organization in the system. This will generate an API key and set up the client's account.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium">
+              Client Name <span className="text-red-500">*</span>
+            </label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Acme Corporation"
+              className={errors.name ? "border-red-500" : ""}
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label htmlFor="code" className="text-sm font-medium">
+                Client Code <span className="text-red-500">*</span>
+              </label>
+              <Button type="button" variant="ghost" size="sm" onClick={generateCode} className="text-xs h-6 px-2">
+                Generate from name
+              </Button>
+            </div>
+            <Input
+              id="code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="e.g. ACMECORP"
+              className={errors.code ? "border-red-500" : ""}
+            />
+            {errors.code ? (
+              <p className="text-red-500 text-xs mt-1">{errors.code}</p>
+            ) : (
+              <p className="text-gray-500 text-xs mt-1">
+                The client code will be used for internal references and should be unique.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="currency" className="text-sm font-medium">
+              Default Currency <span className="text-red-500">*</span>
+            </label>
+            <InputSelect
+              name="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              options={currencies}
+            />
+            {errors.defaultCurrency && <p className="text-red-500 text-xs mt-1">{errors.defaultCurrency}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="clientAppIds" className="text-sm font-medium">
+              Client Applications
+            </label>
+            <InputSelect
+  name="clientAppIds"
+  value={clientAppId}
+  onChange={(e) => setClientAppId(e.target.value)}
+  options={clientApps.map(app => ({
+    value: app._id,
+    label: app.name || app.code
+  }))}
+/>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 flex items-start gap-3 mt-4">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">Important information:</p>
+              <ul className="list-disc pl-5 mt-2 text-sm space-y-1">
+                <li>A unique API key will be generated automatically</li>
+                <li>The client will be created with active status</li>
+                <li>You can add client applications later</li>
+              </ul>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting} className="bg-primary">
+              {isSubmitting ? (
+                <>
+                  <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Client
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+
+// Delete Client Modal Component
+const DeleteClientModal = ({ 
+  client, 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  isDeleting = false 
+}) => {
+  const handleConfirm = async () => {
+    try {
+      await onConfirm(client);
+      toast.success("Client deleted successfully");
+      onClose();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      // Error is handled by the hook and displayed there
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Trash2 className="h-5 w-5 text-destructive" />
+            Delete Client
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete client {client?.name}? This action cannot be undone and will remove all associated data.
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button 
+            className="bg-red-600 hover:bg-red-700"
+            onClick={handleConfirm} 
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete Client"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Toggle Status Modal Component
+const ToggleStatusModal = ({ 
+  client, 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  isProcessing = false 
+}) => {
+  const action = client?.isActive ? "deactivate" : "activate";
+
+  const handleConfirm = async () => {
+    try {
+      await onConfirm(client);
+      onClose();
+    } catch (error) {
+      console.error(`Error ${action}ing client:`, error);
+      // Error is handled by the hook and displayed there
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PowerOff className="h-5 w-5 text-warning" />
+            {client?.isActive ? "Deactivate" : "Activate"} Client
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to {action} client {client?.name}? 
+            {client?.isActive 
+              ? " Deactivating will prevent access to the client's resources." 
+              : " Activating will restore access to the client's resources."
+            }
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isProcessing}>
+            Cancel
+          </Button>
+          <Button 
+            className={client?.isActive ? "bg-amber-600 hover:bg-amber-700" : "bg-green-600 hover:bg-green-700"}
+            onClick={handleConfirm} 
+            disabled={isProcessing}
+          >
+            {isProcessing 
+              ? `${client?.isActive ? "Deactivating" : "Activating"}...` 
+              : `${client?.isActive ? "Deactivate" : "Activate"} Client`
+            }
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Client Action Select Component
+const ClientActionSelect = ({ 
+  client, 
+  onDeleteClient, 
+  onToggleStatus,
+  isProcessing = false 
+}) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isToggleStatusModalOpen, setIsToggleStatusModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
+
+  const handleDelete = async (client) => {
+    await onDeleteClient(client);
+  };
+  
+  const handleToggleStatus = async (client) => {
+    await onToggleStatus(client);
+  };
+
+  // Watch for changes in the selected action
+  useEffect(() => {
+    if (selectedAction === "delete") {
+      setIsDeleteModalOpen(true);
+      setSelectedAction("");
+    } else if (selectedAction === "toggle-status") {
+      setIsToggleStatusModalOpen(true);
+      setSelectedAction("");
+    } else if (selectedAction === "copy-api-key") {
+      navigator.clipboard.writeText(client.apiKey);
+      toast.success("API Key copied to clipboard");
+      setSelectedAction("");
+    } else if (selectedAction === "copy-id") {
+      navigator.clipboard.writeText(client._id);
+      toast.success("Client ID copied to clipboard");
+      setSelectedAction("");
+    }
+  }, [selectedAction, client]);
+
+  return (
+    <>
+      <InputSelect
+        name={`clientAction-${client._id}`}
+        label=""
+        value={selectedAction}
+        onChange={(e) => setSelectedAction(e.target.value)}
+        options={[
+          { value: "", label: "Actions" },
+          { value: "copy-api-key", label: "Copy API Key" },
+          { value: "copy-id", label: "Copy ID" },
+          { value: "toggle-status", label: client.isActive ? "Deactivate" : "Activate" },
+          { value: "delete", label: "Delete Client" },
+        ]}
+      />
+
+      <DeleteClientModal
+        client={client}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        isDeleting={isProcessing}
+      />
+
+      <ToggleStatusModal
+        client={client}
+        isOpen={isToggleStatusModalOpen}
+        onClose={() => setIsToggleStatusModalOpen(false)}
+        onConfirm={handleToggleStatus}
+        isProcessing={isProcessing}
+      />
+    </>
+  );
 };
 
 export function ClientsContent() {
@@ -229,50 +423,94 @@ export function ClientsContent() {
     clients,
     totalItems,
     totalPages,
-    fetchClients
+    clientMetrics,
+    fetchClients,
+    createClient,
+    updateClient,
+    deleteClient,
+    isProcessing
   } = useClients();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [fromDate, setFromDate] = useState(undefined);
-  const [toDate, setToDate] = useState(undefined);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
   const fetchParams = useCallback(() => ({
     page,
     limit: pageSize,
-    type: typeFilter,
-    status: statusFilter,
-    search: searchTerm,
-    fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-    toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
-  }), [page, pageSize, typeFilter, statusFilter, searchTerm, fromDate, toDate]);
+    status: statusFilter !== 'all' ? statusFilter as ClientStatus : undefined,
+    search: searchTerm
+  }), [page, pageSize, statusFilter, searchTerm]);
 
   useEffect(() => {
-    fetchClients(fetchParams());
+    console.log("Fetching clients with params:", fetchParams());
+    fetchClients(fetchParams())
+      .then(response => {
+        console.log("Client data fetched:", response);
+      })
+      .catch(error => {
+        console.error("Error fetching client data:", error);
+      });
   }, [fetchClients, fetchParams]);
 
   const handleRefresh = () => {
     fetchClients(fetchParams());
+    toast.success("Refreshed client data");
   };
 
-  const getAppTypeBadge = (type) => {
-    switch (type) {
-      case "react":
-        return <Badge className="bg-blue-500">React</Badge>;
-      case "wordpress":
-        return <Badge className="bg-indigo-500">WordPress</Badge>;
-      default:
-        return <Badge variant="outline">Other</Badge>;
+  const handleCreateClient = async (clientData) => {
+    try {
+      await createClient(clientData);
+      toast.success(`Client ${clientData.name} created successfully`);
+      setIsCreateModalOpen(false);
+      // Refresh the list to include the new client
+      fetchClients(fetchParams());
+    } catch (error) {
+      console.error("Error creating client:", error);
+      toast.error("Failed to create client");
     }
+  };
+
+  const handleDeleteClient = async (client) => {
+    try {
+      await deleteClient(client._id);
+      toast.success(`Client ${client.name} deleted successfully`);
+      // Refresh the list
+      fetchClients(fetchParams());
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      toast.error("Failed to delete client");
+    }
+  };
+
+  const handleToggleStatus = async (client) => {
+    try {
+      const updatedClient = { 
+        ...client, 
+        isActive: !client.isActive 
+      };
+      await updateClient(client._id, { isActive: !client.isActive });
+      toast.success(`Client ${client.name} ${client.isActive ? "deactivated" : "activated"} successfully`);
+      // Refresh the list
+      fetchClients(fetchParams());
+    } catch (error) {
+      console.error("Error updating client status:", error);
+      toast.error("Failed to update client status");
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case "active":
+      case true:
         return (
           <Badge variant="success" className="bg-green-500">
             <Check className="mr-1 h-3 w-3" />
@@ -287,6 +525,7 @@ export function ClientsContent() {
           </Badge>
         );
       case "inactive":
+      case false:
         return (
           <Badge variant="destructive">
             <AlertTriangle className="mr-1 h-3 w-3" />
@@ -305,6 +544,21 @@ export function ClientsContent() {
       day: 'numeric'
     });
   };
+
+  const truncateApiKey = (apiKey) => {
+    if (!apiKey) return "N/A";
+    return `${apiKey.substring(0, 5)}...`;
+  };
+
+  // Debug output to help troubleshoot
+  console.log("Current state:", {
+    isLoading,
+    clientsCount: clients?.length || 0,
+    totalItems,
+    totalPages,
+    clientMetrics,
+    isProcessing
+  });
 
   return (
     <div className="space-y-6 mb-8">
@@ -327,11 +581,64 @@ export function ClientsContent() {
           <Button 
             variant="default" 
             size="sm"
+            onClick={() => setIsCreateModalOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add New Client
           </Button>
         </div>
+      </div>
+
+      {/* Metrics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+            <Building className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clientMetrics?.totalClients || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Total registered client organizations
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
+            <Check className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clientMetrics?.activeClients || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Currently active client accounts
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Inactive Clients</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clientMetrics?.inactiveClients || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Currently inactive client accounts
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recent Clients</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clientMetrics?.recentClients || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              New clients in the last 30 days
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Search and Filters */}
@@ -357,44 +664,15 @@ export function ClientsContent() {
             </div>
             <div className="w-40 mt-2">
               <InputSelect
-                name="type"
-                label=""
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                options={[
-                  { value: "all", label: "All Types" },
-                  { value: "react", label: "React" },
-                  { value: "wordpress", label: "WordPress" },
-                  { value: "other", label: "Other" }
-                ]}
-              />
-            </div>
-            <div className="w-40 mt-2">
-              <InputSelect
                 name="status"
                 label=""
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 options={[
                   { value: "all", label: "All Status" },
-                  { value: "active", label: "Active" },
-                  { value: "pending", label: "Pending" },
-                  { value: "inactive", label: "Inactive" }
+                  { value: ClientStatus.ACTIVE, label: "Active" },
+                  { value: ClientStatus.INACTIVE, label: "Inactive" }
                 ]}
-              />
-            </div>
-            <div className="w-40 mt-3">
-              <DatePicker 
-                date={fromDate} 
-                setDate={setFromDate} 
-                placeholder="From Date"
-              />
-            </div>
-            <div className="w-40 mt-3">
-              <DatePicker 
-                date={toDate} 
-                setDate={setToDate} 
-                placeholder="To Date"
               />
             </div>
           </div>
@@ -409,10 +687,11 @@ export function ClientsContent() {
               <TableRow>
                 <TableHead>Client</TableHead>
                 <TableHead>Code</TableHead>
-                <TableHead>Application</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Domain</TableHead>
+                <TableHead>API Key</TableHead>
+                <TableHead>ID</TableHead>
                 <TableHead>Currency</TableHead>
+                <TableHead>VenueBoost</TableHead>
+                <TableHead>Loyalty</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -421,7 +700,7 @@ export function ClientsContent() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
@@ -429,18 +708,19 @@ export function ClientsContent() {
                 </TableRow>
               ) : !clients || clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     <div className="flex flex-col items-center gap-3">
                       <Briefcase className="h-12 w-12 text-muted-foreground" />
                       <h3 className="text-lg font-medium">No Clients Found</h3>
                       <p className="text-sm text-muted-foreground max-w-sm text-center">
-                        {searchTerm || typeFilter !== 'all' || statusFilter !== 'all' || fromDate || toDate
+                        {searchTerm || statusFilter !== 'all'
                           ? "No clients match your search criteria. Try adjusting your filters." 
                           : "Start by adding your first client."}
                       </p>
-                      {!searchTerm && typeFilter === 'all' && statusFilter === 'all' && !fromDate && !toDate && (
+                      {!searchTerm && statusFilter === 'all' && (
                         <Button 
                           className="mt-4"
+                          onClick={() => setIsCreateModalOpen(true)}
                         >
                           <Plus className="mr-2 h-4 w-4" />
                           Add New Client
@@ -451,7 +731,7 @@ export function ClientsContent() {
                 </TableRow>
               ) : (
                 clients?.map((client) => (
-                  <TableRow key={client.id}>
+                  <TableRow key={client._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
@@ -464,65 +744,76 @@ export function ClientsContent() {
                       <code className="bg-slate-100 px-2 py-1 rounded text-xs font-mono">{client.code}</code>
                     </TableCell>
                     <TableCell>
-                      {client.app.name}
-                    </TableCell>
-                    <TableCell>
-                      {getAppTypeBadge(client.app.type)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <span className="text-sm truncate max-w-[150px]">
-                          {Array.isArray(client.app.domain) ? client.app.domain[0] : client.app.domain}
-                        </span>
-                        <a 
-                          href={Array.isArray(client.app.domain) ? client.app.domain[0] : client.app.domain} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="ml-1 text-blue-500 hover:text-blue-700"
+                      <div className="flex items-center gap-1">
+                        <code className="bg-slate-100 px-2 py-1 rounded text-xs font-mono">
+                          {truncateApiKey(client.apiKey)}
+                        </code>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => copyToClipboard(client.apiKey)}
                         >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                          <Copy className="h-3 w-3" />
+                        </Button>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {client.currency}
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-500">{client._id.substring(0, 6)}...</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => copyToClipboard(client._id)}
+                        >
+                          <ClipboardCopy className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(client.status)}
+                      {client.defaultCurrency}
+                    </TableCell>
+                    <TableCell>
+                      {client.venueBoostConnection ? (
+                        <Badge variant="success" className="bg-green-500">
+                          <Check className="mr-1 h-3 w-3" />
+                          Connected
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">
+                          <AlertTriangle className="mr-1 h-3 w-3" />
+                          Not Connected
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {client.loyaltyProgram && client.loyaltyProgram.programName ? (
+                        <Badge variant="success" className="bg-purple-500">
+                          <Gift className="mr-1 h-3 w-3" />
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">
+                          <Gift className="mr-1 h-3 w-3" />
+                          Inactive
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(client.isActive ? "active" : "inactive")}
                     </TableCell>
                     <TableCell>
                       {formatDate(client.createdAt)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>
-                              <Code className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Globe className="h-4 w-4 mr-2" />
-                              Manage Application
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                              <Calendar className="h-4 w-4 mr-2" />
-                              View Usage
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <AlertTriangle className="h-4 w-4 mr-2" />
-                              Deactivate
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                    <TableCell className="text-right">
+                      <div className="w-36">
+                        <ClientActionSelect
+                          client={client}
+                          onDeleteClient={handleDeleteClient}
+                          onToggleStatus={handleToggleStatus}
+                          isProcessing={isProcessing}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -560,35 +851,46 @@ export function ClientsContent() {
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => (
                         <PaginationItem key={i + 1}>
                           <PaginationLink
-                            isActive={page === i + 1}
-                            onClick={() => setPage(i + 1)}
-                          >
-                            {i + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                          disabled={page === totalPages}
-                        />
+                          isActive={page === i + 1}
+                          onClick={() => setPage(i + 1)}
+                        >
+                          {i + 1}
+                        </PaginationLink>
                       </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
+                    ))}
 
-                <p className="text-sm text-muted-foreground min-w-[180px] text-right">
-                  Showing <span className="font-medium">{clients?.length}</span> of{" "}
-                  <span className="font-medium">{totalItems}</span> clients
-                </p>
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
+
+              <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                Showing <span className="font-medium">{clients?.length}</span> of{" "}
+                <span className="font-medium">{totalItems}</span> clients
+              </p>
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+          </div>
+        )}
+      </CardContent>
+    </Card>
+    
+    {/* Create Client Modal */}
+    <CreateClientModal
+      open={isCreateModalOpen}
+      onClose={() => setIsCreateModalOpen(false)}
+      onSubmit={handleCreateClient}
+      isSubmitting={isProcessing}
+    />
+    
+    {/* Add empty space div at the bottom */}
+    <div className="h-4"></div>
+  </div>
+);
 }
 
 export default ClientsContent;
