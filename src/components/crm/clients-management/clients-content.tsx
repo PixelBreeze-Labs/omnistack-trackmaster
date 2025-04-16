@@ -72,7 +72,7 @@ const CreateClientModal = ({ open, onClose, onSubmit, isSubmitting }) => {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [currency, setCurrency] = useState("USD");
-  const [clientAppIds, setClientAppIds] = useState<string[]>([]);
+  const [clientAppId, setClientAppId] = useState("");
   const [errors, setErrors] = useState({});
 
   // Load client apps
@@ -98,15 +98,15 @@ const CreateClientModal = ({ open, onClose, onSubmit, isSubmitting }) => {
         name,
         code,
         defaultCurrency: currency,
-        clientAppIds
-      });
+        clientAppIds: clientAppId ? [clientAppId] : []
+    });
 
       setErrors({});
       await onSubmit(validData);
       setName("");
       setCode("");
       setCurrency("USD");
-      setClientAppIds([]);
+      setClientAppId([]);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const formattedErrors = {};
@@ -191,18 +191,14 @@ const CreateClientModal = ({ open, onClose, onSubmit, isSubmitting }) => {
               Client Applications
             </label>
             <InputSelect
-              name="clientAppIds"
-              isMulti
-              value={clientAppIds}
-              onChange={(e) => {
-                const selected = Array.isArray(e) ? e.map(opt => opt.value) : [];
-                setClientAppIds(selected);
-              }}
-              options={clientApps.map(app => ({
-                value: app._id,
-                label: app.name || app.code
-              }))}
-            />
+  name="clientAppIds"
+  value={clientAppId}
+  onChange={(e) => setClientAppId(e.target.value)}
+  options={clientApps.map(app => ({
+    value: app._id,
+    label: app.name || app.code
+  }))}
+/>
           </div>
 
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 flex items-start gap-3 mt-4">
