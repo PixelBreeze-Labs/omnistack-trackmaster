@@ -2,7 +2,7 @@
 
 import { createOmniGateway } from './index';
 import { ClientParams, ClientsResponse, Client } from './types/clients';
-import { ClientAppsResponse, ClientAppParams } from './types/client-apps';
+import { ClientAppsResponse, ClientAppParams, ClientAppWithClient } from './types/client-apps';
 
 export const createOmniStackClientApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
@@ -113,6 +113,49 @@ export const createOmniStackClientApi = (apiKey: string) => {
       
       const { data } = await api.get<ClientAppsResponse>(endpoint);
       return data;
+    },
+    
+    // Get a single client app by ID
+    getClientApp: async (id: string): Promise<ClientAppWithClient> => {
+      try {
+        const { data } = await api.get<ClientAppWithClient>(`/client-apps/${id}`);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching client app ${id}:`, error);
+        throw error;
+      }
+    },
+    
+    // Create a new client app
+    createClientApp: async (clientAppData: Partial<ClientAppWithClient>): Promise<ClientAppWithClient> => {
+      try {
+        const { data } = await api.post<ClientAppWithClient>('/client-apps', clientAppData);
+        return data;
+      } catch (error) {
+        console.error('Error creating client app:', error);
+        throw error;
+      }
+    },
+    
+    // Update an existing client app
+    updateClientApp: async (id: string, clientAppData: Partial<ClientAppWithClient>): Promise<ClientAppWithClient> => {
+      try {
+        const { data } = await api.put<ClientAppWithClient>(`/client-apps/${id}`, clientAppData);
+        return data;
+      } catch (error) {
+        console.error(`Error updating client app ${id}:`, error);
+        throw error;
+      }
+    },
+    
+    // Delete a client app
+    deleteClientApp: async (id: string): Promise<void> => {
+      try {
+        await api.delete(`/client-apps/${id}`);
+      } catch (error) {
+        console.error(`Error deleting client app ${id}:`, error);
+        throw error;
+      }
     }
   };
 };
