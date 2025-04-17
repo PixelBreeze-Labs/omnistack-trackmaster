@@ -23,6 +23,21 @@ export const useClientApps = () => {
     recentApps: 0
   });
 
+  // Add this to the existing useClientApps hook
+const [dashboardData, setDashboardData] = useState({
+  metrics: {
+    totalApps: 0,
+    activeApps: 0,
+    inactiveApps: 0,
+    recentApps: 0,
+    appsByType: []
+  },
+  recentApps: [],
+  clientsWithMostApps: []
+});
+const [isDashboardLoading, setIsDashboardLoading] = useState(false);
+
+
   const { apiKey } = useGatewayClientApiKey();
   const api = useMemo(() => apiKey ? createOmniStackClientApi(apiKey) : null, [apiKey]);
 
@@ -215,6 +230,33 @@ export const useClientApps = () => {
     }
   }, [api]);
 
+  const fetchDashboardData = useCallback(async () => {
+    if (!api) return;
+    
+    try {
+      setIsDashboardLoading(true);
+      const response = await api.getDashboardData();
+      console.log('Dashboard data response:', response);
+      setDashboardData(response);
+      return response;
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
+      } else {
+        toast.error('Failed to fetch dashboard data');
+      }
+      throw error;
+    } finally {
+      setIsDashboardLoading(false);
+    }
+  }, [api]);
+
+  
   return {
     isLoading,
     isProcessing,
@@ -227,6 +269,9 @@ export const useClientApps = () => {
     createClientApp,
     updateClientApp,
     deleteClientApp,
+    dashboardData,
+    isDashboardLoading,
+    fetchDashboardData,
     isInitialized: !!api
   };
 };
