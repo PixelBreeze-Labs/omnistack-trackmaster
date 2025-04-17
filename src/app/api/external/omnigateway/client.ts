@@ -2,7 +2,7 @@
 
 import { createOmniGateway } from './index';
 import { ClientParams, ClientsResponse, Client } from './types/clients';
-import { ClientAppsResponse, ClientAppParams, ClientAppWithClient } from './types/client-apps';
+import { ClientAppsResponse, ClientAppParams, ClientApp } from './types/client-apps';
 
 export const createOmniStackClientApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
@@ -100,8 +100,17 @@ export const createOmniStackClientApi = (apiKey: string) => {
     getClientApps: async (params: ClientAppParams = {}) => {
       const queryParams = new URLSearchParams();
       
-      if (params.page) queryParams.append('page', params.page.toString());
-      if (params.limit) queryParams.append('limit', params.limit.toString());
+      // Handle pagination properly
+      if (params.page !== undefined && params.limit !== undefined) {
+        // Convert page to skip
+        const skip = (params.page - 1) * params.limit;
+        queryParams.append('skip', skip.toString());
+        queryParams.append('limit', params.limit.toString());
+      } else {
+        if (params.skip !== undefined) queryParams.append('skip', params.skip.toString());
+        if (params.limit !== undefined) queryParams.append('limit', params.limit.toString());
+      }
+      
       if (params.search) queryParams.append('search', params.search);
       if (params.type) queryParams.append('type', params.type);
       if (params.status) queryParams.append('status', params.status);
@@ -111,14 +120,19 @@ export const createOmniStackClientApi = (apiKey: string) => {
       const queryString = queryParams.toString();
       const endpoint = `/client-apps${queryString ? `?${queryString}` : ''}`;
       
-      const { data } = await api.get<ClientAppsResponse>(endpoint);
-      return data;
+      try {
+        const { data } = await api.get<ClientAppsResponse>(endpoint);
+        return data;
+      } catch (error) {
+        console.error('Error fetching client apps:', error);
+        throw error;
+      }
     },
     
     // Get a single client app by ID
-    getClientApp: async (id: string): Promise<ClientAppWithClient> => {
+    getClientApp: async (id: string): Promise<ClientApp> => {
       try {
-        const { data } = await api.get<ClientAppWithClient>(`/client-apps/${id}`);
+        const { data } = await api.get<ClientApp>(`/client-apps/${id}`);
         return data;
       } catch (error) {
         console.error(`Error fetching client app ${id}:`, error);
@@ -127,9 +141,14 @@ export const createOmniStackClientApi = (apiKey: string) => {
     },
     
     // Create a new client app
-    createClientApp: async (clientAppData: Partial<ClientAppWithClient>): Promise<ClientAppWithClient> => {
+    createClientApp: async (clientAppData: Partial<ClientApp>): Promise<ClientApp> => {
       try {
-        const { data } = await api.post<ClientAppWithClient>('/client-apps', clientAppData);
+        // Ensure domain is always an array
+        if (clientAppData.domain && !Array.isArray(clientAppData.domain)) {
+          clientAppData.domain = [clientAppData.domain as string];
+        }
+        
+        const { data } = await api.post<ClientApp>('/client-apps', clientAppData);
         return data;
       } catch (error) {
         console.error('Error creating client app:', error);
@@ -138,9 +157,14 @@ export const createOmniStackClientApi = (apiKey: string) => {
     },
     
     // Update an existing client app
-    updateClientApp: async (id: string, clientAppData: Partial<ClientAppWithClient>): Promise<ClientAppWithClient> => {
+    updateClientApp: async (id: string, clientAppData: Partial<ClientApp>): Promise<ClientApp> => {
       try {
-        const { data } = await api.put<ClientAppWithClient>(`/client-apps/${id}`, clientAppData);
+        // Ensure domain is always an array if it's included
+        if (clientAppData.domain && !Array.isArray(clientAppData.domain)) {
+          clientAppData.domain = [clientAppData.domain as string];
+        }
+        
+        const { data } = await api.put<ClientApp>(`/client-apps/${id}`, clientAppData);
         return data;
       } catch (error) {
         console.error(`Error updating client app ${id}:`, error);

@@ -1,6 +1,6 @@
 // src/components/ClientApps/ClientAppModals.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,24 +12,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Code,
   RefreshCcw,
   Plus,
-  Trash2,
-  PowerOff,
-  AlertCircle,
   Monitor,
-  Globe,
+  AlertCircle,
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { z } from "zod";
-import { ClientAppWithClient, ClientAppType } from "@/app/api/external/omnigateway/types/client-apps";
-import { useClients } from "@/hooks/useClients";
+import { ClientAppType } from "@/app/api/external/omnigateway/types/client-apps";
+import { ClientApp } from "@/app/api/external/omnigateway/types/client-apps";
+import { Trash2, PowerOff } from "lucide-react";
 
 // Define app types
 const appTypes = [
   { value: ClientAppType.REACT, label: "React Application" },
   { value: ClientAppType.WORDPRESS, label: "WordPress Website" },
+  { value: ClientAppType.VUE, label: "Vue Application" },
+  { value: ClientAppType.NEXT, label: "Next.js Application" },
   { value: ClientAppType.OTHER, label: "Other Application" }
 ];
 
@@ -37,9 +36,8 @@ const appTypes = [
 const clientAppSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   type: z.string().min(1, "App type is required"),
-  domain: z.string().url("Must be a valid URL").or(z.array(z.string().url("Must be a valid URL"))),
+  domain: z.array(z.string().url("Must be a valid URL")).nonempty("At least one domain is required"),
   email: z.string().email("Must be a valid email").optional(),
-  clientId: z.string().optional(),
 });
 
 type CreateClientAppModalProps = {
@@ -59,40 +57,45 @@ export const CreateClientAppModal: React.FC<CreateClientAppModalProps> = ({
   const [type, setType] = useState(ClientAppType.REACT);
   const [domain, setDomain] = useState("");
   const [email, setEmail] = useState("");
-  const [clientId, setClientId] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Load clients for selection
-  const { clients, fetchClients, isInitialized } = useClients();
-
-  useEffect(() => {
-    if (isInitialized && open) {
-      fetchClients();
-    }
-  }, [isInitialized, open, fetchClients]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const domainArray = domain.split(',').map(d => d.trim());
+      // Always send domain as an array
+      const domainArray = domain.split(',').map(d => d.trim()).filter(d => d);
+      
+      if (domainArray.length === 0) {
+        setErrors({ domain: "At least one domain is required" });
+        return;
+      }
+      
       const validData = clientAppSchema.parse({
         name,
         type,
-        domain: domainArray.length === 1 ? domainArray[0] : domainArray,
-        email,
-        clientId: clientId || undefined
+        domain: domainArray,
+        email: email || undefined
       });
 
+      // Prepare the data for submission
+      const submissionData = {
+        name: validData.name,
+        type: validData.type,
+        domain: validData.domain,
+        email: validData.email,
+      };
+
       setErrors({});
-      await onSubmit(validData);
+      await onSubmit(submissionData);
+      
       // Reset form
       setName("");
       setType(ClientAppType.REACT);
       setDomain("");
       setEmail("");
-      setClientId("");
     } catch (error) {
+      console.error("Form submission error:", error);
       if (error instanceof z.ZodError) {
         const formattedErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -182,24 +185,6 @@ export const CreateClientAppModal: React.FC<CreateClientAppModalProps> = ({
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="clientId" className="text-sm font-medium">
-              Associated Client
-            </label>
-            <InputSelect
-              name="clientId"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              options={[
-                { value: "", label: "None (Independent App)" },
-                ...clients.map(client => ({
-                  value: client._id,
-                  label: client.name || client.code
-                }))
-              ]}
-            />
-          </div>
-
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 flex items-start gap-3 mt-4">
             <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
             <div>
@@ -236,12 +221,13 @@ export const CreateClientAppModal: React.FC<CreateClientAppModalProps> = ({
   );
 };
 
+
 // Delete Client App Modal Component
 type DeleteClientAppModalProps = {
-  clientApp: ClientAppWithClient | null;
+  clientApp: ClientApp | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (clientApp: ClientAppWithClient) => Promise<void>;
+  onConfirm: (clientApp: ClientApp) => Promise<void>;
   isDeleting?: boolean;
 };
 
@@ -296,10 +282,10 @@ export const DeleteClientAppModal: React.FC<DeleteClientAppModalProps> = ({
 
 // Toggle Status Modal Component
 type ToggleStatusModalProps = {
-  clientApp: ClientAppWithClient | null;
+  clientApp: ClientApp | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (clientApp: ClientAppWithClient) => Promise<void>;
+  onConfirm: (clientApp: ClientApp) => Promise<void>;
   isProcessing?: boolean;
 };
 

@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import InputSelect from "@/components/Common/InputSelect";
-import { ClientAppWithClient } from "@/app/api/external/omnigateway/types/client-apps";
+import { ClientApp } from "@/app/api/external/omnigateway/types/client-apps";
 import { DeleteClientAppModal, ToggleStatusModal } from "./ClientAppModals";
 
 type ClientAppActionSelectProps = {
-  clientApp: ClientAppWithClient;
-  onDeleteClientApp: (clientApp: ClientAppWithClient) => Promise<void>;
-  onToggleStatus: (clientApp: ClientAppWithClient) => Promise<void>;
+  clientApp: ClientApp;
+  onDeleteClientApp: (clientApp: ClientApp) => Promise<void>;
+  onToggleStatus: (clientApp: ClientApp) => Promise<void>;
   isProcessing?: boolean;
 };
 
@@ -42,11 +42,11 @@ const ClientAppActionSelect = ({
     }
   }, [selectedAction, clientApp]);
 
-  const handleDelete = async (app: ClientAppWithClient) => {
+  const handleDelete = async (app: ClientApp) => {
     await onDeleteClientApp(app);
   };
   
-  const handleToggleStatus = async (app: ClientAppWithClient) => {
+  const handleToggleStatus = async (app: ClientApp) => {
     await onToggleStatus(app);
   };
 

@@ -105,7 +105,7 @@ export function ClientAppsContent() {
       fetchClientApps(fetchParams());
     } catch (error) {
       console.error("Error creating client app:", error);
-      toast.error("Failed to create client application");
+      // Toast is already shown in the hook
     }
   };
 
@@ -117,24 +117,22 @@ export function ClientAppsContent() {
       fetchClientApps(fetchParams());
     } catch (error) {
       console.error("Error deleting client app:", error);
-      toast.error("Failed to delete client application");
+      // Toast is already shown in the hook
     }
   };
 
   const handleToggleStatus = async (clientApp) => {
     try {
       const newStatus = clientApp.status === 'active' ? 'inactive' : 'active';
-      const updatedClientApp = { 
-        ...clientApp, 
-        status: newStatus
-      };
+      
+      // Only send what needs to be updated
       await updateClientApp(clientApp._id, { status: newStatus });
       toast.success(`Application ${clientApp.name} ${clientApp.status === 'active' ? "deactivated" : "activated"} successfully`);
       // Refresh the list
       fetchClientApps(fetchParams());
     } catch (error) {
       console.error("Error updating client app status:", error);
-      toast.error("Failed to update client application status");
+      // Toast is already shown in the hook
     }
   };
 
@@ -144,6 +142,10 @@ export function ClientAppsContent() {
         return <Badge className="bg-blue-500">React</Badge>;
       case ClientAppType.WORDPRESS:
         return <Badge className="bg-indigo-500">WordPress</Badge>;
+      case ClientAppType.VUE:
+        return <Badge className="bg-green-500">Vue</Badge>;
+      case ClientAppType.NEXT:
+        return <Badge className="bg-purple-500">Next.js</Badge>;
       default:
         return <Badge variant="outline">Other</Badge>;
     }
@@ -307,6 +309,8 @@ export function ClientAppsContent() {
                   { value: "all", label: "All Types" },
                   { value: ClientAppType.REACT, label: "React" },
                   { value: ClientAppType.WORDPRESS, label: "WordPress" },
+                  { value: ClientAppType.VUE, label: "Vue" },
+                  { value: ClientAppType.NEXT, label: "Next.js" },
                   { value: ClientAppType.OTHER, label: "Other" }
                 ]}
               />
