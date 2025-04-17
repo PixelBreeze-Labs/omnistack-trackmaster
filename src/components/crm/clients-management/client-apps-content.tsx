@@ -31,15 +31,12 @@ import {
   Check,
   Clock,
   AlertTriangle,
-  Code,
   Activity,
-  Globe,
   FileText,
   Mail,
 } from "lucide-react";
 import InputSelect from "@/components/Common/InputSelect";
 import { toast } from "react-hot-toast";
-import { DatePicker } from "@/components/ui/datepicker";
 import { format } from "date-fns";
 import { ClientAppStatus, ClientAppType } from "@/app/api/external/omnigateway/types/client-apps";
 import { useClientApps } from "@/hooks/useClientApps";
@@ -324,23 +321,9 @@ export function ClientAppsContent() {
                 options={[
                   { value: "all", label: "All Status" },
                   { value: ClientAppStatus.ACTIVE, label: "Active" },
-                  { value: ClientAppStatus.PENDING, label: "Pending" },
+                  // { value: ClientAppStatus.PENDING, label: "Pending" },
                   { value: ClientAppStatus.INACTIVE, label: "Inactive" }
                 ]}
-              />
-            </div>
-            <div className="w-40 mt-3">
-              <DatePicker 
-                date={fromDate} 
-                setDate={setFromDate} 
-                placeholder="From Date"
-              />
-            </div>
-            <div className="w-40 mt-3">
-              <DatePicker 
-                date={toDate} 
-                setDate={setToDate} 
-                placeholder="To Date"
               />
             </div>
           </div>
