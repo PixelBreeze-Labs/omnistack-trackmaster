@@ -36,7 +36,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   Search,
@@ -59,7 +58,7 @@ import {
   Filter
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useReports } from "@/hooks/useReports";
 import { useClients } from "@/hooks/useClients";
 import { Report, ReportStatus } from "@/app/api/external/omnigateway/types/reports";
@@ -128,7 +127,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, isOpen,
             </div>
             <div>
               <p className="text-sm font-medium text-gray-700">Sender Name</p>
-            <p className="text-sm text-gray-500">{senderName(report)}</p>
+              <p className="text-sm text-gray-500">{senderName(report)}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-700">Sender Email</p>
@@ -263,6 +262,12 @@ const UpdateStatusModal = ({
   isProcessing: boolean;
 }) => {
   const [selectedStatus, setSelectedStatus] = useState(report?.status || ReportStatus.PENDING);
+
+  useEffect(() => {
+    if (report) {
+      setSelectedStatus(report.status);
+    }
+  }, [report]);
 
   const statusOptions = [
     { value: ReportStatus.PENDING, label: "Pending" },
@@ -407,28 +412,51 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
   const { getClient, isLoading: isClientLoading } = useClients();
 
   const [clientName, setClientName] = useState("Client");
-  const [clientAppId, setClientAppId] = useState("");
+  const [clientAppIds, setClientAppIds] = useState<string[]>([]);
+  const [currentClientAppId, setCurrentClientAppId] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [fromDate, setFromDate] = useState(undefined);
-  const [toDate, setToDate] = useState(undefined);
-  const [filterTab, setFilterTab] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<string | ReportStatus>("all");
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  // Status filter options for the dropdown
+  const statusOptions = [
+    { value: "all", label: "All Statuses" },
+    { value: ReportStatus.PENDING, label: `Pending (${summary?.byStatus?.pending || 0})` },
+    { value: ReportStatus.IN_PROGRESS, label: `In Progress (${summary?.byStatus?.in_progress || 0})` },
+    { value: ReportStatus.RESOLVED, label: `Resolved (${summary?.byStatus?.resolved || 0})` },
+    { value: ReportStatus.CLOSED, label: `Closed (${summary?.byStatus?.closed || 0})` },
+    { value: ReportStatus.ARCHIVED, label: `Archived (${summary?.byStatus?.archived || 0})` }
+  ];
 
   // Fetch client data on load
   useEffect(() => {
     const loadClient = async () => {
       if (clientId) {
         try {
-          const client = await getClient(clientId);
+          const response = await getClient(clientId);
+          
+          // Handle both the old and new response format
+          const client = response.client || response;
+          
           if (client) {
             setClientName(client.name);
-            setClientAppId(client.client.clientAppIds[0]);
+            
+            // Get client app IDs from client
+            if (client.clientAppIds && client.clientAppIds.length > 0) {
+              setClientAppIds(client.clientAppIds);
+              
+              // Set the first client app ID as current for initial loading
+              if (client.clientAppIds.length > 0) {
+                setCurrentClientAppId(client.clientAppIds[0]);
+              }
+            }
           }
         } catch (error) {
           console.error("Error loading client:", error);
@@ -439,44 +467,62 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
     loadClient();
   }, [clientId, getClient]);
 
-  // Fetch reports data
+  // Fetch client-specific reports summary
   useEffect(() => {
-    if (clientId && clientAppId) {
-      const fetch = async () => {
+    const loadReportsSummary = async () => {
+      if (clientId) {
         try {
-          await fetchReports({
-            page: 1,
-            limit: pageSize,
-            clientAppId: clientAppId,
-            status: statusFilter !== 'all' ? statusFilter as ReportStatus : undefined,
-            search: searchTerm,
-            fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-            toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
-          });
           await fetchReportsSummaryByClientId(clientId);
         } catch (error) {
-          console.error("Error fetching reports:", error);
+          console.error("Error fetching reports summary:", error);
         }
-      };
-
-      fetch();
-    }
-  }, [clientId, fetchReports, fetchReportsSummaryByClientId, pageSize, clientAppId, statusFilter, searchTerm, fromDate, toDate]);
+      }
+    };
+    
+    loadReportsSummary();
+  }, [clientId, fetchReportsSummaryByClientId]);
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
-  const fetchParams = useCallback(() => ({
-    page,
-    limit: pageSize,
-    clientAppId: clientAppId,
-    status: statusFilter !== 'all' ? statusFilter as ReportStatus : undefined,
-    search: searchTerm,
-    fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-    toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
-  }), [page, pageSize, clientAppId, statusFilter, searchTerm, fromDate, toDate]);
+  const fetchParams = useCallback(() => {
+    const params: any = {
+      page,
+      limit: pageSize,
+      status: statusFilter !== 'all' ? statusFilter as ReportStatus : undefined,
+      search: searchTerm,
+    };
+    
+    // Date filtering - using metadata.timestamp instead of createdAt
+    if (fromDate) {
+      params.fromDate = format(fromDate, 'yyyy-MM-dd');
+    }
+    
+    if (toDate) {
+      params.toDate = format(toDate, 'yyyy-MM-dd');
+    }
+    
+    // If we have a selected client app ID, use it
+    if (currentClientAppId) {
+      params.clientAppId = currentClientAppId;
+    }
+    
+    return params;
+  }, [page, pageSize, statusFilter, searchTerm, fromDate, toDate, currentClientAppId]);
+
+  // Fetch reports when fetch parameters change
+  useEffect(() => {
+    if (currentClientAppId) {
+      console.log("Fetching reports with params:", fetchParams());
+      fetchReports(fetchParams())
+        .catch(error => {
+          console.error("Error fetching reports data:", error);
+        });
+    }
+  }, [fetchReports, fetchParams, currentClientAppId]);
 
   const handleRefresh = async () => {
     try {
       await fetchReports(fetchParams());
+      await fetchReportsSummaryByClientId(clientId);
       toast.success("Refreshed reports data");
     } catch (error) {
       console.error("Error refreshing reports:", error);
@@ -507,7 +553,10 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
     try {
       await updateReportStatus(reportId, status);
       toast.success(`Report status updated to ${getStatusLabel(status)}`);
+      
+      // Refresh data after update
       await fetchReports(fetchParams());
+      await fetchReportsSummaryByClientId(clientId);
     } catch (error) {
       console.error("Error updating report status:", error);
       toast.error("Failed to update report status");
@@ -518,42 +567,42 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
     try {
       await deleteReport(report._id);
       toast.success("Report deleted successfully");
+      
+      // Refresh data after deletion
       await fetchReports(fetchParams());
+      await fetchReportsSummaryByClientId(clientId);
     } catch (error) {
       console.error("Error deleting report:", error);
       toast.error("Failed to delete report");
     }
   };
 
-  const handleTabChange = (value: string) => {
-    setFilterTab(value);
+  const handleClientAppChange = (e) => {
+    setCurrentClientAppId(e.target.value);
+    setPage(1); // Reset pagination when changing client app
+  };
 
-    let newStatusFilter: string | ReportStatus = "all";
+  const handleStatusFilterChange = (e) => {
+    const newStatus = e.target.value;
+    setStatusFilter(newStatus);
+    setPage(1); // Reset to first page when changing filter
+    
+    // Apply the filter
+    fetchReports({
+      ...fetchParams(),
+      status: newStatus !== 'all' ? newStatus : undefined,
+      page: 1
+    });
+  };
 
-    if (value !== "all") {
-      if (value === "pending") newStatusFilter = ReportStatus.PENDING;
-      if (value === "in-progress") newStatusFilter = ReportStatus.IN_PROGRESS;
-      if (value === "resolved") newStatusFilter = ReportStatus.RESOLVED;
-      if (value === "closed") newStatusFilter = ReportStatus.CLOSED;
-      if (value === "archived") newStatusFilter = ReportStatus.ARCHIVED;
-    }
+  const handleSearch = () => {
+    setPage(1); // Reset to first page when searching
+    fetchReports(fetchParams());
+  };
 
-    setStatusFilter(newStatusFilter);
-
-    setPage(1); // Reset pagination on tab change
-
-    //Refetch data
-    if (clientId && clientAppId) {
-      fetchReports({
-        page: 1,
-        limit: pageSize,
-        clientAppId: clientAppId,
-        status: newStatusFilter !== 'all' ? newStatusFilter as ReportStatus : undefined,
-        search: searchTerm,
-        fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-        toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
-      });
-    }
+  const handleDateFilter = () => {
+    setPage(1); // Reset to first page when applying date filter
+    fetchReports(fetchParams());
   };
 
   const senderName = (report: Report): string => {
@@ -656,33 +705,6 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
         </Card>
       </div>
 
-      {/* Filter Tabs */}
-      <Tabs
-        defaultValue="all"
-        // value={filterTab}
-        onValueChange={handleTabChange}
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-6 w-full">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">
-            Pending ({summary?.byStatus?.pending || 0})
-          </TabsTrigger>
-          <TabsTrigger value="in-progress">
-            In Progress ({summary?.byStatus?.in_progress || 0})
-          </TabsTrigger>
-          <TabsTrigger value="resolved">
-            Resolved ({summary?.byStatus?.resolved || 0})
-          </TabsTrigger>
-          <TabsTrigger value="closed">
-            Closed ({summary?.byStatus?.closed || 0})
-          </TabsTrigger>
-          <TabsTrigger value="archived">
-            Archived ({summary?.byStatus?.archived || 0})
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
       {/* Search and Filter */}
       <Card>
         <CardHeader className="pb-3">
@@ -699,29 +721,62 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                   className="pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSearch();
+                  }}
                 />
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-            <div className="w-40">
-              <input
-                type="date"
-                className="w-full p-2 border rounded-md"
-                value={fromDate ? format(fromDate, "yyyy-MM-dd") : ""}
-                onChange={(e) => setFromDate(e.target.value ? new Date(e.target.value) : undefined)}
-              />
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="w-48">
+                <InputSelect
+                  name="status"
+                  label=""
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                  options={statusOptions}
+                />
+              </div>
+              
+              {clientAppIds.length > 1 && (
+                <div className="w-48">
+                  <InputSelect
+                    name="clientApp"
+                    label=""
+                    value={currentClientAppId || ""}
+                    onChange={handleClientAppChange}
+                    options={[
+                      ...clientAppIds.map(id => ({ value: id, label: `App ${id.substring(0, 6)}...` }))
+                    ]}
+                  />
+                </div>
+              )}
+              <div className="w-40">
+                <input
+                  type="date"
+                  className="w-full p-2 border rounded-md"
+                  value={fromDate ? format(fromDate, "yyyy-MM-dd") : ""}
+                  onChange={(e) => setFromDate(e.target.value ? new Date(e.target.value) : undefined)}
+                />
+              </div>
+              <div className="w-40">
+                <input
+                  type="date"
+                  className="w-full p-2 border rounded-md"
+                  value={toDate ? format(toDate, "yyyy-MM-dd") : ""}
+                  onChange={(e) => setToDate(e.target.value ? new Date(e.target.value) : undefined)}
+                  min={fromDate ? format(fromDate, "yyyy-MM-dd") : undefined}
+                />
+              </div>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={handleDateFilter}
+              >
+                <Filter className="h-4 w-4" />
+                Apply Filters
+              </Button>
             </div>
-            <div className="w-40">
-              <input
-                type="date"
-                className="w-full p-2 border rounded-md"
-                value={toDate ? format(toDate, "yyyy-MM-dd") : ""}
-                onChange={(e) => setToDate(e.target.value ? new Date(e.target.value) : undefined)}
-                min={fromDate ? format(fromDate, "yyyy-MM-dd") : undefined}
-              />
-            </div>
-            
-          </div>
           </div>
         </CardContent>
       </Card>
@@ -852,74 +907,111 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
             </TableBody>
           </Table>
 
-          {/* Pagination */}
-          {reports && reports.length > 0 && totalPages > 1 && (
-            <div className="border-t px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {reports.length} of {totalItems} reports
-                  </p>
-                  <InputSelect
-                    name="pageSize"
-                    label=""
-                    value={pageSize.toString()}
-                    onChange={(e) => {
-                      setPageSize(parseInt(e.target.value));
-                      setPage(1);
+         {/* Pagination */}
+{reports && reports.length > 0 && totalPages > 1 && (
+  <div className="border-t px-4 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-2">
+        <p className="text-sm text-muted-foreground">
+          Showing {reports.length} of {totalItems} reports
+        </p>
+      </div>
+      
+      <div className="flex items-center space-x-4">
+        
+        
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  const newPage = Math.max(1, page - 1);
+                  setPage(newPage);
+                  fetchReports({
+                    ...fetchParams(),
+                    page: newPage
+                  });
+                }}
+                disabled={page === 1}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Show pages around current page
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (page <= 3) {
+                pageNum = i + 1;
+              } else if (page >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = page - 2 + i;
+              }
+
+              return (
+                <PaginationItem key={pageNum}>
+                  <PaginationLink
+                    onClick={() => {
+                      setPage(pageNum);
+                      fetchReports({
+                        ...fetchParams(),
+                        page: pageNum
+                      });
                     }}
-                    options={[
-                      { value: "10", label: "10 per page" },
-                      { value: "20", label: "20 per page" },
-                      { value: "50", label: "50 per page" },
-                    ]}
-                  />
-                </div>
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => setPage(Math.max(1, page - 1))}
-                        disabled={page === 1}
-                      />
-                    </PaginationItem>
+                    isActive={page === pageNum}
+                  >
+                    {pageNum}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
 
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      // Show pages around current page
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (page <= 3) {
-                        pageNum = i + 1;
-                      } else if (page >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = page - 2 + i;
-                      }
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  const newPage = Math.min(totalPages, page + 1);
+                  setPage(newPage);
+                  fetchReports({
+                    ...fetchParams(),
+                    page: newPage
+                  });
+                }}
+                disabled={page === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
 
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            onClick={() => setPage(pageNum)}
-                            isActive={page === pageNum}
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setPage(Math.min(totalPages, page + 1))}
-                        disabled={page === totalPages}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </div>
-          )}
+      <div className="flex items-center space-x-4">
+      <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => {
+            const newSize = parseInt(e.target.value);
+            setPageSize(newSize);
+            setPage(1); // Reset to first page when changing page size
+            
+            // Refetch with new page size
+            const newParams = {
+              ...fetchParams(),
+              limit: newSize,
+              page: 1
+            };
+            fetchReports(newParams);
+          }}
+          options={[
+            { value: "10", label: "10 per page" },
+            { value: "20", label: "20 per page" },
+            { value: "50", label: "50 per page" },
+          ]}
+        />
+        </div>
+    </div>
+  </div>
+)}
         </CardContent>
       </Card>
 
@@ -938,23 +1030,24 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
       {selectedReport && (
         <DeleteReportModal
           report={selectedReport}
-          isOpen={isDeleteModalOpen}onClose={() => setIsDeleteModalOpen(false)}
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={confirmDeleteReport}
           isDeleting={isProcessing}
-          />
-          )}
+        />
+      )}
           
-            {/* Report Details Modal */}
-            {selectedReport && (
-              <ReportDetailsModal
-                report={selectedReport}
-                isOpen={isDetailsModalOpen}
-                onClose={() => setIsDetailsModalOpen(false)}
-              />
-            )}
+      {/* Report Details Modal */}
+      {selectedReport && (
+        <ReportDetailsModal
+          report={selectedReport}
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />
+      )}
           
-            {/* Add empty space div at the bottom */}
-            <div className="h-8"></div>
-          </div>
-          );
-          }
+      {/* Add empty space div at the bottom */}
+      <div className="h-8"></div>
+    </div>
+  );
+}
