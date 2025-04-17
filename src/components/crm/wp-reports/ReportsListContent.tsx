@@ -659,7 +659,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
       {/* Filter Tabs */}
       <Tabs
         defaultValue="all"
-        value={filterTab}
+        // value={filterTab}
         onValueChange={handleTabChange}
         className="w-full"
       >
