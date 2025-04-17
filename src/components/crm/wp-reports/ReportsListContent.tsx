@@ -531,7 +531,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
   };
 
   const handleBackClick = () => {
-    router.push(`/clients/${clientId}`);
+    router.push(`/crm/platform/os-clients/${clientId}`);
   };
 
   const handleStatusUpdate = (report: Report) => {
@@ -907,103 +907,111 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
             </TableBody>
           </Table>
 
-          {/* Pagination */}
-          {reports && reports.length > 0 && totalPages > 1 && (
-            <div className="border-t px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {reports.length} of {totalItems} reports
-                  </p>
-                  <InputSelect
-                    name="pageSize"
-                    label=""
-                    value={pageSize.toString()}
-                    onChange={(e) => {
-                      const newSize = parseInt(e.target.value);
-                      setPageSize(newSize);
-                      setPage(1); // Reset to first page when changing page size
-                      
-                      // Refetch with new page size
-                      const newParams = {
+         {/* Pagination */}
+{reports && reports.length > 0 && totalPages > 1 && (
+  <div className="border-t px-4 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-2">
+        <p className="text-sm text-muted-foreground">
+          Showing {reports.length} of {totalItems} reports
+        </p>
+      </div>
+      
+      <div className="flex items-center space-x-4">
+        
+        
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  const newPage = Math.max(1, page - 1);
+                  setPage(newPage);
+                  fetchReports({
+                    ...fetchParams(),
+                    page: newPage
+                  });
+                }}
+                disabled={page === 1}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Show pages around current page
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (page <= 3) {
+                pageNum = i + 1;
+              } else if (page >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = page - 2 + i;
+              }
+
+              return (
+                <PaginationItem key={pageNum}>
+                  <PaginationLink
+                    onClick={() => {
+                      setPage(pageNum);
+                      fetchReports({
                         ...fetchParams(),
-                        limit: newSize,
-                        page: 1
-                      };
-                      fetchReports(newParams);
+                        page: pageNum
+                      });
                     }}
-                    options={[
-                      { value: "10", label: "10 per page" },
-                      { value: "20", label: "20 per page" },
-                      { value: "50", label: "50 per page" },
-                    ]}
-                  />
-                </div>
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => {
-                          const newPage = Math.max(1, page - 1);
-                          setPage(newPage);
-                          fetchReports({
-                            ...fetchParams(),
-                            page: newPage
-                          });
-                        }}
-                        disabled={page === 1}
-                      />
-                    </PaginationItem>
+                    isActive={page === pageNum}
+                  >
+                    {pageNum}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
 
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      // Show pages around current page
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (page <= 3) {
-                        pageNum = i + 1;
-                      } else if (page >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = page - 2 + i;
-                      }
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  const newPage = Math.min(totalPages, page + 1);
+                  setPage(newPage);
+                  fetchReports({
+                    ...fetchParams(),
+                    page: newPage
+                  });
+                }}
+                disabled={page === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
 
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            onClick={() => {
-                              setPage(pageNum);
-                              fetchReports({
-                                ...fetchParams(),
-                                page: pageNum
-                              });
-                            }}
-                            isActive={page === pageNum}
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => {
-                          const newPage = Math.min(totalPages, page + 1);
-                          setPage(newPage);
-                          fetchReports({
-                            ...fetchParams(),
-                            page: newPage
-                          });
-                        }}
-                        disabled={page === totalPages}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </div>
-          )}
+      <div className="flex items-center space-x-4">
+      <InputSelect
+          name="pageSize"
+          label=""
+          value={pageSize.toString()}
+          onChange={(e) => {
+            const newSize = parseInt(e.target.value);
+            setPageSize(newSize);
+            setPage(1); // Reset to first page when changing page size
+            
+            // Refetch with new page size
+            const newParams = {
+              ...fetchParams(),
+              limit: newSize,
+              page: 1
+            };
+            fetchReports(newParams);
+          }}
+          options={[
+            { value: "10", label: "10 per page" },
+            { value: "20", label: "20 per page" },
+            { value: "50", label: "50 per page" },
+          ]}
+        />
+        </div>
+    </div>
+  </div>
+)}
         </CardContent>
       </Card>
 
