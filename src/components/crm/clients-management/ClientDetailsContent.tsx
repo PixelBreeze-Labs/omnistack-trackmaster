@@ -83,147 +83,11 @@ interface SpecialFeatures {
 
 // Special Feature Cards based on client ID and special features data
 const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, specialFeatures?: SpecialFeatures }) => {
-  if (!specialFeatures) {
-    // Use hardcoded values when specialFeatures is not available
-    if (clientId === "67feac2cd5060f88345d0056") {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileQuestion className="h-5 w-5 text-blue-500" />
-                WP Polls Plugin
-              </CardTitle>
-              <CardDescription>Manage polls and questionnaires</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
-                    <PieChart className="h-8 w-8 text-blue-500 mb-2" />
-                    <span className="text-sm font-medium">12</span>
-                    <span className="text-xs text-muted-foreground">Active Polls</span>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
-                    <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
-                    <span className="text-sm font-medium">1,254</span>
-                    <span className="text-xs text-muted-foreground">Responses</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Last poll created:</span>
-                    <span className="font-medium">Apr 12, 2025</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Most active poll:</span>
-                    <span className="font-medium">Reader Satisfaction</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t px-6 py-4">
-              <Button>
-                Manage Polls
-                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Shield className="h-5 w-5 text-purple-500" />
-                WP Secure Reports Plugin
-              </CardTitle>
-              <CardDescription>Manage confidential reports</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-purple-50 rounded-lg p-3 flex flex-col items-center">
-                    <FileBarChart2 className="h-8 w-8 text-purple-500 mb-2" />
-                    <span className="text-sm font-medium">8</span>
-                    <span className="text-xs text-muted-foreground">Active Forms</span>
-                  </div>
-                  <div className="bg-indigo-50 rounded-lg p-3 flex flex-col items-center">
-                    <LockKeyhole className="h-8 w-8 text-indigo-500 mb-2" />
-                    <span className="text-sm font-medium">48</span>
-                    <span className="text-xs text-muted-foreground">Secure Reports</span>
-                  </div>
-                </div>
-                <Badge className="bg-green-500">
-                  <Check className="mr-1 h-3 w-3" />
-                  Secure Encryption Enabled
-                </Badge>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Last report received:</span>
-                    <span className="font-medium">Apr 16, 2025</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t px-6 py-4">
-              <Button>
-                View Secure Reports
-                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      );
-    } else if (clientId === "680027c0860084f81c6090cd") {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileQuestion className="h-5 w-5 text-blue-500" />
-                WP Polls Plugin
-              </CardTitle>
-              <CardDescription>Manage polls and questionnaires</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
-                    <BarChart3 className="h-8 w-8 text-blue-500 mb-2" />
-                    <span className="text-sm font-medium">4</span>
-                    <span className="text-xs text-muted-foreground">Active Polls</span>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
-                    <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
-                    <span className="text-sm font-medium">387</span>
-                    <span className="text-xs text-muted-foreground">Responses</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Last poll created:</span>
-                    <span className="font-medium">Apr 9, 2025</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Most active poll:</span>
-                    <span className="font-medium">Customer Experience</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t px-6 py-4">
-              <Button>
-                Manage Polls
-                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      );
-    }
-    
-    return null;
-  }
   
+  const router = useRouter();
+    const handleViewReports = () => {
+    router.push(`/crm/platform/os-clients/${clientId}/wp-reports`);
+  };
   // Format date helper
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return "N/A";
@@ -235,8 +99,8 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
   };
   
   // Use data from specialFeatures
-  const polls = specialFeatures.wpPolls;
-  const reports = specialFeatures.wpReports;
+  const polls = specialFeatures?.wpPolls;
+  const reports = specialFeatures?.wpReports;
   
   if (clientId === "67feac2cd5060f88345d0056") {
     return (
@@ -305,7 +169,7 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
                   <div className="bg-indigo-50 rounded-lg p-3 flex flex-col items-center">
                     <LockKeyhole className="h-8 w-8 text-indigo-500 mb-2" />
                     <span className="text-sm font-medium">{reports.secureReports}</span>
-                    <span className="text-xs text-muted-foreground">Secure Reports</span>
+                    <span className="text-xs text-muted-foreground">With Attachments</span>
                   </div>
                 </div>
                 <Badge className="bg-green-500">
@@ -321,8 +185,8 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
               </div>
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
-              <Button>
-                View Secure Reports
+              <Button  onClick={handleViewReports}>
+                View All Reports
                 <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
               </Button>
             </CardFooter>
