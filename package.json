@@ -11,7 +11,7 @@
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
-  },
+  },                  
   "overrides": {
     "react-quill": {
       "react": "^19.0.0",
