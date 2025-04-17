@@ -2,12 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/new-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,13 +37,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  ArrowLeft, 
-  Search, 
-  Download, 
-  RefreshCcw, 
-  Eye, 
-  File, 
+import {
+  ArrowLeft,
+  Search,
+  Download,
+  RefreshCcw,
+  Eye,
+  File,
   FileText,
   CheckCircle2,
   Clock,
@@ -58,32 +58,164 @@ import {
   Archive,
   Filter
 } from "lucide-react";
-import InputSelect from "@/components/Common/InputSelect";
-import { DatePicker } from "@/components/ui/datepicker";
 import { toast } from "react-hot-toast";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { useReports } from "@/hooks/useReports";
 import { useClients } from "@/hooks/useClients";
 import { Report, ReportStatus } from "@/app/api/external/omnigateway/types/reports";
+import { cn } from "@/lib/utils";
+import InputSelect from "@/components/Common/InputSelect";
 
 interface ReportsListContentProps {
   clientId: string;
 }
 
+interface ReportDetailsModalProps {
+  report: Report | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const DateDisplay = ({ dateString }: { dateString: string | undefined }) => {
+  if (!dateString) return "N/A";
+  try {
+    return format(new Date(dateString), "MMM d, yyyy h:mm a");
+  } catch (error) {
+    console.error("Error parsing date:", error);
+    return dateString;
+  }
+};
+
+// Report Details Modal
+const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, isOpen, onClose }) => {
+  if (!report) {
+    return null;
+  }
+
+  const senderName = (report: Report): string => {
+    const otherKeys = Object.keys(report.content).filter(
+      (key) => key !== 'sender' && key !== 'message' && key !== 'files'
+    );
+  
+    if (otherKeys.length > 0) {
+      const firstKey = otherKeys[0]; // Get the first key
+      const firstValue = report.content[firstKey];
+      if (typeof firstValue === 'string' || typeof firstValue === 'number') {
+        return String(firstValue); // Return as string
+      }
+    }
+  
+    return report.content.sender?.name || 'Anonymous';
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-gray-500" />
+            Report Details
+          </DialogTitle>
+          <DialogDescription>
+            Details of the report.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <p className="text-sm font-medium text-gray-700">ID</p>
+              <p className="text-sm text-gray-500">{report._id}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700">Sender Name</p>
+            <p className="text-sm text-gray-500">{senderName(report)}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700">Sender Email</p>
+              <p className="text-sm text-gray-500">{report.content.sender?.email || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700">Status</p>
+              {getStatusBadge(report.status)}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700">Priority</p>
+              <p className="text-sm text-gray-500">
+                {report.priority ? report.priority.charAt(0).toUpperCase() + report.priority.slice(1) : 'Normal'}
+              </p>
+            </div>
+            {report.metadata?.timestamp && (
+              <div>
+                <p className="text-sm font-medium text-gray-700">Timestamp</p>
+                <p className="text-sm text-gray-500"><DateDisplay dateString={report.metadata.timestamp} /></p>
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700">Message</p>
+            <div className="text-sm text-gray-500 max-h-40 overflow-y-auto border rounded-md p-2">
+              {report.content.message}
+            </div>
+          </div>
+          {report.content.files && report.content.files.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-gray-700">Files</p>
+              <ul className="list-disc pl-4">
+                {report.content.files.map((file, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                      {file.name}
+                    </a>
+                    <Download className="h-4 w-4 text-blue-500" />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {Object.keys(report.content)
+            .filter(key => key !== 'sender' && key !== 'message' && key !== 'files' && key !== 'additionalInfo')
+            .map(key => (
+              <div key={key}>
+                <p className="text-sm font-medium text-gray-700">{key.charAt(0).toUpperCase() + key.slice(1)}</p>
+                <p className="text-sm text-gray-500">
+                  {typeof report.content[key] === 'object'
+                    ? JSON.stringify(report.content[key], null, 2)
+                    : report.content[key]}
+                </p>
+              </div>
+            ))}
+        </div>
+        <DialogFooter>
+          <Button onClick={onClose}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // Confirm Delete Modal
-const DeleteReportModal = ({ 
-  report, 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  isDeleting 
+const DeleteReportModal = ({
+  report,
+  isOpen,
+  onClose,
+  onConfirm,
+  isDeleting
+}: {
+  report: Report | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (report: Report) => Promise<void>;
+  isDeleting: boolean;
 }) => {
   const handleConfirm = async () => {
-    try {
-      await onConfirm(report);
-      onClose();
-    } catch (error) {
-      console.error("Error deleting report:", error);
+    if (report) {
+      try {
+        await onConfirm(report);
+        onClose();
+      } catch (error) {
+        console.error("Error deleting report:", error);
+      }
     }
   };
 
@@ -103,9 +235,9 @@ const DeleteReportModal = ({
           <Button variant="outline" onClick={onClose} disabled={isDeleting}>
             Cancel
           </Button>
-          <Button 
+          <Button
             className="bg-red-600 hover:bg-red-700"
-            onClick={handleConfirm} 
+            onClick={handleConfirm}
             disabled={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Delete Report"}
@@ -123,6 +255,12 @@ const UpdateStatusModal = ({
   onClose,
   onConfirm,
   isProcessing
+}: {
+  report: Report | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (reportId: string, status: ReportStatus) => Promise<void>;
+  isProcessing: boolean;
 }) => {
   const [selectedStatus, setSelectedStatus] = useState(report?.status || ReportStatus.PENDING);
 
@@ -135,11 +273,13 @@ const UpdateStatusModal = ({
   ];
 
   const handleConfirm = async () => {
-    try {
-      await onConfirm(report._id, selectedStatus);
-      onClose();
-    } catch (error) {
-      console.error("Error updating report status:", error);
+    if (report) {
+      try {
+        await onConfirm(report._id, selectedStatus);
+        onClose();
+      } catch (error) {
+        console.error("Error updating report status:", error);
+      }
     }
   };
 
@@ -176,8 +316,8 @@ const UpdateStatusModal = ({
           <Button variant="outline" onClick={onClose} disabled={isProcessing}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleConfirm} 
+          <Button
+            onClick={handleConfirm}
             disabled={isProcessing || selectedStatus === report?.status}
           >
             {isProcessing ? "Updating..." : "Update Status"}
@@ -249,32 +389,21 @@ const getStatusLabel = (status: ReportStatus) => {
   }
 };
 
-// Format date helper function
-const formatDate = (dateString: string | undefined): string => {
-  if (!dateString) return "N/A";
-  try {
-    return format(parseISO(dateString), "MMM d, yyyy h:mm a");
-  } catch (error) {
-    console.error("Error parsing date:", error);
-    return dateString;
-  }
-};
-
 export default function ReportsListContent({ clientId }: ReportsListContentProps) {
   const router = useRouter();
-  const { 
-    isLoading, 
-    isProcessing, 
-    reports, 
-    totalItems, 
-    totalPages, 
+  const {
+    isLoading,
+    isProcessing,
+    reports,
+    totalItems,
+    totalPages,
     summary,
-    fetchReports, 
+    fetchReports,
     fetchReportsSummaryByClientId,
     updateReportStatus,
     deleteReport
   } = useReports();
-  
+
   const { getClient, isLoading: isClientLoading } = useClients();
 
   const [clientName, setClientName] = useState("Client");
@@ -289,15 +418,14 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Fetch client data on load
   useEffect(() => {
     const loadClient = async () => {
-       
       if (clientId) {
         try {
           const client = await getClient(clientId);
-          console.log('client', clientId);
           if (client) {
             setClientName(client.name);
             setClientAppId(client.client.clientAppIds[0]);
@@ -313,8 +441,27 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
 
   // Fetch reports data
   useEffect(() => {
-    fetchReportsSummaryByClientId(clientId);
-  }, [clientId, fetchReportsSummaryByClientId]);
+    if (clientId && clientAppId) {
+      const fetch = async () => {
+        try {
+          await fetchReports({
+            page: 1,
+            limit: pageSize,
+            clientAppId: clientAppId,
+            status: statusFilter !== 'all' ? statusFilter as ReportStatus : undefined,
+            search: searchTerm,
+            fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
+            toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
+          });
+          await fetchReportsSummaryByClientId(clientId);
+        } catch (error) {
+          console.error("Error fetching reports:", error);
+        }
+      };
+
+      fetch();
+    }
+  }, [clientId, fetchReports, fetchReportsSummaryByClientId, pageSize, clientAppId, statusFilter, searchTerm, fromDate, toDate]);
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
   const fetchParams = useCallback(() => ({
@@ -327,17 +474,14 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
     toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
   }), [page, pageSize, clientAppId, statusFilter, searchTerm, fromDate, toDate]);
 
-  useEffect(() => {
-    console.log("Fetching reports with params:", fetchParams());
-    fetchReports(fetchParams())
-      .catch(error => {
-        console.error("Error fetching reports data:", error);
-      });
-  }, [fetchReports, fetchParams]);
-
-  const handleRefresh = () => {
-    fetchReports(fetchParams());
-    toast.success("Refreshed reports data");
+  const handleRefresh = async () => {
+    try {
+      await fetchReports(fetchParams());
+      toast.success("Refreshed reports data");
+    } catch (error) {
+      console.error("Error refreshing reports:", error);
+      toast.error("Failed to refresh reports");
+    }
   };
 
   const handleBackClick = () => {
@@ -354,11 +498,16 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
     setIsDeleteModalOpen(true);
   };
 
+  const handleOpenDetailsModal = (report: Report) => {
+    setSelectedReport(report);
+    setIsDetailsModalOpen(true);
+  };
+
   const confirmStatusUpdate = async (reportId: string, status: ReportStatus) => {
     try {
       await updateReportStatus(reportId, status);
       toast.success(`Report status updated to ${getStatusLabel(status)}`);
-      fetchReports(fetchParams());
+      await fetchReports(fetchParams());
     } catch (error) {
       console.error("Error updating report status:", error);
       toast.error("Failed to update report status");
@@ -369,7 +518,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
     try {
       await deleteReport(report._id);
       toast.success("Report deleted successfully");
-      fetchReports(fetchParams());
+      await fetchReports(fetchParams());
     } catch (error) {
       console.error("Error deleting report:", error);
       toast.error("Failed to delete report");
@@ -378,24 +527,49 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
 
   const handleTabChange = (value: string) => {
     setFilterTab(value);
-    
-    // Update status filter based on tab
-    if (value === "all") {
-      setStatusFilter("all");
-    } else if (value === "pending") {
-      setStatusFilter(ReportStatus.PENDING);
-    } else if (value === "in-progress") {
-      setStatusFilter(ReportStatus.IN_PROGRESS);
-    } else if (value === "resolved") {
-      setStatusFilter(ReportStatus.RESOLVED);
-    } else if (value === "closed") {
-      setStatusFilter(ReportStatus.CLOSED);
-    } else if (value === "archived") {
-      setStatusFilter(ReportStatus.ARCHIVED);
+
+    let newStatusFilter: string | ReportStatus = "all";
+
+    if (value !== "all") {
+      if (value === "pending") newStatusFilter = ReportStatus.PENDING;
+      if (value === "in-progress") newStatusFilter = ReportStatus.IN_PROGRESS;
+      if (value === "resolved") newStatusFilter = ReportStatus.RESOLVED;
+      if (value === "closed") newStatusFilter = ReportStatus.CLOSED;
+      if (value === "archived") newStatusFilter = ReportStatus.ARCHIVED;
     }
-    
-    // Reset pagination
-    setPage(1);
+
+    setStatusFilter(newStatusFilter);
+
+    setPage(1); // Reset pagination on tab change
+
+    //Refetch data
+    if (clientId && clientAppId) {
+      fetchReports({
+        page: 1,
+        limit: pageSize,
+        clientAppId: clientAppId,
+        status: newStatusFilter !== 'all' ? newStatusFilter as ReportStatus : undefined,
+        search: searchTerm,
+        fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
+        toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
+      });
+    }
+  };
+
+  const senderName = (report: Report): string => {
+    const otherKeys = Object.keys(report.content).filter(
+      (key) => key !== 'sender' && key !== 'message' && key !== 'files'
+    );
+  
+    if (otherKeys.length > 0) {
+      const firstKey = otherKeys[0]; // Get the first key
+      const firstValue = report.content[firstKey];
+      if (typeof firstValue === 'string' || typeof firstValue === 'number') {
+        return String(firstValue); // Return as string
+      }
+    }
+  
+    return report.content.sender?.name || 'Anonymous';
   };
 
   return (
@@ -403,8 +577,8 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
       {/* Header with back button */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={handleBackClick}
             className="h-8 w-8 p-0 mr-2"
@@ -483,8 +657,8 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
       </div>
 
       {/* Filter Tabs */}
-      <Tabs 
-        defaultValue="all" 
+      <Tabs
+        defaultValue="all"
         value={filterTab}
         onValueChange={handleTabChange}
         className="w-full"
@@ -529,32 +703,25 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <div className="w-40">
-                <DatePicker
-                  placeholderText="From Date"
-                  selected={fromDate}
-                  onChange={(date) => setFromDate(date)}
-                  selectsStart
-                  startDate={fromDate}
-                  endDate={toDate}
-                />
-              </div>
-              <div className="w-40">
-                <DatePicker
-                  placeholderText="To Date"
-                  selected={toDate}
-                  onChange={(date) => setToDate(date)}
-                  selectsEnd
-                  startDate={fromDate}
-                  endDate={toDate}
-                  minDate={fromDate}
-                />
-              </div>
-              <Button variant="outline" className="flex items-center gap-1">
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
+            <div className="w-40">
+              <input
+                type="date"
+                className="w-full p-2 border rounded-md"
+                value={fromDate ? format(fromDate, "yyyy-MM-dd") : ""}
+                onChange={(e) => setFromDate(e.target.value ? new Date(e.target.value) : undefined)}
+              />
             </div>
+            <div className="w-40">
+              <input
+                type="date"
+                className="w-full p-2 border rounded-md"
+                value={toDate ? format(toDate, "yyyy-MM-dd") : ""}
+                onChange={(e) => setToDate(e.target.value ? new Date(e.target.value) : undefined)}
+                min={fromDate ? format(fromDate, "yyyy-MM-dd") : undefined}
+              />
+            </div>
+            
+          </div>
           </div>
         </CardContent>
       </Card>
@@ -613,7 +780,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                         </div>
                         <div>
                           <div className="font-medium">
-                            {report.content.sender?.name || 'Anonymous'}
+                            {senderName(report)}
                           </div>
                           {report.content.sender?.email && (
                             <div className="text-xs text-muted-foreground">
@@ -624,19 +791,17 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="max-w-[300px] truncate">
+                      <div className="max-w-[300px] truncate overflow-x-auto">
                         {report.content.message}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="text-sm">
-                          {formatDate(report.createdAt)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {report.metadata?.timestamp ? 
-                            format(new Date(report.metadata.timestamp), "h:mm a") : ''}
-                        </span>
+                        {report.metadata?.timestamp && (
+                          <span className="text-sm">
+                            <DateDisplay dateString={report.metadata.timestamp} />
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -645,7 +810,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                     <TableCell>
                       {report.priority ? (
                         <Badge variant={
-                          report.priority === 'high' ? 'destructive' : 
+                          report.priority === 'high' ? 'destructive' :
                           report.priority === 'medium' ? 'outline' : 'secondary'
                         }>
                           {report.priority.charAt(0).toUpperCase() + report.priority.slice(1)}
@@ -654,8 +819,15 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                         <Badge variant="outline">Normal</Badge>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenDetailsModal(report)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -663,7 +835,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                         >
                           <Tag className="h-4 w-4" />
                         </Button>
-                       
+
                         <Button
                           variant="ghost"
                           size="icon"
@@ -706,12 +878,12 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
-                      <PaginationPrevious 
+                      <PaginationPrevious
                         onClick={() => setPage(Math.max(1, page - 1))}
                         disabled={page === 1}
                       />
                     </PaginationItem>
-                    
+
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       // Show pages around current page
                       let pageNum;
@@ -724,10 +896,10 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                       } else {
                         pageNum = page - 2 + i;
                       }
-                      
+
                       return (
                         <PaginationItem key={pageNum}>
-                          <PaginationLink 
+                          <PaginationLink
                             onClick={() => setPage(pageNum)}
                             isActive={page === pageNum}
                           >
@@ -736,9 +908,9 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
                         </PaginationItem>
                       );
                     })}
-                    
+
                     <PaginationItem>
-                      <PaginationNext 
+                      <PaginationNext
                         onClick={() => setPage(Math.min(totalPages, page + 1))}
                         disabled={page === totalPages}
                       />
@@ -750,7 +922,7 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
           )}
         </CardContent>
       </Card>
-      
+
       {/* Status Update Modal */}
       {selectedReport && (
         <UpdateStatusModal
@@ -761,20 +933,28 @@ export default function ReportsListContent({ clientId }: ReportsListContentProps
           isProcessing={isProcessing}
         />
       )}
-      
+
       {/* Delete Report Modal */}
       {selectedReport && (
         <DeleteReportModal
           report={selectedReport}
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
+          isOpen={isDeleteModalOpen}onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={confirmDeleteReport}
           isDeleting={isProcessing}
-        />
-      )}
-
-       {/* Add empty space div at the bottom */}
-    <div className="h-8"></div>
-    </div>
-  );
-}
+          />
+          )}
+          
+            {/* Report Details Modal */}
+            {selectedReport && (
+              <ReportDetailsModal
+                report={selectedReport}
+                isOpen={isDetailsModalOpen}
+                onClose={() => setIsDetailsModalOpen(false)}
+              />
+            )}
+          
+            {/* Add empty space div at the bottom */}
+            <div className="h-8"></div>
+          </div>
+          );
+          }
