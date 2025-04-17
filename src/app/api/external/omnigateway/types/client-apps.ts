@@ -9,6 +9,8 @@ export enum ClientAppStatus {
 export enum ClientAppType {
   REACT = 'react',
   WORDPRESS = 'wordpress',
+  VUE = 'vue',
+  NEXT = 'next',
   OTHER = 'other'
 }
 
@@ -55,21 +57,11 @@ export interface ClientApp {
   name: string;
   type: ClientAppType;
   apiKey: string;
-  domain: string | string[];
+  domain: string[];
   configuredAt: string;
   status: ClientAppStatus;
   reportConfig: ClientAppReportConfig;
-}
-
-export interface ClientAppWithClient extends ClientApp {
-  client: ClientAppClient;
-}
-
-export interface ClientAppMetrics {
-  totalApps: number;
-  activeApps: number;
-  inactiveApps: number;
-  recentApps: number;
+  client?: ClientAppClient;
 }
 
 export interface ClientAppParams {
@@ -80,10 +72,18 @@ export interface ClientAppParams {
   status?: string;
   fromDate?: string;
   toDate?: string;
+  skip?: number;
+}
+
+export interface ClientAppMetrics {
+  totalApps: number;
+  activeApps: number;
+  inactiveApps: number;
+  recentApps: number;
 }
 
 export interface ClientAppsResponse {
-  data: ClientAppWithClient[];
+  data: ClientApp[];
   total: number;
   message: string;
   metrics: ClientAppMetrics;

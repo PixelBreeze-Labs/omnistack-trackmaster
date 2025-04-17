@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { createOmniStackClientApi } from '@/app/api/external/omnigateway/client';
 import { 
   ClientAppParams,
-  ClientAppWithClient,
+  ClientApp,
   ClientAppMetrics
 } from "@/app/api/external/omnigateway/types/client-apps";
 import { useGatewayClientApiKey } from './useGatewayClientApiKey';
@@ -13,7 +13,7 @@ import { toast } from 'react-hot-toast';
 export const useClientApps = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [clientApps, setClientApps] = useState<ClientAppWithClient[]>([]);
+  const [clientApps, setClientApps] = useState<ClientApp[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [clientAppMetrics, setClientAppMetrics] = useState<ClientAppMetrics>({
@@ -31,6 +31,7 @@ export const useClientApps = () => {
     if (!api) return;
     try {
       setIsLoading(true);
+      console.log("Fetching client apps with params:", params);
       const response = await api.getClientApps(params);
       
       console.log('Client Apps API response:', response);
@@ -46,8 +47,18 @@ export const useClientApps = () => {
       
       return response;
     } catch (error) {
-      toast.error('Failed to fetch client applications');
       console.error('Error fetching client apps:', error);
+      
+      if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
+      } else {
+        toast.error('Failed to fetch client applications');
+      }
+      
       throw error;
     } finally {
       setIsLoading(false);
@@ -59,12 +70,21 @@ export const useClientApps = () => {
     if (!api) return;
     try {
       setIsLoading(true);
-      // Assuming there's a getClientApp method in the API
       const clientApp = await api.getClientApp(id);
       return clientApp;
     } catch (error) {
-      toast.error('Failed to fetch client app details');
       console.error('Error fetching client app details:', error);
+      
+      if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
+      } else {
+        toast.error('Failed to fetch client app details');
+      }
+      
       throw error;
     } finally {
       setIsLoading(false);
@@ -72,11 +92,17 @@ export const useClientApps = () => {
   }, [api]);
 
   // Create a new client app
-  const createClientApp = useCallback(async (clientAppData: Partial<ClientAppWithClient>) => {
+  const createClientApp = useCallback(async (clientAppData: Partial<ClientApp>) => {
     if (!api) return;
     try {
       setIsProcessing(true);
-      // Assuming there's a createClientApp method in the API
+      console.log('Creating client app with data:', clientAppData);
+      
+      // Ensure domain is always sent as an array
+      if (clientAppData.domain && !Array.isArray(clientAppData.domain)) {
+        clientAppData.domain = [clientAppData.domain as string];
+      }
+      
       const newClientApp = await api.createClientApp(clientAppData);
       
       // Update local state to add the new client app
@@ -85,8 +111,18 @@ export const useClientApps = () => {
       
       return newClientApp;
     } catch (error) {
-      toast.error('Failed to create client application');
       console.error('Error creating client app:', error);
+      
+      if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
+      } else {
+        toast.error('Failed to create client application');
+      }
+      
       throw error;
     } finally {
       setIsProcessing(false);
@@ -94,11 +130,17 @@ export const useClientApps = () => {
   }, [api]);
 
   // Update a client app
-  const updateClientApp = useCallback(async (id: string, clientAppData: Partial<ClientAppWithClient>) => {
+  const updateClientApp = useCallback(async (id: string, clientAppData: Partial<ClientApp>) => {
     if (!api) return;
     try {
       setIsProcessing(true);
-      // Assuming there's an updateClientApp method in the API
+      console.log('Updating client app with data:', clientAppData);
+      
+      // Ensure domain is always sent as an array if it's included
+      if (clientAppData.domain && !Array.isArray(clientAppData.domain)) {
+        clientAppData.domain = [clientAppData.domain as string];
+      }
+      
       const updatedClientApp = await api.updateClientApp(id, clientAppData);
       
       // Update local state to reflect changes
@@ -110,8 +152,20 @@ export const useClientApps = () => {
       
       return updatedClientApp;
     } catch (error) {
-      toast.error('Failed to update client application');
       console.error('Error updating client app:', error);
+      
+      if (error.response?.status === 401) {
+        toast.error('Authentication error. Please check your API key or login again.');
+      } else if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
+      } else {
+        toast.error('Failed to update client application');
+      }
+      
       throw error;
     } finally {
       setIsProcessing(false);
@@ -127,7 +181,8 @@ export const useClientApps = () => {
     
     try {
       setIsProcessing(true);
-      // Assuming there's a deleteClientApp method in the API
+      console.log('Deleting client app with ID:', id);
+      
       await api.deleteClientApp(id);
       
       // Update local state to remove deleted client app
@@ -142,8 +197,14 @@ export const useClientApps = () => {
     } catch (error) {
       console.error('Error deleting client app:', error);
       
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
+      if (error.response?.status === 401) {
+        toast.error('Authentication error. Please check your API key or login again.');
+      } else if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
       } else {
         toast.error('Failed to delete client application');
       }
