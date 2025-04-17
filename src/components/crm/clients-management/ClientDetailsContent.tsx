@@ -572,7 +572,7 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
                 <CardContent>
                   <div className="text-2xl font-bold">{reportsSummary.total || 0}</div>
                   <p className="text-xs text-muted-foreground">
-                    All reports submitted by this client
+                    All reports submitted to this client
                   </p>
                 </CardContent>
               </Card>
