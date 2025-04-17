@@ -1,20 +1,13 @@
 // src/app/api/external/omnigateway/reports.ts
-
 import { createOmniGateway } from './index';
-import { ReportsResponse, ReportParams, Report } from './types/reports';
+import { ReportsResponse, ReportParams, Report, ReportStatus } from './types/reports';
 
 export const createReportsApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
-
-  // Add the API key to every request header for consistency
-  api.interceptors.request.use(config => {
-    config.headers['x-api-key'] = apiKey;
-    return config;
-  });
-
+  
   return {
     // Get all reports with optional filtering
-    getReports: async (params: ReportParams = {}) => {
+    getReports: async (params: ReportParams = {}): Promise<ReportsResponse> => {
       const queryParams = new URLSearchParams();
       
       // Handle pagination
@@ -36,8 +29,11 @@ export const createReportsApi = (apiKey: string) => {
       if (params.toDate) queryParams.append('toDate', params.toDate);
       if (params.priority) queryParams.append('priority', params.priority);
       
+      // Include summary by default
+      queryParams.append('includeSummary', 'true');
+      
       const queryString = queryParams.toString();
-      const endpoint = `/reports${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `/api/reports${queryString ? `?${queryString}` : ''}`;
       
       try {
         const { data } = await api.get<ReportsResponse>(endpoint);
@@ -51,7 +47,7 @@ export const createReportsApi = (apiKey: string) => {
     // Get a single report by ID
     getReport: async (id: string): Promise<Report> => {
       try {
-        const { data } = await api.get<Report>(`/reports/${id}`);
+        const { data } = await api.get<Report>(`/api/reports/${id}`);
         return data;
       } catch (error) {
         console.error(`Error fetching report ${id}:`, error);
@@ -60,9 +56,9 @@ export const createReportsApi = (apiKey: string) => {
     },
     
     // Update a report status
-    updateReportStatus: async (id: string, status: string): Promise<Report> => {
+    updateReportStatus: async (id: string, status: ReportStatus): Promise<Report> => {
       try {
-        const { data } = await api.patch<Report>(`/reports/${id}/status`, { status });
+        const { data } = await api.put<Report>(`/api/reports/${id}/status`, { status });
         return data;
       } catch (error) {
         console.error(`Error updating report status ${id}:`, error);
@@ -73,7 +69,7 @@ export const createReportsApi = (apiKey: string) => {
     // Update a report
     updateReport: async (id: string, reportData: Partial<Report>): Promise<Report> => {
       try {
-        const { data } = await api.put<Report>(`/reports/${id}`, reportData);
+        const { data } = await api.put<Report>(`/api/reports/${id}`, reportData);
         return data;
       } catch (error) {
         console.error(`Error updating report ${id}:`, error);
@@ -84,7 +80,7 @@ export const createReportsApi = (apiKey: string) => {
     // Delete a report
     deleteReport: async (id: string): Promise<void> => {
       try {
-        await api.delete(`/reports/${id}`);
+        await api.delete(`/api/reports/${id}`);
       } catch (error) {
         console.error(`Error deleting report ${id}:`, error);
         throw error;
@@ -97,13 +93,35 @@ export const createReportsApi = (apiKey: string) => {
       if (clientAppId) queryParams.append('clientAppId', clientAppId);
       
       const queryString = queryParams.toString();
-      const endpoint = `/reports/summary${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `/api/reports/summary${queryString ? `?${queryString}` : ''}`;
       
       try {
         const { data } = await api.get<ReportsResponse>(endpoint);
         return data;
       } catch (error) {
         console.error('Error fetching reports summary:', error);
+        throw error;
+      }
+    },
+    
+    // Get summary data for reports by client ID
+    getReportsSummaryByClientId: async (clientId: string): Promise<ReportsResponse> => {
+      try {
+        const { data } = await api.get<ReportsResponse>(`/api/reports/summary/client/${clientId}`);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching reports summary for client ${clientId}:`, error);
+        throw error;
+      }
+    },
+    
+    // Get WP Reports data for a client
+    getWPReportsData: async (clientId: string): Promise<any> => {
+      try {
+        const { data } = await api.get(`/api/reports/wp-reports/${clientId}`);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching WP reports data for client ${clientId}:`, error);
         throw error;
       }
     }

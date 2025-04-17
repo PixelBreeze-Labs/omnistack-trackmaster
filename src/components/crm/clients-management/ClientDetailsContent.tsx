@@ -42,109 +42,295 @@ import {
   MessageSquare,
   Shield,
   FileBarChart2,
-  LockKeyhole
+  LockKeyhole,
+  FileText,
+  Clock,
+  CheckCircle2,
+  Bell,
+  Archive
 } from "lucide-react";
 import { useClients } from "@/hooks/useClients";
 import { useClientApps } from "@/hooks/useClientApps";
+import { useReports } from "@/hooks/useReports";
 import { toast } from "react-hot-toast";
 import { Client } from "@/app/api/external/omnigateway/types/clients";
 import { ClientApp } from "@/app/api/external/omnigateway/types/client-apps";
+import { ReportsSummary } from "@/app/api/external/omnigateway/types/reports";
 
 interface ClientDetailsContentProps {
   clientId: string;
 }
 
-// Special Feature Cards based on client ID
-const SpecialFeatureCards = ({ clientId }) => {
+// Define special features interface
+interface SpecialFeatures {
+  wpReports?: {
+    activeForms: number;
+    secureReports: number;
+    lastReportDate: string | null;
+    reportCounts: {
+      total: number;
+      pending: number;
+      resolved: number;
+    };
+  };
+  wpPolls?: {
+    activePolls: number;
+    responses: number;
+    lastPollDate: string;
+    mostActivePoll: string;
+  };
+}
+
+// Special Feature Cards based on client ID and special features data
+const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, specialFeatures?: SpecialFeatures }) => {
+  if (!specialFeatures) {
+    // Use hardcoded values when specialFeatures is not available
+    if (clientId === "67feac2cd5060f88345d0056") {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileQuestion className="h-5 w-5 text-blue-500" />
+                WP Polls Plugin
+              </CardTitle>
+              <CardDescription>Manage polls and questionnaires</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
+                    <PieChart className="h-8 w-8 text-blue-500 mb-2" />
+                    <span className="text-sm font-medium">12</span>
+                    <span className="text-xs text-muted-foreground">Active Polls</span>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
+                    <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
+                    <span className="text-sm font-medium">1,254</span>
+                    <span className="text-xs text-muted-foreground">Responses</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Last poll created:</span>
+                    <span className="font-medium">Apr 12, 2025</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Most active poll:</span>
+                    <span className="font-medium">Reader Satisfaction</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>
+                Manage Polls
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Button>
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Shield className="h-5 w-5 text-purple-500" />
+                WP Secure Reports Plugin
+              </CardTitle>
+              <CardDescription>Manage confidential reports</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-purple-50 rounded-lg p-3 flex flex-col items-center">
+                    <FileBarChart2 className="h-8 w-8 text-purple-500 mb-2" />
+                    <span className="text-sm font-medium">8</span>
+                    <span className="text-xs text-muted-foreground">Active Forms</span>
+                  </div>
+                  <div className="bg-indigo-50 rounded-lg p-3 flex flex-col items-center">
+                    <LockKeyhole className="h-8 w-8 text-indigo-500 mb-2" />
+                    <span className="text-sm font-medium">48</span>
+                    <span className="text-xs text-muted-foreground">Secure Reports</span>
+                  </div>
+                </div>
+                <Badge className="bg-green-500">
+                  <Check className="mr-1 h-3 w-3" />
+                  Secure Encryption Enabled
+                </Badge>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Last report received:</span>
+                    <span className="font-medium">Apr 16, 2025</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>
+                View Secure Reports
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      );
+    } else if (clientId === "680027c0860084f81c6090cd") {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileQuestion className="h-5 w-5 text-blue-500" />
+                WP Polls Plugin
+              </CardTitle>
+              <CardDescription>Manage polls and questionnaires</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
+                    <BarChart3 className="h-8 w-8 text-blue-500 mb-2" />
+                    <span className="text-sm font-medium">4</span>
+                    <span className="text-xs text-muted-foreground">Active Polls</span>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
+                    <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
+                    <span className="text-sm font-medium">387</span>
+                    <span className="text-xs text-muted-foreground">Responses</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Last poll created:</span>
+                    <span className="font-medium">Apr 9, 2025</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Most active poll:</span>
+                    <span className="font-medium">Customer Experience</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>
+                Manage Polls
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      );
+    }
+    
+    return null;
+  }
+  
+  // Format date helper
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+  
+  // Use data from specialFeatures
+  const polls = specialFeatures.wpPolls;
+  const reports = specialFeatures.wpReports;
+  
   if (clientId === "67feac2cd5060f88345d0056") {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <FileQuestion className="h-5 w-5 text-blue-500" />
-              WP Polls Plugin
-            </CardTitle>
-            <CardDescription>Manage polls and questionnaires</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
-                  <PieChart className="h-8 w-8 text-blue-500 mb-2" />
-                  <span className="text-sm font-medium">12</span>
-                  <span className="text-xs text-muted-foreground">Active Polls</span>
+        {polls && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileQuestion className="h-5 w-5 text-blue-500" />
+                WP Polls Plugin
+              </CardTitle>
+              <CardDescription>Manage polls and questionnaires</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
+                    <PieChart className="h-8 w-8 text-blue-500 mb-2" />
+                    <span className="text-sm font-medium">{polls.activePolls}</span>
+                    <span className="text-xs text-muted-foreground">Active Polls</span>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
+                    <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
+                    <span className="text-sm font-medium">{polls.responses.toLocaleString()}</span>
+                    <span className="text-xs text-muted-foreground">Responses</span>
+                  </div>
                 </div>
-                <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
-                  <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
-                  <span className="text-sm font-medium">1,254</span>
-                  <span className="text-xs text-muted-foreground">Responses</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Last poll created:</span>
+                    <span className="font-medium">{formatDate(polls.lastPollDate)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Most active poll:</span>
+                    <span className="font-medium">{polls.mostActivePoll}</span>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Last poll created:</span>
-                  <span className="font-medium">Apr 12, 2025</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Most active poll:</span>
-                  <span className="font-medium">Reader Satisfaction</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="border-t px-6 py-4">
-            <Button>
-              Manage Polls
-              <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-            </Button>
-          </CardFooter>
-        </Card>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>
+                Manage Polls
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-purple-500" />
-              WP Secure Reports Plugin
-            </CardTitle>
-            <CardDescription>Manage confidential reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-purple-50 rounded-lg p-3 flex flex-col items-center">
-                  <FileBarChart2 className="h-8 w-8 text-purple-500 mb-2" />
-                  <span className="text-sm font-medium">8</span>
-                  <span className="text-xs text-muted-foreground">Active Forms</span>
+        {reports && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Shield className="h-5 w-5 text-purple-500" />
+                WP Secure Reports Plugin
+              </CardTitle>
+              <CardDescription>Manage confidential reports</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-purple-50 rounded-lg p-3 flex flex-col items-center">
+                    <FileBarChart2 className="h-8 w-8 text-purple-500 mb-2" />
+                    <span className="text-sm font-medium">1</span>
+                    <span className="text-xs text-muted-foreground">Active Forms</span>
+                  </div>
+                  <div className="bg-indigo-50 rounded-lg p-3 flex flex-col items-center">
+                    <LockKeyhole className="h-8 w-8 text-indigo-500 mb-2" />
+                    <span className="text-sm font-medium">{reports.secureReports}</span>
+                    <span className="text-xs text-muted-foreground">Secure Reports</span>
+                  </div>
                 </div>
-                <div className="bg-indigo-50 rounded-lg p-3 flex flex-col items-center">
-                  <LockKeyhole className="h-8 w-8 text-indigo-500 mb-2" />
-                  <span className="text-sm font-medium">48</span>
-                  <span className="text-xs text-muted-foreground">Secure Reports</span>
+                <Badge className="bg-green-500">
+                  <Check className="mr-1 h-3 w-3" />
+                  Secure Encryption Enabled
+                </Badge>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Last report received:</span>
+                    <span className="font-medium">{formatDate(reports.lastReportDate)}</span>
+                  </div>
                 </div>
               </div>
-              <Badge className="bg-green-500">
-                <Check className="mr-1 h-3 w-3" />
-                Secure Encryption Enabled
-              </Badge>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Last report received:</span>
-                  <span className="font-medium">Apr 16, 2025</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="border-t px-6 py-4">
-            <Button>
-              View Secure Reports
-              <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-            </Button>
-          </CardFooter>
-        </Card>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>
+                View Secure Reports
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     );
-  } else if (clientId === "680027c0860084f81c6090cd") {
+  } else if (clientId === "680027c0860084f81c6090cd" && polls) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <Card>
@@ -160,23 +346,23 @@ const SpecialFeatureCards = ({ clientId }) => {
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
                   <BarChart3 className="h-8 w-8 text-blue-500 mb-2" />
-                  <span className="text-sm font-medium">4</span>
+                  <span className="text-sm font-medium">{polls.activePolls}</span>
                   <span className="text-xs text-muted-foreground">Active Polls</span>
                 </div>
                 <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
                   <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
-                  <span className="text-sm font-medium">387</span>
+                  <span className="text-sm font-medium">{polls.responses}</span>
                   <span className="text-xs text-muted-foreground">Responses</span>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Last poll created:</span>
-                  <span className="font-medium">Apr 9, 2025</span>
+                  <span className="font-medium">{formatDate(polls.lastPollDate)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Most active poll:</span>
-                  <span className="font-medium">Customer Experience</span>
+                  <span className="font-medium">{polls.mostActivePoll}</span>
                 </div>
               </div>
             </div>
@@ -194,6 +380,7 @@ const SpecialFeatureCards = ({ clientId }) => {
   
   return null;
 };
+
 // Delete Client Modal Component
 const DeleteClientModal = ({ 
   client, 
@@ -247,17 +434,34 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
   const router = useRouter();
   const { getClient, deleteClient, isLoading, isProcessing } = useClients();
   const { fetchClientApps, clientApps, isLoading: isAppsLoading } = useClientApps();
+  const { fetchReportsSummaryByClientId, summary, isLoading: isReportsLoading } = useReports();
+  
   const [client, setClient] = useState<Client | null>(null);
   const [clientApplications, setClientApplications] = useState<ClientApp[]>([]);
+  const [specialFeatures, setSpecialFeatures] = useState<SpecialFeatures | undefined>(undefined);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [reportsSummary, setReportsSummary] = useState<ReportsSummary | null>(null);
 
   useEffect(() => {
     const loadClient = async () => {
       try {
-        const clientData = await getClient(clientId);
-        setClient(clientData);
+        const response = await getClient(clientId);
+        
+        // Handle the updated response format with special features
+        if (response?.client) {
+          setClient(response?.client);
+          
+          // Set special features if available
+          if (response?.specialFeatures) {
+            setSpecialFeatures(response?.specialFeatures);
+          }
+        } else {
+          // Fallback for backward compatibility
+          setClient(response);
+        }
         
         // Fetch client apps associated with this client
+        const clientData = response?.client || response;
         if (clientData?.clientAppIds?.length > 0) {
           // Here we'd ideally filter client apps by client, but for now we'll just fetch all
           // and filter on the client side since we don't have a direct endpoint for this
@@ -266,6 +470,17 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
             clientData.clientAppIds.includes(app._id)
           ) || [];
           setClientApplications(filteredApps);
+        }
+        
+        // Fetch reports summary for this client
+        try {
+          const reportsResponse = await fetchReportsSummaryByClientId(clientId);
+          if (reportsResponse && reportsResponse.summary) {
+            setReportsSummary(reportsResponse.summary);
+          }
+        } catch (error) {
+          console.error("Error fetching reports summary:", error);
+          // Continue without reports summary if there's an error
         }
       } catch (error) {
         console.error("Error loading client details:", error);
@@ -276,7 +491,7 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
     if (clientId) {
       loadClient();
     }
-  }, [clientId, getClient, fetchClientApps]);
+  }, [clientId, getClient, fetchClientApps, fetchReportsSummaryByClientId]);
 
   const handleBackClick = () => {
     router.push("/crm/platform/os-clients");
@@ -284,6 +499,10 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
 
   const handleCAClick = () => {
     router.push("/crm/platform/os-client-apps");
+  };
+
+  const handleViewReports = () => {
+    router.push(`/crm/platform/os-clients/${clientId}/wp-reports`);
   };
 
   const handleDeleteClick = () => {
@@ -345,6 +564,14 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
         </div>
         <div className="flex items-center gap-2">
           <Button 
+            variant="outline"
+            size="sm" 
+            onClick={handleViewReports}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            View Reports
+          </Button>
+          <Button 
             className="bg-red-600 hover:bg-red-700"
             size="sm" 
             disabled={isProcessing} 
@@ -360,6 +587,7 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="applications">Applications ({clientApplications.length})</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="configuration">Configuration</TabsTrigger>
         </TabsList>
         
@@ -469,6 +697,60 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
             </CardContent>
           </Card>
 
+          {/* Report Summary Cards - Added for all clients */}
+          {reportsSummary && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportsSummary.total || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    All reports submitted by this client
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                  <Clock className="h-4 w-4 text-amber-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportsSummary.byStatus?.pending || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Reports awaiting review
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportsSummary.byStatus?.resolved || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Successfully resolved reports
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+                  <Bell className="h-4 w-4 text-blue-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportsSummary.recentActivity?.lastWeek || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Reports in the last 7 days
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Integrations Card */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
@@ -543,7 +825,7 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
           </div>
 
           {/* Special Feature Cards - Only render for specific client IDs */}
-  <SpecialFeatureCards clientId={clientId} />
+          <SpecialFeatureCards clientId={clientId} specialFeatures={specialFeatures} />
         </TabsContent>
 
         {/* Applications Tab */}
@@ -618,6 +900,117 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Reports Tab */}
+        <TabsContent value="reports" className="space-y-4">
+          {/* Reports Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Reports Overview</CardTitle>
+              <CardDescription>Summary of client reports and activity</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isReportsLoading ? (
+                <div className="flex justify-center py-8">
+                  <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : !reportsSummary ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No Reports Data</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    This client doesn't have any reports data yet.
+                  </p>
+                  <Button onClick={handleViewReports}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Reports
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Status Summary */}
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">Report Status</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div className="bg-amber-50 rounded-lg p-3 flex flex-col items-center">
+                        <Clock className="h-6 w-6 text-amber-500 mb-1" />
+                        <span className="text-lg font-medium">{reportsSummary.byStatus?.pending || 0}</span>
+                        <span className="text-xs text-muted-foreground">Pending</span>
+                      </div>
+                      <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
+                        <AlertTriangle className="h-6 w-6 text-blue-500 mb-1" />
+                        <span className="text-lg font-medium">{reportsSummary.byStatus?.in_progress || 0}</span>
+                        <span className="text-xs text-muted-foreground">In Progress</span>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
+                        <CheckCircle2 className="h-6 w-6 text-green-500 mb-1" />
+                        <span className="text-lg font-medium">{reportsSummary.byStatus?.resolved || 0}</span>
+                        <span className="text-xs text-muted-foreground">Resolved</span>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 flex flex-col items-center">
+                        <FileText className="h-6 w-6 text-gray-500 mb-1" />
+                        <span className="text-lg font-medium">{reportsSummary.byStatus?.closed || 0}</span>
+                        <span className="text-xs text-muted-foreground">Closed</span>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-3 flex flex-col items-center">
+                        <Archive className="h-6 w-6 text-purple-500 mb-1" />
+                        <span className="text-lg font-medium">{reportsSummary.byStatus?.archived || 0}</span>
+                        <span className="text-xs text-muted-foreground">Archived</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Priority Summary */}
+                  {reportsSummary.byPriority && (
+                    <div>
+                      <h3 className="text-sm font-medium mb-3">Report Priority</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
+                          <span className="text-lg font-medium">{reportsSummary.byPriority.low}</span>
+                          <span className="text-xs text-muted-foreground">Low Priority</span>
+                        </div>
+                        <div className="bg-amber-50 rounded-lg p-3 flex flex-col items-center">
+                          <span className="text-lg font-medium">{reportsSummary.byPriority.medium}</span>
+                          <span className="text-xs text-muted-foreground">Medium Priority</span>
+                        </div>
+                        <div className="bg-red-50 rounded-lg p-3 flex flex-col items-center">
+                          <span className="text-lg font-medium">{reportsSummary.byPriority.high}</span>
+                          <span className="text-xs text-muted-foreground">High Priority</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Recent Activity */}
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">Recent Activity</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
+                        <span className="text-lg font-medium">{reportsSummary.recentActivity?.last24Hours || 0}</span>
+                        <span className="text-xs text-muted-foreground">Last 24 Hours</span>
+                      </div>
+                      <div className="bg-indigo-50 rounded-lg p-3 flex flex-col items-center">
+                        <span className="text-lg font-medium">{reportsSummary.recentActivity?.lastWeek || 0}</span>
+                        <span className="text-xs text-muted-foreground">Last 7 Days</span>
+                      </div>
+                      <div className="bg-violet-50 rounded-lg p-3 flex flex-col items-center">
+                        <span className="text-lg font-medium">{reportsSummary.recentActivity?.lastMonth || 0}</span>
+                        <span className="text-xs text-muted-foreground">Last 30 Days</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={handleViewReports}>
+                      <FileText className="mr-2 h-4 w-4" />
+                      View All Reports
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -733,8 +1126,8 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
         isDeleting={isProcessing}
       />
 
-       {/* Add empty space div at the bottom */}
-    <div className="h-8"></div>
+      {/* Add empty space div at the bottom */}
+      <div className="h-8"></div>
     </div>
   );
 }

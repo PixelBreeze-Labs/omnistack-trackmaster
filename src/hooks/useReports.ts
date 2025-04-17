@@ -82,6 +82,44 @@ export const useReports = () => {
       setIsLoading(false);
     }
   }, [api]);
+  
+  // Get reports summary by client ID
+  const fetchReportsSummaryByClientId = useCallback(async (clientId: string) => {
+    if (!api) return null;
+    try {
+      setIsLoading(true);
+      const response = await api.getReportsSummaryByClientId(clientId);
+      
+      // Update summary state if available
+      if (response.summary) {
+        setSummary(response.summary);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error fetching client reports summary:', error);
+      toast.error('Failed to fetch client reports summary');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api]);
+
+  // Get WP Reports data for a client
+  const fetchWPReportsData = useCallback(async (clientId: string) => {
+    if (!api) return null;
+    try {
+      setIsLoading(true);
+      const response = await api.getWPReportsData(clientId);
+      return response;
+    } catch (error) {
+      console.error('Error fetching WP reports data:', error);
+      toast.error('Failed to fetch WP reports data');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api]);
 
   // Get a single report by ID
   const getReport = useCallback(async (id: string) => {
@@ -232,6 +270,8 @@ export const useReports = () => {
     summary,
     fetchReports,
     fetchReportsSummary,
+    fetchReportsSummaryByClientId, // New method
+    fetchWPReportsData, // New method
     getReport,
     updateReportStatus,
     updateReport,
