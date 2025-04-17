@@ -46,10 +46,7 @@ const [isDashboardLoading, setIsDashboardLoading] = useState(false);
     if (!api) return;
     try {
       setIsLoading(true);
-      console.log("Fetching client apps with params:", params);
       const response = await api.getClientApps(params);
-      
-      console.log('Client Apps API response:', response);
       
       setClientApps(response.data);
       setTotalItems(response.total);
