@@ -125,7 +125,7 @@ export function StudioDashboardContent() {
           </Button>
           <Button 
             style={{ backgroundColor: "#2A8E9E" }}
-            onClick={() => router.push('/client-apps/new')}
+            onClick={() => router.push('/crm/platform/os-client-apps')}
           >
             <Plus className="h-4 w-4 mr-2" />
             New Application
@@ -146,7 +146,7 @@ export function StudioDashboardContent() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {keyMetrics.map((metric) => (
               <Card key={metric.title}>
-                <CardContent className="p-6">
+                <CardContent className="p-2s">
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <p className="text-sm font-medium text-muted-foreground">{metric.title}</p>
@@ -233,7 +233,7 @@ export function StudioDashboardContent() {
                   variant="ghost" 
                   size="sm" 
                   className="self-start"
-                  onClick={() => router.push('/client-apps')}
+                  onClick={() => router.push('/crm/platform/os-client-apps')}
                 >
                   View All
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -298,7 +298,7 @@ export function StudioDashboardContent() {
                 variant="ghost" 
                 size="sm" 
                 className="self-start"
-                onClick={() => router.push('/clients')}
+                onClick={() => router.push('/crm/platform/os-clients')}
               >
                 View All Clients
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -326,7 +326,7 @@ export function StudioDashboardContent() {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => router.push(`/clients/${client._id}`)}
+                          onClick={() => router.push(`/crm/platform/os-clients/${client._id}`)}
                         >
                           <ExternalLink className="h-4 w-4 mr-1" />
                           View
@@ -342,7 +342,7 @@ export function StudioDashboardContent() {
           {/* Quick Actions */}
           <div className="grid gap-4 md:grid-cols-3">
             <Card className="relative overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-2">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-primary/10">
                     <Server className="h-6 w-6 text-primary" />
@@ -366,7 +366,7 @@ export function StudioDashboardContent() {
             </Card>
 
             <Card className="relative overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-2">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-primary/10">
                     <Building className="h-6 w-6 text-primary" />
@@ -390,7 +390,7 @@ export function StudioDashboardContent() {
             </Card>
 
             <Card className="relative overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-2">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-primary/10">
                     <FileCode className="h-6 w-6 text-primary" />
@@ -405,13 +405,13 @@ export function StudioDashboardContent() {
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   <Button 
                     variant="outline" 
-                    onClick={() => router.push('/clients/new')}
+                    onClick={() => router.push('/crm/platform/os-clients')}
                   >
                     <Briefcase className="h-4 w-4 mr-1" />
                     New Client
                   </Button>
                   <Button 
-                    onClick={() => router.push('/client-apps/new')}
+                    onClick={() => router.push('/crm/platform/os-clients')}
                   >
                     <Monitor className="h-4 w-4 mr-1" />
                     New App
