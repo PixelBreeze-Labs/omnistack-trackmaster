@@ -194,7 +194,7 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
         )}
       </div>
     );
-  } else if (clientId === "680027c0860084f81c6090cd" && polls) {
+  } else if (clientId === "680027c0860084f81c6090cd") {
     return (
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <Card>
@@ -451,7 +451,7 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="applications">Applications ({clientApplications.length})</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
+          {clientId !== "680027c0860084f81c6090cd" && <TabsTrigger value="reports">Reports</TabsTrigger>}
           <TabsTrigger value="configuration">Configuration</TabsTrigger>
         </TabsList>
         
