@@ -29,6 +29,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+
 import {
   Briefcase,
   Search,
@@ -349,11 +351,13 @@ const ClientActionSelect = ({
   client, 
   onDeleteClient, 
   onToggleStatus,
+  onViewDetails,
   isProcessing = false 
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isToggleStatusModalOpen, setIsToggleStatusModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState("");
+
 
   const handleDelete = async (client) => {
     await onDeleteClient(client);
@@ -363,9 +367,13 @@ const ClientActionSelect = ({
     await onToggleStatus(client);
   };
 
+
   // Watch for changes in the selected action
   useEffect(() => {
-    if (selectedAction === "delete") {
+    if (selectedAction === "view-details") {
+      onViewDetails(client);
+      setSelectedAction("");
+    } else if (selectedAction === "delete") {
       setIsDeleteModalOpen(true);
       setSelectedAction("");
     } else if (selectedAction === "toggle-status") {
@@ -380,7 +388,7 @@ const ClientActionSelect = ({
       toast.success("Client ID copied to clipboard");
       setSelectedAction("");
     }
-  }, [selectedAction, client]);
+  }, [selectedAction, client, onViewDetails]);
 
   return (
     <>
@@ -391,6 +399,7 @@ const ClientActionSelect = ({
         onChange={(e) => setSelectedAction(e.target.value)}
         options={[
           { value: "", label: "Actions" },
+          { value: "view-details", label: "View Details" },
           { value: "copy-api-key", label: "Copy API Key" },
           { value: "copy-id", label: "Copy ID" },
           { value: "toggle-status", label: client.isActive ? "Deactivate" : "Activate" },
@@ -436,6 +445,7 @@ export function ClientsContent() {
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const router = useRouter();
 
   // Memoize the fetch parameters to prevent unnecessary re-renders
   const fetchParams = useCallback(() => ({
@@ -472,6 +482,10 @@ export function ClientsContent() {
       console.error("Error creating client:", error);
       toast.error("Failed to create client");
     }
+  };
+
+  const handleViewDetails = (client) => {
+    router.push(`/crm/platform/os-clients/${client._id}`);
   };
 
   const handleDeleteClient = async (client) => {
@@ -807,15 +821,16 @@ export function ClientsContent() {
                       {formatDate(client.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="w-36">
-                        <ClientActionSelect
-                          client={client}
-                          onDeleteClient={handleDeleteClient}
-                          onToggleStatus={handleToggleStatus}
-                          isProcessing={isProcessing}
-                        />
-                      </div>
-                    </TableCell>
+  <div className="w-36">
+    <ClientActionSelect
+      client={client}
+      onDeleteClient={handleDeleteClient}
+      onToggleStatus={handleToggleStatus}
+      onViewDetails={handleViewDetails}
+      isProcessing={isProcessing}
+    />
+  </div>
+</TableCell>
                   </TableRow>
                 ))
               )}
