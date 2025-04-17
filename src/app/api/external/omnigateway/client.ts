@@ -180,6 +180,16 @@ export const createOmniStackClientApi = (apiKey: string) => {
         console.error(`Error deleting client app ${id}:`, error);
         throw error;
       }
-    }
+    },
+
+    getDashboardData: async () => {
+      try {
+        const { data } = await api.get('/client-apps/dashboard');
+        return data;
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        throw error;
+      }
+    },
   };
 };

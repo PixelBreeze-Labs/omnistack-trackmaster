@@ -116,7 +116,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
             {
               id: "3-1",
               title: "Client Apps",
-              path: `/crm/platform/os-clients-apps`,
+              path: `/crm/platform/os-client-apps`,
               icon: <Building2 className="w-4 h-4"/>
             },
             {
