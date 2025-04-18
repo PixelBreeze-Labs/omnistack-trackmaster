@@ -97,9 +97,11 @@ getPollsByClientId: async (clientId: string, params: PollParams = {}): Promise<P
     },
     
     // Update a poll
-    updatePoll: async (id: string, pollData: Partial<Poll>): Promise<Poll> => {
+    updatePoll: async (id: string, pollData: Partial<Poll>, clientId?: string): Promise<Poll> => {
       try {
-        const { data } = await api.put<Poll>(`/polls/${id}`, pollData);
+        // Add clientId as a query parameter if provided
+        const queryParams = clientId ? `?clientId=${clientId}` : '';
+        const { data } = await api.put<Poll>(`/polls/${id}${queryParams}`, pollData);
         return data;
       } catch (error) {
         console.error(`Error updating poll ${id}:`, error);
@@ -108,9 +110,11 @@ getPollsByClientId: async (clientId: string, params: PollParams = {}): Promise<P
     },
     
     // Delete a poll
-    deletePoll: async (id: string): Promise<void> => {
+    deletePoll: async (id: string, clientId?: string): Promise<void> => {
       try {
-        await api.delete(`/polls/${id}`);
+        // Add clientId as a query parameter if provided
+        const queryParams = clientId ? `?clientId=${clientId}` : '';
+        await api.delete(`/polls/${id}${queryParams}`);
       } catch (error) {
         console.error(`Error deleting poll ${id}:`, error);
         throw error;

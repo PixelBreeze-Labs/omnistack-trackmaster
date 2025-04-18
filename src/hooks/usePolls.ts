@@ -75,11 +75,11 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
   }, [pollsApi]);
 
   // Update a poll
-  const updatePoll = useCallback(async (id: string, pollData: Partial<Poll>) => {
+const updatePoll = useCallback(async (id: string, pollData: Partial<Poll>, clientId?: string) => {
     if (!pollsApi) return null;
     setIsProcessing(true);
     try {
-      const updatedPoll = await pollsApi?.updatePoll(id, pollData);
+      const updatedPoll = await pollsApi?.updatePoll(id, pollData, clientId);
       setCurrentPoll(updatedPoll);
       
       // Update the poll in the list if it exists
@@ -99,13 +99,13 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
       setIsProcessing(false);
     }
   }, [pollsApi]);
-
+  
   // Delete a poll
-  const deletePoll = useCallback(async (id: string) => {
+  const deletePoll = useCallback(async (id: string, clientId?: string) => {
     if (!pollsApi) return null;
     setIsProcessing(true);
     try {
-      await pollsApi?.deletePoll(id);
+      await pollsApi?.deletePoll(id, clientId);
       
       // Remove the poll from the list
       setPolls(prevPolls => prevPolls.filter(poll => poll._id !== id));

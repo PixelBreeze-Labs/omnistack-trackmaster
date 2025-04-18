@@ -172,8 +172,9 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
     }
     
     try {
-      await updatePoll(pollId, formData);
-      toast.success("Poll updated successfully");
+      // Pass the clientId to the updatePoll method
+      await updatePoll(pollId, formData, clientId);
+    //   toast  .success("Poll updated successfully");
       setHasChanges(false);
       router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
     } catch (error) {
@@ -189,7 +190,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
         router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
       }
     } else {
-      router.push(`/crm/platform/os-clients/${clientId}/polls`);
+      router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
     }
   };
 
@@ -227,7 +228,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
         </div>
       </div>
 
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Main edit area */}
           <div className="lg:col-span-2 space-y-6">
@@ -838,7 +839,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
               >
                 Cancel
               </Button>
-              <Button  onClick={handleSubmit} type="submit" disabled={isProcessing}>
+              <Button  onClick={handleSubmit} type="button" disabled={isProcessing}>
                 {isProcessing ? (
                   <>
                     <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
