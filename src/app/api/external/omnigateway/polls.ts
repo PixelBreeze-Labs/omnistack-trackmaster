@@ -39,6 +39,42 @@ export const createPollsApi = (apiKey: string) => {
       }
     },
     
+    // Get all polls for a specific client
+    getPollsByClientId: async (clientId: string, params: PollParams = {}): Promise<PollsResponse> => {
+      const queryParams = new URLSearchParams();
+      
+      // Add client ID
+      queryParams.append('clientId', clientId);
+      
+      // Handle pagination
+      if (params.page !== undefined && params.limit !== undefined) {
+        const skip = (params.page - 1) * params.limit;
+        queryParams.append('skip', skip.toString());
+        queryParams.append('limit', params.limit.toString());
+      } else {
+        if (params.skip !== undefined) queryParams.append('skip', params.skip.toString());
+        if (params.limit !== undefined) queryParams.append('limit', params.limit.toString());
+      }
+      
+      // Add other filters
+      if (params.search) queryParams.append('search', params.search);
+      if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+      if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+      if (params.fromDate) queryParams.append('fromDate', params.fromDate);
+      if (params.toDate) queryParams.append('toDate', params.toDate);
+      
+      const queryString = queryParams.toString();
+      const endpoint = `/api/polls${queryString ? `?${queryString}` : ''}`;
+      
+      try {
+        const { data } = await api.get<PollsResponse>(endpoint);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching polls for client ${clientId}:`, error);
+        throw error;
+      }
+    },
+    
     // Get a single poll by ID
     getPoll: async (id: string): Promise<Poll> => {
       try {
@@ -100,6 +136,17 @@ export const createPollsApi = (apiKey: string) => {
         return data;
       } catch (error) {
         console.error('Error fetching poll stats:', error);
+        throw error;
+      }
+    },
+    
+    // Get stats for polls for a specific client
+    getPollStatsByClientId: async (clientId: string): Promise<PollStatsResponse> => {
+      try {
+        const { data } = await api.get<PollStatsResponse>(`/api/polls/stats?clientId=${clientId}`);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching poll stats for client ${clientId}:`, error);
         throw error;
       }
     }
