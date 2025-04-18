@@ -88,6 +88,10 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
     const handleViewReports = () => {
     router.push(`/crm/platform/os-clients/${clientId}/wp-reports`);
   };
+
+  const handleViewPolls = () => {
+    router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
+  };
   // Format date helper
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return "N/A";
@@ -141,7 +145,7 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
               </div>
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
-              <Button>
+              <Button onClick={handleViewPolls}>
                 Manage Polls
                 <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
               </Button>
@@ -231,8 +235,8 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
               </div>
             </div>
           </CardContent>
-          <CardFooter className="border-t px-6 py-4">
-            <Button>
+          <CardFooter className="border-t px-6 py-4" onClick={handleViewPolls}>
+            <Button >
               Manage Polls
               <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
             </Button>
@@ -368,6 +372,12 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
   const handleViewReports = () => {
     router.push(`/crm/platform/os-clients/${clientId}/wp-reports`);
   };
+
+
+  const handleViewPolls = () => {
+    router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
+  };
+
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
