@@ -227,11 +227,11 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form>
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Main edit area */}
           <div className="lg:col-span-2 space-y-6">
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-4">
                 <TabsTrigger value="general">General</TabsTrigger>
                 <TabsTrigger value="options">Options</TabsTrigger>
@@ -838,7 +838,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isProcessing}>
+              <Button  onClick={handleSubmit} type="submit" disabled={isProcessing}>
                 {isProcessing ? (
                   <>
                     <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />

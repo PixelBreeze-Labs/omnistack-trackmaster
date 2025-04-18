@@ -411,7 +411,7 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
                 <TableHead>Title</TableHead>
                 <TableHead>Options</TableHead>
                 <TableHead>Votes</TableHead>
-                <TableHead>WordPress ID</TableHead>
+                {/* <TableHead>WordPress ID</TableHead> */}
                 <TableHead>Created</TableHead>
                 <TableHead>Features</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -462,7 +462,7 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
                         {poll.options.reduce((sum, option) => sum + option.votes, 0)}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       {poll.wordpressId ? (
                         <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
                           ID: {poll.wordpressId}
@@ -472,7 +472,7 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
                           Not Connected
                         </Badge>
                       )}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <div className="text-sm">
                         <DateDisplay dateString={poll.createdAt} />
