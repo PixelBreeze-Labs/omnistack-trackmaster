@@ -102,10 +102,10 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
             setClientName(client.name);
           }
         }
-
-        // Load poll data
+  
+        // Load poll data with the clientId
         if (pollId) {
-          const pollData = await fetchPoll(pollId);
+          const pollData = await fetchPoll(pollId, clientId);
           setPoll(pollData);
           setFormData(pollData);
         }
@@ -114,7 +114,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
         toast.error("Failed to load poll data");
       }
     };
-
+  
     loadClientAndPoll();
   }, [clientId, pollId, getClient, fetchPoll]);
 

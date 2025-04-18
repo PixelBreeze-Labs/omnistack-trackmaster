@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Poll } from '@/app/api/external/omnigateway/types/polls';
 import { Button } from '@/components/ui/button';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, ChevronLeft, BarChart2 } from 'lucide-react';
 
 interface PollPreviewProps {
   poll: Poll;
@@ -97,45 +97,35 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
         </Button>
       </div>
 
-      {/* Poll container */}
+      {/* Poll container - matches WordPress preview structure */}
       <div 
-        className="rounded-lg p-6 shadow-md w-full"
+        className="rounded-lg p-6 shadow-md w-full max-w-[600px] border border-gray-200"
         style={{ 
           backgroundColor: styles.background,
-          color: styles.text
+          color: styles.text,
+          borderColor: isDarkMode ? '#444' : '#eaeaea'
         }}
       >
-        {/* Poll header */}
-        <div className="mb-4">
-          <h3 className="text-xl font-bold mb-2">{poll.title}</h3>
-          {poll.description && (
-            <p className="text-sm mb-4">{poll.description}</p>
-          )}
-        </div>
-
-        {/* Poll options */}
         {!hasVoted ? (
-          <div className="space-y-3">
-            {poll.options.map((option, index) => (
-              <div 
-                key={index}
-                className={`p-3 rounded-md cursor-pointer transition-colors ${
-                  selectedOption === index ? 'border-2' : 'border'
-                }`}
-                style={{ 
-                  backgroundColor: styles.optionBackground,
-                  borderColor: selectedOption === index ? styles.radioCheckedBorder : styles.radioBorder,
-                  transition: 'background-color 0.2s, border-color 0.2s'
-                }}
-                onClick={() => setSelectedOption(index)}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = styles.optionHover;
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = styles.optionBackground;
-                }}
-              >
-                <div className="flex items-center">
+          <div className="poll-preview-voting">
+            {/* Poll header */}
+            <h3 className="text-xl font-bold mb-2">{poll.title}</h3>
+            {poll.description && (
+              <p className="text-sm mb-4">{poll.description}</p>
+            )}
+
+            {/* Poll options */}
+            <div className="space-y-2">
+              {poll.options.map((option, index) => (
+                <label 
+                  key={index}
+                  className="flex items-center p-3 rounded-md cursor-pointer border mb-2"
+                  style={{ 
+                    backgroundColor: selectedOption === index ? styles.optionHover : styles.optionBackground,
+                    borderColor: isDarkMode ? '#444' : '#eaeaea',
+                  }}
+                  onClick={() => setSelectedOption(index)}
+                >
                   <div 
                     className="w-5 h-5 rounded-full border mr-3 flex items-center justify-center"
                     style={{ 
@@ -150,15 +140,16 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
                     )}
                   </div>
                   <span>{option.optionText}</span>
-                </div>
-              </div>
-            ))}
+                </label>
+              ))}
+            </div>
 
-            <div className="mt-6">
+            {/* Poll actions - matches WordPress layout */}
+            <div className="flex items-center mt-6">
               <Button
                 onClick={handleVote}
                 disabled={selectedOption === null}
-                className="w-full text-white transition-colors"
+                className="text-white transition-colors"
                 style={{ 
                   backgroundColor: poll.voteButtonColor,
                 }}
@@ -171,13 +162,11 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
               >
                 Vote
               </Button>
-            </div>
-            
-            {poll.showResults && (
-              <div className="text-center mt-3">
+              
+              {poll.showResults && (
                 <button
                   onClick={() => setHasVoted(true)}
-                  className="text-sm underline transition-colors"
+                  className="ml-4 flex items-center text-sm transition-colors"
                   style={{ 
                     color: styles.link,
                   }}
@@ -188,66 +177,74 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
                     e.currentTarget.style.color = styles.link;
                   }}
                 >
-                  View results without voting
+                  <BarChart2 className="mr-1 h-4 w-4" />
+                  View Results
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            {poll.options.map((option, index) => {
-              const votePercentage = totalVotes === 0 ? 0 : Math.round((option.votes / totalVotes) * 100);
-              const optionHighlightColor = option.customHighlight || poll.highlightColor;
-              
-              return (
-                <div key={index} className="mb-3">
-                  <div className="flex justify-between mb-1">
-                    <span>{option.optionText}</span>
-                    <span className="font-bold">{votePercentage}%</span>
-                  </div>
-                  <div 
-                    className="h-6 rounded-md overflow-hidden w-full"
-                    style={{ backgroundColor: styles.progressBackground }}
-                  >
+          <div className="poll-preview-results">
+            <h3 className="text-xl font-bold mb-2">Results</h3>
+            
+            <div className="space-y-4">
+              {poll.options.map((option, index) => {
+                const votePercentage = totalVotes === 0 ? 0 : Math.round((option.votes / totalVotes) * 100);
+                const optionHighlightColor = option.customHighlight || poll.highlightColor;
+                
+                return (
+                  <div key={index} className="mb-3">
+                    <div className="flex justify-between mb-1">
+                      <span>{option.optionText}</span>
+                      <span className="font-bold">{votePercentage}%</span>
+                    </div>
                     <div 
-                      className={`h-full ${getProgressBarAnimation()}`}
-                      style={{ 
-                        width: `${votePercentage}%`, 
-                        backgroundColor: optionHighlightColor,
-                        transition: 'width 1s ease-in-out'
-                      }}
-                    />
+                      className="h-6 rounded-md overflow-hidden w-full"
+                      style={{ backgroundColor: styles.progressBackground }}
+                    >
+                      <div 
+                        className={`h-full ${getProgressBarAnimation()}`}
+                        style={{ 
+                          width: `${votePercentage}%`, 
+                          backgroundColor: optionHighlightColor,
+                          transition: 'width 1s ease-in-out'
+                        }}
+                      />
+                    </div>
+                    <div className="text-sm mt-1">
+                      {option.votes} {option.votes === 1 ? 'vote' : 'votes'}
+                    </div>
                   </div>
-                  <div className="text-sm mt-1">
-                    {option.votes} {option.votes === 1 ? 'vote' : 'votes'}
-                  </div>
-                </div>
-              );
-            })}
-            
-            <div className="mt-4 text-sm text-center">
-              Total: {totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}
-            </div>
-            
-            <div className="text-center mt-4">
-              <button
-                onClick={() => {
-                  setHasVoted(false);
-                  setSelectedOption(null);
-                }}
-                className="text-sm underline transition-colors"
-                style={{ 
-                  color: styles.link,
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = styles.linkHover;
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = styles.link;
-                }}
-              >
-                Back to voting
-              </button>
+                );
+              })}
+              
+              {/* Poll total votes - matches WordPress layout */}
+              <div className="mt-4 pt-3 border-t text-sm" style={{ borderTopColor: isDarkMode ? '#444' : '#f5f5f5' }}>
+                <p>Total votes: <strong>{totalVotes}</strong></p>
+              </div>
+              
+              {/* Back to vote link - matches WordPress layout */}
+              <div className="mt-3">
+                <button
+                  onClick={() => {
+                    setHasVoted(false);
+                    setSelectedOption(null);
+                  }}
+                  className="flex items-center text-sm transition-colors"
+                  style={{ 
+                    color: styles.link,
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.color = styles.linkHover;
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.color = styles.link;
+                  }}
+                >
+                  <ChevronLeft className="mr-1 h-4 w-4" />
+                  Back to voting
+                </button>
+              </div>
             </div>
           </div>
         )}

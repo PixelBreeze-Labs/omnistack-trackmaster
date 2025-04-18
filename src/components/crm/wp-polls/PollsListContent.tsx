@@ -192,7 +192,7 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
   };
 
   const handleEditPoll = (pollId: string) => {
-    router.push(`/crm/platform/os-clients/${clientId}/polls/${pollId}/edit`);
+    router.push(`/crm/platform/os-clients/${clientId}/wp-polls/${pollId}/edit`);
   };
 
   const handleDeletePoll = (poll: Poll) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import PollEditForm from "@/components/crm/wp-forms/PollEditForm";
+import PollEditForm from "@/components/crm/wp-polls/PollEditForm";
 
 export default function PollEditPage() {
   const params = useParams();

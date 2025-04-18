@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useCallback, useMemo } from 'react';
 import { createPollsApi } from '@/app/api/external/omnigateway/polls';
 import { Poll, PollParams, PollsResponse, PollStatsResponse } from '@/app/api/external/omnigateway/types/polls';
 import { toast } from 'react-hot-toast';
+import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 
 export const usePolls = () => {
-  const { user } = useAuth();
+  
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -15,14 +15,15 @@ export const usePolls = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // Create polls API instance
-  const pollsApi = createPollsApi(user?.apiKey || '');
+  
+  const { apiKey } = useGatewayClientApiKey();
+  const pollsApi = useMemo(() => apiKey ? createPollsApi(apiKey) : null, [apiKey]);
 
   // Fetch polls with optional filtering
   const fetchPolls = useCallback(async (clientId: string, params: PollParams = {}) => {
     setIsLoading(true);
     try {
-      const response = await pollsApi.getPollsByClientId(clientId, params);
+      const response = await pollsApi?.getPollsByClientId(clientId, params);
       setPolls(response.data);
       setTotalItems(response.meta.total);
       setTotalPages(response.meta.pages);
@@ -38,10 +39,11 @@ export const usePolls = () => {
   }, [pollsApi]);
 
   // Fetch a single poll
-  const fetchPoll = useCallback(async (id: string) => {
+  // Fetch a single poll
+const fetchPoll = useCallback(async (id: string, clientId?: string) => {
     setIsLoading(true);
     try {
-      const poll = await pollsApi.getPoll(id);
+      const poll = await pollsApi?.getPoll(id, clientId);
       setCurrentPoll(poll);
       return poll;
     } catch (error) {
@@ -57,7 +59,7 @@ export const usePolls = () => {
   const fetchPollByWordpressId = useCallback(async (wordpressId: number) => {
     setIsLoading(true);
     try {
-      const poll = await pollsApi.getPollByWordpressId(wordpressId);
+      const poll = await pollsApi?.getPollByWordpressId(wordpressId);
       setCurrentPoll(poll);
       return poll;
     } catch (error) {
@@ -73,7 +75,7 @@ export const usePolls = () => {
   const updatePoll = useCallback(async (id: string, pollData: Partial<Poll>) => {
     setIsProcessing(true);
     try {
-      const updatedPoll = await pollsApi.updatePoll(id, pollData);
+      const updatedPoll = await pollsApi?.updatePoll(id, pollData);
       setCurrentPoll(updatedPoll);
       
       // Update the poll in the list if it exists
@@ -98,7 +100,7 @@ export const usePolls = () => {
   const deletePoll = useCallback(async (id: string) => {
     setIsProcessing(true);
     try {
-      await pollsApi.deletePoll(id);
+      await pollsApi?.deletePoll(id);
       
       // Remove the poll from the list
       setPolls(prevPolls => prevPolls.filter(poll => poll._id !== id));
@@ -116,7 +118,7 @@ export const usePolls = () => {
   // Vote on a poll
   const votePoll = useCallback(async (id: string, optionIndex: number) => {
     try {
-      const updatedPoll = await pollsApi.votePoll(id, optionIndex);
+      const updatedPoll = await pollsApi?.votePoll(id, optionIndex);
       
       // Update current poll if it's the one we're viewing
       if (currentPoll && currentPoll._id === id) {
@@ -139,14 +141,14 @@ export const usePolls = () => {
   }, [pollsApi, currentPoll]);
 
   // Fetch poll stats
-  const fetchPollStats = useCallback(async () => {
+  const fetchPollStats = useCallback(async (clientId: string) => {
     setIsLoading(true);
     try {
-      const statsData = await pollsApi.getPollStats();
+      const statsData = await pollsApi?.getPollStatsByClientId(clientId);
       setStats(statsData);
       return statsData;
     } catch (error) {
-      console.error('Error fetching poll stats:', error);
+      console.error(`Error fetching poll stats for client ${clientId}:`, error);
       toast.error('Failed to fetch poll statistics');
       throw error;
     } finally {
