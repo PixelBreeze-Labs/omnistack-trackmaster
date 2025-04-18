@@ -80,6 +80,8 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
 
   const [activeTab, setActiveTab] = useState("general");
   const [previewDarkMode, setPreviewDarkMode] = useState(false);
+  // Flag to prevent updates when tabs change
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Animation options
   const animationOptions = [
@@ -97,7 +99,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
         // Load client info
         if (clientId) {
           const response = await getClient(clientId);
-          const client = response.client || response;
+          const client = response?.client || response;
           if (client) {
             setClientName(client.name);
           }
@@ -108,6 +110,8 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
           const pollData = await fetchPoll(pollId, clientId);
           setPoll(pollData);
           setFormData(pollData);
+          // Reset changes flag when we load new data
+          setHasChanges(false);
         }
       } catch (error) {
         console.error("Error loading data:", error);
@@ -118,13 +122,16 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
     loadClientAndPoll();
   }, [clientId, pollId, getClient, fetchPoll]);
 
+  // Mark changes when form data changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setHasChanges(true);
   };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
     setFormData(prev => ({ ...prev, [name]: checked }));
+    setHasChanges(true);
   };
 
   const handleOptionTextChange = (index: number, value: string) => {
@@ -133,6 +140,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
       newOptions[index] = { ...newOptions[index], optionText: value };
       return { ...prev, options: newOptions };
     });
+    setHasChanges(true);
   };
 
   const handleOptionHighlightChange = (index: number, value: string) => {
@@ -141,8 +149,15 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
       newOptions[index] = { ...newOptions[index], customHighlight: value };
       return { ...prev, options: newOptions };
     });
+    setHasChanges(true);
   };
 
+  // Handle tab change without triggering updates
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
+  // Only submit when the save button is clicked
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -159,7 +174,8 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
     try {
       await updatePoll(pollId, formData);
       toast.success("Poll updated successfully");
-      router.push(`/crm/platform/os-clients/${clientId}/polls`);
+      setHasChanges(false);
+      router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
     } catch (error) {
       console.error("Error updating poll:", error);
       toast.error("Failed to update poll");
@@ -167,7 +183,14 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
   };
 
   const handleBackClick = () => {
-    router.push(`/crm/platform/os-clients/${clientId}/polls`);
+    // Optional: Add a confirmation if changes have been made
+    if (hasChanges) {
+      if (window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+        router.push(`/crm/platform/os-clients/${clientId}/wp-polls`);
+      }
+    } else {
+      router.push(`/crm/platform/os-clients/${clientId}/polls`);
+    }
   };
 
   // If the poll hasn't loaded yet, show a loading state
@@ -208,7 +231,7 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Main edit area */}
           <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab}>
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-4">
                 <TabsTrigger value="general">General</TabsTrigger>
                 <TabsTrigger value="options">Options</TabsTrigger>

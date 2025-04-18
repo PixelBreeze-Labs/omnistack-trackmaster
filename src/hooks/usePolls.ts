@@ -21,6 +21,7 @@ export const usePolls = () => {
 
   // Fetch polls with optional filtering
   const fetchPolls = useCallback(async (clientId: string, params: PollParams = {}) => {
+    if (!pollsApi) return null;
     setIsLoading(true);
     try {
       const response = await pollsApi?.getPollsByClientId(clientId, params);
@@ -41,6 +42,7 @@ export const usePolls = () => {
   // Fetch a single poll
   // Fetch a single poll
 const fetchPoll = useCallback(async (id: string, clientId?: string) => {
+    if (!pollsApi) return null;
     setIsLoading(true);
     try {
       const poll = await pollsApi?.getPoll(id, clientId);
@@ -57,6 +59,7 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
 
   // Fetch poll by WordPress ID
   const fetchPollByWordpressId = useCallback(async (wordpressId: number) => {
+    if (!pollsApi) return null;
     setIsLoading(true);
     try {
       const poll = await pollsApi?.getPollByWordpressId(wordpressId);
@@ -73,6 +76,7 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
 
   // Update a poll
   const updatePoll = useCallback(async (id: string, pollData: Partial<Poll>) => {
+    if (!pollsApi) return null;
     setIsProcessing(true);
     try {
       const updatedPoll = await pollsApi?.updatePoll(id, pollData);
@@ -98,6 +102,7 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
 
   // Delete a poll
   const deletePoll = useCallback(async (id: string) => {
+    if (!pollsApi) return null;
     setIsProcessing(true);
     try {
       await pollsApi?.deletePoll(id);
@@ -117,6 +122,7 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
 
   // Vote on a poll
   const votePoll = useCallback(async (id: string, optionIndex: number) => {
+    if (!pollsApi) return null;
     try {
       const updatedPoll = await pollsApi?.votePoll(id, optionIndex);
       
@@ -142,6 +148,7 @@ const fetchPoll = useCallback(async (id: string, clientId?: string) => {
 
   // Fetch poll stats
   const fetchPollStats = useCallback(async (clientId: string) => {
+    if (!pollsApi) return null;
     setIsLoading(true);
     try {
       const statsData = await pollsApi?.getPollStatsByClientId(clientId);
