@@ -13,6 +13,7 @@ export interface PollOption {
     showResults: boolean;
     autoEmbed: boolean;
     autoEmbedLocations: number[];
+    autoEmbedAllPosts?: boolean; // New field added for "embed in all posts" option
     options: PollOption[];
     clientId: string;
     wordpressId?: number;
@@ -33,6 +34,11 @@ export interface PollOption {
     radioCheckedBorderColor: string;
     radioCheckedDotColor: string;
     
+    // New style properties for percentage label and icons
+    percentageLabelColor: string;
+    iconColor: string;
+    iconHoverColor: string;
+    
     // Dark mode properties
     darkMode: boolean;
     darkModeBackground: string;
@@ -45,7 +51,14 @@ export interface PollOption {
     darkModeRadioBorder: string;
     darkModeRadioCheckedBorder: string;
     darkModeRadioCheckedDot: string;
+    
+    // New dark mode properties for percentage label and icons
+    darkModePercentageLabelColor: string;
+    darkModeIconColor: string;
+    darkModeIconHoverColor: string;
   }
+  
+  
   
   export interface PollStats {
     totalPolls: number;

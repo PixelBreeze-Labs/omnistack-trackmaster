@@ -66,6 +66,9 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
     radioBorderColor: "#d0d5dd",
     radioCheckedBorderColor: "#2597a4",
     radioCheckedDotColor: "#2597a4",
+  percentageLabelColor: "#ffffff",
+  iconColor: "#d0d5dd",
+  iconHoverColor: "#2597a4",
     darkModeBackground: "#222222",
     darkModeTextColor: "#ffffff",
     darkModeOptionBackground: "#333333",
@@ -75,7 +78,10 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
     darkModeProgressBackground: "#444444",
     darkModeRadioBorder: "#444444",
     darkModeRadioCheckedBorder: "#2597a4",
-    darkModeRadioCheckedDot: "#2597a4"
+    darkModeRadioCheckedDot: "#2597a4",
+    darkModePercentageLabelColor: "#ffffff",
+  darkModeIconColor: "#ffffff", 
+  darkModeIconHoverColor: "#2597a4"
   });
 
   const [activeTab, setActiveTab] = useState("general");
@@ -592,6 +598,72 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
                         </div>
                       </div>
                     </div>
+
+                    {/* New Icons and Labels section */}
+<div className="mt-6">
+  <h3 className="text-md font-medium mb-2">Icons and Labels</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-2">
+      <Label htmlFor="percentageLabelColor">Percentage Label Color</Label>
+      <div className="flex">
+        <Input
+          id="percentageLabelColor"
+          name="percentageLabelColor"
+          type="color"
+          value={formData.percentageLabelColor || "#ffffff"}
+          onChange={handleInputChange}
+          className="w-12 p-1 h-10"
+        />
+        <Input
+          name="percentageLabelColor"
+          value={formData.percentageLabelColor || "#ffffff"}
+          onChange={handleInputChange}
+          className="flex-1 ml-2"
+        />
+      </div>
+    </div>
+    
+    <div className="space-y-2">
+      <Label htmlFor="iconColor">Icon Color</Label>
+      <div className="flex">
+        <Input
+          id="iconColor"
+          name="iconColor"
+          type="color"
+          value={formData.iconColor || "#d0d5dd"}
+          onChange={handleInputChange}
+          className="w-12 p-1 h-10"
+        />
+        <Input
+          name="iconColor"
+          value={formData.iconColor || "#d0d5dd"}
+          onChange={handleInputChange}
+          className="flex-1 ml-2"
+        />
+      </div>
+    </div>
+    
+    <div className="space-y-2">
+      <Label htmlFor="iconHoverColor">Icon Hover Color</Label>
+      <div className="flex">
+        <Input
+          id="iconHoverColor"
+          name="iconHoverColor"
+          type="color"
+          value={formData.iconHoverColor || "#2597a4"}
+          onChange={handleInputChange}
+          className="w-12 p-1 h-10"
+        />
+        <Input
+          name="iconHoverColor"
+          value={formData.iconHoverColor || "#2597a4"}
+          onChange={handleInputChange}
+          className="flex-1 ml-2"
+        />
+      </div>
+    </div>
+  </div>
+</div>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -822,6 +894,72 @@ export default function PollEditForm({ clientId, pollId }: PollEditFormProps) {
                               </div>
                             </div>
                           </div>
+
+                          {/* New Dark Mode Icons and Labels section */}
+<div className="mt-6">
+  <h3 className="text-md font-medium mb-2">Dark Mode Icons and Labels</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-2">
+      <Label htmlFor="darkModePercentageLabelColor">Percentage Label Color</Label>
+      <div className="flex">
+        <Input
+          id="darkModePercentageLabelColor"
+          name="darkModePercentageLabelColor"
+          type="color"
+          value={formData.darkModePercentageLabelColor || "#ffffff"}
+          onChange={handleInputChange}
+          className="w-12 p-1 h-10"
+        />
+        <Input
+          name="darkModePercentageLabelColor"
+          value={formData.darkModePercentageLabelColor || "#ffffff"}
+          onChange={handleInputChange}
+          className="flex-1 ml-2"
+        />
+      </div>
+    </div>
+    
+    <div className="space-y-2">
+      <Label htmlFor="darkModeIconColor">Icon Color</Label>
+      <div className="flex">
+        <Input
+          id="darkModeIconColor"
+          name="darkModeIconColor"
+          type="color"
+          value={formData.darkModeIconColor || "#ffffff"}
+          onChange={handleInputChange}
+          className="w-12 p-1 h-10"
+        />
+        <Input
+          name="darkModeIconColor"
+          value={formData.darkModeIconColor || "#ffffff"}
+          onChange={handleInputChange}
+          className="flex-1 ml-2"
+        />
+      </div>
+    </div>
+    
+    <div className="space-y-2">
+      <Label htmlFor="darkModeIconHoverColor">Icon Hover Color</Label>
+      <div className="flex">
+        <Input
+          id="darkModeIconHoverColor"
+          name="darkModeIconHoverColor"
+          type="color"
+          value={formData.darkModeIconHoverColor || "#2597a4"}
+          onChange={handleInputChange}
+          className="w-12 p-1 h-10"
+        />
+        <Input
+          name="darkModeIconHoverColor"
+          value={formData.darkModeIconHoverColor || "#2597a4"}
+          onChange={handleInputChange}
+          className="flex-1 ml-2"
+        />
+      </div>
+    </div>
+  </div>
+</div>
                         </>
                       )}
                     </div>
