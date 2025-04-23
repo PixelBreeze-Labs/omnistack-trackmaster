@@ -27,7 +27,11 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
         progressBackground: poll.darkModeProgressBackground,
         radioBorder: poll.darkModeRadioBorder,
         radioCheckedBorder: poll.darkModeRadioCheckedBorder,
-        radioCheckedDot: poll.darkModeRadioCheckedDot
+        radioCheckedDot: poll.darkModeRadioCheckedDot,
+        // Add new dark mode styles
+        percentageLabelColor: poll.darkModePercentageLabelColor || '#ffffff',
+        iconColor: poll.darkModeIconColor || '#ffffff',
+        iconHoverColor: poll.darkModeIconHoverColor || '#2597a4'
       };
     } else {
       return {
@@ -40,7 +44,11 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
         progressBackground: poll.progressBarBackgroundColor,
         radioBorder: poll.radioBorderColor,
         radioCheckedBorder: poll.radioCheckedBorderColor,
-        radioCheckedDot: poll.radioCheckedDotColor
+        radioCheckedDot: poll.radioCheckedDotColor,
+        // Add new light mode styles
+        percentageLabelColor: poll.percentageLabelColor || '#ffffff',
+        iconColor: poll.iconColor || '#d0d5dd',
+        iconHoverColor: poll.iconHoverColor || '#2597a4'
       };
     }
   };
@@ -172,12 +180,21 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.color = styles.linkHover;
+                    // Apply icon hover color to the SVG icon
+                    const icon = e.currentTarget.querySelector('svg');
+                    if (icon) icon.style.color = styles.iconHoverColor;
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.color = styles.link;
+                    // Restore original icon color
+                    const icon = e.currentTarget.querySelector('svg');
+                    if (icon) icon.style.color = styles.iconColor;
                   }}
                 >
-                  <BarChart2 className="mr-1 h-4 w-4" />
+                  <BarChart2 
+                    className="mr-1 h-4 w-4" 
+                    style={{ color: styles.iconColor }}
+                  />
                   View Results
                 </button>
               )}
@@ -199,7 +216,7 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
                       <span className="font-bold">{votePercentage}%</span>
                     </div>
                     <div 
-                      className="h-6 rounded-md overflow-hidden w-full"
+                      className="h-6 rounded-md overflow-hidden w-full relative"
                       style={{ backgroundColor: styles.progressBackground }}
                     >
                       <div 
@@ -210,6 +227,13 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
                           transition: 'width 1s ease-in-out'
                         }}
                       />
+                      {/* Percentage label with the new color */}
+                      <div 
+                        className="absolute top-0 right-2 h-full flex items-center justify-center text-sm"
+                        style={{ color: styles.percentageLabelColor }}
+                      >
+                        {votePercentage}%
+                      </div>
                     </div>
                     <div className="text-sm mt-1">
                       {option.votes} {option.votes === 1 ? 'vote' : 'votes'}
@@ -236,13 +260,22 @@ const PollPreview: React.FC<PollPreviewProps> = ({ poll }) => {
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.color = styles.linkHover;
+                    // Apply icon hover color to the SVG icon
+                    const icon = e.currentTarget.querySelector('svg');
+                    if (icon) icon.style.color = styles.iconHoverColor;
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.color = styles.link;
+                    // Restore original icon color
+                    const icon = e.currentTarget.querySelector('svg');
+                    if (icon) icon.style.color = styles.iconColor;
                   }}
                 >
-                  <ChevronLeft className="mr-1 h-4 w-4" />
-                  Back to voting
+                  <ChevronLeft 
+                    className="mr-1 h-4 w-4" 
+                    style={{ color: styles.iconColor }}
+                  />
+                  Back to Vote
                 </button>
               </div>
             </div>
