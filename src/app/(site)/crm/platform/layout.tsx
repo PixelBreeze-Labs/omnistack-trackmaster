@@ -171,9 +171,9 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         
        {/* Don't show for special client types */}
-        {!['STUDIO', 'QYTETARET', 'VENUEBOOST', 'PIXELBREEZE', 'SAAS', 'BOOKING'].includes(clientType) && (
+        {/* {!['STUDIO', 'QYTETARET', 'VENUEBOOST', 'PIXELBREEZE', 'SAAS', 'BOOKING'].includes(clientType) && ( */}
           <AdminChatbot />
-        )}
+        {/* )} */}
       </main>
 
       {/* Overlay */}

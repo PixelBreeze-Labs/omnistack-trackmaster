@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { 
   MessageSquare, X, Send, Sparkles, 
-  LineChart, Tag, ShoppingBag, Activity,
-  Loader2
+  BarChart, Tag, ShoppingBag, Users,
+  Loader2, PieChart, LineChart, Zap,
+  HelpCircle
 } from "lucide-react"
-import { useChatbot } from '../../../app/(site)/context/ChatbotContext'
+import { useChatbot, AssistantType } from '../../../app/(site)/context/ChatbotContext'
 
 const ChatMessage = ({ message, isBot, isLoading }) => {
   // Handle message formatting - detect newlines and convert to <br>
@@ -59,12 +60,13 @@ const TrackMasterAI = () => {
   const { 
     chatbotState, 
     setChatbotState, 
-    processMessage 
+    processMessage,
+    staticData
   } = useChatbot()
   
   const [message, setMessage] = useState('')
   const [chatHistory, setChatHistory] = useState([
-    { message: "Hello! I'm TrackMaster AI, your intelligent business assistant. How can I help optimize your operations today?", isBot: true }
+    { message: "Hello! I'm TrackMaster AI, your intelligent business assistant. How can I help optimize your store operations today?", isBot: true }
   ])
   const [processingMessage, setProcessingMessage] = useState(false)
   const messagesEndRef = useRef(null)
@@ -83,7 +85,7 @@ const TrackMasterAI = () => {
   }, [chatHistory, chatbotState.isOpen])
 
   const handleSendMessage = async (e) => {
-    e?.preventDefault()
+    e?.preventDefault?.()
     if (!message.trim()) return
 
     // Add user message to chat
@@ -120,13 +122,134 @@ const TrackMasterAI = () => {
     setChatbotState(prev => ({ ...prev, isOpen: !prev.isOpen }))
   }
 
-  // Quick action buttons
+  // Handle tab click - immediately set the active tab
+  const handleTabClick = (type) => {
+    // Update the current assistant type
+    setChatbotState(prev => ({ ...prev, currentType: type }))
+    
+    // Update suggestions based on the selected tab
+    updateSuggestions(type)
+  }
+  
+  // Function to update suggestions based on assistant type
+  const updateSuggestions = (type) => {
+    let newSuggestions = [];
+    
+    switch (type) {
+      case AssistantType.SALES:
+        newSuggestions = [
+          "What's our revenue growth?",
+          "Show top selling products",
+          "Compare sales to last month",
+          "What's our average order value?"
+        ];
+        break;
+      case AssistantType.CUSTOMER:
+        newSuggestions = [
+          "Who are our top spenders?",
+          "Show new customers this month",
+          "What's our customer retention rate?",
+          "Identify potential churning customers"
+        ];
+        break;
+      case AssistantType.PRODUCT:
+        newSuggestions = [
+          "What products need restocking?",
+          "Show product performance by category",
+          "Which products are out of stock?",
+          "Identify slow-moving inventory"
+        ];
+        break;
+      case AssistantType.MARKETING:
+        newSuggestions = [
+          "Create a new discount code",
+          "How are our promotions performing?",
+          "Show customer segments",
+          "Suggest promotions for slow inventory"
+        ];
+        break;
+      case AssistantType.ANALYTICS:
+        newSuggestions = [
+          "Show key performance indicators",
+          "What are our growth trends?",
+          "Compare channel performance",
+          "What's our conversion rate?"
+        ];
+        break;
+      default:
+        newSuggestions = [
+          "How are sales performing?",
+          "Show me my top customers",
+          "What products need restocking?",
+          "Create a discount code"
+        ];
+    }
+    
+    setChatbotState(prev => ({ ...prev, suggestions: newSuggestions }));
+  };
+
+  // Get icon based on assistant type
+  const getAssistantTypeIcon = () => {
+    switch (chatbotState.currentType) {
+      case AssistantType.SALES:
+        return BarChart;
+      case AssistantType.CUSTOMER:
+        return Users;
+      case AssistantType.PRODUCT:
+        return ShoppingBag;
+      case AssistantType.MARKETING:
+        return Tag;
+      case AssistantType.ANALYTICS:
+        return LineChart;
+      default:
+        return Sparkles;
+    }
+  }
+
+  // Function to get assistant type label
+  const getAssistantTypeLabel = () => {
+    switch (chatbotState.currentType) {
+      case AssistantType.SALES:
+        return "Sales Assistant";
+      case AssistantType.CUSTOMER:
+        return "Customer Insights";
+      case AssistantType.PRODUCT:
+        return "Inventory Manager";
+      case AssistantType.MARKETING:
+        return "Marketing Advisor";
+      case AssistantType.ANALYTICS:
+        return "Analytics Expert";
+      default:
+        return "TrackMaster AI";
+    }
+  }
+
+  // Quick action buttons based on potential assistant types
   const quickActions = [
-    { icon: LineChart, label: "Sales Data", onClick: () => handleSuggestionClick("Show me sales data") },
-    { icon: ShoppingBag, label: "Products", onClick: () => handleSuggestionClick("Show top selling products") },
-    { icon: Tag, label: "Discounts", onClick: () => handleSuggestionClick("Create a new discount code") },
-    { icon: Activity, label: "Performance", onClick: () => handleSuggestionClick("Analyze store performance") },
+    { 
+      icon: BarChart, 
+      label: "Sales", 
+      type: AssistantType.SALES,
+    },
+    { 
+      icon: Users, 
+      label: "Customers", 
+      type: AssistantType.CUSTOMER,
+    },
+    { 
+      icon: ShoppingBag, 
+      label: "Products", 
+      type: AssistantType.PRODUCT,
+    },
+    { 
+      icon: Tag, 
+      label: "Marketing", 
+      type: AssistantType.MARKETING,
+    },
   ]
+
+  // Dynamic icon component based on current assistant type
+  const TypeIcon = getAssistantTypeIcon();
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -153,17 +276,30 @@ const TrackMasterAI = () => {
             }}
           >
             <div className="flex items-center space-x-2">
-              <Sparkles className="h-5 w-5 text-white" />
-              <h3 className="font-bold text-white">TrackMaster AI</h3>
+              <TypeIcon className="h-5 w-5 text-white" />
+              <h3 className="font-bold text-white">{getAssistantTypeLabel()}</h3>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleChat}
-              className="h-6 w-6 hover:bg-white/20 text-white"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setChatHistory([
+                  { message: "Hello! I'm TrackMaster AI, your intelligent business assistant. How can I help optimize your store operations today?", isBot: true }
+                ])}
+                className="h-6 w-6 hover:bg-white/20 text-white mr-1"
+                title="Clear conversation"
+              >
+                <Zap className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleChat}
+                className="h-6 w-6 hover:bg-white/20 text-white"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Quick action buttons */}
@@ -171,18 +307,26 @@ const TrackMasterAI = () => {
             {quickActions.map((action, index) => (
               <Button
                 key={index}
-                variant="ghost"
-                className="flex flex-col items-center justify-center h-auto py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                onClick={action.onClick}
+                variant={chatbotState.currentType === action.type ? "default" : "ghost"}
+                className={`flex flex-col items-center justify-center h-auto py-2 px-3 rounded transition-colors ${
+                  chatbotState.currentType === action.type 
+                    ? 'bg-primary/10 hover:bg-primary/20 text-primary' 
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+                onClick={() => handleTabClick(action.type)}
               >
-                <action.icon className="h-5 w-5 mb-1 text-gray-600 dark:text-gray-300" />
+                <action.icon className={`h-5 w-5 mb-1 ${
+                  chatbotState.currentType === action.type 
+                    ? 'text-primary' 
+                    : 'text-gray-600 dark:text-gray-300'
+                }`} />
                 <span className="text-xs font-medium">{action.label}</span>
               </Button>
             ))}
           </div>
 
           {/* Chat messages - maximized space */}
-          <CardContent className="flex-1 overflow-y-auto p-4 scrollbar-hide">
+          <CardContent className="flex-1 overflow-y-auto p-4 hide-scrollbar">
             {chatHistory.map((chat, index) => (
               <ChatMessage 
                 key={index} 
@@ -204,7 +348,7 @@ const TrackMasterAI = () => {
 
           {/* Suggestions - only show if present */}
           {chatbotState.suggestions.length > 0 && (
-            <div className="px-4 py-2 border-t overflow-x-auto bg-gray-50 dark:bg-gray-800/50">
+            <div className="px-4 py-2 border-t overflow-x-auto bg-gray-50 dark:bg-gray-800/50 hide-scrollbar">
               <div className="flex space-x-2">
                 {chatbotState.suggestions.map((suggestion, index) => (
                   <SuggestionChip 
@@ -227,11 +371,20 @@ const TrackMasterAI = () => {
                 type="text" 
                 value={message} 
                 onChange={(e) => setMessage(e.target.value)} 
-                placeholder="Ask something..."
+                placeholder="Ask about sales, customers, products..."
                 className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-8"
                 ref={inputRef}
                 disabled={processingMessage}
               />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 rounded-full flex items-center justify-center p-0"
+                onClick={() => handleSuggestionClick("What can you help me with?")}
+              >
+                <HelpCircle className="h-4 w-4 text-gray-400" />
+              </Button>
             </div>
             
             <Button 
