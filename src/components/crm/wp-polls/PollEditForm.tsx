@@ -7,8 +7,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
-  CardFooter
+  CardTitle
 } from "@/components/ui/new-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,19 +18,13 @@ import {
   ArrowLeft,
   RefreshCcw,
   Save,
-  Palette,
-  ToggleLeft,
-  Eye,
   Sun,
-  Moon,
-  Plus,
-  Minus,
-  AlignLeft,
+  Moon
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { usePolls } from "@/hooks/usePolls";
 import { useClients } from "@/hooks/useClients";
-import { Poll, PollOption } from "@/app/api/external/omnigateway/types/polls";
+import { Poll } from "@/app/api/external/omnigateway/types/polls";
 import InputSelect from "@/components/Common/InputSelect";
 import PollPreview from "./PollPreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
