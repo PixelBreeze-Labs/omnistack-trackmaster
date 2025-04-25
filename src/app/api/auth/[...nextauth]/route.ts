@@ -3,7 +3,7 @@ import NextAuth, { NextAuthOptions, Session, User } from 'next-auth'
 import { JWT } from 'next-auth/jwt'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import { prisma } from '@/lib/prisma'
+import { authPrisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
 
 interface ExtendedUser extends User {
@@ -14,7 +14,8 @@ interface ExtendedUser extends User {
 }
 
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma),
+    // Use the auth-specific Prisma client with primary read preference
+    adapter: PrismaAdapter(authPrisma),
     pages: {
         signIn: '/auth/login',
         error: '/auth/error',
@@ -42,7 +43,8 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('Missing credentials')
                 }
 
-                const user = await prisma.user.findUnique({
+                // Always read from primary for authentication
+                const user = await authPrisma.user.findUnique({
                     where: {
                         email: credentials.email
                     },
@@ -82,7 +84,7 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks: {
-        async jwt({ token, user }: { token: JWT, user?: ExtendedUser }): Promise<JWT> {
+        async jwt({ token, user, trigger }: { token: JWT, user?: ExtendedUser, trigger?: string }): Promise<JWT> {
             if (user) {
                 token.role = user.role as "ADMIN" | "SALES" | "MARKETING"
                 token.id = user.id
@@ -90,6 +92,28 @@ export const authOptions: NextAuthOptions = {
                 token.clientType = user.clientType as "ECOMMERCE" | "SAAS" | "FOOD_DELIVERY" | "RETAIL" | "SERVICES" | "OTHER" | "BOOKING" | "PIXELBREEZE" | "VENUEBOOST" | "QYTETARET" | "STUDIO"
                 token.supabaseId = user.supabaseId
             }
+            
+            // Force token refresh on session update
+            if (trigger === 'update' && token.id) {
+                // Read from primary for fresh user data
+                const freshUser = await authPrisma.user.findUnique({
+                    where: { id: token.id },
+                    include: {
+                        client: {
+                            select: {
+                                type: true
+                            }
+                        }
+                    }
+                });
+                
+                if (freshUser) {
+                    token.clientId = freshUser.clientId || undefined;
+                    token.clientType = freshUser.client?.type;
+                    token.role = freshUser.role as "ADMIN" | "SALES" | "MARKETING";
+                }
+            }
+            
             return token
         },
         async session({ session, token }: { session: Session, token: JWT }): Promise<Session> {
@@ -105,13 +129,17 @@ export const authOptions: NextAuthOptions = {
     },
     events: {
         async signIn({ user }) {
-            await prisma.activity.create({
+            await authPrisma.activity.create({
                 data: {
                     type: 'CUSTOMER_PURCHASE',
                     description: `User ${user.email} signed in`,
                     userId: user.id,
                 }
             })
+        },
+        async signOut({ token }) {
+            // Optional cleanup operations on signout
+            console.log(`User ${token?.id} signed out`);
         }
     },
     debug: process.env.NODE_ENV === 'development',
