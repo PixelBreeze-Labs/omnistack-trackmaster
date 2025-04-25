@@ -10,7 +10,9 @@ import {
   Loader2, PieChart, LineChart, Zap,
   HelpCircle
 } from "lucide-react"
-import { useChatbot, AssistantType } from '../../../app/(site)/context/ChatbotContext'
+import { useChatbot } from '../../../app/(site)/context/ChatbotContext'
+import { AssistantType } from '@/app/api/external/omnigateway/types/ai-assistant'
+
 
 const ChatMessage = ({ message, isBot, isLoading }) => {
   // Handle message formatting - detect newlines and convert to <br>
