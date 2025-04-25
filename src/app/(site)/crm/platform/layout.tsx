@@ -1,8 +1,11 @@
+// Update your CRMPlatformLayout.jsx file to include the chatbot
+
 "use client"
 
 import { useState } from "react"
 import Sidebar from "@/components/dashboard/sidebar"
 import Header from "@/components/dashboard/header"
+import AdminChatbot from "@/components/crm/shared/AdminChatbot"
 import { usePathname } from "next/navigation"
 import getSidebarDataForType from "@/utils/getSidebarDataForType"
 import { useSession } from "next-auth/react"
@@ -166,6 +169,9 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex-1 overflow-auto bg-gray-50 p-4 md:p-6 dark:bg-gray-900">
           {children}
         </div>
+        
+        {/* Add the Admin Chatbot component */}
+        <AdminChatbot />
       </main>
 
       {/* Overlay */}
