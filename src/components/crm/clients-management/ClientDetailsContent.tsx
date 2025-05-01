@@ -47,7 +47,8 @@ import {
   Clock,
   CheckCircle2,
   Bell,
-  Archive
+  Archive,
+  Paintbrush
 } from "lucide-react";
 import { useClients } from "@/hooks/useClients";
 import { useClientApps } from "@/hooks/useClientApps";
@@ -56,6 +57,7 @@ import { toast } from "react-hot-toast";
 import { Client } from "@/app/api/external/omnigateway/types/clients";
 import { ClientApp } from "@/app/api/external/omnigateway/types/client-apps";
 import { ReportsSummary } from "@/app/api/external/omnigateway/types/reports";
+import { BrandColorsSection } from "./BrandColorsSection";
 
 interface ClientDetailsContentProps {
   clientId: string;
@@ -462,6 +464,7 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="applications">Applications ({clientApplications.length})</TabsTrigger>
           {clientId !== "680027c0860084f81c6090cd" && <TabsTrigger value="reports">Reports</TabsTrigger>}
+          <TabsTrigger value="branding">Brand Colors</TabsTrigger>
           <TabsTrigger value="configuration">Configuration</TabsTrigger>
         </TabsList>
         
@@ -885,6 +888,75 @@ export default function ClientDetailsContent({ clientId }: ClientDetailsContentP
                       View All Reports
                     </Button>
                   </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Brand Colors Tab */}
+        <TabsContent value="branding" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Application Branding</CardTitle>
+              <CardDescription>Manage brand colors and styling for client applications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isAppsLoading ? (
+                <div className="flex justify-center py-8">
+                  <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : clientApplications.length === 0 ? (
+                <div className="text-center py-8">
+                  <Paintbrush className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No Applications Found</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    You need to add applications to configure brand colors.
+                  </p>
+                  <Button size="sm" onClick={handleCAClick}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Application
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {clientApplications.map(app => (
+                    <div key={app._id} className="space-y-6">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-medium">{app.name}</h3>
+                        <Badge 
+                          variant={app.status === 'active' ? 'default' : 'destructive'}
+                          className={app.status === 'active' ? 'bg-green-500' : ''}
+                        >
+                          {app.status}
+                        </Badge>
+                      </div>
+                      <BrandColorsSection 
+                        clientApp={app} 
+                        onUpdate={() => {
+                          // Refresh client app data after update
+                          getClient(clientId).then(response => {
+                            if (response?.client) {
+                              setClient(response?.client);
+                            } else {
+                              setClient(response);
+                            }
+                            
+                            // Refresh the client apps
+                            if (response?.client?.clientAppIds?.length > 0 || response?.clientAppIds?.length > 0) {
+                              fetchClientApps().then(apps => {
+                                const clientData = response?.client || response;
+                                const filteredApps = apps?.data?.filter(app => 
+                                  clientData.clientAppIds.includes(app._id)
+                                ) || [];
+                                setClientApplications(filteredApps);
+                              });
+                            }
+                          });
+                        }} 
+                      />
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
