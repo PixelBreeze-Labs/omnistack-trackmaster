@@ -182,8 +182,6 @@ const createPoll = useCallback(async (pollData: Partial<Poll>): Promise<Poll> =>
       newPoll = await pollsApi.createPoll(pollData);
     }
     
-    toast.success('Poll created successfully');
-    
     // Update local state to add the new poll
     setPolls(currentPolls => [newPoll, ...currentPolls]);
     setTotalItems(prev => prev + 1);

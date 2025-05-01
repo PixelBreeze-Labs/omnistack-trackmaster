@@ -1,20 +1,33 @@
-// app/crm/platform/os-clients/[clientId]/wp-polls/create/page.tsx
+// app/crm/platform/os-clients/[id]/wp-polls/create/page.tsx
+import { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreatePollForm from "@/components/crm/wp-polls/CreatePollForm";
 
+export const generateMetadata = ({ params }: { params: { id: string } }): Metadata => {
+  return {
+    title: `Create Multi-Client Poll - Studio CRM`,
+    description: `Create a new multi-client poll for sharing across organizations.`,
+  };
+};
+
 interface CreatePollPageProps {
   params: {
-    clientId: string;
+    id: string;  // Using "id" to match your route pattern
   };
 }
 
 export default function PollCreatePage({ params }: CreatePollPageProps) {
-  const { clientId } = params;
+  const clientId = params.id;  // Extract clientId from "id" parameter
+
+  if (!clientId) {
+    console.error("Client ID is undefined");
+    return notFound();
+  }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="flex-1 space-y-4 px-3">
       <Suspense fallback={<PollFormSkeleton />}>
         <CreatePollForm clientId={clientId} />
       </Suspense>
@@ -44,4 +57,3 @@ function PollFormSkeleton() {
     </div>
   );
 }
-
