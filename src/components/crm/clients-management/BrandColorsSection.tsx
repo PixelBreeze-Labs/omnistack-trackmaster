@@ -27,6 +27,10 @@ interface BrandColorsValues {
   textOnPrimaryColor: string;
   textColor: string;
   darkModePreference: boolean;
+  optionsBackgroundColor?: string;
+  optionsHoverColor?: string;
+  progressBarBackgroundColor?: string;
+  percentageLabelColor?: string;
 }
 
 export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
@@ -44,6 +48,10 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
     textOnPrimaryColor: "#ffffff",
     textColor: "#0a0a0a",
     darkModePreference: false,
+    optionsBackgroundColor: "#fcfcfc",
+  optionsHoverColor: "#f7f9fc",
+  progressBarBackgroundColor: "#f0f0f5",
+  percentageLabelColor: "#ffffff",
   };
   
   const [brandColors, setBrandColors] = useState<BrandColorsValues>({
@@ -54,6 +62,10 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
     textOnPrimaryColor: clientApp?.brandColors?.textOnPrimaryColor || defaultColors.textOnPrimaryColor,
     textColor: clientApp?.brandColors?.textColor || defaultColors.textColor,
     darkModePreference: clientApp?.brandColors?.darkModePreference || defaultColors.darkModePreference,
+    optionsBackgroundColor: clientApp?.brandColors?.optionsBackgroundColor || defaultColors.optionsBackgroundColor,
+    optionsHoverColor: clientApp?.brandColors?.optionsHoverColor || defaultColors.optionsHoverColor,
+    progressBarBackgroundColor: clientApp?.brandColors?.progressBarBackgroundColor || defaultColors.progressBarBackgroundColor,
+    percentageLabelColor: clientApp?.brandColors?.percentageLabelColor || defaultColors.percentageLabelColor
   });
 
   const handleColorChange = (color: string) => {
@@ -115,6 +127,10 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
     { key: "secondaryHoverColor", label: "Secondary Hover", description: "Hover state for secondary color" },
     { key: "textOnPrimaryColor", label: "Text on Primary", description: "Text color on primary background" },
     { key: "textColor", label: "Text Color", description: "Default text color" },
+    { key: "optionsBackgroundColor", label: "Options Background", description: "Background color for options" },
+    { key: "optionsHoverColor", label: "Options Hover", description: "Hover color for options" },
+    { key: "progressBarBackgroundColor", label: "Progress Bar BG", description: "Background color for progress bars" },
+    { key: "percentageLabelColor", label: "Percentage Label", description: "Text color for percentage labels" },
   ];
 
   return (
@@ -224,8 +240,8 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
 
       {/* Edit Brand Colors Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
             <DialogTitle>Edit Brand Colors</DialogTitle>
           </DialogHeader>
           
