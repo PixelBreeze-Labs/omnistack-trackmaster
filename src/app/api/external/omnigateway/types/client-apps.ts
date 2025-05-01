@@ -46,6 +46,15 @@ export interface ClientAppReportConfig {
   email: ClientAppEmailConfig;
 }
 
+export interface ClientAppBrandColors {
+  primaryColor?: string;
+  primaryHoverColor?: string;
+  secondaryColor?: string;
+  secondaryHoverColor?: string;
+  textOnPrimaryColor?: string;
+  textColor?: string;
+}
+
 export interface ClientAppClient {
   name: string | null;
   code: string | null;
@@ -62,6 +71,7 @@ export interface ClientApp {
   status: ClientAppStatus;
   reportConfig: ClientAppReportConfig;
   client?: ClientAppClient;
+  brandColors?: ClientAppBrandColors;
 }
 
 export interface ClientAppParams {

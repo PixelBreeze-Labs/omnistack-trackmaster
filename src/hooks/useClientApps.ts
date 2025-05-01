@@ -5,7 +5,8 @@ import { createOmniStackClientApi } from '@/app/api/external/omnigateway/client'
 import { 
   ClientAppParams,
   ClientApp,
-  ClientAppMetrics
+  ClientAppMetrics,
+  ClientAppBrandColors
 } from "@/app/api/external/omnigateway/types/client-apps";
 import { useGatewayClientApiKey } from './useGatewayClientApiKey';
 import { toast } from 'react-hot-toast';
@@ -36,7 +37,6 @@ const [dashboardData, setDashboardData] = useState({
   clientsWithMostApps: []
 });
 const [isDashboardLoading, setIsDashboardLoading] = useState(false);
-
 
   const { apiKey } = useGatewayClientApiKey();
   const api = useMemo(() => apiKey ? createOmniStackClientApi(apiKey) : null, [apiKey]);
@@ -184,6 +184,45 @@ const [isDashboardLoading, setIsDashboardLoading] = useState(false);
     }
   }, [api]);
 
+  // Update brand colors for a client app
+  const updateBrandColors = useCallback(async (id: string, brandColors: ClientAppBrandColors) => {
+    if (!api) return;
+    try {
+      setIsProcessing(true);
+      console.log('Updating brand colors for client app with ID:', id, brandColors);
+      
+      // We can use the updateClientApp method with brandColors property
+      const updatedClientApp = await api.updateClientApp(id, { brandColors });
+      
+      // Update local state to reflect changes
+      setClientApps(currentApps => 
+        currentApps.map(app => 
+          app._id === id ? updatedClientApp : app
+        )
+      );
+      
+      return updatedClientApp;
+    } catch (error) {
+      console.error('Error updating brand colors:', error);
+      
+      if (error.response?.status === 401) {
+        toast.error('Authentication error. Please check your API key or login again.');
+      } else if (error.response?.data?.message) {
+        if (Array.isArray(error.response.data.message)) {
+          toast.error(error.response.data.message[0]);
+        } else {
+          toast.error(error.response.data.message);
+        }
+      } else {
+        toast.error('Failed to update brand colors');
+      }
+      
+      throw error;
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [api]);
+
   // Delete a client app
   const deleteClientApp = useCallback(async (id: string) => {
     if (!api) {
@@ -253,7 +292,7 @@ const [isDashboardLoading, setIsDashboardLoading] = useState(false);
     }
   }, [api]);
 
-  
+
   return {
     isLoading,
     isProcessing,

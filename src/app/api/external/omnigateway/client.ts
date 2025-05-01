@@ -2,7 +2,7 @@
 
 import { createOmniGateway } from './index';
 import { ClientParams, ClientsResponse, Client } from './types/clients';
-import { ClientAppsResponse, ClientAppParams, ClientApp } from './types/client-apps';
+import { ClientAppsResponse, ClientAppParams, ClientApp, ClientAppBrandColors } from './types/client-apps';
 
 export const createOmniStackClientApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
@@ -178,6 +178,17 @@ export const createOmniStackClientApi = (apiKey: string) => {
         await api.delete(`/client-apps/${id}`);
       } catch (error) {
         console.error(`Error deleting client app ${id}:`, error);
+        throw error;
+      }
+    },
+
+    // Update brand colors for a client app
+    updateBrandColors: async (id: string, brandColors: ClientAppBrandColors): Promise<ClientApp> => {
+      try {
+        const { data } = await api.put<ClientApp>(`/client-apps/${id}/brand-colors`, brandColors);
+        return data;
+      } catch (error) {
+        console.error(`Error updating brand colors for client app ${id}:`, error);
         throw error;
       }
     },
