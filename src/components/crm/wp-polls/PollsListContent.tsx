@@ -47,6 +47,7 @@ import {
   Calendar,
   Filter,
   Trash,
+  Plus,
   CheckCircle2,
   PenTool,
   Vote,
@@ -270,15 +271,19 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-        </div>
+  <Button onClick={() => router.push(`/crm/platform/os-clients/${clientId}/wp-polls/create`)}>
+    <Plus className="mr-2 h-4 w-4" />
+    Create Poll
+  </Button>
+  <Button variant="outline" size="sm" onClick={handleRefresh}>
+    <RefreshCcw className="mr-2 h-4 w-4" />
+    Refresh
+  </Button>
+  <Button variant="outline" size="sm">
+    <Download className="mr-2 h-4 w-4" />
+    Export
+  </Button>
+</div>
       </div>
 
       {/* Summary Cards */}
