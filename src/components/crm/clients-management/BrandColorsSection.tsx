@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HexColorPicker } from "react-colorful";
-import { Paintbrush, Check, RefreshCcw } from "lucide-react";
+import { Paintbrush, Check, RefreshCcw, Moon } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ClientApp } from "@/app/api/external/omnigateway/types/client-apps";
 import { useClientApps } from "@/hooks/useClientApps";
+import { Switch } from "@/components/ui/switch";
 
 interface BrandColorsProps {
   clientApp: ClientApp;
@@ -25,6 +26,7 @@ interface BrandColorsValues {
   secondaryHoverColor: string;
   textOnPrimaryColor: string;
   textColor: string;
+  darkModePreference: boolean;
 }
 
 export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
@@ -41,6 +43,7 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
     secondaryHoverColor: "#6c757d",
     textOnPrimaryColor: "#ffffff",
     textColor: "#0a0a0a",
+    darkModePreference: false,
   };
   
   const [brandColors, setBrandColors] = useState<BrandColorsValues>({
@@ -50,10 +53,11 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
     secondaryHoverColor: clientApp?.brandColors?.secondaryHoverColor || defaultColors.secondaryHoverColor,
     textOnPrimaryColor: clientApp?.brandColors?.textOnPrimaryColor || defaultColors.textOnPrimaryColor,
     textColor: clientApp?.brandColors?.textColor || defaultColors.textColor,
+    darkModePreference: clientApp?.brandColors?.darkModePreference || defaultColors.darkModePreference,
   });
 
   const handleColorChange = (color: string) => {
-    if (!activeColor) return;
+    if (!activeColor || activeColor === 'darkModePreference') return;
     
     setBrandColors(prev => ({
       ...prev,
@@ -62,6 +66,8 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
   };
 
   const handleInputChange = (key: keyof BrandColorsValues, value: string) => {
+    if (key === 'darkModePreference') return;
+    
     // Validate hex color
     if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value) || value === "") {
       setBrandColors(prev => ({
@@ -69,6 +75,13 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
         [key]: value
       }));
     }
+  };
+
+  const handleDarkModeToggle = (checked: boolean) => {
+    setBrandColors(prev => ({
+      ...prev,
+      darkModePreference: checked
+    }));
   };
 
   const saveColors = async () => {
@@ -129,6 +142,17 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
               ))}
             </div>
             
+            {/* Add dark mode preference indicator */}
+            <div className="flex items-center justify-between mt-2 py-2 px-3 bg-slate-100 rounded-md">
+              <div className="flex items-center gap-2">
+                <Moon className="h-4 w-4 text-slate-700" />
+                <span className="text-sm font-medium">Dark Mode Preference</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {brandColors.darkModePreference ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+            
             <div className="flex justify-end">
               <Button onClick={() => setIsModalOpen(true)}>
                 Edit Brand Colors
@@ -145,9 +169,12 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="p-4 rounded-md" style={{ backgroundColor: '#f8f9fa' }}>
+            <div className="p-4 rounded-md" style={{ 
+              backgroundColor: brandColors.darkModePreference ? '#222222' : '#f8f9fa',
+              color: brandColors.darkModePreference ? '#ffffff' : brandColors.textColor
+            }}>
               <div className="space-y-3">
-                <h3 className="font-medium" style={{ color: brandColors.textColor }}>Sample UI with Brand Colors</h3>
+                <h3 className="font-medium">Sample UI with Brand Colors</h3>
                 
                 <div className="flex gap-2">
                   {/* Primary Button */}
@@ -179,10 +206,14 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
                 
                 <div 
                   className="p-3 rounded-md border" 
-                  style={{ borderColor: brandColors.primaryColor }}
+                  style={{ 
+                    borderColor: brandColors.primaryColor,
+                    backgroundColor: brandColors.darkModePreference ? '#333333' : 'white'
+                  }}
                 >
-                  <p style={{ color: brandColors.textColor }}>
+                  <p style={{ color: brandColors.darkModePreference ? '#ffffff' : brandColors.textColor }}>
                     This is sample text using your brand colors. The border of this container uses your primary color.
+                    {brandColors.darkModePreference && " This preview shows how content looks in dark mode."}
                   </p>
                 </div>
               </div>
@@ -224,13 +255,31 @@ export function BrandColorsSection({ clientApp, onUpdate }: BrandColorsProps) {
                 </div>
               ))}
               
+              {/* Dark Mode Toggle */}
+              <div className="space-y-2 pt-2 border-t">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="darkModePreference" className="text-sm font-medium flex items-center gap-2">
+                    <Moon className="h-4 w-4" />
+                    Dark Mode Preference
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      Default theme mode for this client
+                    </span>
+                  </Label>
+                  <Switch
+                    id="darkModePreference"
+                    checked={brandColors.darkModePreference}
+                    onCheckedChange={handleDarkModeToggle}
+                  />
+                </div>
+              </div>
+              
               <Button variant="outline" onClick={resetToDefaults} className="w-full">
                 Reset to Defaults
               </Button>
             </div>
             
             <div className="space-y-4">
-              {activeColor ? (
+              {activeColor && activeColor !== 'darkModePreference' ? (
                 <>
                   <Label className="text-sm font-medium">
                     Color Picker - {activeColor}
