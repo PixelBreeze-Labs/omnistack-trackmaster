@@ -84,6 +84,7 @@ export default function CreatePollForm({ clientId }: CreatePollFormProps) {
   useEffect(() => {
     const loadClient = async () => {
       try {
+
         // Load client info
         if (clientId) {
           const response = await getClient(clientId);

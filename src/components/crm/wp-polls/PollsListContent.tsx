@@ -126,7 +126,7 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
           const response = await getClient(clientId);
           
           // Handle both the old and new response format
-          const client = response.client || response;
+          const client = response?.client || response;
           
           if (client) {
             setClientName(client.name);
@@ -213,8 +213,7 @@ export default function PollsListContent({ clientId }: PollsListContentProps) {
 
   const confirmDeletePoll = async (poll: Poll) => {
     try {
-      await deletePoll(poll._id);
-      toast.success("Poll deleted successfully");
+      await deletePoll(poll._id, clientId);
       
       // Refresh data after deletion
       await fetchPolls(clientId, fetchParams());
