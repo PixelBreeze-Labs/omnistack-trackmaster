@@ -200,7 +200,7 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
         )}
       </div>
     );
-  } else if (clientId === "680027c0860084f81c6090cd") {
+  } else if (clientId === "680027c0860084f81c6090cd" || clientId === "68134e9e3f5e00472a0a8fc1") {
     return (
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <Card>
@@ -216,23 +216,23 @@ const SpecialFeatureCards = ({ clientId, specialFeatures }: { clientId: string, 
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center">
                   <BarChart3 className="h-8 w-8 text-blue-500 mb-2" />
-                  <span className="text-sm font-medium">{polls.activePolls}</span>
+                  <span className="text-sm font-medium">{polls?.activePolls}</span>
                   <span className="text-xs text-muted-foreground">Active Polls</span>
                 </div>
                 <div className="bg-green-50 rounded-lg p-3 flex flex-col items-center">
                   <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
-                  <span className="text-sm font-medium">{polls.responses}</span>
+                  <span className="text-sm font-medium">{polls?.responses}</span>
                   <span className="text-xs text-muted-foreground">Responses</span>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Last poll created:</span>
-                  <span className="font-medium">{formatDate(polls.lastPollDate)}</span>
+                  <span className="font-medium">{formatDate(polls?.lastPollDate)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Most active poll:</span>
-                  <span className="font-medium">{polls.mostActivePoll}</span>
+                  <span className="font-medium">{polls?.mostActivePoll}</span>
                 </div>
               </div>
             </div>
