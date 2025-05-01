@@ -54,6 +54,10 @@ export interface ClientAppBrandColors {
   textOnPrimaryColor?: string;
   textColor?: string;
   darkModePreference?: boolean;
+  optionsBackgroundColor?: string;
+  optionsHoverColor?: string;
+  progressBarBackgroundColor?: string;
+  percentageLabelColor?: string;
 }
 
 export interface ClientAppClient {
