@@ -163,6 +163,54 @@ const updatePoll = useCallback(async (id: string, pollData: Partial<Poll>, clien
     }
   }, [pollsApi]);
 
+  // Create a new poll
+const createPoll = useCallback(async (pollData: Partial<Poll>): Promise<Poll> => {
+  if (!pollsApi) {
+    toast.error('API client not initialized');
+    throw new Error('API client not initialized');
+  }
+  
+  try {
+    setIsProcessing(true);
+    console.log('Creating poll with data:', pollData);
+    
+    let newPoll;
+    // If this is a multi-client poll, use the multi-client endpoint
+    if (pollData.isMultiClient && pollData.additionalClientIds && pollData.additionalClientIds.length > 0) {
+      newPoll = await pollsApi.createMultiClientPoll(pollData);
+    } else {
+      newPoll = await pollsApi.createPoll(pollData);
+    }
+    
+    toast.success('Poll created successfully');
+    
+    // Update local state to add the new poll
+    setPolls(currentPolls => [newPoll, ...currentPolls]);
+    setTotalItems(prev => prev + 1);
+    
+    return newPoll;
+  } catch (error) {
+    console.error('Error creating poll:', error);
+    
+    if (error.response?.status === 401) {
+      toast.error('Authentication error. Please check your API key or login again.');
+    } else if (error.response?.data?.message) {
+      if (Array.isArray(error.response.data.message)) {
+        toast.error(error.response.data.message[0]);
+      } else {
+        toast.error(error.response.data.message);
+      }
+    } else {
+      toast.error('Failed to create poll');
+    }
+    
+    throw error;
+  } finally {
+    setIsProcessing(false);
+  }
+}, [pollsApi]);
+
+
   return {
     isLoading,
     isProcessing,
@@ -178,6 +226,7 @@ const updatePoll = useCallback(async (id: string, pollData: Partial<Poll>, clien
     updatePoll,
     deletePoll,
     votePoll,
-    fetchPollStats
+    fetchPollStats,
+    createPoll
   };
 };
