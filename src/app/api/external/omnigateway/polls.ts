@@ -142,6 +142,28 @@ getPollsByClientId: async (clientId: string, params: PollParams = {}): Promise<P
         throw error;
       }
     },
+
+    // Create a new poll
+createPoll: async (pollData: Partial<Poll>): Promise<Poll> => {
+  try {
+    const { data } = await api.post<Poll>('/polls', pollData);
+    return data;
+  } catch (error) {
+    console.error('Error creating poll:', error);
+    throw error;
+  }
+},
+
+// Create a multi-client poll
+createMultiClientPoll: async (pollData: Partial<Poll>): Promise<Poll> => {
+  try {
+    const { data } = await api.post<Poll>('/polls/multi-client', pollData);
+    return data;
+  } catch (error) {
+    console.error('Error creating multi-client poll:', error);
+    throw error;
+  }
+},
     
     // Get stats for polls for a specific client
     getPollStatsByClientId: async (clientId: string): Promise<PollStatsResponse> => {

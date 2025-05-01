@@ -53,6 +53,7 @@ export interface ClientAppBrandColors {
   secondaryHoverColor?: string;
   textOnPrimaryColor?: string;
   textColor?: string;
+  darkModePreference?: boolean;
 }
 
 export interface ClientAppClient {
