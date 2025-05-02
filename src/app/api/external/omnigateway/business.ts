@@ -9,7 +9,6 @@ export const createBusinessApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
 
   return {
-
     // Deactivate a business
     deactivateBusiness: async (businessId: string) => {
       const { data } = await api.patch(`/businesses/${businessId}/deactivate`);
@@ -29,7 +28,12 @@ export const createBusinessApi = (apiKey: string) => {
       });
       return data;
     },
-
+    
+    // Soft delete a business
+    softDeleteBusiness: async (businessId: string) => {
+      const { data } = await api.patch(`/businesses/${businessId}/delete`);
+      return data;
+    },
     
     // Get all businesses with optional filtering
     getBusinesses: async (params: BusinessParams = {}) => {
@@ -42,7 +46,6 @@ export const createBusinessApi = (apiKey: string) => {
       if (params.isTrialing !== undefined) queryParams.append('isTrialing', params.isTrialing.toString());
       if (params.isTestAccount !== undefined) queryParams.append('isTestAccount', params.isTestAccount.toString());
       if (params.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
-      
       
       const queryString = queryParams.toString();
       const endpoint = `/businesses${queryString ? `?${queryString}` : ''}`;
@@ -72,7 +75,5 @@ export const createBusinessApi = (apiKey: string) => {
       const { data } = await api.post('/magic-link/send', { email });
       return data;
     }
-    
-    
   };
 };

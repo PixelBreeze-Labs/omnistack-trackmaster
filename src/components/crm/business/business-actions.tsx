@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { 
   Mail,
-  Settings
+  Settings,
+  Trash2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Business } from "@/app/api/external/omnigateway/types/business";
@@ -33,6 +34,7 @@ export default function BusinessActions({ business, onActionComplete }: Business
     deactivateBusiness, 
     activateBusiness, 
     toggleTestAccountStatus,
+    softDeleteBusiness,
     sendMagicLink,
     isLoading 
   } = useBusiness();
@@ -41,6 +43,7 @@ export default function BusinessActions({ business, onActionComplete }: Business
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showTestAccountDialog, setShowTestAccountDialog] = useState(false);
   const [showMagicLinkDialog, setShowMagicLinkDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
   
   const isActive = business.isActive;
@@ -84,6 +87,16 @@ export default function BusinessActions({ business, onActionComplete }: Business
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await softDeleteBusiness(business._id);
+      setShowDeleteDialog(false);
+      if (onActionComplete) onActionComplete();
+    } catch (error) {
+      console.error("Error deleting business:", error);
+    }
+  };
+
   const handleSendMagicLink = async () => {
     try {
       await sendMagicLink(business.adminUser?.email || business.email);
@@ -118,6 +131,9 @@ export default function BusinessActions({ business, onActionComplete }: Business
       case "magic-link":
         setShowMagicLinkDialog(true);
         break;
+      case "delete":
+        setShowDeleteDialog(true);
+        break;
       case "manage-features":
         router.push(`/crm/platform/businesses/${business._id}/features`);
         break;
@@ -132,6 +148,7 @@ export default function BusinessActions({ business, onActionComplete }: Business
   };
 
   const getActionOptions = () => {
+    
     const options = [
       { value: "", label: "Actions" },
       { value: "view", label: "View Details" },
@@ -151,6 +168,9 @@ export default function BusinessActions({ business, onActionComplete }: Business
       value: "test-account", 
       label: isTestAccount ? "Unmark as Test Account" : "Mark as Test Account" 
     });
+    
+    // Add delete action
+    options.push({ value: "delete", label: "Delete Business" });
     
     return options;
   };
@@ -231,6 +251,29 @@ export default function BusinessActions({ business, onActionComplete }: Business
               disabled={isLoading}
             >
               {isTestAccount ? "Remove Flag" : "Mark as Test"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Business</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {business.name}? This business and its associated data will be hidden from view but can be restored by an administrator if needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isLoading}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
