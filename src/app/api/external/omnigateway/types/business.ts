@@ -1,17 +1,40 @@
 // app/api/external/omnigateway/types/business.ts
 export enum BusinessType {
-    RESTAURANT = 'restaurant',
-    BAR = 'bar',
-    CAFE = 'cafe',
-    CLUB = 'club',
-    RETAIL = 'retail',
-    CORPORATION = 'corporation',
-    LLC = 'llc',
-    SOLE_PROPRIETORSHIP = 'sole_proprietorship',
-    FREELANCER = 'freelancer',
-    STARTUP = 'startup',
-    OTHER = 'other'
-  }
+  // Companies
+  CORPORATION = 'corporation',
+  PRIVATE_COMPANY = 'private_company',
+  PUBLIC_COMPANY = 'public_company',
+  LLC = 'llc',
+
+  // Partnerships
+  PARTNERSHIP = 'partnership',
+  LIMITED_PARTNERSHIP = 'limited_partnership',
+  GENERAL_PARTNERSHIP = 'general_partnership',
+
+  // Individual Ownership
+  SOLE_PROPRIETORSHIP = 'sole_proprietorship',
+  SOLO_OWNERSHIP = 'solo_ownership',
+  FREELANCER = 'freelancer',
+
+  // Special Types
+  STARTUP = 'startup',
+  NONPROFIT = 'nonprofit',
+  COOPERATIVE = 'cooperative',
+
+  // Regional Types
+  PLC = 'plc',                    // Public Limited Company (UK)
+  LTD = 'ltd',                    // Limited Company (UK)
+  GMBH = 'gmbh',                  // German Company Type
+  SARL = 'sarl',                  // French Company Type
+
+  // Other Categories
+  FRANCHISE = 'franchise',
+  FAMILY_BUSINESS = 'family_business',
+  JOINT_VENTURE = 'joint_venture',
+  OTHER = 'other'
+}
+
+  
   
   export enum SubscriptionStatus {
     ACTIVE = 'active',

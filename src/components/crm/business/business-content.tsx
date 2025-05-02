@@ -371,7 +371,7 @@ const refreshData = () => {
         <CardHeader className="pb-3">
           <div>
             <h2 className="text-lg font-medium">Filter Businesses</h2>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-muted-foreground mt-0">
               Search and filter through your businesses and subscriptions
             </p>
           </div>
@@ -806,7 +806,7 @@ const refreshData = () => {
           </Card>
           
           {/* Add bottom spacing */}
-          <div className="h-4"></div>
+          <div className="h-8"></div>
         </div>
       );
     }

@@ -35,12 +35,31 @@ export const useStaffAdminUsers = () => {
     }
   }, [api]);
 
+  // Soft delete a user
+  const softDeleteUser = useCallback(async (userId: string) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.softDeleteUser(userId);
+      toast.success('User deleted successfully');
+      return response;
+    } catch (error) {
+      toast.error('Failed to delete user');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api]);
+
+
+
   return {
     isLoading,
     staffAdminUsers,
     totalItems,
     totalPages,
     fetchStaffAdminUsers,
+    softDeleteUser,
     isInitialized: !!api
   };
 };
