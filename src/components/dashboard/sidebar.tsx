@@ -134,7 +134,16 @@ export default function Sidebar({
   const pathname = usePathname()
   
   // Determine client type based on pathname
-  const isSaas = pathname.includes('/staffluent') || pathname.includes('/businesses')
+  const isSaas = pathname.includes('/staffluent') 
+    || pathname.includes('/businesses')
+    || pathname.includes('/businesses')
+    || pathname.includes('/stripe-products')
+    || pathname.includes('/subscriptions')
+    || pathname.includes('/features')
+    || pathname.includes('/billing')
+    || pathname.includes('/support')
+    || pathname.includes('/settings')
+    || pathname.includes('/users')
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = pathname.includes('/pixelbreeze') || pathname.includes('/social-profiles') || pathname.includes('/operating-entities')
