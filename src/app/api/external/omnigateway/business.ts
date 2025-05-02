@@ -41,6 +41,8 @@ export const createBusinessApi = (apiKey: string) => {
       if (params.status) queryParams.append('status', params.status);
       if (params.isTrialing !== undefined) queryParams.append('isTrialing', params.isTrialing.toString());
       if (params.isTestAccount !== undefined) queryParams.append('isTestAccount', params.isTestAccount.toString());
+      if (params.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
+      
       
       const queryString = queryParams.toString();
       const endpoint = `/businesses${queryString ? `?${queryString}` : ''}`;

@@ -114,6 +114,7 @@ export enum BusinessType {
     status?: string;
     isTrialing?: boolean;
     isTestAccount?: boolean;
+    isActive?: boolean;
     sort?: string;
   }
   
