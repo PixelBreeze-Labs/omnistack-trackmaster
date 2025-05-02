@@ -78,36 +78,52 @@ export default function BusinessesContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [expandedBusinesses, setExpandedBusinesses] = useState<Record<string, boolean>>({});
-  const [showTestAccounts, setShowTestAccounts] = useState(true);
+  const [showTestAccounts, setShowTestAccounts] = useState(false);
   const [showActiveAccounts, setShowActiveAccounts] = useState(true);
 
-// Update useEffect to handle the testAccounts parameter
-useEffect(() => {
-  // Set initial filters from URL if present
-  const status = searchParams?.get("status") || "all";
-  const search = searchParams?.get("search") || "";
-  const page = parseInt(searchParams?.get("page") || "1");
-  const limit = parseInt(searchParams?.get("limit") || "10");
-  const testAccounts = searchParams?.get("testAccounts") !== "false";
-  const activeAccounts = searchParams?.get("activeAccounts") !== "false";
+  useEffect(() => {
+    // Set initial filters from URL if present, or use our defaults if not
+    const status = searchParams?.get("status") || "all";
+    const search = searchParams?.get("search") || "";
+    const page = parseInt(searchParams?.get("page") || "1");
+    const limit = parseInt(searchParams?.get("limit") || "10");
+    
+    // If testAccounts param exists in URL, use it, otherwise default to false (unchecked)
+    const testAccounts = searchParams?.has("testAccounts") 
+      ? searchParams.get("testAccounts") !== "false" 
+      : false;
+      
+    // If activeAccounts param exists in URL, use it, otherwise default to true (checked)
+    const activeAccounts = searchParams?.has("activeAccounts")
+      ? searchParams.get("activeAccounts") !== "false"
+      : true;
+    
+    setStatusFilter(status);
+    setSearchTerm(search);
+    setCurrentPage(page);
+    setItemsPerPage(limit);
+    setShowTestAccounts(testAccounts);
+    setShowActiveAccounts(activeAccounts);
   
-  setStatusFilter(status);
-  setSearchTerm(search);
-  setCurrentPage(page);
-  setItemsPerPage(limit);
-  setShowTestAccounts(testAccounts);
-  setShowActiveAccounts(activeAccounts);
+    // Always apply both filters explicitly
+    fetchBusinesses({
+      status: status !== "all" ? status : undefined,
+      search,
+      page,
+      limit,
+      isTestAccount: false, // Always filter out test accounts by default
+      isActive: true        // Always show only active accounts by default
+    });
+    
+    // Update URL to reflect these defaults if it's the initial load (no params)
+    if (!searchParams.toString()) {
+      const params = new URLSearchParams();
+      params.set("testAccounts", "false"); // Add testAccounts=false to URL
+      const queryString = params.toString();
+      router.replace(`?${queryString}`);
+    }
+  }, [searchParams, fetchBusinesses, router]);
 
-  // Load businesses with these parameters
-  fetchBusinesses({
-    status: status !== "all" ? status : undefined,
-    search,
-    page,
-    limit,
-    isTestAccount: testAccounts ? undefined : false,
-    isActive: activeAccounts ? undefined : false
-  });
-}, [searchParams, fetchBusinesses]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -375,46 +391,52 @@ const refreshData = () => {
             </div>
             <div className="flex items-center space-x-2">
            
-<Switch
+            <Switch
   id="test-accounts"
   checked={showTestAccounts}
   onCheckedChange={(checked) => {
     // Update state
     setShowTestAccounts(checked);
     
-    // Create URL params
+    // Construct API parameters
+    const apiFilters = {};
+    
+    // Add basic filters
+    if (statusFilter !== "all") apiFilters.status = statusFilter;
+    if (searchTerm) apiFilters.search = searchTerm;
+    apiFilters.page = 1;
+    apiFilters.limit = itemsPerPage;
+    
+    // IMPORTANT: Always explicitly set isTestAccount
+    apiFilters.isTestAccount = checked ? undefined : false;
+    
+    // IMPORTANT: Always explicitly set isActive
+    apiFilters.isActive = showActiveAccounts;
+    
+    // Log what we're sending
+    console.log("Test accounts switch changed to:", checked);
+    console.log("API filters being sent:", apiFilters);
+    
+    // Make the API call
+    fetchBusinesses(apiFilters);
+    
+    // Update URL
     const params = new URLSearchParams(window.location.search);
-    // For true (default state), remove param; for false, set it explicitly
     if (checked) {
       params.delete("testAccounts");
     } else {
       params.set("testAccounts", "false");
     }
     
-    // Update URL
+    // Preserve other parameters
+    if (searchTerm) params.set("search", searchTerm);
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    params.set("page", "1");
+    if (itemsPerPage !== 10) params.set("limit", itemsPerPage.toString());
+    if (!showActiveAccounts) params.set("activeAccounts", "false");
+    
     const queryString = params.toString();
     router.push(queryString ? `?${queryString}` : "");
-    
-    // Create API filters
-    const apiFilters: any = {
-      status: statusFilter !== "all" ? statusFilter : undefined,
-      search: searchTerm,
-      page: 1, // Reset to first page
-      limit: itemsPerPage
-    };
-    
-    // Only apply the filter when unchecked
-    if (!checked) {
-      apiFilters.isTestAccount = false;
-    }
-    
-    // Apply active filter if needed
-    if (showActiveAccounts) {
-      apiFilters.isActive = true;
-    }
-    
-    // Fetch with new filters
-    fetchBusinesses(apiFilters);
   }}
 />
   <Label htmlFor="test-accounts">Include test accounts</Label>
@@ -427,17 +449,18 @@ const refreshData = () => {
     // Update state
     setShowActiveAccounts(checked);
     
-    // Create API filters
+    // Always create complete filter object with BOTH parameters
     const apiFilters = {
       status: statusFilter !== "all" ? statusFilter : undefined,
       search: searchTerm,
       page: 1,
       limit: itemsPerPage,
+      // Always preserve BOTH filter states
       isTestAccount: !showTestAccounts ? false : undefined,
-      isActive: checked // This will now be properly included in the request
+      isActive: checked ? true : false // Always set explicitly
     };
     
-    console.log("API filters:", apiFilters); // Log for debugging
+    console.log("Active switch - API filters:", apiFilters);
     
     // Fetch with new filters
     fetchBusinesses(apiFilters);
