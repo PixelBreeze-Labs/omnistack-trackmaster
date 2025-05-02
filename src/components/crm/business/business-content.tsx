@@ -105,25 +105,25 @@ export default function BusinessesContent() {
     setShowTestAccounts(testAccounts);
     setShowActiveAccounts(activeAccounts);
   
-    // Always apply both filters explicitly
+    // THIS IS THE FIX: Use the actual values from URL instead of hardcoded defaults
     fetchBusinesses({
       status: status !== "all" ? status : undefined,
       search,
       page,
       limit,
-      isTestAccount: false, // Always filter out test accounts by default
-      isActive: true        // Always show only active accounts by default
+      isTestAccount: testAccounts ? undefined : false, // Use the parsed value
+      isActive: activeAccounts // Use the parsed value
     });
     
     // Update URL to reflect these defaults if it's the initial load (no params)
     if (!searchParams.toString()) {
       const params = new URLSearchParams();
       params.set("testAccounts", "false"); // Add testAccounts=false to URL
+      params.set("activeAccounts", "true"); // Add activeAccounts=true to URL
       const queryString = params.toString();
       router.replace(`?${queryString}`);
     }
   }, [searchParams, fetchBusinesses, router]);
-
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -165,31 +165,31 @@ const updateUrlAndFetch = (
   if (status !== "all") params.set("status", status);
   if (page > 1) params.set("page", page.toString());
   if (limit !== 10) params.set("limit", limit.toString());
-  if (!includeTestAccounts) params.set("testAccounts", "false");
-  if (!includeActiveAccounts) params.set("activeAccounts", "false");
+  
+  // Always explicitly set these parameters in the URL
+  params.set("testAccounts", includeTestAccounts.toString());
+  params.set("activeAccounts", includeActiveAccounts.toString());
   
   const queryString = params.toString();
   router.push(queryString ? `?${queryString}` : "");
   
   // Construct the filter object for the API call
-  const apiFilters: any = {
+  const apiFilters = {
     search,
     status: status !== "all" ? status : undefined,
     page,
     limit,
   };
   
-  // Handle test account filtering
+  // Set isTestAccount explicitly - if false, exclude test accounts
   if (!includeTestAccounts) {
-    apiFilters.isTestAccount = false; // Only non-test accounts
+    apiFilters.isTestAccount = false;
   }
   
-  // Handle active status filtering - if switch is off, only show inactive
-  if (!includeActiveAccounts) {
-    apiFilters.isActive = false; // Only inactive accounts
-  }
+  // Set isActive explicitly - based on the switch state
+  apiFilters.isActive = includeActiveAccounts;
   
-  // Fetch businesses with the proper filters
+  // Make only ONE API call with complete filters
   fetchBusinesses(apiFilters);
 };
 
@@ -446,44 +446,21 @@ const refreshData = () => {
   id="active-accounts"
   checked={showActiveAccounts}
   onCheckedChange={(checked) => {
-    // Update state
+    // First update state
     setShowActiveAccounts(checked);
     
-    // Always create complete filter object with BOTH parameters
-    const apiFilters = {
-      status: statusFilter !== "all" ? statusFilter : undefined,
-      search: searchTerm,
-      page: 1,
-      limit: itemsPerPage,
-      // Always preserve BOTH filter states
-      isTestAccount: !showTestAccounts ? false : undefined,
-      isActive: checked ? true : false // Always set explicitly
-    };
-    
-    console.log("Active switch - API filters:", apiFilters);
-    
-    // Fetch with new filters
-    fetchBusinesses(apiFilters);
-    
-    // Update URL
-    const params = new URLSearchParams(window.location.search);
-    if (checked) {
-      params.delete("activeAccounts");
-    } else {
-      params.set("activeAccounts", "false");
-    }
-    
-    // Keep other params
-    if (searchTerm) params.set("search", searchTerm);
-    if (statusFilter !== "all") params.set("status", statusFilter);
-    params.set("page", "1");
-    if (itemsPerPage !== 10) params.set("limit", itemsPerPage.toString());
-    if (!showTestAccounts) params.set("testAccounts", "false");
-    
-    const queryString = params.toString();
-    router.push(queryString ? `?${queryString}` : "");
+    // Then update URL and fetch with BOTH filters maintained consistently
+    updateUrlAndFetch(
+      searchTerm,
+      statusFilter,
+      1, // Reset to page 1 when changing filters
+      itemsPerPage,
+      showTestAccounts,
+      checked // Pass the new state directly
+    );
   }}
 />
+
   <Label htmlFor="active-accounts">Is Active</Label>
 </div>
             <div className="flex gap-2">

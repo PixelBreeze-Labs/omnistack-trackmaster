@@ -72,7 +72,7 @@ export const useBusiness = () => {
     }
   }, [api]);
 
-
+  // Deactivate a business
   const deactivateBusiness = useCallback(async (businessId: string) => {
     if (!api) return;
     try {
@@ -122,6 +122,22 @@ export const useBusiness = () => {
     }
   }, [api]);
 
+  // Soft delete a business
+  const softDeleteBusiness = useCallback(async (businessId: string) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.softDeleteBusiness(businessId);
+      toast.success('Business deleted successfully');
+      return response;
+    } catch (error) {
+      toast.error('Failed to delete business');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api]);
+
   const sendMagicLink = useCallback(async (email: string) => {
     if (!api) return;
     try {
@@ -148,6 +164,7 @@ export const useBusiness = () => {
     deactivateBusiness,
     activateBusiness,
     toggleTestAccountStatus,
+    softDeleteBusiness,
     sendMagicLink,
     isInitialized: !!api
   };
