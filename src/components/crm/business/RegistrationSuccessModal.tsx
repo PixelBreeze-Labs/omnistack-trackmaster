@@ -49,7 +49,7 @@ export default function RegistrationSuccessModal({
   };
 
   const viewBusiness = () => {
-    router.push(`/crm/platform/businesses/${businessId}`);
+    router.push(`/crm/platform/businesses}`);
     onClose();
   };
 
