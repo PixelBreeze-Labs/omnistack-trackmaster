@@ -79,6 +79,7 @@ export default function BusinessesContent() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [expandedBusinesses, setExpandedBusinesses] = useState<Record<string, boolean>>({});
   const [showTestAccounts, setShowTestAccounts] = useState(true);
+  const [showActiveAccounts, setShowActiveAccounts] = useState(true);
 
 // Update useEffect to handle the testAccounts parameter
 useEffect(() => {
@@ -88,12 +89,14 @@ useEffect(() => {
   const page = parseInt(searchParams?.get("page") || "1");
   const limit = parseInt(searchParams?.get("limit") || "10");
   const testAccounts = searchParams?.get("testAccounts") !== "false";
+  const activeAccounts = searchParams?.get("activeAccounts") !== "false";
   
   setStatusFilter(status);
   setSearchTerm(search);
   setCurrentPage(page);
   setItemsPerPage(limit);
   setShowTestAccounts(testAccounts);
+  setShowActiveAccounts(activeAccounts);
 
   // Load businesses with these parameters
   fetchBusinesses({
@@ -101,7 +104,8 @@ useEffect(() => {
     search,
     page,
     limit,
-    isTestAccount: testAccounts ? undefined : false
+    isTestAccount: testAccounts ? undefined : false,
+    isActive: activeAccounts ? undefined : false
   });
 }, [searchParams, fetchBusinesses]);
 
@@ -130,13 +134,14 @@ useEffect(() => {
   };
 
 
-  // Update this function to include the includeTestAccounts parameter
+ // Update this function to properly handle test account and active filtering
 const updateUrlAndFetch = (
   search = searchTerm, 
   status = statusFilter, 
   page = currentPage,
   limit = itemsPerPage,
-  includeTestAccounts = showTestAccounts
+  includeTestAccounts = showTestAccounts,
+  includeActiveAccounts = showActiveAccounts
 ) => {
   // Update URL with search parameters
   const params = new URLSearchParams();
@@ -145,18 +150,31 @@ const updateUrlAndFetch = (
   if (page > 1) params.set("page", page.toString());
   if (limit !== 10) params.set("limit", limit.toString());
   if (!includeTestAccounts) params.set("testAccounts", "false");
+  if (!includeActiveAccounts) params.set("activeAccounts", "false");
   
   const queryString = params.toString();
   router.push(queryString ? `?${queryString}` : "");
   
-  // Fetch businesses with the new filters
-  fetchBusinesses({
+  // Construct the filter object for the API call
+  const apiFilters: any = {
     search,
     status: status !== "all" ? status : undefined,
     page,
     limit,
-    isTestAccount: includeTestAccounts ? undefined : false
-  });
+  };
+  
+  // Handle test account filtering
+  if (!includeTestAccounts) {
+    apiFilters.isTestAccount = false; // Only non-test accounts
+  }
+  
+  // Handle active status filtering - if switch is off, only show inactive
+  if (!includeActiveAccounts) {
+    apiFilters.isActive = false; // Only inactive accounts
+  }
+  
+  // Fetch businesses with the proper filters
+  fetchBusinesses(apiFilters);
 };
 
 const refreshData = () => {
@@ -165,7 +183,8 @@ const refreshData = () => {
     status: statusFilter !== "all" ? statusFilter : undefined,
     page: currentPage,
     limit: itemsPerPage,
-    isTestAccount: showTestAccounts ? undefined : false
+    isTestAccount: showTestAccounts ? undefined : false,
+    isActive: showActiveAccounts ? undefined : false
   });
 };
 
@@ -355,16 +374,94 @@ const refreshData = () => {
               />
             </div>
             <div className="flex items-center space-x-2">
-  <Switch
-    id="test-accounts"
-    checked={showTestAccounts}
-    onCheckedChange={(checked) => {
-      setShowTestAccounts(checked);
-      setCurrentPage(1);
-      updateUrlAndFetch(searchTerm, statusFilter, 1, itemsPerPage, checked);
-    }}
-  />
+           
+<Switch
+  id="test-accounts"
+  checked={showTestAccounts}
+  onCheckedChange={(checked) => {
+    // Update state
+    setShowTestAccounts(checked);
+    
+    // Create URL params
+    const params = new URLSearchParams(window.location.search);
+    // For true (default state), remove param; for false, set it explicitly
+    if (checked) {
+      params.delete("testAccounts");
+    } else {
+      params.set("testAccounts", "false");
+    }
+    
+    // Update URL
+    const queryString = params.toString();
+    router.push(queryString ? `?${queryString}` : "");
+    
+    // Create API filters
+    const apiFilters: any = {
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      search: searchTerm,
+      page: 1, // Reset to first page
+      limit: itemsPerPage
+    };
+    
+    // Only apply the filter when unchecked
+    if (!checked) {
+      apiFilters.isTestAccount = false;
+    }
+    
+    // Apply active filter if needed
+    if (showActiveAccounts) {
+      apiFilters.isActive = true;
+    }
+    
+    // Fetch with new filters
+    fetchBusinesses(apiFilters);
+  }}
+/>
   <Label htmlFor="test-accounts">Include test accounts</Label>
+</div>
+<div className="flex items-center space-x-2">
+<Switch
+  id="active-accounts"
+  checked={showActiveAccounts}
+  onCheckedChange={(checked) => {
+    // Update state
+    setShowActiveAccounts(checked);
+    
+    // Create API filters
+    const apiFilters = {
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      search: searchTerm,
+      page: 1,
+      limit: itemsPerPage,
+      isTestAccount: !showTestAccounts ? false : undefined,
+      isActive: checked // This will now be properly included in the request
+    };
+    
+    console.log("API filters:", apiFilters); // Log for debugging
+    
+    // Fetch with new filters
+    fetchBusinesses(apiFilters);
+    
+    // Update URL
+    const params = new URLSearchParams(window.location.search);
+    if (checked) {
+      params.delete("activeAccounts");
+    } else {
+      params.set("activeAccounts", "false");
+    }
+    
+    // Keep other params
+    if (searchTerm) params.set("search", searchTerm);
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    params.set("page", "1");
+    if (itemsPerPage !== 10) params.set("limit", itemsPerPage.toString());
+    if (!showTestAccounts) params.set("testAccounts", "false");
+    
+    const queryString = params.toString();
+    router.push(queryString ? `?${queryString}` : "");
+  }}
+/>
+  <Label htmlFor="active-accounts">Is Active</Label>
 </div>
             <div className="flex gap-2">
               <div className="w-48">
@@ -374,7 +471,7 @@ const refreshData = () => {
                   value={statusFilter}
                   onChange={handleStatusChange}
                   options={[
-                    { value: "all", label: "All Statuses" },
+                    { value: "all", label: "Subscription" },
                     { value: "active", label: "Active" },
                     { value: "trialing", label: "Trial" },
                     { value: "past_due", label: "Past Due" },
