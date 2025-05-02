@@ -49,6 +49,8 @@ import InputSelect from "@/components/Common/InputSelect";
 import { useStaffUsers } from "@/hooks/useStaffUsers";
 import { format } from "date-fns";
 import { BusinessStatus } from '@/app/api/external/omnigateway/types/business';
+import UserActions from "./user-actions";
+
 import {
   Select,
   SelectContent,
@@ -74,7 +76,8 @@ export default function StaffUsersContent() {
     staffUsers,
     totalItems,
     totalPages,
-    fetchStaffUsers
+    fetchStaffUsers,
+    softDeleteUser
   } = useStaffUsers();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,6 +85,7 @@ export default function StaffUsersContent() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [expandedUsers, setExpandedUsers] = useState<Record<string, boolean>>({});
   const [userTypeFilter, setUserTypeFilter] = useState<string>("all");
+  
 
   useEffect(() => {
     // Set initial filters from URL if present
@@ -417,16 +421,17 @@ export default function StaffUsersContent() {
                         </div>
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-end">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/crm/platform/users/${staffUser.user._id}`)}
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                      </TableCell>
+                      <div className="flex justify-end">
+                        <UserActions 
+                          user={staffUser.user}
+                          onActionComplete={refreshData}
+                          actions={{
+                            softDeleteUser,
+                            isLoading
+                          }}
+                        />
+                      </div>
+                    </TableCell>
                     </TableRow>
 
                     {/* Expanded details */}

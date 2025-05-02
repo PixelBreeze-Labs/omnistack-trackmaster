@@ -46,6 +46,7 @@ import InputSelect from "@/components/Common/InputSelect";
 import { useStaffAdminUsers } from "@/hooks/useStaffAdminUsers";
 import { format } from "date-fns";
 import { BusinessStatus } from '@/app/api/external/omnigateway/types/business';
+import UserActions from "./user-actions";
 
 export default function StaffAdminUsersContent() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export default function StaffAdminUsersContent() {
     staffAdminUsers,
     totalItems,
     totalPages,
+    softDeleteUser,
     fetchStaffAdminUsers
   } = useStaffAdminUsers();
 
@@ -289,13 +291,14 @@ export default function StaffAdminUsersContent() {
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-end">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/crm/platform/users/${staffUser.user._id}`)}
-                          >
-                            View Details
-                          </Button>
+                          <UserActions 
+                            user={staffUser.user}
+                            onActionComplete={refreshData}
+                            actions={{
+                              softDeleteUser,
+                              isLoading
+                            }}
+                          />
                         </div>
                       </TableCell>
                     </TableRow>

@@ -15,6 +15,11 @@ export const createOmniStackUserApi = (apiKey: string) => {
       const { data } = await api.delete(`/users/${userId}`);
       return data;
     },
+     // New method for soft deleting users
+     softDeleteUser: async (userId: string) => {
+      const { data } = await api.patch(`/users/${userId}/soft-delete`);
+      return data;
+    },
     getStaffUsers: async (params: StaffUserParams = {}) => {
       const queryParams = new URLSearchParams();
       
