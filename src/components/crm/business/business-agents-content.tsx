@@ -375,27 +375,34 @@ export default function BusinessAgentsContent({ businessId }) {
         )}
       </div>
 
-      {/* Subscription Upgrade Card - Show if some agents aren't available */}
-      {!isLoading && agentConfigurations?.length < 6 && businessDetails?.subscription?.tier !== 'enterprise' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
-              <h3 className="font-bold text-lg">Upgrade for More Agents</h3>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              Unlock additional AI agents by upgrading your subscription plan. 
-              Advanced agents like Report Generation, Resource Request, and Shift Optimization 
-              are available on higher-tier plans.
-            </p>
-            <Button onClick={() => router.push(`/crm/platform/businesses/${businessId}/subscription`)}>
-              View Subscription Options
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {!isLoading && availableAgents?.length < agentConfigurations?.length && (
+  <Card>
+    <CardHeader>
+      <div className="flex items-center gap-2">
+        <Bot className="h-5 w-5" />
+        <h3 className="font-bold text-lg">Upgrade for More Agents</h3>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <p className="mb-4">
+        Unlock additional AI agents by upgrading your subscription plan. 
+        {businessDetails?.subscription?.tier === 'basic' ? (
+          // Basic tier message
+          'Your Basic plan includes Auto Assignment. Upgrade to Professional or Enterprise plans for more agents.'
+        ) : businessDetails?.subscription?.tier === 'professional' ? (
+          // Professional tier message
+          'Your Professional plan includes Auto Assignment, Compliance Monitoring, and Client Communication. Upgrade to Enterprise for all agents.'
+        ) : (
+          // Default message
+          'Advanced agents like Report Generation, Resource Request, and Shift Optimization are available on higher-tier plans.'
+        )}
+      </p>
+      <Button onClick={() => router.push(`/crm/platform/businesses/${businessId}/subscription`)}>
+        View Subscription Options
+      </Button>
+    </CardContent>
+  </Card>
+)}
 
       {/* Add bottom spacing */}
       <div className="h-4"></div>
