@@ -9,6 +9,12 @@ export const createBusinessApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
 
   return {
+
+    getBusinessDetails: async (businessId: string) => {
+      const { data } = await api.get(`/businesses/${businessId}`);
+      return data;
+    },
+
     // Deactivate a business
     deactivateBusiness: async (businessId: string) => {
       const { data } = await api.patch(`/businesses/${businessId}/deactivate`);

@@ -137,6 +137,9 @@ export default function BusinessActions({ business, onActionComplete }: Business
       case "manage-features":
         router.push(`/crm/platform/businesses/${business._id}/features`);
         break;
+      case "manage-agents":
+        router.push(`/crm/platform/businesses/${business._id}/agents`);
+        break;
       default:
         break;
     }
@@ -155,6 +158,7 @@ export default function BusinessActions({ business, onActionComplete }: Business
       { value: "edit", label: "Edit Business" },
       { value: "magic-link", label: "Send Magic Link" },
       { value: "manage-features", label: "Manage Features" },
+      { value: "manage-agents", label: "Manage Agents" },
     ];
     
     // Add conditional actions

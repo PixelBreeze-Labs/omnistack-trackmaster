@@ -34,6 +34,21 @@ export const useBusiness = () => {
   const { apiKey } = useGatewayClientApiKey();
   const api = useMemo(() => apiKey ? createBusinessApi(apiKey) : null, [apiKey]);
 
+  // Get business details by ID
+  const getBusinessDetails = useCallback(async (businessId: string) => {
+    if (!api) return;
+    try {
+      setIsLoading(true);
+      const response = await api.getBusinessDetails(businessId);
+      return response;
+    } catch (error) {
+      toast.error('Failed to fetch business details');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api]);
+
   // Fetch all businesses with optional filtering
   const fetchBusinesses = useCallback(async (params: BusinessParams = {}) => {
     if (!api) return;
@@ -159,6 +174,7 @@ export const useBusiness = () => {
     totalItems,
     totalPages,
     metrics,
+    getBusinessDetails,
     fetchBusinesses,
     fetchTrialBusinesses,
     deactivateBusiness,
