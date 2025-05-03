@@ -23,7 +23,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardFooter
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -91,7 +90,7 @@ export default function AgentConfigurationContent({ businessId, agentType }) {
       // Load agent configuration
       const config = await getAgentConfiguration(businessId, agentType);
       setAgentConfig(config);
-      setIsEnabled(config.isEnabled);
+      setIsEnabled(config?.isEnabled);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load agent configuration");
