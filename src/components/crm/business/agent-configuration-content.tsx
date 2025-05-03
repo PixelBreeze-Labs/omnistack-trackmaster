@@ -66,10 +66,13 @@ export default function AgentConfigurationContent({ businessId, agentType }) {
     getAgentConfiguration,
     enableAgent,
     disableAgent,
-    updateAgentConfiguration
+    updateAgentConfiguration,
+    isInitialized: isAgentsInitialized
   } = useAgents();
 
-  const { isLoading: isLoadingBusiness, getBusinessDetails } = useBusiness();
+  const { isLoading: isLoadingBusiness, getBusinessDetails, 
+    isInitialized: isBusinessInitialized 
+  } = useBusiness();
   
   const [businessDetails, setBusinessDetails] = useState(null);
   const [agentConfig, setAgentConfig] = useState(null);
@@ -77,9 +80,15 @@ export default function AgentConfigurationContent({ businessId, agentType }) {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
 
+    // Check if both APIs are initialized
+    const isInitialized = isAgentsInitialized && isBusinessInitialized;
+
+    
   useEffect(() => {
-    loadData();
-  }, [businessId, agentType]);
+    if (isInitialized) {
+      loadData();
+    }
+  }, [businessId, agentType, isInitialized]);
 
   const loadData = async () => {
     try {
@@ -336,7 +345,7 @@ export default function AgentConfigurationContent({ businessId, agentType }) {
       </Card>
 
       {/* Add bottom spacing */}
-      <div className="h-8"></div>
+      <div className="h-10"></div>
     </div>
   );
 }
@@ -641,7 +650,7 @@ function AutoAssignmentConfigForm({ config, onSave }) {
         </TabsContent>
         
         <div className="flex justify-end">
-          <Button type="submit">
+          <Button type="submit"  className="mb-3 mr-3">
             <Save className="mr-2 h-4 w-4" /> Save Configuration
           </Button>
         </div>
@@ -776,7 +785,7 @@ function ComplianceMonitoringConfigForm({ config, onSave }) {
         </TabsContent>
         
         <div className="flex justify-end">
-          <Button type="submit">
+          <Button type="submit"  className="mb-3 mr-3">
             <Save className="mr-2 h-4 w-4" /> Save Configuration
           </Button>
         </div>
@@ -839,7 +848,7 @@ function ReportGenerationConfigForm({ config, onSave }) {
       </TabsContent>
       
       <div className="flex justify-end pt-4">
-        <Button onClick={() => onSave(config)}>
+        <Button onClick={() => onSave(config)}  className="mb-3 mr-3">
           <Save className="mr-2 h-4 w-4" /> Save Configuration
         </Button>
       </div>
@@ -913,7 +922,7 @@ function ClientCommunicationConfigForm({ config, onSave }) {
       </TabsContent>
       
       <div className="flex justify-end pt-4">
-        <Button onClick={() => onSave(config)}>
+        <Button onClick={() => onSave(config)}  className="mb-3 mr-3">
           <Save className="mr-2 h-4 w-4" /> Save Configuration
         </Button>
       </div>
@@ -1024,7 +1033,7 @@ function ResourceRequestConfigForm({ config, onSave }) {
       </TabsContent>
       
       <div className="flex justify-end pt-4">
-        <Button onClick={() => onSave(config)}>
+        <Button onClick={() => onSave(config)} className="mb-3 mr-3">
           <Save className="mr-2 h-4 w-4" /> Save Configuration
         </Button>
       </div>
@@ -1122,7 +1131,7 @@ function ShiftOptimizationConfigForm({ config, onSave }) {
       </TabsContent>
       
       <div className="flex justify-end pt-4">
-        <Button onClick={() => onSave(config)}>
+        <Button onClick={() => onSave(config)} className="mb-3 mr-3">
           <Save className="mr-2 h-4 w-4" /> Save Configuration
         </Button>
       </div>
