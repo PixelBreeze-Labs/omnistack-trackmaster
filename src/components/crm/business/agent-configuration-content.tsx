@@ -67,10 +67,12 @@ export default function AgentConfigurationContent({ businessId, agentType }) {
     enableAgent,
     disableAgent,
     updateAgentConfiguration,
-    isInitialized
+    isInitialized: isAgentsInitialized
   } = useAgents();
 
-  const { isLoading: isLoadingBusiness, getBusinessDetails } = useBusiness();
+  const { isLoading: isLoadingBusiness, getBusinessDetails, 
+    isInitialized: isBusinessInitialized 
+  } = useBusiness();
   
   const [businessDetails, setBusinessDetails] = useState(null);
   const [agentConfig, setAgentConfig] = useState(null);
@@ -78,6 +80,10 @@ export default function AgentConfigurationContent({ businessId, agentType }) {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
 
+    // Check if both APIs are initialized
+    const isInitialized = isAgentsInitialized && isBusinessInitialized;
+
+    
   useEffect(() => {
     if (isInitialized) {
       loadData();

@@ -61,15 +61,18 @@ export default function BusinessAgentsContent({ businessId }) {
     getBusinessAgents,
     enableAgent,
     disableAgent,
-    isInitialized
+    isInitialized: isAgentsInitialized
   } = useAgents();
 
-  const { isLoading: isLoadingBusiness, getBusinessDetails } = useBusiness();
+  const { isLoading: isLoadingBusiness, getBusinessDetails,      isInitialized: isBusinessInitialized
+  } = useBusiness();
   
   const [businessDetails, setBusinessDetails] = useState(null);
   const [showAgentConfigDialog, setShowAgentConfigDialog] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [expandedAgents, setExpandedAgents] = useState({});
+
+  const isInitialized = isAgentsInitialized && isBusinessInitialized;
 
   useEffect(() => {
     if (isInitialized) {
