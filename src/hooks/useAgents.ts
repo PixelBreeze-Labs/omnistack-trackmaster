@@ -18,11 +18,17 @@ export const useAgents = () => {
     try {
       setIsLoading(true);
       const response = await api.getBusinessAgents(businessId);
-      setAgentConfigurations(response);
-      // Extract available agent types if the response has this information
-      if (response.availableAgents) {
-        setAvailableAgents(response.availableAgents);
+      
+      // Handle both the old response format (just array of configs)
+      // and the new format (object with configurations and availableAgents)
+      if (Array.isArray(response)) {
+        setAgentConfigurations(response);
+        setAvailableAgents([]);
+      } else {
+        setAgentConfigurations(response.configurations || []);
+        setAvailableAgents(response.availableAgents || []);
       }
+      
       return response;
     } catch (error) {
       toast.error('Failed to fetch agent configurations');
@@ -54,6 +60,10 @@ export const useAgents = () => {
       setIsLoading(true);
       const response = await api.enableAgent(businessId, agentType);
       toast.success('Agent enabled successfully');
+      
+      // Refresh the agent configurations after enabling
+      await getBusinessAgents(businessId);
+      
       return response;
     } catch (error) {
       toast.error('Failed to enable agent');
@@ -61,7 +71,7 @@ export const useAgents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [api]);
+  }, [api, getBusinessAgents]);
 
   // Disable an agent for a business
   const disableAgent = useCallback(async (businessId: string, agentType: string) => {
@@ -70,6 +80,10 @@ export const useAgents = () => {
       setIsLoading(true);
       const response = await api.disableAgent(businessId, agentType);
       toast.success('Agent disabled successfully');
+      
+      // Refresh the agent configurations after disabling
+      await getBusinessAgents(businessId);
+      
       return response;
     } catch (error) {
       toast.error('Failed to disable agent');
@@ -77,7 +91,7 @@ export const useAgents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [api]);
+  }, [api, getBusinessAgents]);
 
   // Update agent configuration
   const updateAgentConfiguration = useCallback(async (businessId: string, agentType: string, configData: any) => {

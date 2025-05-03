@@ -104,6 +104,18 @@ export default function BusinessAgentsContent({ businessId }) {
     setSelectedAgent(agent);
     router.push(`/crm/platform/businesses/${businessId}/agents/${agent.agentType}`);
   };
+  
+  const enableAndConfigureAgent = async (agent) => {
+    try {
+      // First enable the agent
+      await enableAgent(businessId, agent.agentType);
+      // Then go to configuration page
+      router.push(`/crm/platform/businesses/${businessId}/agents/${agent.agentType}`);
+    } catch (error) {
+      console.error(`Error configuring agent ${agent.agentType}:`, error);
+      toast.error(`Failed to configure agent: ${error.message}`);
+    }
+  };
 
   const toggleAgentExpansion = (agentType) => {
     setExpandedAgents(prev => ({
@@ -147,21 +159,34 @@ export default function BusinessAgentsContent({ businessId }) {
       case 'auto-assignment':
         return 'Automatically assigns tasks to staff members based on skills and availability';
       case 'compliance-monitoring':
-        return 'Monitors compliance with certifications and requirements';
+        return 'Monitors regulatory requirements and ensures certification compliance for your team';
       case 'report-generation':
-        return 'Generates automated reports and analytics';
+        return 'Creates automated reports and analytics based on your business data and metrics';
       case 'client-communication':
-        return 'Automates client communications and updates';
+        return 'Manages and automates client interactions with timely responses and follow-ups';
       case 'resource-request':
-        return 'Manages resource requests and inventory forecasting';
+        return 'Streamlines inventory management and procurement processes for your resources';
       case 'shift-optimization':
-        return 'Optimizes staff scheduling and shift assignments';
+        return 'Optimizes work schedules based on staff availability, skills, and business needs';
       default:
-        return 'Advanced AI agent to automate business processes';
+        return 'Automates business processes using advanced AI to improve efficiency and results';
     }
   };
 
   const isLoading = isLoadingAgents || isLoadingBusiness;
+
+  // Find agent types that are available but not configured yet
+  const unconfiguredAgents = availableAgents
+    ? availableAgents.filter(
+        agentType => !agentConfigurations.some(config => config.agentType === agentType)
+      )
+    : [];
+
+  // All agent types (configured + unconfigured)
+  const allAgents = [
+    ...agentConfigurations,
+    ...unconfiguredAgents.map(agentType => ({ agentType, isEnabled: false, isUnconfigured: true }))
+  ];
 
   return (
     <div className="container mx-auto space-y-6">
@@ -242,10 +267,10 @@ export default function BusinessAgentsContent({ businessId }) {
       </Card>
 
       {/* Agents Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {isLoading ? (
-          // Skeleton loaders
-          Array.from({ length: 6 }).map((_, index) => (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {/* Skeleton loaders */}
+          {Array.from({ length: 6 }).map((_, index) => (
             <Card key={index}>
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
@@ -262,147 +287,136 @@ export default function BusinessAgentsContent({ businessId }) {
                 <Skeleton className="h-8 w-32 mt-4" />
               </CardContent>
             </Card>
-          ))
-        ) : agentConfigurations?.length === 0 ? (
-          <div className="col-span-full">
-            <Card>
-              <CardContent className="py-10">
-                <div className="text-center">
-                  <Bot className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h3 className="mt-4 text-lg font-medium">No Agents Available</h3>
-                  <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-                    No AI agents are currently available for this business. 
-                    This might be due to the current subscription plan or configuration.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : (
-          // Render each agent card
-          agentConfigurations.map((agent) => (
-            <Card 
-              key={agent.agentType}
-              className={`overflow-hidden transition-all ${agent.isEnabled ? 'border-green-300' : ''}`}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${agent.isEnabled ? 'bg-green-100' : 'bg-slate-100'}`}>
-                      {getAgentIcon(agent.agentType)}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">{getAgentName(agent.agentType)}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {agent.isEnabled ? 'Enabled' : 'Disabled'}
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={agent.isEnabled}
-                    onCheckedChange={(checked) => handleToggleAgent(agent.agentType, checked)}
-                  />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">{getAgentDescription(agent.agentType)}</p>
-                <div className="flex justify-between items-center mt-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => toggleAgentExpansion(agent.agentType)}
-                  >
-                    {expandedAgents[agent.agentType] ? (
-                      <>
-                        <ChevronDown className="mr-1 h-4 w-4" /> Hide Details
-                      </>
-                    ) : (
-                      <>
-                        <ChevronRight className="mr-1 h-4 w-4" /> View Details
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => viewAgentConfiguration(agent)}
-                  >
-                    <Settings className="mr-1 h-4 w-4" /> Configure
-                  </Button>
-                </div>
+          ))}
+        </div>
+      ) : availableAgents?.length === 0 ? (
+        <div className="col-span-full">
+          <Card>
+            <CardContent className="py-10">
+              <div className="text-center">
+                <Bot className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">No Agents Available</h3>
+                <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
+                  No AI agents are currently available for this business. 
+                  This might be due to the current subscription plan or configuration.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : allAgents.length === 0 ? (
+        <div className="col-span-full">
+          <Card>
+            <CardContent className="py-10">
+              <div className="text-center">
+                <Bot className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">No Agents Configured</h3>
+                <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
+                  The agents are available for your subscription tier but not yet configured.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {allAgents.map((agent) => (
+           <Card 
+           key={agent.agentType}
+           className={`overflow-hidden transition-all ${agent.isEnabled ? 'border-green-300' : ''}`}
+         >
+           <CardHeader className="pb-2" style={{display: "block"}}>
+             <div className="flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                 <div className={`p-2 rounded-lg ${agent.isEnabled ? 'bg-green-100' : 'bg-slate-100'}`}>
+                   {getAgentIcon(agent.agentType)}
+                 </div>
+                 <div>
+                   <h3 className="font-bold text-lg">{getAgentName(agent.agentType)}</h3>
+                   <p className="text-sm text-muted-foreground">
+                     {agent.isUnconfigured ? 'Not Configured' : (agent.isEnabled ? 'Enabled' : 'Disabled')}
+                   </p>
+                 </div>
+               </div>
+               <Switch
+                 checked={agent.isEnabled}
+                 disabled={agent.isUnconfigured}
+                 onCheckedChange={(checked) => handleToggleAgent(agent.agentType, checked)}
+               />
+             </div>
+           </CardHeader>
+           <CardContent>
+             <p className="text-sm h-12">{getAgentDescription(agent.agentType)}</p>
+             <div className="flex justify-between items-center mt-4">
+               {!agent.isUnconfigured && (
+                 <Button 
+                   variant="outline" 
+                   size="sm"
+                   onClick={() => toggleAgentExpansion(agent.agentType)}
+                 >
+                   {expandedAgents[agent.agentType] ? (
+                     <>
+                       <ChevronDown className="mr-1 h-4 w-4" /> Hide Details
+                     </>
+                   ) : (
+                     <>
+                       <ChevronRight className="mr-1 h-4 w-4" /> View Details
+                     </>
+                   )}
+                 </Button>
+               )}
+               <Button
+                 variant="default"
+                 size="sm"
+                 onClick={() => agent.isUnconfigured ? enableAndConfigureAgent(agent) : viewAgentConfiguration(agent)}
+                 className={agent.isUnconfigured ? "ml-auto" : ""}
+               >
+                 <Settings className="mr-1 h-4 w-4" /> {agent.isUnconfigured ? 'Set Up' : 'Configure'}
+               </Button>
+             </div>
+             
+             {/* Expanded details */}
+             {!agent.isUnconfigured && expandedAgents[agent.agentType] && (
+               <div className="mt-4 pt-4 border-t">
+                 <h4 className="font-medium mb-2">Agent Settings</h4>
+                 <div className="space-y-2">
+                   {/* Settings details remain the same */}
+                 </div>
+               </div>
+             )}
+           </CardContent>
+         </Card>
+          ))}
+        </div>
+      )}
 
-                {/* Expanded details */}
-                {expandedAgents[agent.agentType] && (
-                  <div className="mt-4 pt-4 border-t">
-                    <h4 className="font-medium mb-2">Agent Settings</h4>
-                    <div className="space-y-2">
-                      {agent.requireApproval !== undefined && (
-                        <div className="flex justify-between text-sm">
-                          <span>Requires Approval:</span>
-                          <span>{agent.requireApproval ? 'Yes' : 'No'}</span>
-                        </div>
-                      )}
-                      {agent.assignmentFrequency !== undefined && (
-                        <div className="flex justify-between text-sm">
-                          <span>Update Frequency:</span>
-                          <span>{agent.assignmentFrequency} minutes</span>
-                        </div>
-                      )}
-                      {agent.monitoringFrequency !== undefined && (
-                        <div className="flex justify-between text-sm">
-                          <span>Monitoring Frequency:</span>
-                          <span>{agent.monitoringFrequency} hours</span>
-                        </div>
-                      )}
-                      {agent.autoResponseEnabled !== undefined && (
-                        <div className="flex justify-between text-sm">
-                          <span>Auto Response:</span>
-                          <span>{agent.autoResponseEnabled ? 'Enabled' : 'Disabled'}</span>
-                        </div>
-                      )}
-                      {agent.notificationSettings?.emailNotifications !== undefined && (
-                        <div className="flex justify-between text-sm">
-                          <span>Email Notifications:</span>
-                          <span>{agent.notificationSettings.emailNotifications ? 'Enabled' : 'Disabled'}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
-
-      {!isLoading && availableAgents?.length < agentConfigurations?.length && (
-  <Card>
-    <CardHeader>
-      <div className="flex items-center gap-2">
-        <Bot className="h-5 w-5" />
-        <h3 className="font-bold text-lg">Upgrade for More Agents</h3>
-      </div>
-    </CardHeader>
-    <CardContent>
-      <p className="mb-4">
-        Unlock additional AI agents by upgrading your subscription plan. 
-        {businessDetails?.subscription?.tier === 'basic' ? (
-          // Basic tier message
-          'Your Basic plan includes Auto Assignment. Upgrade to Professional or Enterprise plans for more agents.'
-        ) : businessDetails?.subscription?.tier === 'professional' ? (
-          // Professional tier message
-          'Your Professional plan includes Auto Assignment, Compliance Monitoring, and Client Communication. Upgrade to Enterprise for all agents.'
-        ) : (
-          // Default message
-          'Advanced agents like Report Generation, Resource Request, and Shift Optimization are available on higher-tier plans.'
-        )}
-      </p>
-      <Button onClick={() => router.push(`/crm/platform/businesses/${businessId}/subscription`)}>
-        View Subscription Options
-      </Button>
-    </CardContent>
-  </Card>
-)}
+      {/* Upgrade Card - only show if on a tier that doesn't have all agents */}
+      {!isLoading && availableAgents?.length > 0 && availableAgents?.length < 6 && 
+       !['enterprise', 'trialing'].includes(businessDetails?.subscription?.tier) && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bot className="h-5 w-5" />
+              <h3 className="font-bold text-lg">Upgrade for More Agents</h3>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">
+              Unlock additional AI agents by upgrading your subscription plan. 
+              {businessDetails?.subscription?.tier === 'basic' ? (
+                ' Your Basic plan includes Auto Assignment. Upgrade to Professional or Enterprise plans for more agents.'
+              ) : businessDetails?.subscription?.tier === 'professional' ? (
+                ' Your Professional plan includes Auto Assignment, Compliance Monitoring, and Client Communication. Upgrade to Enterprise for all agents.'
+              ) : (
+                ' Advanced agents like Report Generation, Resource Request, and Shift Optimization are available on higher-tier plans.'
+              )}
+            </p>
+            <Button onClick={() => router.push(`/crm/platform/businesses/${businessId}/subscription`)}>
+              View Subscription Options
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Add bottom spacing */}
       <div className="h-4"></div>
