@@ -18,8 +18,8 @@ export const createAgentsApi = (apiKey: string) => {
     },
 
     // Enable an agent for a business
-    enableAgent: async (clientId: string, businessId: string, agentType: string) => {
-      const { data } = await api.post(`/agent-configuration/client/${clientId}/business/${businessId}/agent/${agentType}/enable`);
+    enableAgent: async (businessId: string, agentType: string) => {
+      const { data } = await api.post(`/agent-configuration/business/${businessId}/agent/${agentType}/enable`);
       return data;
     },
 
@@ -32,6 +32,12 @@ export const createAgentsApi = (apiKey: string) => {
     // Update agent configuration
     updateAgentConfiguration: async (businessId: string, agentType: string, configData: any) => {
       const { data } = await api.put(`/agent-configuration/business/${businessId}/agent/${agentType}/configuration`, configData);
+      return data;
+    },
+
+    // List all businesses with a specific agent enabled
+    listBusinessesWithAgent: async (agentType: string) => {
+      const { data } = await api.get(`/agent-configuration/agent/${agentType}/businesses`);
       return data;
     }
   };
