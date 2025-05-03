@@ -60,7 +60,8 @@ export default function BusinessAgentsContent({ businessId }) {
     availableAgents,
     getBusinessAgents,
     enableAgent,
-    disableAgent
+    disableAgent,
+    isInitialized
   } = useAgents();
 
   const { isLoading: isLoadingBusiness, getBusinessDetails } = useBusiness();
@@ -71,8 +72,10 @@ export default function BusinessAgentsContent({ businessId }) {
   const [expandedAgents, setExpandedAgents] = useState({});
 
   useEffect(() => {
-    loadData();
-  }, [businessId]);
+    if (isInitialized) {
+      loadData();
+    }
+  }, [businessId, isInitialized]);
 
   const loadData = async () => {
     try {
@@ -378,11 +381,40 @@ export default function BusinessAgentsContent({ businessId }) {
              {/* Expanded details */}
              {!agent.isUnconfigured && expandedAgents[agent.agentType] && (
                <div className="mt-4 pt-4 border-t">
-                 <h4 className="font-medium mb-2">Agent Settings</h4>
-                 <div className="space-y-2">
-                   {/* Settings details remain the same */}
-                 </div>
+               <h4 className="font-medium mb-2">Agent Settings</h4>
+               <div className="space-y-2">
+                 {agent.requireApproval !== undefined && (
+                   <div className="flex justify-between text-sm">
+                     <span>Requires Approval:</span>
+                     <span>{agent.requireApproval ? 'Yes' : 'No'}</span>
+                   </div>
+                 )}
+                 {agent.assignmentFrequency !== undefined && (
+                   <div className="flex justify-between text-sm">
+                     <span>Update Frequency:</span>
+                     <span>{agent.assignmentFrequency} minutes</span>
+                   </div>
+                 )}
+                 {agent.monitoringFrequency !== undefined && (
+                   <div className="flex justify-between text-sm">
+                     <span>Monitoring Frequency:</span>
+                     <span>{agent.monitoringFrequency} hours</span>
+                   </div>
+                 )}
+                 {agent.autoResponseEnabled !== undefined && (
+                   <div className="flex justify-between text-sm">
+                     <span>Auto Response:</span>
+                     <span>{agent.autoResponseEnabled ? 'Enabled' : 'Disabled'}</span>
+                   </div>
+                 )}
+                 {agent.notificationSettings?.emailNotifications !== undefined && (
+                   <div className="flex justify-between text-sm">
+                     <span>Email Notifications:</span>
+                     <span>{agent.notificationSettings.emailNotifications ? 'Enabled' : 'Disabled'}</span>
+                   </div>
+                 )}
                </div>
+             </div>
              )}
            </CardContent>
          </Card>

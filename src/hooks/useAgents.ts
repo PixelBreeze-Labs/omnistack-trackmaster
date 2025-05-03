@@ -40,10 +40,12 @@ export const useAgents = () => {
 
   // Get configuration for a specific agent
   const getAgentConfiguration = useCallback(async (businessId: string, agentType: string) => {
+    console.log('api', api)
     if (!api) return;
     try {
       setIsLoading(true);
       const response = await api.getAgentConfiguration(businessId, agentType);
+      console.log('response', response);
       return response;
     } catch (error) {
       toast.error('Failed to fetch agent configuration');
