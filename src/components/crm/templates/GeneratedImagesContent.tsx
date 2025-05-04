@@ -113,12 +113,12 @@ export default function GeneratedImagesContent() {
   const handleDownload = async (image) => {
     try {
       // Record the download
-      await recordImageDownload(image.id);
+      await recordImageDownload(image?._id);
       
       // Create a temporary link to download the image
       const link = document.createElement('a');
       link.href = image.path;
-      link.download = `image-${image.id}.jpg`;
+      link.download = `image-${image?._id}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -458,7 +458,7 @@ export default function GeneratedImagesContent() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {images.slice(0, 6).map((image) => (
-                    <Card key={image.id} className="overflow-hidden">
+                    <Card key={image?._id} className="overflow-hidden">
                       <div className="relative h-40 w-full">
                         <Image
                           src={image.path}
@@ -468,7 +468,6 @@ export default function GeneratedImagesContent() {
                         />
                       </div>
                       <CardContent className="p-4">
-                        <h4 className="text-sm font-medium truncate">{image.subtitle || "Untitled Image"}</h4>
                         <p className="text-xs text-muted-foreground">
                           Generated: {formatDateTime(image.generationTime)}
                         </p>
@@ -529,7 +528,7 @@ export default function GeneratedImagesContent() {
                 <div className="relative mt-2 flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by subtitle or article URL..."
+                    placeholder="Search by article URL if you have one..."
                     className="pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -598,7 +597,7 @@ export default function GeneratedImagesContent() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {filteredImages.map((image) => (
-                    <Card key={image.id} className="overflow-hidden">
+                    <Card key={image?._id} className="overflow-hidden">
                       <div className="relative h-40 w-full">
                         <Image
                           src={image.path}
@@ -608,7 +607,6 @@ export default function GeneratedImagesContent() {
                         />
                       </div>
                       <CardContent className="p-4">
-                        <h4 className="text-sm font-medium truncate">{image.subtitle || "Untitled Image"}</h4>
                         <p className="text-xs text-muted-foreground">
                           Generated: {formatDateTime(image.generationTime)}
                         </p>
@@ -638,7 +636,7 @@ export default function GeneratedImagesContent() {
                             size="sm" 
                             variant="ghost" 
                             className="text-red-500"
-                            onClick={() => handleDelete(image.id)}
+                            onClick={() => handleDelete(image?._id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -724,7 +722,7 @@ export default function GeneratedImagesContent() {
                 <div className="relative mt-2 flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by subtitle or article URL..."
+                    placeholder="Search by article URL if you have one..."
                     className="pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -813,7 +811,7 @@ export default function GeneratedImagesContent() {
                     </TableRow>
                   ) : (
                     filteredImages.map((image) => (
-                      <TableRow key={image.id}>
+                      <TableRow key={image?._id}>
                         <TableCell>
                           <div className="relative h-12 w-20 rounded overflow-hidden border">
                             <Image
@@ -825,7 +823,7 @@ export default function GeneratedImagesContent() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium">{image.subtitle || "Untitled Image"}</div>
+                          
                           <div className="text-xs text-muted-foreground">
                             Entity: {image.entity}
                           </div>
@@ -906,7 +904,7 @@ export default function GeneratedImagesContent() {
                               size="sm" 
                               variant="ghost" 
                               className="text-red-500"
-                              onClick={() => handleDelete(image.id)}
+                              onClick={() => handleDelete(image?._id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
