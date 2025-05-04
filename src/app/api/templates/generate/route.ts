@@ -1,10 +1,10 @@
 // src/app/api/templates/generate/route.ts
 import { NextResponse } from 'next/server';
 
-// Configure the correct domain and paths
+// Configure paths
 const PYTHON_API_URL = process.env.NEXT_PYTHON_API_URL || 'https://stageapi.pixelbreeze.xyz/generate';
 const STORAGE_DOMAIN = 'https://stageadmin.pixelbreeze.xyz';
-const STORAGE_PATH = '/var/www/html/stageadmin.pixelbreeze.xyz/storage/app/public/uploads/';
+const OUTPUT_DIR = '/var/www/html/stageadmin.pixelbreeze.xyz/storage/app/public/uploads';
 
 export async function POST(request: Request) {
   try {
@@ -18,56 +18,50 @@ export async function POST(request: Request) {
     const articleUrl = formData.get('artical_url') as string | null;
     const imageFile = formData.get('image') as File | null;
     
-    // Validation for URL-only case
-    // If article URL is provided, we don't require title or image
-    if (!articleUrl && !title) {
+    // Check if image was uploaded but no URL provided
+    if (imageFile && !articleUrl) {
       return NextResponse.json({
         status: 0,
-        msg: "Either Article URL or Title is required"
+        msg: "Image uploads are not supported in this version. Please use an Article URL instead."
       }, { status: 400 });
     }
     
-    // Create a new FormData for Python API
+    // Check if required fields are provided
+    if (!articleUrl) {
+      return NextResponse.json({
+        status: 0,
+        msg: "Article URL is required"
+      }, { status: 400 });
+    }
+    
+    // Create API form data
     const apiFormData = new FormData();
     
     // Session ID
     const sessionId = 'session_' + Date.now();
     apiFormData.append('session_id', sessionId);
     
-    // Generate output filename
+    // Generate output filename and path
     const timestamp = Date.now();
     const outputImageName = `output_${timestamp}.jpg`;
-    const outputPath = STORAGE_PATH + outputImageName;
+    const outputPath = `${OUTPUT_DIR}/${outputImageName}`;
     
-    // Add output path to API form data
+    // Add template type and output path
+    apiFormData.append('template_type', templateType);
     apiFormData.append('output_img_path', outputPath);
     
-    // Add template type
-    apiFormData.append('template_type', templateType);
+    // Add article URL and mark as article mode
+    apiFormData.append('artical_url', articleUrl);
+    apiFormData.append('IsArticle', '1');
     
-    // Check if we're dealing with URL-only case
-    const isArticleUrl = !!articleUrl;
-    
-    // If it's an article URL case, mark it
-    if (isArticleUrl) {
-      apiFormData.append('artical_url', articleUrl);
-      // For article URL case, add IsArticle=1 flag like in PHP version
-      apiFormData.append('IsArticle', '1');
-    }
-    
-    // Only add title if provided
+    // Add title if provided
     if (title) {
       apiFormData.append('text', title);
     }
     
-    // Only add category if provided
+    // Add category if provided
     if (category) {
       apiFormData.append('category', category);
-    }
-    
-    // Only add image if provided and we're not using article URL
-    if (imageFile && !isArticleUrl) {
-      apiFormData.append('image', imageFile);
     }
     
     // Add crop mode for story templates
@@ -80,10 +74,7 @@ export async function POST(request: Request) {
       template_type: templateType,
       session_id: sessionId,
       output_path: outputPath,
-      is_article_url: isArticleUrl,
-      has_title: !!title,
-      has_category: !!category,
-      has_image: !!imageFile
+      article_url: articleUrl
     });
     
     // Call the Python API
@@ -111,7 +102,6 @@ export async function POST(request: Request) {
     // Construct URL to the generated image
     const imageUrl = `${STORAGE_DOMAIN}/storage/uploads/${outputImageName}`;
     
-    // Return success response
     return NextResponse.json({
       status: 1,
       msg: "Image generated successfully",

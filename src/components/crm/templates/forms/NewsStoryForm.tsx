@@ -1,8 +1,9 @@
 // src/components/templates/forms/NewsStoryForm.tsx
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 type TemplateData = {
   id: number;
@@ -25,63 +26,58 @@ export default function NewsStoryForm({
   const [articleUrl, setArticleUrl] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [uploadedFileName, setUploadedFileName] = useState("");
-  const [isUrlProvided, setIsUrlProvided] = useState(false);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   
-  // Update URL provided state whenever the articleUrl changes
-  useEffect(() => {
-    setIsUrlProvided(!!articleUrl.trim());
-  }, [articleUrl]);
+  const validate = (): boolean => {
+    const newErrors: {[key: string]: string} = {};
+    
+    // Article URL is required
+    if (!articleUrl.trim()) {
+      newErrors.articleUrl = "Article URL is required";
+      toast.error("Article URL is required");
+      return false;
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    if (!articleUrl && !title) {
-      alert("Either Article URL or Title is required");
-      return;
-    }
-    
-    // If neither URL nor file is provided when not using URL mode
-    if (!articleUrl && !fileInputRef.current?.files?.length && !title) {
-      alert("Please provide either an Article URL or Title with an image");
+    // Validate form
+    if (!validate()) {
       return;
     }
     
     const formData = new FormData();
     formData.append("template_type", templateData.template_type);
     
-    // Add article URL if provided
-    if (articleUrl) {
-      formData.append("artical_url", articleUrl);
-    }
+    // Add article URL
+    formData.append("artical_url", articleUrl);
     
     // Add title if provided
-    if (title) {
+    if (title.trim()) {
       formData.append("title", title);
     }
     
     // Add category if provided
-    if (category) {
+    if (category.trim()) {
       formData.append("category", category);
     }
     
-    // Add image if provided and not using URL mode
-    if (fileInputRef.current?.files?.length && !isUrlProvided) {
-      formData.append("image", fileInputRef.current.files[0]);
-    }
-    
-    await onSubmit(formData);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setUploadedFileName(e.target.files[0].name);
-    } else {
-      setUploadedFileName("");
+    try {
+      await onSubmit(formData);
+      // Reset form on success
+      if (!isSubmitting) {
+        setTitle("");
+        setArticleUrl("");
+        setCategory("");
+      }
+    } catch (error) {
+      toast.error("Failed to generate image. Please try again.");
     }
   };
 
@@ -137,72 +133,52 @@ export default function NewsStoryForm({
           </label>
         </div>
       </div>
+      
+      {/* Information notice */}
+      <div className="bg-blue-50 p-4 rounded-md text-blue-700 mb-4">
+        <p className="font-medium">Notice: Image upload is temporarily disabled</p>
+        <p className="text-sm mt-1">Currently, only Article URL mode is supported. Please provide an article URL to generate images.</p>
+      </div>
 
       <div className="input-area">
         <label htmlFor="artical_url" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Article URL
+          Article URL *
         </label>
         <input 
           id="artical_url" 
           name="artical_url" 
           type="text" 
-          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+          className={`form-control w-full px-3 py-2 border ${errors.articleUrl ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
           placeholder="Article URL" 
           value={articleUrl}
           onChange={(e) => setArticleUrl(e.target.value)}
+          required
         />
+        {errors.articleUrl && (
+          <p className="text-red-500 text-xs mt-1">{errors.articleUrl}</p>
+        )}
       </div>
       
-      <div className="input-area">
-        <label className="form-label block text-sm font-medium text-slate-700 mb-1">-OR-</label>
-      </div>
-      
-      <div className="input-area">
-        <div className="filegroup">
-          <label className={`block ${isUrlProvided ? 'opacity-50' : ''}`}>
-            <input 
-              type="file" 
-              className="w-full hidden" 
-              name="image"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              disabled={isUrlProvided}
-            />
-            <span className="w-full h-[40px] file-control flex items-center custom-class border border-slate-300 rounded-md overflow-hidden">
-              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
-                {uploadedFileName ? (
-                  <span>{uploadedFileName}</span>
-                ) : (
-                  <span className="text-slate-400">Choose a file or drop it here...</span>
-                )}
-              </span>
-              <span className="file-name flex-none cursor-pointer border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">
-                Browse
-              </span>
-            </span>
-          </label>
-        </div>
-      </div>
+      {/* Image upload section removed */}
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title {!isUrlProvided && '*'}
+          Title (Optional)
         </label>
         <textarea 
           id="title" 
           name="title" 
           rows={5} 
-          className={`form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 ${isUrlProvided ? 'opacity-80' : ''}`} 
+          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" 
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required={!isUrlProvided}
         ></textarea>
       </div>
       
       <div className="input-area">
         <label htmlFor="category" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Category 
+          Category (Optional)
         </label>
         <input 
           id="category" 
@@ -216,9 +192,7 @@ export default function NewsStoryForm({
       </div>
       
       <p className="text-sm text-slate-500">
-        {isUrlProvided 
-          ? "When providing an Article URL, title and image are optional." 
-          : "Fields marked with * are required!"}
+        Fields marked with * are required.
       </p>
       
       <hr className="my-4" />
