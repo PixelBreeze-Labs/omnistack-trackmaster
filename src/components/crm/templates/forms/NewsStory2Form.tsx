@@ -1,4 +1,3 @@
-// src/components/templates/forms/NewsStory2Form.tsx
 "use client";
 
 import { useState } from "react";
@@ -10,6 +9,8 @@ type TemplateData = {
   name: string;
   template_type: string;
   image: string;
+  entity: string;
+  description?: string;
 };
 
 type NewsStory2FormProps = {
@@ -57,6 +58,12 @@ export default function NewsStory2Form({
     
     // Add the template type - always web_news_story_2 for this form
     formData.append("template_type", "web_news_story_2");
+    
+    // Add entity type
+    formData.append("entity", templateData.entity);
+    
+    // Debug the entity data being sent
+    console.log("Entity:", templateData.entity);
     
     // Add article URL
     formData.append("artical_url", articleUrl);

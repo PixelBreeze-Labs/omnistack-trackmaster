@@ -11,6 +11,8 @@ type TemplateData = {
   name: string;
   template_type: string;
   image: string;
+  entity: string;
+  description?: string;
 };
 
 type NewsStoryFormProps = {
@@ -64,11 +66,15 @@ export default function NewsStoryForm({
     // Add the base template type
     formData.append("template_type", templateData.template_type);
     
+    // Add entity type
+    formData.append("entity", templateData.entity);
+    
     // Add custom template type for switching between Story 1 and Story 2
     formData.append("custom_template_type", customTemplateType);
     
     // Debug the form data being sent
     console.log("Sending template type:", customTemplateType);
+    console.log("Entity:", templateData.entity);
     
     // Add article URL
     formData.append("artical_url", articleUrl);

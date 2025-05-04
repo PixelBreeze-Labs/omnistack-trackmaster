@@ -1,4 +1,3 @@
-// src/components/crm/templates/TemplateGrid.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,6 +10,7 @@ type Template = {
   image: string;
   template_type: string;
   description?: string;
+  entity: string;
 };
 
 export default function TemplateGrid() {
@@ -28,14 +28,16 @@ export default function TemplateGrid() {
             name: "Web News Story 1", 
             image: "/images/templates/web_news_story.png", 
             template_type: "web_news_story",
-            description: "Template for news articles with headline and category" 
+            description: "Template for news articles with headline and category",
+            entity: "iconstyle" 
           },
           { 
             id: 14, 
             name: "Web News Story 2", 
             image: "/images/templates/web_news_story_2.png", 
             template_type: "web_news_story_2",
-            description: "Alternative layout for news articles" 
+            description: "Alternative layout for news articles",
+            entity: "iconstyle" 
           },
           // Add more templates as needed
         ];
@@ -86,6 +88,7 @@ export default function TemplateGrid() {
             {template.description && (
               <p className="text-sm text-slate-500 mt-1">{template.description}</p>
             )}
+            <p className="text-xs text-slate-400 mt-1">Entity: {template.entity}</p>
           </div>
         </div>
       ))}
