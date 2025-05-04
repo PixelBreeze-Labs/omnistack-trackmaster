@@ -13,6 +13,7 @@ type TemplateData = {
   name: string;
   template_type: string;
   image: string;
+  description?: string;
 };
 
 export default function TemplateForm({ templateId }: { templateId: number }) {
@@ -20,54 +21,55 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [templateData, setTemplateData] = useState<TemplateData | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   
   const router = useRouter();
 
   useEffect(() => {
-    // Corrected template data structure
-const fetchTemplateData = async () => {
-    try {
-      // This would normally come from your API
-      // For now, we'll use static data based on the templateId
-      const templates: Record<number, TemplateData> = {
-        5: {
-          id: 5,
-          name: "Web News Story 1",
-          template_type: "web_news_story",
-          image: "/images/templates/web_news_story.png",
-          description: "Template for news articles with headline and category"
-        },
-        14: {
-          id: 14,
-          name: "Web News Story 2",
-          template_type: "web_news_story_2",
-          image: "/images/templates/web_news_story_2.png",
-          description: "Alternative layout for news articles"
-        },
-        // Add more templates as needed
-      };
-  
-      // Check if template exists
-      if (!templates[templateId]) {
-        toast.error("Template not found");
-        router.push("/crm/platform/templates");
-        return;
+    const fetchTemplateData = async () => {
+      try {
+        // This would normally come from your API
+        // For now, we'll use static data based on the templateId
+        const templates: Record<number, TemplateData> = {
+          5: {
+            id: 5,
+            name: "Web News Story 1",
+            template_type: "web_news_story",
+            image: "/images/templates/web_news_story.png",
+            description: "Template for news articles with headline and category"
+          },
+          14: {
+            id: 14,
+            name: "Web News Story 2",
+            template_type: "web_news_story_2",
+            image: "/images/templates/web_news_story_2.png",
+            description: "Alternative layout for news articles"
+          },
+          // Add more templates as needed
+        };
+    
+        // Check if template exists
+        if (!templates[templateId]) {
+          toast.error("Template not found");
+          router.push("/crm/platform/templates");
+          return;
+        }
+    
+        setTemplateData(templates[templateId]);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch template data:", error);
+        toast.error("Failed to load template");
+        setIsLoading(false);
       }
-  
-      setTemplateData(templates[templateId]);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Failed to fetch template data:", error);
-      toast.error("Failed to load template");
-      setIsLoading(false);
-    }
-  };
+    };
 
     fetchTemplateData();
   }, [templateId, router]);
 
   const handleFormSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
+    setIsImageLoading(true);
     
     try {
       // Log submission for analytics
@@ -104,6 +106,7 @@ const fetchTemplateData = async () => {
         });
         
         toast.error(result.msg || "Failed to generate image");
+        setIsImageLoading(false);
       }
     } catch (error) {
       // Technical error
@@ -114,9 +117,23 @@ const fetchTemplateData = async () => {
       });
       
       toast.error("Something went wrong. Please try again.");
+      setIsImageLoading(false);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Handle the image loading completion
+  const handleImageLoaded = () => {
+    console.log("Image fully loaded");
+    setIsImageLoading(false);
+  };
+
+  // Handle image loading error
+  const handleImageError = () => {
+    console.error("Image failed to load");
+    setIsImageLoading(false);
+    toast.error("Failed to load the generated image");
   };
 
   if (isLoading) {
@@ -131,9 +148,8 @@ const fetchTemplateData = async () => {
     return <div>Template not found</div>;
   }
 
- 
-// Render the appropriate form based on template type
-const renderForm = () => {
+  // Render the appropriate form based on template type
+  const renderForm = () => {
     switch (templateData.id) {
       case 5:
         // For Web News Story 1 (ID 5)
@@ -181,7 +197,14 @@ const renderForm = () => {
             <h6 className="block text-base text-center font-medium tracking-[0.01em] text-slate-500 uppercase mb-6">
               PREVIEW
             </h6>
-            <div className="flex justify-center">
+            <div className="flex justify-center relative" style={{ minHeight: "300px" }}>
+              {/* Image loading spinner - shown when isImageLoading is true */}
+              {isImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 rounded-md z-10">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+                </div>
+              )}
+              
               {generatedImage ? (
                 <Image
                   src={generatedImage}
@@ -190,6 +213,9 @@ const renderForm = () => {
                   height={300}
                   className="rounded-md"
                   id="NewImgSet"
+                  onLoadingComplete={handleImageLoaded}
+                  onError={handleImageError}
+                  priority
                 />
               ) : (
                 <Image
@@ -199,6 +225,7 @@ const renderForm = () => {
                   height={300}
                   className="rounded-md opacity-50"
                   id="NewImgSet"
+                  onLoadingComplete={() => console.log("Template image loaded")}
                 />
               )}
             </div>
@@ -206,11 +233,11 @@ const renderForm = () => {
           <br />
           <div className="inline-flex justify-center">
             <a
-              className={`btn btn-outline-primary ${!generatedImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
               id="NewImgDownload"
               href={generatedImage || "#"}
               download={generatedImage ? "generated-image.jpg" : undefined}
-              onClick={(e) => !generatedImage && e.preventDefault()}
+              onClick={(e) => (!generatedImage || isImageLoading) && e.preventDefault()}
             >
               Download
             </a>
