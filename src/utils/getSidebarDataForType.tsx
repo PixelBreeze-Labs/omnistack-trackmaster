@@ -831,6 +831,12 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
           title: "Analytics",
           path: `/crm/platform/pixelbreeze-analytics`,
           icon: <BarChart3 className="w-5 h-5"/>,
+        },
+        {
+          id: 2,
+          title: "Logs",
+          path: `/crm/platform/logs`,
+          icon: <BarChart3 className="w-5 h-5"/>,
         }
       ],
       content: [
@@ -853,7 +859,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
         {
           id: 4,
           title: "Images",
-          path: `/crm/platform/media/images`,
+          path: `/crm/platform/generated-images`,
           icon: <PImage className="w-5 h-5"/>,
         },
         {
@@ -863,14 +869,14 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
           icon: <Video className="w-5 h-5"/>,
         }
       ],
-      generate: [
-        {
-          id: 6,
-          title: "Images",
-          path: `/crm/platform/generate/images`,
-          icon: <PenTool className="w-5 h-5"/>,
-        }
-      ],
+      // generate: [
+      //   {
+      //     id: 6,
+      //     title: "Images",
+      //     path: `/crm/platform/generate/images`,
+      //     icon: <PenTool className="w-5 h-5"/>,
+      //   }
+      // ],
       profiles: [
         {
           id: 7,

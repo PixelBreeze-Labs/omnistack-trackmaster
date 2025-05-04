@@ -106,3 +106,15 @@ export enum EntityType {
       count: number;
     }[];
   }
+
+
+  export interface StatDistribution {
+    _id: string; // Either entity name or template type
+    count: number;
+  }
+  
+  export interface TemplateStats {
+    total: number;
+    downloadRate: number;
+    byEntity: StatDistribution[];
+  }

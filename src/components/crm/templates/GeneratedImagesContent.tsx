@@ -110,7 +110,7 @@ export default function GeneratedImagesContent() {
   };
 
   // Handle download tracking
-  const handleDownload = async (image) => {
+const handleDownload = async (image) => {
     try {
       // Record the download
       await recordImageDownload(image?._id);
@@ -119,6 +119,10 @@ export default function GeneratedImagesContent() {
       const link = document.createElement('a');
       link.href = image.path;
       link.download = `image-${image?._id}.jpg`;
+      
+      // Set target to _blank to open in a new tab
+      link.target = '_blank';
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -173,6 +173,25 @@ export const useGeneratedImages = () => {
     return fetchGeneratedImages({ templateType, page, limit });
   }, [fetchGeneratedImages]);
 
+  // Get template specific stats
+  const getTemplateStats = useCallback(async (templateType) => {
+    if (!api) return null;
+
+    try {
+      const response = await api.getTemplateStats(templateType);
+      console.log('Template stats:', response); // Debug log
+      return response;
+    } catch (error) {
+      console.error(`Error fetching stats for template ${templateType}:`, error);
+      return {
+        total: 0,
+        downloadRate: 0,
+        byEntity: []
+      };
+    }
+  }, [api]);
+
+
   return {
     isLoading,
     images,
@@ -187,6 +206,7 @@ export const useGeneratedImages = () => {
     recordImageDownload,
     deleteGeneratedImage,
     fetchImageStats,
+    getTemplateStats,
     logEvent,
     getSessionLogs,
     filterByEntity,

@@ -36,6 +36,17 @@ export const createGeneratedImagesApi = (apiKey: string) => {
       return data;
     },
 
+      // Get statistics for a specific template
+      getTemplateStats: async (templateType: string): Promise<any> => {
+        try {
+          const { data } = await api.get(`/generated-images/template/${templateType}/stats`);
+          return data;
+        } catch (error) {
+          console.error(`Error fetching stats for template ${templateType}:`, error);
+          throw error;
+        }
+      },
+
     // Get a single generated image by ID
     getGeneratedImageById: async (id: string): Promise<GeneratedImage> => {
       const { data } = await api.get(`/generated-images/${id}`);
