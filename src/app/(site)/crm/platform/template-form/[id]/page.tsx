@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import TemplateForm from "@/components/crm/templates/TemplateForm";
 
 export const metadata: Metadata = {
-  title: "Template Customization - Pixel Breeze",
+  title: "Template Customization - PixelBreeze",
   description: "Customize and generate images from templates",
 };
 

@@ -4,13 +4,13 @@ import TemplateGrid from "@/components/crm/templates/TemplateGrid"
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Image Templates - Pixel Breeze",
+  title: "Image Templates - PixelBreeze",
   description: "Select an image template to customize",
 };
 
 export default function TemplatesPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3">
       <h1 className="text-2xl font-bold mb-6">Image Templates</h1>
       <Suspense fallback={<TemplatesLoading />}>
         <TemplateGrid />

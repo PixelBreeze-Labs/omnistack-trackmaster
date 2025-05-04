@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import TemplateDashboard from "@/components/crm/templates/TemplateDashboard";
 
 export const metadata: Metadata = {
-  title: "Template Dashboard - Pixel Breeze",
+  title: "Template Dashboard - PixelBreeze",
   description: "Analytics and management for generated images",
 };
 
@@ -11,7 +11,7 @@ export default function TemplateDashboardPage({ params }: { params: { id: string
   const templateId = parseInt(params.id);
 
   return (
-    <div className="container mx-auto px-3 py-8">
+    <div className="container mx-auto px-3">
       <Suspense fallback={<DashboardLoading />}>
         <TemplateDashboard templateId={templateId} />
       </Suspense>
