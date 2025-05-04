@@ -1,134 +1,125 @@
 // src/app/api/templates/generate/route.ts
 import { NextResponse } from 'next/server';
 
-// This will be replaced with your actual Python API integration
-const PYTHON_API_URL = process.env.NEXT_PYTHON_API_URL || 'http://your-python-api.com/generate';
+// Configure the correct domain and paths
+const PYTHON_API_URL = process.env.NEXT_PYTHON_API_URL || 'https://stageapi.pixelbreeze.xyz/generate';
+const STORAGE_DOMAIN = 'https://stageadmin.pixelbreeze.xyz';
+const STORAGE_PATH = '/var/www/html/stageadmin.pixelbreeze.xyz/storage/app/public/uploads/';
 
 export async function POST(request: Request) {
   try {
     // Parse form data
     const formData = await request.formData();
+    
+    // Extract data
     const templateType = formData.get('template_type') as string;
-    const title = formData.get('title') as string;
-    const category = formData.get('category') as string;
-    const articleUrl = formData.get('artical_url') as string;
-    const imageFile = formData.get('image') as File;
-
-    // Log submission for analytics
-    console.log('Form submission start', {
-      step: 'submission_start',
-      template_type: templateType,
-      timestamp: new Date().toISOString()
-    });
-
-    // Validate required fields
-    if (!title) {
+    const title = formData.get('title') as string | null;
+    const category = formData.get('category') as string | null;
+    const articleUrl = formData.get('artical_url') as string | null;
+    const imageFile = formData.get('image') as File | null;
+    
+    // Validation for URL-only case
+    // If article URL is provided, we don't require title or image
+    if (!articleUrl && !title) {
       return NextResponse.json({
         status: 0,
-        msg: "Title is required"
+        msg: "Either Article URL or Title is required"
       }, { status: 400 });
     }
-
-    // For templates that require either URL or image
-    if (['web_news_story', 'web_news_story_2'].includes(templateType)) {
-      if (!articleUrl && !imageFile) {
-        return NextResponse.json({
-          status: 0,
-          msg: "Please provide either an Article URL or upload a file"
-        }, { status: 400 });
-      }
-    }
-
-    // Prepare data to send to Python API
-    const apiFormData = new FormData();
-    apiFormData.append('template_type', templateType);
-    apiFormData.append('title', title);
     
+    // Create a new FormData for Python API
+    const apiFormData = new FormData();
+    
+    // Session ID
+    const sessionId = 'session_' + Date.now();
+    apiFormData.append('session_id', sessionId);
+    
+    // Generate output filename
+    const timestamp = Date.now();
+    const outputImageName = `output_${timestamp}.jpg`;
+    const outputPath = STORAGE_PATH + outputImageName;
+    
+    // Add output path to API form data
+    apiFormData.append('output_img_path', outputPath);
+    
+    // Add template type
+    apiFormData.append('template_type', templateType);
+    
+    // Check if we're dealing with URL-only case
+    const isArticleUrl = !!articleUrl;
+    
+    // If it's an article URL case, mark it
+    if (isArticleUrl) {
+      apiFormData.append('artical_url', articleUrl);
+      // For article URL case, add IsArticle=1 flag like in PHP version
+      apiFormData.append('IsArticle', '1');
+    }
+    
+    // Only add title if provided
+    if (title) {
+      apiFormData.append('text', title);
+    }
+    
+    // Only add category if provided
     if (category) {
       apiFormData.append('category', category);
     }
     
-    if (articleUrl) {
-      apiFormData.append('artical_url', articleUrl);
-    }
-    
-    if (imageFile) {
+    // Only add image if provided and we're not using article URL
+    if (imageFile && !isArticleUrl) {
       apiFormData.append('image', imageFile);
     }
-
-    let generatedImageUrl;
-
-    // OPTION 1: For development/testing without Python API
-    // This simulates the image generation by returning a placeholder image
-    if (process.env.NODE_ENV === 'development') {
-      // Simulate a delay to mimic API processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Return a placeholder image based on template type
-      const placeholders = {
-        'web_news_story': '/images/templates/web_news_story_generated.jpg',
-        'web_news_story_2': '/images/templates/web_news_story_2_generated.jpg',
-        // Add more placeholders as needed
-      };
-      
-      generatedImageUrl = placeholders[templateType] || '/images/templates/default_generated.jpg';
-    } 
-    // OPTION 2: For production with actual Python API
-    else {
-      try {
-        // Call the Python API
-        const response = await fetch(PYTHON_API_URL, {
-          method: 'POST',
-          body: apiFormData,
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API returned ${response.status}: ${await response.text()}`);
-        }
-        
-        const data = await response.json();
-        
-        // Check if the API returned a successful response
-        if (data.status !== 1) {
-          return NextResponse.json({
-            status: 0,
-            msg: data.msg || "Image generation failed"
-          }, { status: 400 });
-        }
-        
-        generatedImageUrl = data.img;
-      } catch (error) {
-        console.error('Python API error:', error);
-        return NextResponse.json({
-          status: 0,
-          msg: "Failed to connect to image generation service"
-        }, { status: 500 });
-      }
+    
+    // Add crop mode for story templates
+    if (['web_news_story', 'web_news_story_2'].includes(templateType)) {
+      apiFormData.append('crop_mode', 'story');
     }
-
-    // Log success
-    console.log('Generation successful', {
-      step: 'success',
-      image: generatedImageUrl,
-      timestamp: new Date().toISOString()
+    
+    // Log what we're sending
+    console.log('Sending to Python API:', {
+      template_type: templateType,
+      session_id: sessionId,
+      output_path: outputPath,
+      is_article_url: isArticleUrl,
+      has_title: !!title,
+      has_category: !!category,
+      has_image: !!imageFile
     });
-
-    // Return the generated image URL
+    
+    // Call the Python API
+    const response = await fetch(PYTHON_API_URL, {
+      method: 'POST',
+      body: apiFormData,
+    });
+    
+    // Handle API errors
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Python API error:', errorText);
+      
+      return NextResponse.json({
+        status: 0,
+        msg: `Image generation failed: ${response.status}`,
+        details: errorText
+      }, { status: response.status });
+    }
+    
+    // Process successful response
+    const result = await response.json();
+    console.log('API response:', result);
+    
+    // Construct URL to the generated image
+    const imageUrl = `${STORAGE_DOMAIN}/storage/uploads/${outputImageName}`;
+    
+    // Return success response
     return NextResponse.json({
       status: 1,
       msg: "Image generated successfully",
-      img: generatedImageUrl
+      img: imageUrl
     });
-
+    
   } catch (error) {
     console.error('Generation error:', error);
-    
-    // Log error
-    console.error('API error', {
-      type: 'server_error',
-      error,
-      timestamp: new Date().toISOString()
-    });
     
     return NextResponse.json({
       status: 0,

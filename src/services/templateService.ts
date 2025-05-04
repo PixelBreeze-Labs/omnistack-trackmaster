@@ -27,6 +27,9 @@ export class TemplateService {
         timeout: 30000, // 30 seconds timeout
       });
 
+      console.log('Response from Python API:', response.data);
+
+
       // Return the API response
       return response.data;
     } catch (error) {

@@ -9,7 +9,18 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     forceSwcTransforms: true,
-  }
+  },
+  images: {
+    domains: ['stageadmin.pixelbreeze.xyz'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'stageadmin.pixelbreeze.xyz',
+        port: '',
+        pathname: '/storage/uploads/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
