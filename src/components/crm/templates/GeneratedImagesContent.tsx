@@ -504,7 +504,7 @@ export default function GeneratedImagesContent() {
                     variant="link" 
                     onClick={() => setCurrentTab("gallery")}
                   >
-                    View All Images <ChevronRight className="h-4 w-4 ml-1" />
+                    View All Images On Gallery / List View
                   </Button>
                 </div>
               )}
