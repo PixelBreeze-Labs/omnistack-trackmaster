@@ -1,4 +1,3 @@
-// src/components/crm/templates/TemplateForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,6 +6,7 @@ import Image from "next/image";
 import { toast } from "react-hot-toast";
 import NewsStoryForm from "./forms/NewsStoryForm";
 import NewsStory2Form from "./forms/NewsStory2Form";
+import { useGeneratedImages } from "@/hooks/useGeneratedImages"; // Import the hook
 
 type TemplateData = {
   id: number;
@@ -14,6 +14,7 @@ type TemplateData = {
   template_type: string;
   image: string;
   description?: string;
+  entity: string;
 };
 
 export default function TemplateForm({ templateId }: { templateId: number }) {
@@ -22,8 +23,18 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
   const [templateData, setTemplateData] = useState<TemplateData | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageId, setImageId] = useState<string | null>(null);
+  const [sessionId] = useState(`session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
   
   const router = useRouter();
+  
+  // Initialize the hook
+  const { 
+    logEvent, 
+    createGeneratedImage, 
+    recordImageDownload,
+    isInitialized 
+  } = useGeneratedImages();
 
   useEffect(() => {
     const fetchTemplateData = async () => {
@@ -36,14 +47,16 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             name: "Web News Story 1",
             template_type: "web_news_story",
             image: "/images/templates/web_news_story.png",
-            description: "Template for news articles with headline and category"
+            description: "Template for news articles with headline and category",
+            entity: "iconstyle"
           },
           14: {
             id: 14,
             name: "Web News Story 2",
             template_type: "web_news_story_2",
             image: "/images/templates/web_news_story_2.png",
-            description: "Alternative layout for news articles"
+            description: "Alternative layout for news articles",
+            entity: "iconstyle"
           },
           // Add more templates as needed
         };
@@ -58,7 +71,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         setTemplateData(templates[templateId]);
         setIsLoading(false);
       } catch (error) {
-        console.error("Failed to fetch template data:", error);
         toast.error("Failed to load template");
         setIsLoading(false);
       }
@@ -71,13 +83,26 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     setIsSubmitting(true);
     setIsImageLoading(true);
     
-    try {
-      // Log submission for analytics
-      console.log("Form submission started", {
-        step: "submission_start",
-        template_type: formData.get("template_type"),
-        timestamp: new Date().toISOString()
+    // Log form submission start with the hook
+    if (isInitialized) {
+      logEvent({
+        type: 'INFO',
+        message: 'Form submission started',
+        details: {
+          template_type: formData.get("template_type"),
+          timestamp: new Date().toISOString()
+        },
+        sessionId,
+        actionType: 'FORM_SUBMISSION'
       });
+    }
+    
+    try {
+      // Add entity to the form data
+      if (templateData?.entity) {
+        formData.append("entity", templateData.entity);
+      }
+      
 
       // Make the API call to generate the image
       const response = await fetch("/api/templates/generate", {
@@ -89,32 +114,105 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
 
       if (result.status === 1) {
         // Success
-        console.log("Generation successful", {
-          step: "success",
-          image: result.img,
-          timestamp: new Date().toISOString()
-        });
+        
         
         setGeneratedImage(result.img);
+        
+        // If we received an imageId from the API, use it
+        if (result.imageId) {
+          setImageId(result.imageId);
+          
+          // Log success with hook
+          if (isInitialized) {
+            logEvent({
+              type: 'SUCCESS',
+              message: 'Image generated successfully',
+              details: {
+                imageUrl: result.img,
+                imageId: result.imageId
+              },
+              sessionId,
+              imageId: result.imageId,
+              actionType: 'IMAGE_GENERATION_SUCCESS'
+            });
+          }
+        } 
+        // Otherwise, create an image record using the hook
+        else if (isInitialized && templateData) {
+          try {
+            // Create image record with the hook
+            const imageRecord = await createGeneratedImage({
+              path: result.img,
+              sessionId,
+              templateType: formData.get("custom_template_type") as string || templateData.template_type,
+              subtitle: formData.get("category") as string || formData.get("description") as string,
+              entity: templateData.entity,
+              articleUrl: formData.get("artical_url") as string
+            });
+            
+            if (imageRecord?._id) {
+              setImageId(imageRecord._id);
+              
+              // Log success
+              logEvent({
+                type: 'SUCCESS',
+                message: 'Image record created successfully',
+                details: {
+                  imageUrl: result.img,
+                  imageId: imageRecord._id
+                },
+                sessionId,
+                imageId: imageRecord._id,
+                actionType: 'IMAGE_RECORD_CREATED'
+              });
+            }
+          } catch (error) {
+            
+            // Log error
+            logEvent({
+              type: 'ERROR',
+              message: 'Failed to create image record',
+              details: error,
+              sessionId,
+              actionType: 'IMAGE_RECORD_CREATION_ERROR'
+            });
+          }
+        }
+        
         toast.success("Image generated successfully!");
       } else {
-        // Error from business logic
-        console.error("Business logic error", {
-          type: "business_logic",
-          message: result.msg,
-          timestamp: new Date().toISOString()
-        });
+       
+        // Log error with hook
+        if (isInitialized) {
+          logEvent({
+            type: 'ERROR',
+            message: 'Image generation failed',
+            details: {
+              errorMessage: result.msg || "Failed to generate image",
+              status: result.status
+            },
+            sessionId,
+            actionType: 'IMAGE_GENERATION_ERROR'
+          });
+        }
         
         toast.error(result.msg || "Failed to generate image");
         setIsImageLoading(false);
       }
     } catch (error) {
-      // Technical error
-      console.error("API error", {
-        type: "ajax_error",
-        error,
-        timestamp: new Date().toISOString()
-      });
+     
+      // Log error with hook
+      if (isInitialized) {
+        logEvent({
+          type: 'ERROR',
+          message: 'API error',
+          details: {
+            error: error instanceof Error ? error.message : String(error)
+          },
+          sessionId,
+          actionType: 'API_ERROR'
+        });
+      }
       
       toast.error("Something went wrong. Please try again.");
       setIsImageLoading(false);
@@ -125,17 +223,87 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
 
   // Handle the image loading completion
   const handleImageLoaded = () => {
-    console.log("Image fully loaded");
     setIsImageLoading(false);
+    
+    // Log with hook
+    if (isInitialized && imageId) {
+      logEvent({
+        type: 'INFO',
+        message: 'Image loaded in UI',
+        sessionId,
+        imageId,
+        actionType: 'IMAGE_LOADED'
+      });
+    }
   };
 
   // Handle image loading error
   const handleImageError = () => {
-    console.error("Image failed to load");
     setIsImageLoading(false);
     toast.error("Failed to load the generated image");
+    
+    // Log with hook
+    if (isInitialized) {
+      logEvent({
+        type: 'ERROR',
+        message: 'Failed to load image in UI',
+        details: {
+          imageUrl: generatedImage
+        },
+        sessionId,
+        imageId,
+        actionType: 'IMAGE_LOAD_ERROR'
+      });
+    }
   };
 
+  const handleDownload = async () => {
+    // If no image or currently loading, don't do anything
+    if (!generatedImage || isImageLoading) {
+      return;
+    }
+  
+    // First record the download
+    if (imageId) {
+      try {
+        // Use the hook function if available
+        if (isInitialized) {
+          await recordImageDownload(imageId);
+          
+          // Log download event
+          await logEvent({
+            type: 'SUCCESS',
+            message: 'Image downloaded',
+            sessionId,
+            imageId,
+            actionType: 'IMAGE_DOWNLOAD'
+          });
+          
+        }
+      } catch (error) {
+        
+        // Log error
+        if (isInitialized) {
+          logEvent({
+            type: 'ERROR',
+            message: 'Failed to track download',
+            details: error,
+            sessionId,
+            imageId,
+            actionType: 'DOWNLOAD_TRACKING_ERROR'
+          });
+        }
+      }
+    }
+  
+    // Then trigger the download
+    const link = document.createElement('a');
+    link.href = generatedImage;
+    link.download = 'generated-image.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[600px]">
@@ -183,6 +351,9 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             <div className="flex-1">
               <div className="card-title text-slate-900">
                 {templateData.name}
+              </div>
+              <div className="text-xs text-slate-500">
+                Entity: {templateData.entity}
               </div>
             </div>
           </header>
@@ -232,16 +403,16 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
           </div>
           <br />
           <div className="inline-flex justify-center">
-            <a
-              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
-              id="NewImgDownload"
-              href={generatedImage || "#"}
-              download={generatedImage ? "generated-image.jpg" : undefined}
-              onClick={(e) => (!generatedImage || isImageLoading) && e.preventDefault()}
-            >
-              Download
-            </a>
-          </div>
+  <button
+    className={`btn btn-outline-primary ${(!generatedImage || isImageLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+    id="NewImgDownload"
+    disabled={!generatedImage || isImageLoading}
+    onClick={handleDownload}
+  >
+    Download
+  </button>
+</div>
+
         </div>
       </div>
       {/* Add bottom spacing */}
