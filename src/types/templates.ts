@@ -75,14 +75,14 @@ export enum TemplateType {
         id: 21,
         name: "Web News Story 1",
         template_type: TemplateType.WEB_NEWS_STORY,
-        image: "/images/templates/web_news_story.jpg",
+        image: "/images/templates/web_news_story.png",
         description: "Template for news articles with headline and category"
       },
       23: {
         id: 23,
         name: "Web News Story 2",
         template_type: TemplateType.WEB_NEWS_STORY_2,
-        image: "/images/templates/web_news_story_2.jpg",
+        image: "/images/templates/web_news_story_2.png",
         description: "Alternative layout for news articles"
       },
       // Add more templates as needed
