@@ -399,10 +399,15 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
                         </div>
                         <div className="flex items-center">
                           {image.downloadTime ? (
+                            <>
                             <Badge variant="success" className="flex items-center">
                               <Download className="mr-1 h-3 w-3" />
-                              Downloaded
+                              Downloaded At Least Once
                             </Badge>
+                             <Button size="sm" variant="ghost" onClick={() => handleDownload(image)}>
+                             <Download className="h-4 w-4" />
+                           </Button>
+                           </>
                           ) : (
                             <Button size="sm" variant="ghost" onClick={() => handleDownload(image)}>
                               <Download className="h-4 w-4" />

@@ -152,6 +152,7 @@ export default function Sidebar({
     || pathname.includes('/operating-entities')
     || pathname.includes('/templates')
     || pathname.includes('/template-form')
+    || pathname.includes('/template-dashboard')
     || pathname.includes('/generated-images')
     || pathname.includes('/logs')
 
