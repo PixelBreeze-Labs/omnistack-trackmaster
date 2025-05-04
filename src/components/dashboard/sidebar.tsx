@@ -87,7 +87,7 @@ interface SidebarProps {
   // PixelBreeze props
   content?: any[];
   media?: any[];
-  generate?: any[];
+  // generate?: any[];
   profiles?: any[];
   // QYTETARET props
   reports?: any[];
@@ -121,7 +121,7 @@ export default function Sidebar({
   // PixelBreeze props
   content = [],
   media = [],
-  generate = [],
+  // generate = [],
   profiles = [],
   // QYTETARET props
   reports = [],
@@ -152,6 +152,9 @@ export default function Sidebar({
     || pathname.includes('/operating-entities')
     || pathname.includes('/templates')
     || pathname.includes('/template-form')
+    || pathname.includes('/generated-images')
+    || pathname.includes('/logs')
+
   const isQytetaret = pathname.includes('/qytetaret') || pathname.includes('/reports') || pathname.includes('/citizens') 
     || pathname.includes('/authorities')
     || pathname.includes('/report-tags')
@@ -193,7 +196,7 @@ export default function Sidebar({
       ...mainMenu,
       ...content,
       ...media,
-      ...generate,
+      // ...generate,
       ...profiles,
       ...users,
       ...finance,
@@ -502,7 +505,7 @@ export default function Sidebar({
                 </nav>
               </div>
 
-              <div>
+              {/* <div>
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Generate
                 </h3>
@@ -517,7 +520,7 @@ export default function Sidebar({
                     />
                   ))}
                 </nav>
-              </div>
+              </div> */}
 
               <div>
                 <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
