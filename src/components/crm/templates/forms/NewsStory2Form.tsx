@@ -1,7 +1,7 @@
-// src/components/crm/templates/forms/NewsStory2Form.tsx
+// src/components/templates/forms/NewsStory2Form.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type TemplateData = {
@@ -26,35 +26,51 @@ export default function NewsStory2Form({
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
+  const [isUrlProvided, setIsUrlProvided] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  
+  // Update URL provided state whenever the articleUrl changes
+  useEffect(() => {
+    setIsUrlProvided(!!articleUrl.trim());
+  }, [articleUrl]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
-    if (!title) {
-      alert("Title is required");
+    if (!articleUrl && !title) {
+      alert("Either Article URL or Title is required");
       return;
     }
     
-    // If neither URL nor file is provided
-    if (!articleUrl && !fileInputRef.current?.files?.length && templateData.template_type === "web_news_story_2") {
-      alert("Please provide either an Article URL or upload a file");
+    // If neither URL nor file is provided when not using URL mode
+    if (!articleUrl && !fileInputRef.current?.files?.length && !title) {
+      alert("Please provide either an Article URL or Title with an image");
       return;
     }
     
     const formData = new FormData();
     formData.append("template_type", templateData.template_type);
-    formData.append("title", title);
-    formData.append("category", category);
     
+    // Add article URL if provided
     if (articleUrl) {
       formData.append("artical_url", articleUrl);
     }
     
-    if (fileInputRef.current?.files?.length) {
+    // Add title if provided
+    if (title) {
+      formData.append("title", title);
+    }
+    
+    // Add category if provided
+    if (category) {
+      formData.append("category", category);
+    }
+    
+    // Add image if provided and not using URL mode
+    if (fileInputRef.current?.files?.length && !isUrlProvided) {
       formData.append("image", fileInputRef.current.files[0]);
     }
     
@@ -130,7 +146,7 @@ export default function NewsStory2Form({
           id="artical_url" 
           name="artical_url" 
           type="text" 
-          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" 
+          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           placeholder="Article URL" 
           value={articleUrl}
           onChange={(e) => setArticleUrl(e.target.value)}
@@ -143,13 +159,14 @@ export default function NewsStory2Form({
       
       <div className="input-area">
         <div className="filegroup">
-          <label className="block">
+          <label className={`block ${isUrlProvided ? 'opacity-50' : ''}`}>
             <input 
               type="file" 
               className="w-full hidden" 
               name="image"
               ref={fileInputRef}
               onChange={handleFileChange}
+              disabled={isUrlProvided}
             />
             <span className="w-full h-[40px] file-control flex items-center custom-class border border-slate-300 rounded-md overflow-hidden">
               <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
@@ -169,17 +186,17 @@ export default function NewsStory2Form({
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title * 
+          Title {!isUrlProvided && '*'}
         </label>
         <textarea 
           id="title" 
           name="title" 
           rows={5} 
-          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" 
+          className={`form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 ${isUrlProvided ? 'opacity-80' : ''}`} 
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
+          required={!isUrlProvided}
         ></textarea>
       </div>
       
@@ -198,7 +215,11 @@ export default function NewsStory2Form({
         />
       </div>
       
-      <p className="text-sm text-slate-500">Fields marked with * are required!</p>
+      <p className="text-sm text-slate-500">
+        {isUrlProvided 
+          ? "When providing an Article URL, title and image are optional." 
+          : "Fields marked with * are required!"}
+      </p>
       
       <hr className="my-4" />
       
