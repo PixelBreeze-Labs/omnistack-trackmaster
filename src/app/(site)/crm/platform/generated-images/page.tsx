@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 
 export default function GeneratedImagesPage() {
   return (
-    <div className="container mx-auto px-3 py-6">
-      <h1 className="text-2xl font-bold mb-6">All Generated Images</h1>
+    <div className="container mx-auto px-3">
       <Suspense fallback={<GeneratedImagesLoading />}>
         <GeneratedImagesContent />
       </Suspense>

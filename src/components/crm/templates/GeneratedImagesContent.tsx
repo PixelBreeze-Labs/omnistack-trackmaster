@@ -10,7 +10,7 @@ import {
   CardHeader, 
   CardTitle, 
   CardDescription 
-} from "@/components/ui/card";
+} from "@/components/ui/new-card";
 import { 
   Tabs, 
   TabsContent, 
