@@ -843,7 +843,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
             {
               id: "3-1",
               title: "All Templates",
-              path: `/crm/platform/templates/all`,
+              path: `/crm/platform/templates`,
               icon: <Grid className="w-4 h-4"/>
             }
           ]

@@ -146,7 +146,12 @@ export default function Sidebar({
     || pathname.includes('/users')
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
-  const isPixelBreeze = pathname.includes('/pixelbreeze') || pathname.includes('/social-profiles') || pathname.includes('/operating-entities')
+  const isPixelBreeze = 
+    pathname.includes('/pixelbreeze')
+    || pathname.includes('/social-profiles')
+    || pathname.includes('/operating-entities')
+    || pathname.includes('/templates')
+    || pathname.includes('/template-form')
   const isQytetaret = pathname.includes('/qytetaret') || pathname.includes('/reports') || pathname.includes('/citizens') 
     || pathname.includes('/authorities')
     || pathname.includes('/report-tags')
