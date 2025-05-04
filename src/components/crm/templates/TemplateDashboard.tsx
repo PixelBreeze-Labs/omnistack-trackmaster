@@ -65,6 +65,11 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
   const [isLoading, setIsLoading] = useState(true);
   const [templateData, setTemplateData] = useState<TemplateData | null>(null);
   const [currentTab, setCurrentTab] = useState("overview");
+  const [templateStats, setTemplateStats] = useState({
+    total: 0,
+    downloadRate: 0,
+    entity: 0
+  });
   
   // Images table state
   const [page, setPage] = useState(1);
@@ -86,7 +91,9 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
     fetchImageStats,
     deleteGeneratedImage,
     recordImageDownload,
-    isInitialized
+    isInitialized,
+    // Add this to your hook if not already there
+    getTemplateStats
   } = useGeneratedImages();
 
   useEffect(() => {
@@ -143,10 +150,27 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
         limit: pageSize,
       });
       
-      // Fetch stats
+      // Fetch global stats
       fetchImageStats();
+      
+      // Fetch template-specific stats
+      if (typeof getTemplateStats === 'function') {
+        getTemplateStats(templateData.template_type)
+          .then(templateStatsData => {
+            if (templateStatsData) {
+              setTemplateStats({
+                total: templateStatsData.total || 0,
+                downloadRate: templateStatsData.downloadRate || 0,
+                entity: templateStatsData.byEntity?.find(e => e._id === templateData.entity)?.count || 0
+              });
+            }
+          })
+          .catch(error => {
+            console.error("Failed to fetch template stats:", error);
+          });
+      }
     }
-  }, [templateData, isInitialized, fetchGeneratedImages, fetchImageStats, page, pageSize]);
+  }, [templateData, isInitialized, fetchGeneratedImages, fetchImageStats, getTemplateStats, page, pageSize]);
 
   // Refresh data
   const handleRefresh = () => {
@@ -157,6 +181,20 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
         limit: pageSize,
       });
       fetchImageStats();
+
+      // Refresh template stats
+      if (typeof getTemplateStats === 'function') {
+        getTemplateStats(templateData.template_type)
+          .then(templateStatsData => {
+            if (templateStatsData) {
+              setTemplateStats({
+                total: templateStatsData.total || 0,
+                downloadRate: templateStatsData.downloadRate || 0,
+                entity: templateStatsData.byEntity?.find(e => e._id === templateData.entity)?.count || 0
+              });
+            }
+          });
+      }
     }
   };
 
@@ -165,28 +203,26 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
     router.push(`/crm/platform/template-form/${templateId}`);
   };
 
-  // Handle download tracking
+  // Handle download tracking - FIXED to use _id instead of id
   const handleDownload = async (image) => {
     try {
-      // Record the download
-      await recordImageDownload(image.id);
+      // Record the download using _id
+      await recordImageDownload(image._id);
       
-      // Create a temporary link to download the image
-      const link = document.createElement('a');
-      link.href = image.path;
-      link.download = `image-${image.id}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Open the image in a new tab
+      window.open(image.path, '_blank');
       
       toast.success("Download tracked successfully");
+      
+      // Refresh stats after download
+      handleRefresh(); // Use our refresh function to update all stats
     } catch (error) {
       console.error("Error tracking download:", error);
       toast.error("Failed to track download");
     }
   };
 
-  // Handle image deletion
+  // Handle image deletion - Make sure you're using the correct ID field here too
   const handleDelete = async (imageId: string) => {
     try {
       await deleteGeneratedImage(imageId);
@@ -228,13 +264,6 @@ export default function TemplateDashboard({ templateId }: { templateId: number }
   if (!templateData) {
     return <div>Template not found</div>;
   }
-
-  // Calculate template-specific stats
-  const templateStats = stats ? {
-    total: stats.byTemplate.find(t => t._id === templateData.template_type)?.count || 0,
-    downloadRate: stats.downloadRate,
-    entity: stats.byEntity.find(e => e._id === templateData.entity)?.count || 0
-  } : { total: 0, downloadRate: 0, entity: 0 };
 
   // Filter images with download time
   const downloadedImages = images.filter(img => img.downloadTime);
