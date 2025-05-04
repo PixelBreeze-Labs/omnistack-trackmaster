@@ -1,7 +1,7 @@
 // src/components/templates/forms/NewsStory2Form.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -25,6 +25,7 @@ export default function NewsStory2Form({
 }: NewsStory2FormProps) {
   const [articleUrl, setArticleUrl] = useState("");
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
@@ -53,17 +54,24 @@ export default function NewsStory2Form({
     }
     
     const formData = new FormData();
-    formData.append("template_type", templateData.template_type);
+    
+    // Add the template type - always web_news_story_2 for this form
+    formData.append("template_type", "web_news_story_2");
     
     // Add article URL
     formData.append("artical_url", articleUrl);
     
-    // Add title if provided
+    // Add title
     if (title.trim()) {
       formData.append("title", title);
     }
     
-    // Add category if provided
+    // Add description
+    if (description.trim()) {
+      formData.append("description", description);
+    }
+    
+    // Add category
     if (category.trim()) {
       formData.append("category", category);
     }
@@ -73,6 +81,7 @@ export default function NewsStory2Form({
       // Reset form on success
       if (!isSubmitting) {
         setTitle("");
+        setDescription("");
         setArticleUrl("");
         setCategory("");
       }
@@ -81,59 +90,8 @@ export default function NewsStory2Form({
     }
   };
 
-  const handleTemplateTypeChange = (value: string) => {
-    // Navigate to the new template
-    const templateIds: Record<string, number> = {
-      "web_news_story": 21,
-      "story_2": 23,
-    };
-    
-    if (templateIds[value]) {
-      router.push(`/crm/platform/template-form/${templateIds[value]}`);
-    }
-  };
-
   return (
     <form onSubmit={handleSubmit} className="card-text h-full space-y-4 text-center">
-      <div className="flex items-center space-x-7 flex-wrap justify-center">
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="custom_template_type" 
-              value="web_news_story" 
-              checked={templateData.template_type === "web_news_story"}
-              onChange={() => handleTemplateTypeChange("web_news_story")}
-            />
-            <span className="flex-none bg-white rounded-full border inline-flex mr-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400">
-              {templateData.template_type === "web_news_story" && (
-                <span className="absolute inset-0 m-auto w-[10px] h-[10px] rounded-full bg-primary-500"></span>
-              )}
-            </span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story 1</span>
-          </label>
-        </div>
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="custom_template_type" 
-              value="story_2" 
-              checked={templateData.template_type === "web_news_story_2"}
-              onChange={() => handleTemplateTypeChange("story_2")}
-            />
-            <span className="flex-none bg-white rounded-full border inline-flex mr-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400">
-              {templateData.template_type === "web_news_story_2" && (
-                <span className="absolute inset-0 m-auto w-[10px] h-[10px] rounded-full bg-primary-500"></span>
-              )}
-            </span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story 2</span>
-          </label>
-        </div>
-      </div>
-      
       {/* Information notice */}
       <div className="bg-blue-50 p-4 rounded-md text-blue-700 mb-4">
         <p className="font-medium">Notice: Image upload is temporarily disabled</p>
@@ -159,8 +117,6 @@ export default function NewsStory2Form({
         )}
       </div>
       
-      {/* Image upload section removed */}
-      
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
           Title (Optional)
@@ -168,11 +124,26 @@ export default function NewsStory2Form({
         <textarea 
           id="title" 
           name="title" 
-          rows={5} 
+          rows={3} 
           className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" 
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        ></textarea>
+      </div>
+      
+      <div className="input-area">
+        <label htmlFor="description" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Description (Optional)
+        </label>
+        <textarea 
+          id="description" 
+          name="description" 
+          rows={3} 
+          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" 
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         ></textarea>
       </div>
       
@@ -215,9 +186,6 @@ export default function NewsStory2Form({
           "Create Image"
         )}
       </button>
-      
-      {/* Hidden input for template_type */}
-      <input type="hidden" name="template_type" value={templateData.template_type} />
     </form>
   );
 }

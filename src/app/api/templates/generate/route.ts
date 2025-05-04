@@ -13,18 +13,11 @@ export async function POST(request: Request) {
     
     // Extract data
     const templateType = formData.get('template_type') as string;
+    const customTemplateType = formData.get('custom_template_type') as string | null;
     const title = formData.get('title') as string | null;
+    const description = formData.get('description') as string | null;
     const category = formData.get('category') as string | null;
     const articleUrl = formData.get('artical_url') as string | null;
-    const imageFile = formData.get('image') as File | null;
-    
-    // Check if image was uploaded but no URL provided
-    if (imageFile && !articleUrl) {
-      return NextResponse.json({
-        status: 0,
-        msg: "Image uploads are not supported in this version. Please use an Article URL instead."
-      }, { status: 400 });
-    }
     
     // Check if required fields are provided
     if (!articleUrl) {
@@ -45,36 +38,75 @@ export async function POST(request: Request) {
     const timestamp = Date.now();
     const outputImageName = `output_${timestamp}.jpg`;
     const outputPath = `${OUTPUT_DIR}/${outputImageName}`;
-    
-    // Add template type and output path
-    apiFormData.append('template_type', templateType);
     apiFormData.append('output_img_path', outputPath);
     
     // Add article URL and mark as article mode
     apiFormData.append('artical_url', articleUrl);
     apiFormData.append('IsArticle', '1');
     
-    // Add title if provided
-    if (title) {
-      apiFormData.append('text', title);
-    }
-    
-    // Add category if provided
-    if (category) {
-      apiFormData.append('category', category);
-    }
-    
-    // Add crop mode for story templates
-    if (['web_news_story', 'web_news_story_2'].includes(templateType)) {
+    // Handle different template types
+    if (templateType === 'web_news_story') {
+      // For Web News Story (Story 1 or Story 2)
+      if (customTemplateType) {
+        apiFormData.append('template_type', customTemplateType);
+      } else {
+        apiFormData.append('template_type', 'web_news_story');
+      }
+      
+      // Add title
+      if (title) {
+        apiFormData.append('text', title);
+      }
+      
+      // Add category as sub_text 
+      if (category) {
+        apiFormData.append('sub_text', category);
+      }
+      
+      // Add crop mode
       apiFormData.append('crop_mode', 'story');
+    } 
+    else if (templateType === 'web_news_story_2') {
+      // For Web News Story 2
+      apiFormData.append('template_type', 'web_news_story_2');
+      
+      // Add title
+      if (title) {
+        apiFormData.append('text', title);
+      }
+      
+      // Add description as sub_text
+      if (description) {
+        apiFormData.append('sub_text', description);
+      }
+      
+      // Add category
+      if (category) {
+        apiFormData.append('category', category);
+      }
+      
+      // Add crop mode
+      apiFormData.append('crop_mode', 'story');
+    }
+    else {
+      // For any other template type
+      apiFormData.append('template_type', templateType);
+      
+      if (title) {
+        apiFormData.append('text', title);
+      }
     }
     
     // Log what we're sending
     console.log('Sending to Python API:', {
       template_type: templateType,
+      custom_template_type: customTemplateType,
       session_id: sessionId,
       output_path: outputPath,
-      article_url: articleUrl
+      article_url: articleUrl,
+      title: title,
+      description: description,
+      category: category
     });
     
     // Call the Python API

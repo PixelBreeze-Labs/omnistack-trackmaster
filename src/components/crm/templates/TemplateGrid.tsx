@@ -24,15 +24,15 @@ export default function TemplateGrid() {
         // This would normally come from your API
         const templatesData: Template[] = [
           { 
-            id: 21, 
-            name: "News Story 1", 
+            id: 5, 
+            name: "Web News Story 1", 
             image: "/images/templates/web_news_story.png", 
             template_type: "web_news_story",
             description: "Template for news articles with headline and category" 
           },
           { 
-            id: 23, 
-            name: "News Story 2", 
+            id: 14, 
+            name: "Web News Story 2", 
             image: "/images/templates/web_news_story_2.png", 
             template_type: "web_news_story_2",
             description: "Alternative layout for news articles" 

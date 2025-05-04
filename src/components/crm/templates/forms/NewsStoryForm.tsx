@@ -1,7 +1,7 @@
 // src/components/templates/forms/NewsStoryForm.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -26,6 +26,7 @@ export default function NewsStoryForm({
   const [articleUrl, setArticleUrl] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [customTemplateType, setCustomTemplateType] = useState("web_news_story");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const router = useRouter();
@@ -53,7 +54,12 @@ export default function NewsStoryForm({
     }
     
     const formData = new FormData();
+    
+    // Add the base template type
     formData.append("template_type", templateData.template_type);
+    
+    // Add custom template type for switching between Story 1 and Story 2
+    formData.append("custom_template_type", customTemplateType);
     
     // Add article URL
     formData.append("artical_url", articleUrl);
@@ -82,15 +88,7 @@ export default function NewsStoryForm({
   };
 
   const handleTemplateTypeChange = (value: string) => {
-    // Navigate to the new template
-    const templateIds: Record<string, number> = {
-      "web_news_story": 21,
-      "story_2": 23,
-    };
-    
-    if (templateIds[value]) {
-      router.push(`/crm/platform/template-form/${templateIds[value]}`);
-    }
+    setCustomTemplateType(value);
   };
 
   return (
@@ -103,11 +101,11 @@ export default function NewsStoryForm({
               className="hidden" 
               name="custom_template_type" 
               value="web_news_story" 
-              checked={templateData.template_type === "web_news_story"}
+              checked={customTemplateType === "web_news_story"}
               onChange={() => handleTemplateTypeChange("web_news_story")}
             />
             <span className="flex-none bg-white rounded-full border inline-flex mr-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400">
-              {templateData.template_type === "web_news_story" && (
+              {customTemplateType === "web_news_story" && (
                 <span className="absolute inset-0 m-auto w-[10px] h-[10px] rounded-full bg-primary-500"></span>
               )}
             </span>
@@ -121,11 +119,11 @@ export default function NewsStoryForm({
               className="hidden" 
               name="custom_template_type" 
               value="story_2" 
-              checked={templateData.template_type === "web_news_story_2"}
+              checked={customTemplateType === "story_2"}
               onChange={() => handleTemplateTypeChange("story_2")}
             />
             <span className="flex-none bg-white rounded-full border inline-flex mr-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400">
-              {templateData.template_type === "web_news_story_2" && (
+              {customTemplateType === "story_2" && (
                 <span className="absolute inset-0 m-auto w-[10px] h-[10px] rounded-full bg-primary-500"></span>
               )}
             </span>
@@ -158,8 +156,6 @@ export default function NewsStoryForm({
           <p className="text-red-500 text-xs mt-1">{errors.articleUrl}</p>
         )}
       </div>
-      
-      {/* Image upload section removed */}
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
@@ -216,7 +212,7 @@ export default function NewsStoryForm({
         )}
       </button>
       
-      {/* Hidden input for template_type */}
+      {/* Hidden input for base template_type */}
       <input type="hidden" name="template_type" value={templateData.template_type} />
     </form>
   );

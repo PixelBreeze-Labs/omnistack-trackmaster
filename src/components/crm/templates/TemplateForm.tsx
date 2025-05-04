@@ -29,15 +29,15 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         // This would normally come from your API
         // For now, we'll use static data based on the templateId
         const templates: Record<number, TemplateData> = {
-          21: {
+          5: {
             id: 21,
-            name: "News Story 1",
+            name: "Version 1",
             template_type: "web_news_story",
             image: "/images/templates/web_news_story.png",
           },
           23: {
             id: 23,
-            name: "News Story 2",
+            name: "Version 2",
             template_type: "web_news_story_2",
             image: "/images/templates/web_news_story_2.png",
           },
@@ -46,7 +46,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
 
         if (!templates[templateId]) {
           toast.error("Template not found");
-          router.push("/admin/templates");
+          router.push("/admin/crm/platform/templates");
           return;
         }
 
