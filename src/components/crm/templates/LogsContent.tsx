@@ -134,14 +134,23 @@ export default function LogsContent() {
     }
   };
 
-  // View session details
+  // FIXED: View session details now ensures the tab is visible and active
   const handleViewSession = async (sessionId: string) => {
     if (isInitialized) {
       try {
+        // First, get the session logs
         const logs = await getSessionLogs(sessionId);
+        
+        // Then update state and set the tab all at once to avoid React batching issues
         setSessionLogs(logs);
         setSelectedSession(sessionId);
-        setCurrentTab("session");
+        
+        // Force change to session tab - must happen in this sequence
+        // to ensure the tab is active when it becomes visible
+        setTimeout(() => {
+          // Force React to render by using a new state update in the next tick
+          setCurrentTab("session");
+        }, 10);
       } catch (error) {
         console.error("Error fetching session logs:", error);
         toast.error("Failed to fetch session logs");
@@ -269,7 +278,15 @@ export default function LogsContent() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" onValueChange={setCurrentTab} value={currentTab}>
+      {/* IMPORTANT: Re-create the Tabs component on selectedSession change 
+          by using a key to force React to completely re-render it.
+          This ensures the tab state is reset when selectedSession changes. */}
+      <Tabs 
+        key={`tabs-${selectedSession ? 'with-session' : 'no-session'}`} 
+        defaultValue={selectedSession ? "session" : "overview"} 
+        onValueChange={setCurrentTab} 
+        value={currentTab}
+      >
         <TabsList>
           <TabsTrigger value="overview">
             <BarChart3 className="mr-2 h-4 w-4" />
@@ -761,7 +778,7 @@ export default function LogsContent() {
           {selectedSession && (
             <>
               <div className="flex justify-between items-center mb-4">
-                <div>
+                <div className="pr-4 pl-4 pt-4">
                   <h3 className="text-lg font-medium">Session Detail: {selectedSession}</h3>
                   <p className="text-sm text-muted-foreground">
                     All logs for this image generation session
