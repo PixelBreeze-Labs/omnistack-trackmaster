@@ -105,10 +105,8 @@ export const useGeneratedImages = () => {
     try {
       setIsLoading(true);
       const response = await api.deleteGeneratedImage(id);
-      toast.success('Image deleted successfully');
       return response;
     } catch (error) {
-      toast.error('Failed to delete image');
       throw error;
     } finally {
       setIsLoading(false);

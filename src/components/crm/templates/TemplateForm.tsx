@@ -144,7 +144,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             const imageRecord = await createGeneratedImage({
               path: result.img,
               sessionId,
-              templateType: formData.get("custom_template_type") as string || templateData.template_type,
+              templateType: templateData.template_type,
               subtitle: formData.get("category") as string || formData.get("description") as string,
               entity: templateData.entity,
               articleUrl: formData.get("artical_url") as string
