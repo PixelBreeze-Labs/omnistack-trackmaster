@@ -1,9 +1,10 @@
-// src/components/templates/forms/NewsStoryForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 type TemplateData = {
   id: number;
@@ -30,6 +31,11 @@ export default function NewsStoryForm({
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const router = useRouter();
+  
+  // Debug effect to track template type changes
+  useEffect(() => {
+    console.log("Current template type state:", customTemplateType);
+  }, [customTemplateType]);
   
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
@@ -61,6 +67,9 @@ export default function NewsStoryForm({
     // Add custom template type for switching between Story 1 and Story 2
     formData.append("custom_template_type", customTemplateType);
     
+    // Debug the form data being sent
+    console.log("Sending template type:", customTemplateType);
+    
     // Add article URL
     formData.append("artical_url", articleUrl);
     
@@ -81,55 +90,32 @@ export default function NewsStoryForm({
         setTitle("");
         setArticleUrl("");
         setCategory("");
+        // Note: We don't reset customTemplateType here to preserve the user's choice
       }
     } catch (error) {
       toast.error("Failed to generate image. Please try again.");
     }
   };
 
-  const handleTemplateTypeChange = (value: string) => {
-    setCustomTemplateType(value);
-  };
-
   return (
     <form onSubmit={handleSubmit} className="card-text h-full space-y-4 text-center">
-      <div className="flex items-center space-x-7 flex-wrap justify-center">
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="custom_template_type" 
-              value="web_news_story" 
-              checked={customTemplateType === "web_news_story"}
-              onChange={() => handleTemplateTypeChange("web_news_story")}
-            />
-            <span className="flex-none bg-white rounded-full border inline-flex mr-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400">
-              {customTemplateType === "web_news_story" && (
-                <span className="absolute inset-0 m-auto w-[10px] h-[10px] rounded-full bg-primary-500"></span>
-              )}
-            </span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story 1</span>
-          </label>
-        </div>
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="custom_template_type" 
-              value="story_2" 
-              checked={customTemplateType === "story_2"}
-              onChange={() => handleTemplateTypeChange("story_2")}
-            />
-            <span className="flex-none bg-white rounded-full border inline-flex mr-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400">
-              {customTemplateType === "story_2" && (
-                <span className="absolute inset-0 m-auto w-[10px] h-[10px] rounded-full bg-primary-500"></span>
-              )}
-            </span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story 2</span>
-          </label>
-        </div>
+      
+      {/* Radix UI RadioGroup component */}
+      <div className="flex justify-center">
+        <RadioGroup 
+          value={customTemplateType}
+          onValueChange={setCustomTemplateType}
+          className="flex items-center space-x-7 flex-wrap"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="web_news_story" id="story1" />
+            <Label htmlFor="story1" className="text-secondary-500 text-sm leading-6">Story 1</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="story_2" id="story2" />
+            <Label htmlFor="story2" className="text-secondary-500 text-sm leading-6">Story 2</Label>
+          </div>
+        </RadioGroup>
       </div>
       
       {/* Information notice */}

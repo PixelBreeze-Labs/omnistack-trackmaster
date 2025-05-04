@@ -24,40 +24,44 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchTemplateData = async () => {
-      try {
-        // This would normally come from your API
-        // For now, we'll use static data based on the templateId
-        const templates: Record<number, TemplateData> = {
-          5: {
-            id: 21,
-            name: "Version 1",
-            template_type: "web_news_story",
-            image: "/images/templates/web_news_story.png",
-          },
-          23: {
-            id: 23,
-            name: "Version 2",
-            template_type: "web_news_story_2",
-            image: "/images/templates/web_news_story_2.png",
-          },
-          // Add more templates as needed
-        };
-
-        if (!templates[templateId]) {
-          toast.error("Template not found");
-          router.push("/admin/crm/platform/templates");
-          return;
-        }
-
-        setTemplateData(templates[templateId]);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch template data:", error);
-        toast.error("Failed to load template");
-        setIsLoading(false);
+    // Corrected template data structure
+const fetchTemplateData = async () => {
+    try {
+      // This would normally come from your API
+      // For now, we'll use static data based on the templateId
+      const templates: Record<number, TemplateData> = {
+        5: {
+          id: 5,
+          name: "Web News Story 1",
+          template_type: "web_news_story",
+          image: "/images/templates/web_news_story.png",
+          description: "Template for news articles with headline and category"
+        },
+        14: {
+          id: 14,
+          name: "Web News Story 2",
+          template_type: "web_news_story_2",
+          image: "/images/templates/web_news_story_2.png",
+          description: "Alternative layout for news articles"
+        },
+        // Add more templates as needed
+      };
+  
+      // Check if template exists
+      if (!templates[templateId]) {
+        toast.error("Template not found");
+        router.push("/crm/platform/templates");
+        return;
       }
-    };
+  
+      setTemplateData(templates[templateId]);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch template data:", error);
+      toast.error("Failed to load template");
+      setIsLoading(false);
+    }
+  };
 
     fetchTemplateData();
   }, [templateId, router]);
@@ -127,10 +131,12 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     return <div>Template not found</div>;
   }
 
-  // Render the appropriate form based on template type
-  const renderForm = () => {
-    switch (templateData.template_type) {
-      case "web_news_story":
+ 
+// Render the appropriate form based on template type
+const renderForm = () => {
+    switch (templateData.id) {
+      case 5:
+        // For Web News Story 1 (ID 5)
         return (
           <NewsStoryForm 
             templateData={templateData} 
@@ -138,7 +144,8 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             isSubmitting={isSubmitting} 
           />
         );
-      case "web_news_story_2":
+      case 14:
+        // For Web News Story 2 (ID 14)
         return (
           <NewsStory2Form 
             templateData={templateData} 
