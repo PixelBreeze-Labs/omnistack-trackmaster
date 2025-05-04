@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { 
@@ -65,189 +65,9 @@ import {
   ChevronRight,
   ArrowRight
 } from "lucide-react";
-import { LogType } from "@/app/api/external/omnigateway/types/generatedImage";
+import { LogType } from "@/app/api/external/omnigateway/types/logs";
+import { useImageLogs } from "@/hooks/useImageLogs";
 
-// Mock service for logs since we don't have a proper hook yet
-// In a real implementation, you would create a useImageLogs hook similar to useGeneratedImages
-const useImageLogs = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [logs, setLogs] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [stats, setStats] = useState(null);
-
-  // Mock fetch logs function
-  const fetchLogs = async (params = {}) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Mock data
-      const mockLogs = [
-        {
-          id: '1',
-          type: LogType.INFO,
-          message: 'Form submission started',
-          details: { template_type: 'web_news_story' },
-          sessionId: 'session_1',
-          actionType: 'FORM_SUBMISSION',
-          createdAt: new Date(2023, 4, 10, 9, 30)
-        },
-        {
-          id: '2',
-          type: LogType.SUCCESS,
-          message: 'Image generated successfully',
-          details: { imageUrl: 'https://example.com/image1.jpg' },
-          sessionId: 'session_1',
-          imageId: 'img_1',
-          actionType: 'IMAGE_GENERATION_SUCCESS',
-          createdAt: new Date(2023, 4, 10, 9, 31)
-        },
-        {
-          id: '3',
-          type: LogType.SUCCESS,
-          message: 'Image downloaded',
-          sessionId: 'session_1',
-          imageId: 'img_1',
-          actionType: 'IMAGE_DOWNLOAD',
-          createdAt: new Date(2023, 4, 10, 9, 35)
-        },
-        {
-          id: '4',
-          type: LogType.INFO,
-          message: 'Form submission started',
-          details: { template_type: 'web_news_story_2' },
-          sessionId: 'session_2',
-          actionType: 'FORM_SUBMISSION',
-          createdAt: new Date(2023, 4, 11, 14, 15)
-        },
-        {
-          id: '5',
-          type: LogType.ERROR,
-          message: 'Failed to generate image',
-          details: { error: 'API timeout' },
-          sessionId: 'session_2',
-          actionType: 'IMAGE_GENERATION_ERROR',
-          createdAt: new Date(2023, 4, 11, 14, 16)
-        },
-        {
-          id: '6',
-          type: LogType.INFO,
-          message: 'Form submission started',
-          details: { template_type: 'web_news_story' },
-          sessionId: 'session_3',
-          actionType: 'FORM_SUBMISSION',
-          createdAt: new Date(2023, 4, 12, 11, 45)
-        },
-        {
-          id: '7',
-          type: LogType.SUCCESS,
-          message: 'Image generated successfully',
-          details: { imageUrl: 'https://example.com/image2.jpg' },
-          sessionId: 'session_3',
-          imageId: 'img_2',
-          actionType: 'IMAGE_GENERATION_SUCCESS',
-          createdAt: new Date(2023, 4, 12, 11, 46)
-        },
-        {
-          id: '8',
-          type: LogType.ERROR,
-          message: 'Failed to load image in UI',
-          details: { imageUrl: 'https://example.com/image2.jpg' },
-          sessionId: 'session_3',
-          imageId: 'img_2',
-          actionType: 'IMAGE_LOAD_ERROR',
-          createdAt: new Date(2023, 4, 12, 11, 47)
-        }
-      ];
-      
-      // Apply filtering logic (in a real implementation, this would be done on the server)
-      // For now we'll just return all mock data
-      setLogs(mockLogs);
-      setTotalItems(mockLogs.length);
-      setTotalPages(1);
-      setCurrentPage(1);
-      
-      // Mock stats
-      setStats({
-        total: mockLogs.length,
-        errorRate: 25, // 2 errors out of 8 logs = 25%
-        byType: [
-          { _id: LogType.INFO, count: 3 },
-          { _id: LogType.SUCCESS, count: 3 },
-          { _id: LogType.ERROR, count: 2 }
-        ],
-        byAction: [
-          { _id: 'FORM_SUBMISSION', count: 3 },
-          { _id: 'IMAGE_GENERATION_SUCCESS', count: 2 },
-          { _id: 'IMAGE_DOWNLOAD', count: 1 },
-          { _id: 'IMAGE_GENERATION_ERROR', count: 1 },
-          { _id: 'IMAGE_LOAD_ERROR', count: 1 }
-        ]
-      });
-      
-      setIsLoading(false);
-    }, 500);
-  };
-
-  // Mock get session logs function
-  const getSessionLogs = async (sessionId) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Filter logs by session ID
-        const sessionLogs = [
-          {
-            id: '1',
-            type: LogType.INFO,
-            message: 'Form submission started',
-            details: { template_type: 'web_news_story' },
-            sessionId: 'session_1',
-            actionType: 'FORM_SUBMISSION',
-            createdAt: new Date(2023, 4, 10, 9, 30)
-          },
-          {
-            id: '2',
-            type: LogType.SUCCESS,
-            message: 'Image generated successfully',
-            details: { imageUrl: 'https://example.com/image1.jpg' },
-            sessionId: 'session_1',
-            imageId: 'img_1',
-            actionType: 'IMAGE_GENERATION_SUCCESS',
-            createdAt: new Date(2023, 4, 10, 9, 31)
-          },
-          {
-            id: '3',
-            type: LogType.SUCCESS,
-            message: 'Image downloaded',
-            sessionId: 'session_1',
-            imageId: 'img_1',
-            actionType: 'IMAGE_DOWNLOAD',
-            createdAt: new Date(2023, 4, 10, 9, 35)
-          }
-        ];
-        
-        setIsLoading(false);
-        resolve(sessionLogs);
-      }, 500);
-    });
-  };
-
-  return {
-    isLoading,
-    logs,
-    totalItems,
-    totalPages,
-    currentPage,
-    stats,
-    fetchLogs,
-    getSessionLogs,
-    isInitialized: true
-  };
-};
 
 export default function LogsContent() {
   const [currentTab, setCurrentTab] = useState("overview");
@@ -277,6 +97,7 @@ export default function LogsContent() {
     totalPages,
     stats,
     fetchLogs,
+    fetchLogStats,
     getSessionLogs,
     isInitialized
   } = useImageLogs();
@@ -292,8 +113,11 @@ export default function LogsContent() {
         startDate: dateRange?.from,
         endDate: dateRange?.to
       });
+      
+      // Also fetch stats
+      fetchLogStats();
     }
-  }, [isInitialized, fetchLogs, page, pageSize, typeFilter, actionFilter, dateRange]);
+  }, [isInitialized, fetchLogs, fetchLogStats, page, pageSize, typeFilter, actionFilter, dateRange]);
 
   // Refresh data
   const handleRefresh = () => {
@@ -306,6 +130,7 @@ export default function LogsContent() {
         startDate: dateRange?.from,
         endDate: dateRange?.to
       });
+      fetchLogStats();
     }
   };
 
@@ -664,11 +489,7 @@ export default function LogsContent() {
                       </div>
                     );
                   })}
-                  <div className="text-center">
-                    <Button variant="link" onClick={() => setCurrentTab("logs")}>
-                      View All Sessions <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
+                  
                 </div>
               )}
             </CardContent>
@@ -777,7 +598,7 @@ export default function LogsContent() {
                         log.sessionId.toLowerCase().includes(searchTerm.toLowerCase())
                       )
                       .map((log) => (
-                        <TableRow key={log.id}>
+                        <TableRow key={log._id}>
                           <TableCell>
                             <div className="flex items-center gap-1 text-sm">
                               <Calendar className="h-3 w-3" />
@@ -881,7 +702,7 @@ export default function LogsContent() {
               {logs.length > 0 && (
                 <div className="border-t px-4 py-3">
                   <div className="flex items-center justify-between gap-4">
-                    <InputSelect
+                  <InputSelect
                       name="pageSize"
                       label=""
                       value={pageSize.toString()}
@@ -980,7 +801,7 @@ export default function LogsContent() {
                       {/* Timeline events */}
                       <div className="space-y-6">
                         {sessionLogs.map((log, index) => (
-                          <div key={log.id} className="flex relative">
+                          <div key={log._id} className="flex relative">
                             {/* Timeline dot */}
                             <div className={`w-5 h-5 rounded-full flex-shrink-0 z-10 ${
                               log.type === LogType.SUCCESS ? 'bg-green-500' : 
