@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { 
@@ -65,189 +65,9 @@ import {
   ChevronRight,
   ArrowRight
 } from "lucide-react";
-import { LogType } from "@/app/api/external/omnigateway/types/generatedImage";
+import { LogType } from "@/app/api/external/omnigateway/types/logs";
+import { useImageLogs } from "@/hooks/useImageLogs";
 
-// Mock service for logs since we don't have a proper hook yet
-// In a real implementation, you would create a useImageLogs hook similar to useGeneratedImages
-const useImageLogs = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [logs, setLogs] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [stats, setStats] = useState(null);
-
-  // Mock fetch logs function
-  const fetchLogs = async (params = {}) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Mock data
-      const mockLogs = [
-        {
-          id: '1',
-          type: LogType.INFO,
-          message: 'Form submission started',
-          details: { template_type: 'web_news_story' },
-          sessionId: 'session_1',
-          actionType: 'FORM_SUBMISSION',
-          createdAt: new Date(2023, 4, 10, 9, 30)
-        },
-        {
-          id: '2',
-          type: LogType.SUCCESS,
-          message: 'Image generated successfully',
-          details: { imageUrl: 'https://example.com/image1.jpg' },
-          sessionId: 'session_1',
-          imageId: 'img_1',
-          actionType: 'IMAGE_GENERATION_SUCCESS',
-          createdAt: new Date(2023, 4, 10, 9, 31)
-        },
-        {
-          id: '3',
-          type: LogType.SUCCESS,
-          message: 'Image downloaded',
-          sessionId: 'session_1',
-          imageId: 'img_1',
-          actionType: 'IMAGE_DOWNLOAD',
-          createdAt: new Date(2023, 4, 10, 9, 35)
-        },
-        {
-          id: '4',
-          type: LogType.INFO,
-          message: 'Form submission started',
-          details: { template_type: 'web_news_story_2' },
-          sessionId: 'session_2',
-          actionType: 'FORM_SUBMISSION',
-          createdAt: new Date(2023, 4, 11, 14, 15)
-        },
-        {
-          id: '5',
-          type: LogType.ERROR,
-          message: 'Failed to generate image',
-          details: { error: 'API timeout' },
-          sessionId: 'session_2',
-          actionType: 'IMAGE_GENERATION_ERROR',
-          createdAt: new Date(2023, 4, 11, 14, 16)
-        },
-        {
-          id: '6',
-          type: LogType.INFO,
-          message: 'Form submission started',
-          details: { template_type: 'web_news_story' },
-          sessionId: 'session_3',
-          actionType: 'FORM_SUBMISSION',
-          createdAt: new Date(2023, 4, 12, 11, 45)
-        },
-        {
-          id: '7',
-          type: LogType.SUCCESS,
-          message: 'Image generated successfully',
-          details: { imageUrl: 'https://example.com/image2.jpg' },
-          sessionId: 'session_3',
-          imageId: 'img_2',
-          actionType: 'IMAGE_GENERATION_SUCCESS',
-          createdAt: new Date(2023, 4, 12, 11, 46)
-        },
-        {
-          id: '8',
-          type: LogType.ERROR,
-          message: 'Failed to load image in UI',
-          details: { imageUrl: 'https://example.com/image2.jpg' },
-          sessionId: 'session_3',
-          imageId: 'img_2',
-          actionType: 'IMAGE_LOAD_ERROR',
-          createdAt: new Date(2023, 4, 12, 11, 47)
-        }
-      ];
-      
-      // Apply filtering logic (in a real implementation, this would be done on the server)
-      // For now we'll just return all mock data
-      setLogs(mockLogs);
-      setTotalItems(mockLogs.length);
-      setTotalPages(1);
-      setCurrentPage(1);
-      
-      // Mock stats
-      setStats({
-        total: mockLogs.length,
-        errorRate: 25, // 2 errors out of 8 logs = 25%
-        byType: [
-          { _id: LogType.INFO, count: 3 },
-          { _id: LogType.SUCCESS, count: 3 },
-          { _id: LogType.ERROR, count: 2 }
-        ],
-        byAction: [
-          { _id: 'FORM_SUBMISSION', count: 3 },
-          { _id: 'IMAGE_GENERATION_SUCCESS', count: 2 },
-          { _id: 'IMAGE_DOWNLOAD', count: 1 },
-          { _id: 'IMAGE_GENERATION_ERROR', count: 1 },
-          { _id: 'IMAGE_LOAD_ERROR', count: 1 }
-        ]
-      });
-      
-      setIsLoading(false);
-    }, 500);
-  };
-
-  // Mock get session logs function
-  const getSessionLogs = async (sessionId) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Filter logs by session ID
-        const sessionLogs = [
-          {
-            id: '1',
-            type: LogType.INFO,
-            message: 'Form submission started',
-            details: { template_type: 'web_news_story' },
-            sessionId: 'session_1',
-            actionType: 'FORM_SUBMISSION',
-            createdAt: new Date(2023, 4, 10, 9, 30)
-          },
-          {
-            id: '2',
-            type: LogType.SUCCESS,
-            message: 'Image generated successfully',
-            details: { imageUrl: 'https://example.com/image1.jpg' },
-            sessionId: 'session_1',
-            imageId: 'img_1',
-            actionType: 'IMAGE_GENERATION_SUCCESS',
-            createdAt: new Date(2023, 4, 10, 9, 31)
-          },
-          {
-            id: '3',
-            type: LogType.SUCCESS,
-            message: 'Image downloaded',
-            sessionId: 'session_1',
-            imageId: 'img_1',
-            actionType: 'IMAGE_DOWNLOAD',
-            createdAt: new Date(2023, 4, 10, 9, 35)
-          }
-        ];
-        
-        setIsLoading(false);
-        resolve(sessionLogs);
-      }, 500);
-    });
-  };
-
-  return {
-    isLoading,
-    logs,
-    totalItems,
-    totalPages,
-    currentPage,
-    stats,
-    fetchLogs,
-    getSessionLogs,
-    isInitialized: true
-  };
-};
 
 export default function LogsContent() {
   const [currentTab, setCurrentTab] = useState("overview");
@@ -277,6 +97,7 @@ export default function LogsContent() {
     totalPages,
     stats,
     fetchLogs,
+    fetchLogStats,
     getSessionLogs,
     isInitialized
   } = useImageLogs();
@@ -292,8 +113,11 @@ export default function LogsContent() {
         startDate: dateRange?.from,
         endDate: dateRange?.to
       });
+      
+      // Also fetch stats
+      fetchLogStats();
     }
-  }, [isInitialized, fetchLogs, page, pageSize, typeFilter, actionFilter, dateRange]);
+  }, [isInitialized, fetchLogs, fetchLogStats, page, pageSize, typeFilter, actionFilter, dateRange]);
 
   // Refresh data
   const handleRefresh = () => {
@@ -306,17 +130,27 @@ export default function LogsContent() {
         startDate: dateRange?.from,
         endDate: dateRange?.to
       });
+      fetchLogStats();
     }
   };
 
-  // View session details
+  // FIXED: View session details now ensures the tab is visible and active
   const handleViewSession = async (sessionId: string) => {
     if (isInitialized) {
       try {
+        // First, get the session logs
         const logs = await getSessionLogs(sessionId);
+        
+        // Then update state and set the tab all at once to avoid React batching issues
         setSessionLogs(logs);
         setSelectedSession(sessionId);
-        setCurrentTab("session");
+        
+        // Force change to session tab - must happen in this sequence
+        // to ensure the tab is active when it becomes visible
+        setTimeout(() => {
+          // Force React to render by using a new state update in the next tick
+          setCurrentTab("session");
+        }, 10);
       } catch (error) {
         console.error("Error fetching session logs:", error);
         toast.error("Failed to fetch session logs");
@@ -444,7 +278,15 @@ export default function LogsContent() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" onValueChange={setCurrentTab} value={currentTab}>
+      {/* IMPORTANT: Re-create the Tabs component on selectedSession change 
+          by using a key to force React to completely re-render it.
+          This ensures the tab state is reset when selectedSession changes. */}
+      <Tabs 
+        key={`tabs-${selectedSession ? 'with-session' : 'no-session'}`} 
+        defaultValue={selectedSession ? "session" : "overview"} 
+        onValueChange={setCurrentTab} 
+        value={currentTab}
+      >
         <TabsList>
           <TabsTrigger value="overview">
             <BarChart3 className="mr-2 h-4 w-4" />
@@ -509,93 +351,6 @@ export default function LogsContent() {
             </Card>
           </div>
 
-          {/* Log Type Distribution */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Log Type Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Log Type Distribution</CardTitle>
-                <CardDescription>
-                  Breakdown of logs by type
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="flex justify-center py-8">
-                    <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
-                  </div>
-                ) : !stats?.byType?.length ? (
-                  <div className="text-center py-8">
-                    <PieChart className="h-12 w-12 mx-auto text-muted-foreground" />
-                    <p className="mt-4 text-sm text-muted-foreground">No data available</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {stats.byType.map((type) => (
-                      <div key={type._id} className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full mr-2 ${
-                            type._id === LogType.SUCCESS ? 'bg-green-500' : 
-                            type._id === LogType.ERROR ? 'bg-red-500' : 'bg-blue-500'
-                          }`}></div>
-                          <span className="text-sm font-medium">
-                            {type._id || 'Unknown'}
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-sm font-medium">{type.count}</span>
-                          <span className="text-xs text-muted-foreground ml-2">
-                            ({((type.count / (stats?.total || 1)) * 100).toFixed(1)}%)
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Action Type Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Action Type Distribution</CardTitle>
-                <CardDescription>
-                  Breakdown of logs by action
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="flex justify-center py-8">
-                    <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
-                  </div>
-                ) : !stats?.byAction?.length ? (
-                  <div className="text-center py-8">
-                    <PieChart className="h-12 w-12 mx-auto text-muted-foreground" />
-                    <p className="mt-4 text-sm text-muted-foreground">No data available</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {stats.byAction.map((action) => (
-                      <div key={action._id} className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
-                          <span className="text-sm font-medium">
-                            {action._id?.replace(/_/g, ' ') || 'Unknown'}
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-sm font-medium">{action.count}</span>
-                          <span className="text-xs text-muted-foreground ml-2">
-                            ({((action.count / (stats?.total || 1)) * 100).toFixed(1)}%)
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Recent Sessions */}
           <Card>
@@ -664,11 +419,7 @@ export default function LogsContent() {
                       </div>
                     );
                   })}
-                  <div className="text-center">
-                    <Button variant="link" onClick={() => setCurrentTab("logs")}>
-                      View All Sessions <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
+                  
                 </div>
               )}
             </CardContent>
@@ -777,7 +528,7 @@ export default function LogsContent() {
                         log.sessionId.toLowerCase().includes(searchTerm.toLowerCase())
                       )
                       .map((log) => (
-                        <TableRow key={log.id}>
+                        <TableRow key={log._id}>
                           <TableCell>
                             <div className="flex items-center gap-1 text-sm">
                               <Calendar className="h-3 w-3" />
@@ -881,7 +632,7 @@ export default function LogsContent() {
               {logs.length > 0 && (
                 <div className="border-t px-4 py-3">
                   <div className="flex items-center justify-between gap-4">
-                    <InputSelect
+                  <InputSelect
                       name="pageSize"
                       label=""
                       value={pageSize.toString()}
@@ -940,7 +691,7 @@ export default function LogsContent() {
           {selectedSession && (
             <>
               <div className="flex justify-between items-center mb-4">
-                <div>
+                <div className="pr-4 pl-4 pt-4">
                   <h3 className="text-lg font-medium">Session Detail: {selectedSession}</h3>
                   <p className="text-sm text-muted-foreground">
                     All logs for this image generation session
@@ -980,7 +731,7 @@ export default function LogsContent() {
                       {/* Timeline events */}
                       <div className="space-y-6">
                         {sessionLogs.map((log, index) => (
-                          <div key={log.id} className="flex relative">
+                          <div key={log._id} className="flex relative">
                             {/* Timeline dot */}
                             <div className={`w-5 h-5 rounded-full flex-shrink-0 z-10 ${
                               log.type === LogType.SUCCESS ? 'bg-green-500' : 
