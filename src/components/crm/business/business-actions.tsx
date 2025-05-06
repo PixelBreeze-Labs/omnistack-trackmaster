@@ -14,7 +14,13 @@ import {
 import { 
   Mail,
   Settings,
-  Trash2
+  Trash2,
+  Edit,
+  ClipboardCheck,
+  UserCheck,
+  Beaker,
+  Bot,
+  CreditCard
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Business } from "@/app/api/external/omnigateway/types/business";
@@ -55,6 +61,10 @@ export default function BusinessActions({ business, onActionComplete }: Business
 
   const handleEdit = () => {
     router.push(`/crm/platform/businesses/${business._id}/edit`);
+  };
+  
+  const handleCapabilities = () => {
+    router.push(`/crm/platform/businesses/${business._id}/capabilities`);
   };
 
   const handleDeactivate = async () => {
@@ -99,12 +109,26 @@ export default function BusinessActions({ business, onActionComplete }: Business
 
   const handleSendMagicLink = async () => {
     try {
+      setIsSendingMagicLink(true);
       await sendMagicLink(business.adminUser?.email || business.email);
       setShowMagicLinkDialog(false);
       setIsSendingMagicLink(false);
+      
+      toast({
+        title: "Magic link sent",
+        description: `A login link has been sent to ${business.adminUser?.email || business.email}`,
+      });
+      
       if (onActionComplete) onActionComplete();
     } catch (error) {
       console.error("Error sending magic link:", error);
+      setIsSendingMagicLink(false);
+      
+      toast({
+        title: "Error",
+        description: "Failed to send magic link",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,6 +142,9 @@ export default function BusinessActions({ business, onActionComplete }: Business
         break;
       case "edit":
         handleEdit();
+        break;
+      case "capabilities":
+        handleCapabilities();
         break;
       case "deactivate":
         setShowDeactivateDialog(true);
@@ -140,6 +167,9 @@ export default function BusinessActions({ business, onActionComplete }: Business
       case "manage-agents":
         router.push(`/crm/platform/businesses/${business._id}/agents`);
         break;
+      case "manage-subscription":
+        router.push(`/crm/platform/businesses/${business._id}/subscription`);
+        break;
       default:
         break;
     }
@@ -156,9 +186,11 @@ export default function BusinessActions({ business, onActionComplete }: Business
       { value: "", label: "Actions" },
       { value: "view", label: "View Details" },
       { value: "edit", label: "Edit Business" },
+      { value: "capabilities", label: "Manage Capabilities" },
       { value: "magic-link", label: "Send Magic Link" },
       { value: "manage-features", label: "Manage Features" },
       { value: "manage-agents", label: "Manage Agents" },
+      { value: "manage-subscription", label: "Manage Subscription" },
     ];
     
     // Add conditional actions

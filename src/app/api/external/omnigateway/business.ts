@@ -3,15 +3,40 @@ import { createOmniGateway } from './index';
 import { 
   BusinessParams, 
   BusinessesResponse,
+  BusinessCapabilitiesUpdate,
 } from './types/business';
 
 export const createBusinessApi = (apiKey: string) => {
   const api = createOmniGateway(apiKey);
 
   return {
-
+    // Get business details
     getBusinessDetails: async (businessId: string) => {
       const { data } = await api.get(`/businesses/${businessId}`);
+      return data;
+    },
+
+    // Update business details
+    updateBusiness: async (businessId: string, updateData) => {
+      const { data } = await api.patch(`/businesses/${businessId}`, updateData);
+      return data;
+    },
+
+    // Update business capabilities
+    updateBusinessCapabilities: async (businessId: string, capabilities: BusinessCapabilitiesUpdate) => {
+      const { data } = await api.patch(`/businesses/${businessId}/capabilities`, capabilities);
+      return data;
+    },
+
+    // Update employee capabilities
+    updateEmployeeCapabilities: async (employeeId: string, capabilities) => {
+      const { data } = await api.patch(`/businesses/employee/${employeeId}/capabilities`, capabilities);
+      return data;
+    },
+
+    // Update employee details
+    updateEmployee: async (employeeId: string, updateData) => {
+      const { data } = await api.patch(`/businesses/employee/${employeeId}`, updateData);
       return data;
     },
 
@@ -77,6 +102,7 @@ export const createBusinessApi = (apiKey: string) => {
       return data;
     },
 
+    // Send magic link to user
     sendMagicLink: async (email: string) => {
       const { data } = await api.post('/magic-link/send', { email });
       return data;
