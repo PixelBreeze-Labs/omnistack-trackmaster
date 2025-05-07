@@ -46,15 +46,17 @@ interface BusinessDetailsContentProps {
 
 export default function BusinessDetailsContent({ businessId }: BusinessDetailsContentProps) {
   const router = useRouter();
-  const { getBusinessDetails, isLoading } = useBusiness();
+  const { getBusinessDetails, isLoading, isInitialized } = useBusiness();
   const [business, setBusiness] = useState<Business | null>(null);
   const [showCapabilitiesModal, setShowCapabilitiesModal] = useState(false);
 
   useEffect(() => {
     if (businessId) {
-      loadBusinessData();
+      if (isInitialized) {
+        loadBusinessData();
+      }
     }
-  }, [businessId]);
+  }, [businessId, isInitialized]);
 
   const loadBusinessData = async () => {
     try {
@@ -244,15 +246,6 @@ export default function BusinessDetailsContent({ businessId }: BusinessDetailsCo
                         <span className="font-medium">Admin Email</span>
                       </div>
                       <span>{business?.adminUser?.email || "N/A"}</span>
-                    </div>
-                    <div className="flex justify-center mt-4">
-                      <Button 
-                        size="sm" 
-                        onClick={() => router.push(`/crm/platform/users/${business?.adminUserId}`)}
-                        disabled={!business?.adminUserId}
-                      >
-                        View Admin Profile
-                      </Button>
                     </div>
                   </>
                 )}
