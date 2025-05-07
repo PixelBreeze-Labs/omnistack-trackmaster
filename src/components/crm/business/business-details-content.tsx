@@ -419,14 +419,7 @@ export default function BusinessDetailsContent({ businessId }: BusinessDetailsCo
                       <span>{format(new Date(business.subscriptionEndDate), 'MMMM d, yyyy')}</span>
                     </div>
                   )}
-                  <div className="flex justify-center mt-6">
-                    <Button 
-                      onClick={() => router.push(`/crm/platform/businesses/${business?._id}/subscription`)}
-                      disabled={!business?._id}
-                    >
-                      Manage Subscription
-                    </Button>
-                  </div>
+
                 </>
               )}
             </CardContent>
