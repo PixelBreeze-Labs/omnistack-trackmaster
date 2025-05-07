@@ -21,6 +21,12 @@ export default function TemplateGrid() {
   const [isLoading, setIsLoading] = useState(true);
   const [filterEntity, setFilterEntity] = useState<string>("iconstyle");
   const router = useRouter();
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const handlePreviewClick = (e: React.MouseEvent, imageSrc: string) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    setPreviewImage(imageSrc);
+  };
 
   useEffect(() => {
     // Use AbortController for cleanup
@@ -263,11 +269,11 @@ export default function TemplateGrid() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-slate-100 animate-pulse rounded-lg h-64"></div>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+    <div key={i} className="bg-slate-100 animate-pulse rounded-lg h-[450px]"></div>
+  ))}
+</div>
     );
   }
 
@@ -317,14 +323,14 @@ export default function TemplateGrid() {
       </div>
 
       {/* Templates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredTemplates.map((template) => (
           <div
             key={template.id}
             className="border border-slate-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
           >
             <div 
-              className="relative h-48 w-full cursor-pointer"
+              className="relative h-[550px] w-full cursor-pointer"
               onClick={() => handleTemplateClick(template)}
             >
               <Image
@@ -339,6 +345,12 @@ export default function TemplateGrid() {
               <div className="absolute top-2 right-2 bg-slate-800 bg-opacity-75 text-white text-xs px-2 py-1 rounded">
                 {template.entity === "iconstyle" ? "IconStyle" : "Reforma"}
               </div>
+              <button
+    className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-3 py-1.5 rounded hover:bg-blue-700 transition-colors"
+    onClick={(e) => handlePreviewClick(e, template.image)}
+  >
+    Preview
+  </button>
             </div>
             <div className="p-4 flex-grow flex flex-col">
               <h3 
@@ -389,6 +401,31 @@ export default function TemplateGrid() {
           </button>
         </div>
       )}
+
+{previewImage && (
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+    onClick={() => setPreviewImage(null)}
+  >
+    <div className="relative max-w-4xl max-h-[90vh] w-full">
+      <button 
+        className="absolute top-4 right-4 bg-white rounded-full p-2 text-black z-10"
+        onClick={() => setPreviewImage(null)}
+      >
+        ✕
+      </button>
+      <div className="bg-white rounded-lg p-2 w-full h-full flex items-center justify-center">
+        <img 
+          src={previewImage} 
+          alt="Template Preview" 
+          className="max-w-full max-h-[80vh] object-contain"
+        />
+      </div>
+    </div>
+  </div>
+)}
+        {/* Bottom spacing */}
+        <div className="h-10"></div>
     </div>
   );
 }
