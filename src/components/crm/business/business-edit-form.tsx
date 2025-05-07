@@ -1,3 +1,4 @@
+// components/crm/business/business-edit-form.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -73,7 +74,7 @@ const businessFormSchema = z.object({
     street: z.string().optional(),
     city: z.string().optional(),
     state: z.string().optional(),
-    zip: z.string().optional(),
+    postcode: z.string().optional(),
     country: z.string().optional(),
   }).optional(),
 });
@@ -115,7 +116,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
         street: "",
         city: "",
         state: "",
-        zip: "",
+        postcode: "",
         country: "",
       },
     },
@@ -141,18 +142,18 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
         
         // Set form values
         form.reset({
-          name: data.name,
-          email: data.email,
-          phone: data.phone || "",
-          type: data.type,
-          taxId: data.taxId || "",
-          vatNumber: data.vatNumber || "",
+          name: data?.name,
+          email: data?.email,
+          phone: data?.phone || "",
+          type: data?.type,
+          taxId: data?.taxId || "",
+          vatNumber: data?.vatNumber || "",
           address: {
-            street: data.address?.street || "",
-            city: data.address?.city || "",
-            state: data.address?.state || "",
-            zip: data.address?.zip || "",
-            country: data.address?.country || "",
+            street: data?.address?.street || "",
+            city: data?.address?.city || "",
+            state: data?.address?.state || "",
+            postcode: data?.address?.postcode || "",
+            country: data?.address?.country || "",
           },
         });
         
@@ -189,7 +190,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
     try {
       const result = await updateBusiness(businessId, values);
       
-      if (result) {
+      if (result && result.success) {
         setBusiness(result.business);
         setSaveSuccess(true);
         
@@ -210,7 +211,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
             street: result.business.address?.street || "",
             city: result.business.address?.city || "",
             state: result.business.address?.state || "",
-            zip: result.business.address?.zip || "",
+            postcode: result.business.address?.postcode || "",
             country: result.business.address?.country || "",
           },
         });
@@ -237,7 +238,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
     try {
       const result = await updateBusinessCapabilities(businessId, values);
       
-      if (result) {
+      if (result && result.success) {
         setBusiness(result.business);
         setSaveSuccess(true);
         
@@ -311,7 +312,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
           </CardContent>
         </Card>
       ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="details">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Business Details</TabsTrigger>
             <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
@@ -505,7 +506,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
                         {/* ZIP */}
                         <FormField
                           control={form.control}
-                          name="address.zip"
+                          name="address.postcode"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>ZIP/Postal Code</FormLabel>
