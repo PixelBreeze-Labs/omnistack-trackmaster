@@ -51,7 +51,6 @@ export interface BusinessAddress {
   street?: string;
   city?: string;
   state?: string;
-  zip?: string;
   postcode?: string;
   country?: string;
 }
@@ -115,7 +114,6 @@ export interface BusinessFormData {
     street: string;
     city: string;
     state: string;
-    zip?: string;
     postcode?: string;
     country: string;
   };
@@ -131,7 +129,6 @@ export interface BusinessSubscribeRequest {
       street?: string;
       city?: string;
       state?: string;
-      zip?: string;
       postcode?: string;
       country?: string;
     };

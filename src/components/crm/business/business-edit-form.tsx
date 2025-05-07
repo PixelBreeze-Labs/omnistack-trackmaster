@@ -694,6 +694,8 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
           </TabsContent>
         </Tabs>
       )}
+        {/* Bottom spacing */}
+        <div className="h-10"></div>
     </div>
   );
 }
