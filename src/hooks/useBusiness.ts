@@ -87,6 +87,29 @@ export const useBusiness = () => {
     }
   }, [api]);
 
+    // Update business details
+    const updateBusiness = useCallback(async (businessId: string, updateData: any) => {
+      if (!api) return null;
+      
+      setIsLoading(true);
+      try {
+        const response = await api.updateBusiness(businessId, updateData);
+        
+        if (response && response.success) {
+          toast.success(response.message || "Business updated successfully");
+        }
+        
+        return response;
+      } catch (error) {
+        console.error("Error updating business:", error);
+        toast.error(error.response?.data?.message || error.message || "Failed to update business");
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    }, [api]);
+
+    
   // Deactivate a business
   const deactivateBusiness = useCallback(async (businessId: string) => {
     if (!api) return;
@@ -202,6 +225,7 @@ export const useBusiness = () => {
     softDeleteBusiness,
     sendMagicLink,
     getBusinessEmployees,
+    updateBusiness,
     isInitialized: !!api
   };
 };

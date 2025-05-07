@@ -16,10 +16,31 @@ export const createBusinessApi = (apiKey: string) => {
       return data;
     },
 
-    // Update business details
-    updateBusiness: async (businessId: string, updateData) => {
-      const { data } = await api.patch(`/businesses/${businessId}`, updateData);
-      return data;
+    updateBusiness: async (businessId: string, updateData: any) => {
+      // Format address data to match backend schema
+      if (updateData.address) {
+        // Clone the data to avoid modifying the original
+        const formattedData = { ...updateData };
+        
+        // Format address to match backend expectations
+        // The backend uses cityId, stateId, countryId
+        if (formattedData.address) {
+          formattedData.address = {
+            street: formattedData.address.street,
+            cityId: formattedData.address.cityId || formattedData.address.city,
+            stateId: formattedData.address.stateId || formattedData.address.state,
+            postcode: formattedData.address.postcode,
+            countryId: formattedData.address.countryId || formattedData.address.country
+          };
+        }
+        
+        const { data } = await api.patch(`/businesses/${businessId}`, formattedData);
+        return data;
+      } else {
+        // If no address update, just send the data as is
+        const { data } = await api.patch(`/businesses/${businessId}`, updateData);
+        return data;
+      }
     },
 
     // Update business capabilities
