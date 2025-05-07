@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import NewsStoryForm from "./forms/NewsStoryForm";
 import NewsStory2Form from "./forms/NewsStory2Form";
-import { useGeneratedImages } from "@/hooks/useGeneratedImages"; // Import the hook
+import { useGeneratedImages } from "@/hooks/useGeneratedImages"; 
 
+// Define template data type
 type TemplateData = {
   id: number;
   name: string;
@@ -15,6 +16,27 @@ type TemplateData = {
   image: string;
   description?: string;
   entity: string;
+};
+
+// Use memo to prevent unnecessary re-renders of static template data
+const TEMPLATE_DATA: Record<number, TemplateData> = {
+  5: {
+    id: 5,
+    name: "Web News Story 1",
+    template_type: "web_news_story",
+    image: "/images/templates/web_news_story.png",
+    description: "Template for news articles with headline and category",
+    entity: "iconstyle"
+  },
+  14: {
+    id: 14,
+    name: "Web News Story 2",
+    template_type: "web_news_story_2",
+    image: "/images/templates/web_news_story_2.png",
+    description: "Alternative layout for news articles",
+    entity: "iconstyle"
+  }
+  // Add more templates as needed
 };
 
 export default function TemplateForm({ templateId }: { templateId: number }) {
@@ -36,50 +58,49 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     isInitialized 
   } = useGeneratedImages();
 
-  useEffect(() => {
-    const fetchTemplateData = async () => {
-      try {
-        // This would normally come from your API
-        // For now, we'll use static data based on the templateId
-        const templates: Record<number, TemplateData> = {
-          5: {
-            id: 5,
-            name: "Web News Story 1",
-            template_type: "web_news_story",
-            image: "/images/templates/web_news_story.png",
-            description: "Template for news articles with headline and category",
-            entity: "iconstyle"
-          },
-          14: {
-            id: 14,
-            name: "Web News Story 2",
-            template_type: "web_news_story_2",
-            image: "/images/templates/web_news_story_2.png",
-            description: "Alternative layout for news articles",
-            entity: "iconstyle"
-          },
-          // Add more templates as needed
-        };
-    
-        // Check if template exists
-        if (!templates[templateId]) {
-          toast.error("Template not found");
-          router.push("/crm/platform/templates");
-          return;
-        }
-    
-        setTemplateData(templates[templateId]);
-        setIsLoading(false);
-      } catch (error) {
-        toast.error("Failed to load template");
-        setIsLoading(false);
+  // Memoize the template data fetching to reduce re-renders
+  const fetchTemplateData = useCallback(async () => {
+    try {
+      // Get template data from our predefined object for faster access
+      const template = TEMPLATE_DATA[templateId];
+      
+      // Check if template exists
+      if (!template) {
+        toast.error("Template not found");
+        router.push("/crm/platform/templates");
+        return;
       }
-    };
-
-    fetchTemplateData();
+      
+      setTemplateData(template);
+    } catch (error) {
+      toast.error("Failed to load template");
+    } finally {
+      setIsLoading(false);
+    }
   }, [templateId, router]);
 
-  const handleFormSubmit = async (formData: FormData) => {
+  // Use an effect with better cleanup to prevent memory leaks
+  useEffect(() => {
+    // Track if component is mounted
+    let isMounted = true;
+    
+    const loadData = async () => {
+      if (isMounted) {
+        setIsLoading(true);
+        await fetchTemplateData();
+      }
+    };
+    
+    loadData();
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchTemplateData]);
+
+  // Memoize form submission handler to prevent unnecessary re-renders
+  const handleFormSubmit = useCallback(async (formData: FormData) => {
     setIsSubmitting(true);
     setIsImageLoading(true);
     
@@ -103,7 +124,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         formData.append("entity", templateData.entity);
       }
       
-
       // Make the API call to generate the image
       const response = await fetch("/api/templates/generate", {
         method: "POST",
@@ -114,8 +134,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
 
       if (result.status === 1) {
         // Success
-        
-        
         setGeneratedImage(result.img);
         
         // If we received an imageId from the API, use it
@@ -219,10 +237,10 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [createGeneratedImage, isInitialized, logEvent, sessionId, templateData]);
 
-  // Handle the image loading completion
-  const handleImageLoaded = () => {
+  // Memoize image loading handler
+  const handleImageLoaded = useCallback(() => {
     setIsImageLoading(false);
     
     // Log with hook
@@ -235,10 +253,10 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         actionType: 'IMAGE_LOADED'
       });
     }
-  };
+  }, [isInitialized, logEvent, sessionId, imageId]);
 
-  // Handle image loading error
-  const handleImageError = () => {
+  // Memoize image error handler
+  const handleImageError = useCallback(() => {
     setIsImageLoading(false);
     toast.error("Failed to load the generated image");
     
@@ -255,9 +273,10 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         actionType: 'IMAGE_LOAD_ERROR'
       });
     }
-  };
+  }, [generatedImage, isInitialized, logEvent, sessionId, imageId]);
 
-  const handleDownload = async () => {
+  // Memoize download handler
+  const handleDownload = useCallback(async () => {
     // If no image or currently loading, don't do anything
     if (!generatedImage || isImageLoading) {
       return;
@@ -303,7 +322,8 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }, [generatedImage, imageId, isImageLoading, isInitialized, logEvent, recordImageDownload, sessionId]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[600px]">
@@ -397,22 +417,22 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
                   className="rounded-md opacity-50"
                   id="NewImgSet"
                   onLoadingComplete={() => console.log("Template image loaded")}
+                  priority
                 />
               )}
             </div>
           </div>
           <br />
           <div className="inline-flex justify-center">
-  <button
-    className={`btn btn-outline-primary ${(!generatedImage || isImageLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
-    id="NewImgDownload"
-    disabled={!generatedImage || isImageLoading}
-    onClick={handleDownload}
-  >
-    Download
-  </button>
-</div>
-
+            <button
+              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              id="NewImgDownload"
+              disabled={!generatedImage || isImageLoading}
+              onClick={handleDownload}
+            >
+              Download
+            </button>
+          </div>
         </div>
       </div>
       {/* Add bottom spacing */}

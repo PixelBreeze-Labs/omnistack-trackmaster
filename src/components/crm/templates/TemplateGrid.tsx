@@ -21,6 +21,10 @@ export default function TemplateGrid() {
   const router = useRouter();
 
   useEffect(() => {
+    // Use AbortController for cleanup
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
     const fetchTemplates = async () => {
       try {
         // This would normally come from your API
@@ -44,19 +48,35 @@ export default function TemplateGrid() {
           // Add more templates as needed
         ];
         
-        setTemplates(templatesData);
-        setIsLoading(false);
+        // Check if component is still mounted
+        if (!signal.aborted) {
+          setTemplates(templatesData);
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.error("Failed to fetch templates:", error);
-        setIsLoading(false);
+        if (!signal.aborted) {
+          console.error("Failed to fetch templates:", error);
+          setIsLoading(false);
+        }
       }
     };
 
     fetchTemplates();
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const handleTemplateClick = (template: Template) => {
-    router.push(`/crm/platform/template-form/${template.id}`);
+    // Prefetch the template form page to improve load time
+    router.prefetch(`/crm/platform/template-form/${template.id}`);
+    
+    // Use shallow routing to prevent unnecessary data fetching
+    router.push(`/crm/platform/template-form/${template.id}`, { 
+      scroll: true // Ensure proper scrolling behavior
+    });
   };
 
   if (isLoading) {
@@ -85,6 +105,9 @@ export default function TemplateGrid() {
               alt={template.name}
               fill
               style={{ objectFit: "cover" }}
+              loading="eager" // Load images eagerly for templates visible on initial render
+              priority={template.id === 5 || template.id === 14} // Prioritize loading of important templates
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
           <div className="p-4">
@@ -104,6 +127,7 @@ export default function TemplateGrid() {
               <Link 
                 href={`/crm/platform/template-dashboard/${(template.id)}`}
                 className="text-sm flex items-center text-blue-600 hover:text-blue-800 transition-colors group"
+                prefetch={false} // Don't prefetch dashboard links to save bandwidth
               >
                 <BarChart2 className="h-4 w-4 mr-1" />
                 <span>View Analytics</span>
