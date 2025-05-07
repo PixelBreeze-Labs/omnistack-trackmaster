@@ -39,6 +39,22 @@ import { useBusiness } from "@/hooks/useBusiness";
 import { format } from "date-fns";
 import { Business, SubscriptionStatus, BusinessStatus } from "@/app/api/external/omnigateway/types/business";
 import BusinessCapabilitiesModal from "./BusinessCapabilitiesModal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 interface BusinessDetailsContentProps {
   businessId: string;
@@ -46,18 +62,76 @@ interface BusinessDetailsContentProps {
 
 export default function BusinessDetailsContent({ businessId }: BusinessDetailsContentProps) {
   const router = useRouter();
-  const { getBusinessDetails, isLoading, isInitialized } = useBusiness();
+  const { getBusinessDetails, getBusinessEmployees, isLoading, isInitialized } = useBusiness();
   const [business, setBusiness] = useState<Business | null>(null);
   const [showCapabilitiesModal, setShowCapabilitiesModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [employees, setEmployees] = useState([]);
+const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+const [currentPage, setCurrentPage] = useState(1);
+const [totalEmployeePages, setTotalEmployeePages] = useState(1);
+const [totalEmployees, setTotalEmployees] = useState(0);
+const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    if (businessId) {
-      if (isInitialized) {
-        loadBusinessData();
-      }
+
+
+const loadEmployeeData = async (page = 1) => {
+  if (!businessId) return;
+  
+  setIsLoadingEmployees(true);
+  try {
+    const response = await getBusinessEmployees(businessId, {
+      page,
+      limit: 10,
+      sort: 'name_asc'
+    });
+    
+    if (response) {
+      setEmployees(response.items);
+      setTotalEmployees(response.total);
+      setTotalEmployeePages(response.pages);
+      setCurrentPage(response.page);
     }
-  }, [businessId, isInitialized]);
+  } catch (error) {
+    console.error("Error loading employees:", error);
+  } finally {
+    setIsLoadingEmployees(false);
+  }
+}
+
+// Add this function to handle page changes
+const handlePageChange = (page) => {
+  loadEmployeeData(page);
+};
+
+
+
+const handleTabChange = (value) => {
+  setActiveTab(value);
+};
+
+
+useEffect(() => {
+  if (businessId) {
+    if (isInitialized) {
+      // Load business data first
+      const loadAllData = async () => {
+        try {
+          // Load business data
+          const data = await getBusinessDetails(businessId);
+          setBusiness(data);
+          
+          // Then preload employees data
+          await loadEmployeeData(1);
+        } catch (error) {
+          console.error("Error loading data:", error);
+        }
+      };
+      
+      loadAllData();
+    }
+  }
+}, [businessId, isInitialized]);
 
   const loadBusinessData = async () => {
     try {
@@ -184,7 +258,7 @@ export default function BusinessDetailsContent({ businessId }: BusinessDetailsCo
       </div>
 
       {/* Main content */}
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="overview" className="w-full" onValueChange={handleTabChange} value={activeTab} >
         {/* Responsive Tabs */}
         <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
@@ -462,32 +536,171 @@ export default function BusinessDetailsContent({ businessId }: BusinessDetailsCo
         </TabsContent>
 
         {/* Employees Tab */}
-        <TabsContent value="employees">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Employees</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">Manage staff and team members</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
+      <TabsContent value="employees">
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+              <div>
+                <CardTitle className="text-lg">Employees</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Manage staff and team members</CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => loadEmployeeData(1)}
+                disabled={isLoadingEmployees}
+                className="self-start sm:self-auto text-xs sm:text-sm"
+              >
+                <RefreshCcw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading || isLoadingEmployees ? (
+              <div className="space-y-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : employees.length === 0 ? (
+              // Empty state
+              <div className="text-center py-6 sm:py-8">
+                <Users className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
+                <h3 className="text-base sm:text-lg font-medium">No Employees Found</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto mt-1 sm:mt-2">
+                  This business doesn't have any employees yet. Advise themn to add their employees to manage their access and capabilities.
+                </p>
+                
+              </div>
+            ) : (
+              // Employees table
+              <div className="space-y-4">
+                <div className="overflow-x-auto border rounded-md">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Employee</TableHead>
+                        <TableHead className="hidden sm:table-cell">Email</TableHead>
+                        <TableHead className="hidden md:table-cell w-[120px]">Status</TableHead>
+                        <TableHead className="hidden md:table-cell w-[140px]">App Access</TableHead>
+                        <TableHead className="text-right w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {employees.map((employee) => (
+                        <TableRow key={employee._id}>
+                          <TableCell>
+                            <div className="font-medium">{employee.name}</div>
+                            <div className="text-xs text-muted-foreground sm:hidden">
+                              {employee.email}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm">
+                            {employee.email}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge
+                              variant={employee.user ? "default" : "outline"}
+                              className="text-xs"
+                            >
+                              {employee.user ? "Has Account" : "No Account"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge
+                              className={
+                                (employee.has_app_access === true || (employee.has_app_access === undefined && business?.has_app_access !== false))
+                                  ? "bg-green-100 text-green-800 hover:bg-green-100 text-xs"
+                                  : "bg-red-100 text-red-800 hover:bg-red-100 text-xs"
+                              }
+                            >
+                              {(employee.has_app_access === true || (employee.has_app_access === undefined && business?.has_app_access !== false))
+                                ? "Enabled"
+                                : "Disabled"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-2 text-xs"
+                              onClick={() => router.push(`/crm/platform/businesses/${business?._id}/employees/${employee._id}`)}
+                            >
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              ) : (
-                <div className="text-center py-6 sm:py-8">
-                  <Users className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
-                  <h3 className="text-base sm:text-lg font-medium">Manage Business Employees</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto mt-1 sm:mt-2">
-                    View and manage employees, assign roles, and set access permissions.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
+                {/* Pagination */}
+                {totalEmployeePages > 1 && (
+                  <div className="flex justify-center mt-4">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: Math.min(5, totalEmployeePages) }, (_, i) => {
+                          // Logic for showing correct page numbers
+                          let pageNum = i + 1;
+                          if (totalEmployeePages > 5 && currentPage > 3) {
+                            pageNum = currentPage - 3 + i + 1;
+                            if (pageNum > totalEmployeePages) {
+                              pageNum = totalEmployeePages - (5 - (i + 1));
+                            }
+                          }
+                          
+                          return (
+                            <PaginationItem key={i}>
+                              <PaginationLink
+                                onClick={() => handlePageChange(pageNum)}
+                                isActive={pageNum === currentPage}
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => handlePageChange(Math.min(totalEmployeePages, currentPage + 1))}
+                            className={currentPage === totalEmployeePages ? "pointer-events-none opacity-50" : ""}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center mt-4">
+                  <div className="text-xs text-muted-foreground">
+                    {totalEmployees > 0 
+                      ? `Showing ${(currentPage - 1) * 10 + 1}-${Math.min(currentPage * 10, totalEmployees)} of ${totalEmployees} employees`
+                      : 'No employees found'}
+                  </div>
+                  <Button 
+                    size="sm"
+                    onClick={() => router.push(`/crm/platform/businesses/${business?._id}/employees/add`)}
+                    disabled={!business?._id}
+                    className="text-xs sm:text-sm"
+                  >
+                    Add Employee
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
         {/* Settings Tab */}
         <TabsContent value="settings">
           <Card>
