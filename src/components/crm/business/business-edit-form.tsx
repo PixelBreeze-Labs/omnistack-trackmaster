@@ -55,6 +55,7 @@ import {
   BusinessType,
   BusinessCapabilities
 } from "@/app/api/external/omnigateway/types/business";
+import InputSelect from "@/components/Common/InputSelect";
 
 // Form schema
 const businessFormSchema = z.object({
@@ -351,32 +352,25 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
                       
                       {/* Business Type */}
                       <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Type</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select business type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="max-h-[300px]">
-                                {businessTypes.map((type) => (
-                                  <SelectItem key={type.value} value={type.value}>
-                                    {type.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+  control={form.control}
+  name="type"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Business Type</FormLabel>
+      <FormControl>
+        <InputSelect
+          name="type"
+          label=""
+          options={businessTypes}
+          onChange={(e) => field.onChange(e.target.value)}
+          value={field.value}
+          required={true}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
                       
                       {/* Email */}
                       <FormField
