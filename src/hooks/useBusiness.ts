@@ -168,6 +168,25 @@ export const useBusiness = () => {
     }
   }, [api]);
 
+  const getBusinessEmployees = useCallback(async (
+  businessId: string,
+  params = {}
+) => {
+  if (!api) return null;
+  
+  try {
+    setIsLoading(true);
+    const response = await api.getBusinessEmployees(businessId, params);
+    return response;
+  } catch (error) {
+    console.error("Error fetching business employees:", error);
+    toast.error("Failed to fetch employees");
+    return null;
+  } finally {
+    setIsLoading(false);
+  }
+}, [api, toast]);
+
   return {
     isLoading,
     businesses,
@@ -182,6 +201,7 @@ export const useBusiness = () => {
     toggleTestAccountStatus,
     softDeleteBusiness,
     sendMagicLink,
+    getBusinessEmployees,
     isInitialized: !!api
   };
 };

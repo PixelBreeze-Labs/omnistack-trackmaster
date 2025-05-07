@@ -1,7 +1,7 @@
 // components/crm/business/business-capabilities-content.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -76,6 +76,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import toast from "react-hot-toast";
 
 interface BusinessCapabilitiesContentProps {
   businessId: string;
@@ -83,7 +84,12 @@ interface BusinessCapabilitiesContentProps {
 
 export default function BusinessCapabilitiesContent({ businessId }: BusinessCapabilitiesContentProps) {
   const router = useRouter();
-  const { getBusinessDetails, isLoading: isLoadingBusiness } = useBusiness();
+  const { 
+    getBusinessDetails, 
+    getBusinessEmployees, 
+    isLoading: isLoadingBusiness,
+    isInitialized: isBusinessInitialized
+  } = useBusiness();
   const { 
     updateBusinessCapabilities, 
     updateEmployeeCapabilities, 
@@ -108,29 +114,53 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
   const [employeeAllowClockInOut, setEmployeeAllowClockInOut] = useState<boolean | null>(null);
   const [employeeHasAppAccess, setEmployeeHasAppAccess] = useState<boolean | null>(null);
   const [employeeAllowCheckIn, setEmployeeAllowCheckIn] = useState<boolean | null>(null);
+  const [totalEmployeePages, setTotalEmployeePages] = useState<number>(1);
+  const [totalEmployees, setTotalEmployees] = useState<number>(0);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState<boolean>(false);
+  const [selectedEmployeeUser, setSelectedEmployeeUser] = useState<any>(null);
   
   // Apply to all employees dialog
   const [showApplyToAllDialog, setShowApplyToAllDialog] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Load business data on mount
-  useEffect(() => {
-    if (businessId) {
-      if (isBusinessCapabilitiesInitialized) {
-        loadBusinessData();
+  // Load employee data
+  const loadEmployeeData = useCallback(async (page = 1, search = "") => {
+    setIsLoadingEmployees(true);
+    try {
+      const response = await getBusinessEmployees(businessId, {
+        page,
+        limit: itemsPerPage,
+        search,
+        sort: 'name_asc'
+      });
+      
+      if (response) {
+        // Store the employees from the response
+        setEmployees(response.items);
+        setFilteredEmployees(response.items);
+        setTotalEmployees(response.total);
+        setTotalEmployeePages(response.pages);
+        setCurrentPage(response.page);
+        
+        // If business capabilities are provided, update business defaults
+        if (response.businessCapabilities) {
+          // Only update if business data hasn't been loaded yet or if we need to refresh
+          if (!business) {
+            setAllowClockInOut(response.businessCapabilities.allow_clockinout);
+            setHasAppAccess(response.businessCapabilities.has_app_access);
+            setAllowCheckIn(response.businessCapabilities.allow_checkin);
+          }
+        }
       }
+    } catch (error) {
+      console.error("Error loading employees:", error);
+    } finally {
+      setIsLoadingEmployees(false);
     }
-  }, [businessId, isBusinessCapabilitiesInitialized]);
-
-  // Update filtered employees when search term changes
-  useEffect(() => {
-    if (employees.length > 0) {
-      filterEmployees();
-    }
-  }, [searchTerm, employees]);
+  }, [businessId, getBusinessEmployees, itemsPerPage, business]);
 
   // Load business data
-  const loadBusinessData = async () => {
+  const loadBusinessData = useCallback(async () => {
     setIsLoading(true);
     try {
       const businessData = await getBusinessDetails(businessId);
@@ -141,31 +171,33 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
       setHasAppAccess(businessData.has_app_access !== false);
       setAllowCheckIn(businessData.allow_checkin !== false);
       
-      // Mock data for employees - in a real app, you would fetch these from an API
-      // This should be replaced with actual employee data fetching
-      const mockEmployees: Employee[] = Array.from({ length: 15 }, (_, i) => ({
-        _id: `employee-${i + 1}`,
-        name: `Employee ${i + 1}`,
-        email: `employee${i + 1}@example.com`,
-        businessId: businessId,
-        allow_clockinout: Math.random() > 0.3,
-        has_app_access: Math.random() > 0.2,
-        allow_checkin: Math.random() > 0.25,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }));
-      
-      setEmployees(mockEmployees);
-      setFilteredEmployees(mockEmployees);
+      // Load real employee data
+      await loadEmployeeData(1, searchTerm);
     } catch (error) {
       console.error("Error loading business data:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [businessId, getBusinessDetails, loadEmployeeData, searchTerm]);
+
+  // Load business data on mount
+// Fix the dependencies in the main useEffect
+useEffect(() => {
+    if (businessId && isBusinessCapabilitiesInitialized) {
+      loadBusinessData();
+    }
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      // Clear any state that might cause memory leaks
+      setEmployees([]);
+      setFilteredEmployees([]);
+      setBusiness(null);
+    };
+  }, [businessId, isBusinessCapabilitiesInitialized]); // Keep minimal dependencies
 
   // Filter employees based on search term
-  const filterEmployees = () => {
+  const filterEmployees = useCallback(() => {
     if (!searchTerm.trim()) {
       setFilteredEmployees(employees);
       return;
@@ -178,7 +210,24 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
     
     setFilteredEmployees(filtered);
     setCurrentPage(1); // Reset to first page on filter
-  };
+  }, [searchTerm, employees]);
+
+  // Update filtered employees when search term changes
+  useEffect(() => {
+    if (employees.length > 0) {
+      filterEmployees();
+    }
+  }, [searchTerm, employees, filterEmployees]);
+
+  // Handle search
+  const handleSearch = useCallback(() => {
+    loadEmployeeData(1, searchTerm);
+  }, [loadEmployeeData, searchTerm]);
+  
+  // Handle page changes
+  const handlePageChange = useCallback((page: number) => {
+    loadEmployeeData(page, searchTerm);
+  }, [loadEmployeeData, searchTerm]);
 
   // Handle save business capabilities
   const handleSaveCapabilities = async () => {
@@ -193,9 +242,13 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
       
       if (result && result.success) {
         setBusiness(result.business);
+        // Reload business data to ensure everything is updated
+        await loadBusinessData();
+        toast.success("Business capabilities updated successfully");
       }
     } catch (error) {
       console.error("Error saving capabilities:", error);
+      toast.error("Failed to update business capabilities");
     }
   };
 
@@ -215,19 +268,13 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
         setBusiness(result.business);
         setShowApplyToAllDialog(false);
         
-        // Update local employee data to reflect the changes
-        const updatedEmployees = employees.map(emp => ({
-          ...emp,
-          allow_clockinout: allowClockInOut,
-          has_app_access: hasAppAccess,
-          allow_checkin: allowCheckIn
-        }));
-        
-        setEmployees(updatedEmployees);
-        setFilteredEmployees(updatedEmployees);
+        // Reload employee data to get updated capabilities
+        await loadEmployeeData(currentPage, searchTerm);
+        toast.success("Applied capabilities to all employees");
       }
     } catch (error) {
       console.error("Error applying to all employees:", error);
+      toast.error("Failed to apply capabilities to all employees");
     }
   };
 
@@ -237,6 +284,14 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
     setEmployeeAllowClockInOut(employee.allow_clockinout !== undefined ? employee.allow_clockinout : null);
     setEmployeeHasAppAccess(employee.has_app_access !== undefined ? employee.has_app_access : null);
     setEmployeeAllowCheckIn(employee.allow_checkin !== undefined ? employee.allow_checkin : null);
+    
+    // Set user information if available for display in the dialog
+    if (employee.user) {
+      setSelectedEmployeeUser(employee.user);
+    } else {
+      setSelectedEmployeeUser(null);
+    }
+    
     setShowEmployeeCapabilitiesDialog(true);
   };
 
@@ -262,17 +317,25 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
       const result = await updateEmployeeCapabilities(selectedEmployee._id, capabilities);
       
       if (result && result.success) {
-        // Update the employee in the local state
-        const updatedEmployees = employees.map(emp => 
+        // Update employee in local state for immediate feedback
+        const updatedEmployees = filteredEmployees.map(emp => 
           emp._id === result.employee._id ? result.employee : emp
         );
         
-        setEmployees(updatedEmployees);
         setFilteredEmployees(updatedEmployees);
+        setEmployees(prev => prev.map(emp => 
+          emp._id === result.employee._id ? result.employee : emp
+        ));
+        
+        // Close the dialog
         setShowEmployeeCapabilitiesDialog(false);
+        
+        // Show success toast
+        toast.success(`Updated capabilities for ${selectedEmployee.name}`);
       }
     } catch (error) {
       console.error("Error saving employee capabilities:", error);
+      toast.error("Failed to update employee capabilities");
     }
   };
 
@@ -285,13 +348,7 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
     setEmployeeAllowCheckIn(business.allow_checkin);
   };
 
-  // Calculate pagination
-  const indexOfLastEmployee = currentPage * itemsPerPage;
-  const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
-  const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
-
-  // Get status badge
+  // Get business status badge
   const getBusinessStatusBadge = (status: BusinessStatus) => {
     switch (status) {
       case BusinessStatus.ACTIVE:
@@ -558,15 +615,25 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
                       className="w-full"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     />
                   </div>
                   <Button
                     variant="outline"
-                    size="icon"
-                    onClick={() => setSearchTerm("")}
+                    onClick={handleSearch}
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filter
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm("");
+                      loadEmployeeData(1, "");
+                    }}
                     disabled={!searchTerm}
                   >
-                    <Filter className="h-4 w-4" />
+                    Clear
                   </Button>
                 </div>
 
@@ -583,7 +650,7 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? (
+                      {isLoadingEmployees ? (
                         // Skeleton loader for employees
                         Array.from({ length: 5 }).map((_, i) => (
                           <TableRow key={`skeleton-${i}`}>
@@ -614,11 +681,20 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
                           </TableCell>
                         </TableRow>
                       ) : (
-                        currentEmployees.map((employee) => (
+                        filteredEmployees.map((employee) => (
                           <TableRow key={employee._id}>
                             <TableCell>
-                              <div className="font-medium">{employee.name}</div>
-                              <div className="text-sm text-muted-foreground">{employee.email}</div>
+                              <div className="flex flex-col gap-1">
+                                <div className="font-medium">{employee.name}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {employee.email}
+                                  {employee.user && (
+                                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
+                                      Has Account
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </TableCell>
                             <TableCell>
                               {employee.allow_clockinout !== undefined ? (
@@ -682,31 +758,31 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {totalEmployeePages > 1 && (
                   <div className="flex justify-center">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
-                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} 
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                             className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                           />
                         </PaginationItem>
                         
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        {Array.from({ length: Math.min(5, totalEmployeePages) }, (_, i) => {
                           // Logic for showing correct page numbers
                           let pageNum = i + 1;
-                          if (totalPages > 5 && currentPage > 3) {
+                          if (totalEmployeePages > 5 && currentPage > 3) {
                             pageNum = currentPage - 3 + i + 1;
-                            if (pageNum > totalPages) {
-                              pageNum = totalPages - (5 - (i + 1));
+                            if (pageNum > totalEmployeePages) {
+                              pageNum = totalEmployeePages - (5 - (i + 1));
                             }
                           }
                           
                           return (
                             <PaginationItem key={i}>
                               <PaginationLink
-                                onClick={() => setCurrentPage(pageNum)}
+                                onClick={() => handlePageChange(pageNum)}
                                 isActive={pageNum === currentPage}
                               >
                                 {pageNum}
@@ -717,8 +793,8 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
                         
                         <PaginationItem>
                           <PaginationNext 
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                            onClick={() => handlePageChange(Math.min(totalEmployeePages, currentPage + 1))}
+                            className={currentPage === totalEmployeePages ? "pointer-events-none opacity-50" : ""}
                           />
                         </PaginationItem>
                       </PaginationContent>
@@ -801,6 +877,11 @@ export default function BusinessCapabilitiesContent({ businessId }: BusinessCapa
                 <div className="flex flex-col gap-1">
                   <span className="font-medium">{selectedEmployee.name}</span>
                   <span className="text-sm">{selectedEmployee.email}</span>
+                  {selectedEmployeeUser && (
+                    <div className="mt-1 text-xs text-blue-600">
+                      This employee has a user account. Changes will affect their app access.
+                    </div>
+                  )}
                 </div>
               )}
             </AlertDialogDescription>

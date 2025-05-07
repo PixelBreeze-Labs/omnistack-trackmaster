@@ -106,6 +106,22 @@ export const createBusinessApi = (apiKey: string) => {
     sendMagicLink: async (email: string) => {
       const { data } = await api.post('/magic-link/send', { email });
       return data;
-    }
+    },
+
+    // Get business employees
+    getBusinessEmployees: async (businessId: string, params = {}) => {
+      const queryParams = new URLSearchParams();
+      
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.limit) queryParams.append('limit', params.limit.toString());
+      if (params.search) queryParams.append('search', params.search);
+      if (params.sort) queryParams.append('sort', params.sort);
+      
+      const queryString = queryParams.toString();
+      const endpoint = `/businesses/${businessId}/employees${queryString ? `?${queryString}` : ''}`;
+      
+      const { data } = await api.get(endpoint);
+      return data;
+    } 
   };
 };
