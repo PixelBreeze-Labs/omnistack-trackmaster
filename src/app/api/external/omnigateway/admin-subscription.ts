@@ -16,7 +16,7 @@ export interface AdminRegisterBusinessRequest {
     cityId?: string; // Changed from city to cityId
     stateId?: string; // Changed from state to stateId
     countryId?: string; // Changed from country to countryId
-    zip?: string;
+    postcode?: string;
   };
   
   // Tax info (optional)

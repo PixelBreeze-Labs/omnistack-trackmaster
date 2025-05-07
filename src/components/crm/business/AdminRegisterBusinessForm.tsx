@@ -58,7 +58,7 @@ const formSchema = z.object({
   cityId: z.string().optional(),
   stateId: z.string().optional(),
   countryId: z.string().optional(),
-  zip: z.string().optional(),
+  postcode: z.string().optional(),
   
   // Tax info (optional)
   taxId: z.string().optional(),
@@ -173,7 +173,7 @@ const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         cityId: values.cityId,
         stateId: values.stateId,
         countryId: values.countryId,
-        zip: values.zip,
+        postcode: values.postcode,
       },
       
       // Tax info
@@ -407,7 +407,7 @@ const handleSubmit = async (values: z.infer<typeof formSchema>) => {
 
                   <FormField
                     control={form.control}
-                    name="zip"
+                    name="postcode"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Postal/ZIP Code</FormLabel>
