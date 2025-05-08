@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import FormFactory from "@/components/crm/templates/forms/FormFactory";
+import GenerationProgressTimer from "./GenerationProgressTimer";
 import { useGeneratedImages } from "@/hooks/useGeneratedImages";
 import { useTemplateSubmission } from "@/hooks/useTemplateSubmission";
 
@@ -225,6 +226,10 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
   const [imageId, setImageId] = useState<string | null>(null);
   const [sessionId] = useState(`session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
   
+  // New state for timing information
+  const [generationTime, setGenerationTime] = useState<number | null>(null);
+  const [templateHistory, setTemplateHistory] = useState<Record<string, number>>({});
+  
   const router = useRouter();
   
   // Initialize the hooks
@@ -240,8 +245,25 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     isSubmitting, 
     imageUrl, 
     error,
+    processingTime,
     submitTemplate 
   } = useTemplateSubmission();
+
+  // Update estimated generation time based on template history
+  const getEstimatedTime = useCallback((templateType: string): number => {
+    // If we have a history for this template type, use it
+    if (templateHistory[templateType]) {
+      return templateHistory[templateType];
+    }
+    
+    // Default values based on template types
+    if (templateType.includes('web_news_story')) {
+      return 8000; // News stories take longer (8 seconds)
+    }
+    
+    // Default estimate
+    return 5000; // 5 seconds
+  }, [templateHistory]);
 
   // Fetch template data
   const fetchTemplateData = useCallback(async () => {
@@ -289,12 +311,58 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     if (imageUrl) {
       setGeneratedImage(imageUrl);
       setIsImageLoading(false);
+      
+      // If we have processing time from the API response, record it
+      if (processingTime && templateData) {
+        setGenerationTime(processingTime);
+        
+        // Update the template history with this generation time
+        setTemplateHistory(prev => ({
+          ...prev,
+          [templateData.template_type]: processingTime
+        }));
+        
+        // Log the generation time
+        if (isInitialized) {
+          logEvent({
+            type: 'INFO',
+            message: 'Image generation time',
+            details: {
+              processingTime,
+              templateType: templateData.template_type
+            },
+            sessionId,
+            actionType: 'GENERATION_TIME_RECORDED'
+          });
+        }
+      }
     }
-  }, [imageUrl]);
+  }, [imageUrl, processingTime, templateData, isInitialized, logEvent, sessionId]);
+
+  // Handle generation complete from the timer component
+  const handleGenerationComplete = useCallback((time: number) => {
+    setGenerationTime(time);
+    
+    // Log with hook
+    if (isInitialized && imageId && templateData) {
+      logEvent({
+        type: 'INFO',
+        message: 'Image generation completed',
+        details: {
+          generationTimeMs: time,
+          templateType: templateData.template_type
+        },
+        sessionId,
+        imageId,
+        actionType: 'IMAGE_GENERATION_COMPLETE'
+      });
+    }
+  }, [isInitialized, logEvent, sessionId, imageId, templateData]);
 
   // Handle form submission 
   const handleFormSubmit = useCallback(async (formData: FormData) => {
     setIsImageLoading(true);
+    setGenerationTime(null);
     
     // Log form submission start with the hook
     if (isInitialized) {
@@ -522,42 +590,73 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
       <div className="card bg-white border rounded-lg shadow-sm">
         <div className="card-body flex flex-col p-6">
           <div className="card-text h-full">
-            <h6 className="block text-base text-center font-medium tracking-[0.01em] text-slate-500 uppercase mb-6">
-              PREVIEW
-            </h6>
-            <div className="flex justify-center relative" style={{ minHeight: "300px" }}>
-              {/* Image loading spinner - shown when isImageLoading is true */}
-              {(isImageLoading || isSubmitting) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 rounded-md z-10">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-                </div>
-              )}
-              
-              {generatedImage ? (
-                <Image
-                  src={generatedImage}
-                  alt="Generated image"
-                  width={500}
-                  height={300}
-                  className="rounded-md"
-                  id="NewImgSet"
-                  onLoadingComplete={handleImageLoaded}
-                  onError={handleImageError}
-                  priority
-                />
-              ) : (
-                <Image
-                  src={templateData.image}
-                  alt="Template preview"
-                  width={500}
-                  height={300}
-                  className="rounded-md opacity-50"
-                  id="NewImgSet"
-                  onLoadingComplete={() => console.log("Template image loaded")}
-                  priority
-                />
-              )}
+            <div className="flex items-center justify-between mb-4">
+              <h6 className="block text-base font-medium tracking-[0.01em] text-slate-500 uppercase">
+                PREVIEW
+              </h6>
             </div>
+            
+            {/* Generation Progress Timer */}
+            {(isImageLoading || isSubmitting || generationTime || error) && (
+              <div className="mb-4">
+                <GenerationProgressTimer 
+                  isGenerating={isImageLoading || isSubmitting} 
+                  onComplete={handleGenerationComplete}
+                  estimatedTime={templateData ? getEstimatedTime(templateData.template_type) : 5000}
+                  hasError={!!error}
+                  errorMessage={error || undefined}
+                />
+              </div>
+            )}
+            
+            <div className="flex justify-center relative" style={{ minHeight: "300px" }}>
+  {/* Image loading spinner - shown when isImageLoading is true and there is no error */}
+  {(isImageLoading || isSubmitting) && !error && (
+    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 rounded-md z-10">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+    </div>
+  )}
+  
+  {/* Error overlay - shown when there is an error */}
+  {error && (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 bg-opacity-80 rounded-md z-10 p-4">
+      <svg className="w-12 h-12 text-red-500 mb-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+      </svg>
+      <div className="text-center text-red-600 max-w-[90%]">
+        {/* Replace <br /> with line breaks */}
+        {error.split('<br />').map((line, index) => (
+          <p key={index} className="mb-1">{line}</p>
+        ))}
+      </div>
+    </div>
+  )}
+  
+  {generatedImage && !error ? (
+    <Image
+      src={generatedImage}
+      alt="Generated image"
+      width={500}
+      height={300}
+      className="rounded-md"
+      id="NewImgSet"
+      onLoadingComplete={handleImageLoaded}
+      onError={handleImageError}
+      priority
+    />
+  ) : (
+    <Image
+      src={templateData.image}
+      alt="Template preview"
+      width={500}
+      height={300}
+      className="rounded-md opacity-50"
+      id="NewImgSet"
+      onLoadingComplete={() => console.log("Template image loaded")}
+      priority
+    />
+  )}
+</div>
           </div>
           <br />
           <div className="inline-flex justify-center">
