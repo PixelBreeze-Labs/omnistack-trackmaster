@@ -1,16 +1,7 @@
 "use client";
 
 import React from 'react';
-import { GeneratedImage, EntityType } from '@/app/api/external/omnigateway/types/generatedImage';
-
-interface TemplateFormData {
-    id: number;
-    name: string;
-    template_type: string;
-    image: string;
-    description?: string;
-    entity: EntityType;
-  }
+import type { TemplateData } from '@/types/templates';
 
 // Import all form components
 import NewsStoryForm from './NewsStoryForm';
@@ -31,7 +22,7 @@ import ReformaWebNewsStory2Form from './ReformaWebNewsStory2Form';
 
 // Props for the FormFactory component
 interface FormFactoryProps {
-  templateData: TemplateFormData;
+  templateData: TemplateData;
   onSubmit: (formData: FormData) => Promise<void>;
   isSubmitting: boolean;
 }

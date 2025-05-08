@@ -40,7 +40,7 @@ export default function TemplateGrid() {
           // IconStyle Templates
           {
             id: 1,
-            name: "Feed Basic",
+            name: "Feed Basic", // form exists
             image: "/images/templates/feed_basic.png",
             template_type: "feed_basic",
             description: "Template for basic social media feeds",
@@ -48,7 +48,7 @@ export default function TemplateGrid() {
           },
           {
             id: 2,
-            name: "Feed Swipe",
+            name: "Feed Swipe", // form exists
             image: "/images/templates/feed_swipe.png",
             template_type: "feed_swipe",
             description: "Template for swipeable social media content",
@@ -56,7 +56,7 @@ export default function TemplateGrid() {
           },
           {
             id: 3,
-            name: "Iconic Location",
+            name: "Iconic Location", // form exists
             image: "/images/templates/iconic_location.png",
             template_type: "iconic_location",
             description: "Template highlighting locations with iconic design",
@@ -64,7 +64,7 @@ export default function TemplateGrid() {
           },
           {
             id: 4,
-            name: "Citim",
+            name: "Citim", // form exists
             image: "/images/templates/citim.png",
             template_type: "citim",
             description: "Template for article quotes and citations",
@@ -72,7 +72,7 @@ export default function TemplateGrid() {
           },
           {
             id: 5,
-            name: "Web News Story",
+            name: "Web News Story", // form exists
             image: "/images/templates/web_news_story.png",
             template_type: "web_news_story",
             description: "Template for news articles with headline and category",
@@ -80,7 +80,7 @@ export default function TemplateGrid() {
           },
           {
             id: 6,
-            name: "Feed Headline",
+            name: "Feed Headline", // form exists
             image: "/images/templates/feed_headline.png",
             template_type: "feed_headline",
             description: "Template for headlines in social feeds",
@@ -88,7 +88,7 @@ export default function TemplateGrid() {
           },
           {
             id: 7,
-            name: "Logo Only",
+            name: "Logo Only", // form does not exist
             image: "/images/templates/logo_only.png",
             template_type: "logo_only",
             description: "Simple template featuring just the logo",
@@ -96,7 +96,7 @@ export default function TemplateGrid() {
           },
           {
             id: 8,
-            name: "Web News",
+            name: "Web News", // form exists
             image: "/images/templates/web_news.png",
             template_type: "web_news",
             description: "General template for web news content",
@@ -104,7 +104,7 @@ export default function TemplateGrid() {
           },
           {
             id: 9,
-            name: "Feed Location",
+            name: "Feed Location", // form exists
             image: "/images/templates/feed_location.png",
             template_type: "feed_location",
             description: "Template for location-based social media content",
@@ -112,7 +112,7 @@ export default function TemplateGrid() {
           },
           {
             id: 10,
-            name: "Quotes & Writings",
+            name: "Quotes & Writings", // form does not exist
             image: "/images/templates/quotes_writings_art.png",
             template_type: "quotes_writings_art",
             description: "Artistic template for quotes and writings",
@@ -120,7 +120,7 @@ export default function TemplateGrid() {
           },
           {
             id: 11,
-            name: "Morning Quote",
+            name: "Morning Quote", // form does not exist
             image: "/images/templates/quotes_writings_morning.png",
             template_type: "quotes_writings_morning",
             description: "Template for morning motivational quotes",
@@ -128,7 +128,7 @@ export default function TemplateGrid() {
           },
           {
             id: 12,
-            name: "Pa Thonjëza",
+            name: "Pa Thonjëza", // form does not exist
             image: "/images/templates/quotes_writings_thonjeza.png",
             template_type: "quotes_writings_thonjeza",
             description: "Template for quotes without quotation marks",
@@ -136,7 +136,7 @@ export default function TemplateGrid() {
           },
           {
             id: 13,
-            name: "Citim Blank",
+            name: "Citim Blank", // form exists
             image: "/images/templates/quotes_writings_citim.png",
             template_type: "quotes_writings_citim",
             description: "Clean template for citations and quotes",
@@ -144,7 +144,7 @@ export default function TemplateGrid() {
           },
           {
             id: 14,
-            name: "Web News Story 2",
+            name: "Web News Story 2", // form exists
             image: "/images/templates/web_news_story_2.png",
             template_type: "web_news_story_2",
             description: "Alternative layout for news articles",
@@ -152,7 +152,7 @@ export default function TemplateGrid() {
           },
           {
             id: 15,
-            name: "Highlight",
+            name: "Highlight", // form does not exist
             image: "/images/templates/highlight.png",
             template_type: "highlight",
             description: "Template for highlighting important content",
@@ -162,7 +162,7 @@ export default function TemplateGrid() {
           // Reforma Templates
           {
             id: 16,
-            name: "Reforma Quotes Writing",
+            name: "Reforma Quotes Writing", // form exists
             image: "/images/templates/reforma_quotes_writings.jpeg",
             template_type: "reforma_quotes_writings",
             description: "Elegant template for quotes in Reforma style",
@@ -170,7 +170,7 @@ export default function TemplateGrid() {
           },
           {
             id: 17,
-            name: "Reforma New Quote",
+            name: "Reforma New Quote", // form exists
             image: "/images/templates/reforma_new_quote.jpeg",
             template_type: "reforma_new_quote",
             description: "Fresh design for quotes in Reforma style",
@@ -178,7 +178,7 @@ export default function TemplateGrid() {
           },
           {
             id: 18,
-            name: "Reforma Feed Swipe",
+            name: "Reforma Feed Swipe", // form does not exist
             image: "/images/templates/reforma_feed_swipe.jpeg",
             template_type: "reforma_feed_swipe",
             description: "Swipeable feed content in Reforma style",
@@ -186,7 +186,7 @@ export default function TemplateGrid() {
           },
           {
             id: 19,
-            name: "Citim 2",
+            name: "Citim 2", // form does not exist
             image: "/images/templates/citim_version_2.jpeg",
             template_type: "citim_version_2",
             description: "Updated citation template for Reforma",
@@ -194,7 +194,7 @@ export default function TemplateGrid() {
           },
           {
             id: 20,
-            name: "Reforma News Feed",
+            name: "Reforma News Feed", // form does not exist
             image: "/images/templates/reforma_news_feed.jpeg",
             template_type: "reforma_news_feed",
             description: "News feed template in Reforma style",
@@ -202,7 +202,7 @@ export default function TemplateGrid() {
           },
           {
             id: 21,
-            name: "Reforma Web News Story",
+            name: "Reforma Web News Story", // form exists
             image: "/images/templates/reforma_web_news_story1.jpeg",
             template_type: "reforma_web_news_story1",
             description: "News article template for Reforma",
@@ -210,7 +210,7 @@ export default function TemplateGrid() {
           },
           {
             id: 22,
-            name: "Reforma Web News Story (Caption)",
+            name: "Reforma Web News Story (Caption)", // form exists
             image: "/images/templates/reforma_web_news_story2.jpeg",
             template_type: "reforma_web_news_story2",
             description: "News article with caption in Reforma style",
@@ -218,7 +218,7 @@ export default function TemplateGrid() {
           },
           {
             id: 23,
-            name: "Reforma Logo Only",
+            name: "Reforma Logo Only", // form exists
             image: "/images/templates/reforma_logo_only.jpg",
             template_type: "reforma_logo_only",
             description: "Simple logo template for Reforma",

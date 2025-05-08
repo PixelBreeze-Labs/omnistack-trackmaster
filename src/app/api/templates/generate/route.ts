@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     const subText = formData.get('sub_text') as string | null;
     const cropMode = formData.get('crop_mode') as string | null;
     const showArrow = formData.get('show_arrow') as string | null;
+    const location = formData.get('location') as string | null;
     const file = formData.get('image') as File | null;
     
     // Check article URL requirement only for news templates
@@ -89,106 +90,186 @@ export async function POST(request: Request) {
       apiFormData.append('IsArticle', '1');
     }
     
+    // Add crop mode if provided
+    if (cropMode) {
+      apiFormData.append('crop_mode', cropMode);
+    }
+    
     // Handle different template types
-    if (templateType === 'web_news_story') {
-      // For Web News Story (Story 1 or Story 2)
-      if (customTemplateType) {
-        apiFormData.append('template_type', customTemplateType);
-      } else {
-        apiFormData.append('template_type', 'web_news_story');
-      }
-      
-      // Add title
-      if (title) {
-        apiFormData.append('text', title);
-      }
-      
-      // Add category as sub_text 
-      if (category) {
-        apiFormData.append('sub_text', category);
-      }
-      
-      // Add crop mode
-      apiFormData.append('crop_mode', 'story');
-    } 
-    else if (templateType === 'web_news_story_2') {
-      // For Web News Story 2
-      apiFormData.append('template_type', 'web_news_story_2');
-      
-      // Add title
-      if (title) {
-        apiFormData.append('text', title);
-      }
-      
-      // Add description as sub_text
-      if (description) {
-        apiFormData.append('sub_text', description);
-      }
-      
-      // Add category
-      if (category) {
-        apiFormData.append('category', category);
-      }
-      
-      // Add crop mode
-      apiFormData.append('crop_mode', 'story');
-    }
-    // Add cases for citim, citim_version_2, and feed_basic
-    else if (templateType === 'citim' || templateType === 'citim_version_2') {
-      // For Citim templates
-      apiFormData.append('template_type', templateType);
-      
-      // Add title
-      if (title) {
-        apiFormData.append('text', title);
-      }
-      
-      // Add author as sub_text
-      if (subText) {
-        apiFormData.append('sub_text', subText);
-      }
-      
-      // Add crop mode if provided
-      if (cropMode) {
-        apiFormData.append('crop_mode', cropMode);
-      }
-    }
-    else if (templateType === 'feed_basic') {
-      // For Feed Basic template
-      apiFormData.append('template_type', templateType);
-      
-      // Add title
-      if (title) {
-        apiFormData.append('text', title);
-      }
-      
-      // Add subtitle as sub_text
-      if (subText) {
-        apiFormData.append('sub_text', subText);
-      }
-      
-      // Add show arrow if provided
-      if (showArrow) {
-        apiFormData.append('arrow', showArrow);
-      }
-      
-      // Add crop mode if provided
-      if (cropMode) {
-        apiFormData.append('crop_mode', cropMode);
-      }
-    }
-    else {
-      // For any other template type
-      apiFormData.append('template_type', templateType);
-      
-      if (title) {
-        apiFormData.append('text', title);
-      }
-      
-      // Add sub_text if provided
-      if (subText) {
-        apiFormData.append('sub_text', subText);
-      }
+    switch (templateType) {
+      case 'web_news_story':
+        // For Web News Story
+        if (customTemplateType) {
+          apiFormData.append('template_type', customTemplateType);
+        } else {
+          apiFormData.append('template_type', 'web_news_story');
+        }
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add category as sub_text 
+        if (category) {
+          apiFormData.append('sub_text', category);
+        }
+        
+        // Override crop mode for news stories
+        apiFormData.append('crop_mode', 'story');
+        break;
+        
+      case 'web_news_story_2':
+        // For Web News Story 2
+        apiFormData.append('template_type', 'web_news_story_2');
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add description as sub_text
+        if (description) {
+          apiFormData.append('sub_text', description);
+        }
+        
+        // Add category
+        if (category) {
+          apiFormData.append('category', category);
+        }
+        
+        // Override crop mode for news stories
+        apiFormData.append('crop_mode', 'story');
+        break;
+        
+      case 'citim':
+      case 'citim_version_2':
+        // For Citim templates
+        apiFormData.append('template_type', templateType);
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add author as sub_text
+        if (subText) {
+          apiFormData.append('sub_text', subText);
+        }
+        break;
+        
+      case 'feed_basic':
+        // For Feed Basic template
+        apiFormData.append('template_type', templateType);
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add subtitle as sub_text
+        if (subText) {
+          apiFormData.append('sub_text', subText);
+        }
+        
+        // Add show arrow if provided
+        if (showArrow) {
+          apiFormData.append('arrow', showArrow);
+        }
+        break;
+        
+      case 'feed_headline':
+        // For Feed Headline template
+        apiFormData.append('template_type', templateType);
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add subtitle as sub_text
+        if (subText) {
+          apiFormData.append('sub_text', subText);
+        }
+        
+        // Add show arrow if provided
+        if (showArrow) {
+          apiFormData.append('arrow', showArrow);
+        }
+        break;
+        
+      case 'feed_location':
+        // For Feed Location template
+        apiFormData.append('template_type', templateType);
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add location
+        if (location) {
+          apiFormData.append('location', location);
+        }
+        
+        // Add show arrow if provided
+        if (showArrow) {
+          apiFormData.append('arrow', showArrow);
+        }
+        break;
+        
+      case 'feed_swipe':
+        // For Feed Swipe template
+        apiFormData.append('template_type', templateType);
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add show arrow if provided
+        if (showArrow) {
+          apiFormData.append('arrow', showArrow);
+        }
+        break;
+        
+      case 'feeds_iconic':
+        // For Feeds Iconic template
+        apiFormData.append('template_type', templateType);
+        
+        // Add title
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add category
+        if (category) {
+          apiFormData.append('category', category);
+        }
+        break;
+        
+      default:
+        // For any other template type
+        apiFormData.append('template_type', templateType);
+        
+        if (title) {
+          apiFormData.append('text', title);
+        }
+        
+        // Add sub_text if provided
+        if (subText) {
+          apiFormData.append('sub_text', subText);
+        }
+        
+        // Add show arrow if provided
+        if (showArrow) {
+          apiFormData.append('arrow', showArrow);
+        }
+        
+        // Add category if provided
+        if (category) {
+          apiFormData.append('category', category);
+        }
     }
     
     // Log what we're sending
@@ -204,7 +285,8 @@ export async function POST(request: Request) {
       category: category,
       sub_text: subText,
       crop_mode: cropMode,
-      show_arrow: showArrow
+      show_arrow: showArrow,
+      location: location
     });
     
     // Call the Python API
