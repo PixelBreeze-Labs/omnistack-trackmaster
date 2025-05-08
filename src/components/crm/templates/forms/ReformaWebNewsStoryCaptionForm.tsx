@@ -31,6 +31,7 @@ export default function ReformaWebNewsStoryCaptionForm({
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [category, setCategory] = useState("");
+  const [fileName, setFileName] = useState("Choose a file or drop it here...");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const router = useRouter();
@@ -91,6 +92,12 @@ export default function ReformaWebNewsStoryCaptionForm({
       formData.append("category", category);
     }
     
+    // Get the file input element and check if a file was selected
+    const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+      formData.append("image", fileInput.files[0]);
+    }
+    
     try {
       await onSubmit(formData);
       // Reset form on success
@@ -99,9 +106,21 @@ export default function ReformaWebNewsStoryCaptionForm({
         setArticleUrl("");
         setCaption("");
         setCategory("");
+        setFileName("Choose a file or drop it here...");
+        if (fileInput) {
+          fileInput.value = "";
+        }
       }
     } catch (error) {
       toast.error("Failed to generate image. Please try again.");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFileName(e.target.files[0].name);
+    } else {
+      setFileName("Choose a file or drop it here...");
     }
   };
 
@@ -132,12 +151,6 @@ export default function ReformaWebNewsStoryCaptionForm({
           </div>
         </RadioGroup>
       </div>
-      
-      {/* Information notice */}
-      <div className="bg-blue-50 p-4 rounded-md text-blue-700 mb-4">
-        <p className="font-medium">Notice: Image upload is temporarily disabled</p>
-        <p className="text-sm mt-1">Currently, only Article URL mode is supported. Please provide an article URL to generate images.</p>
-      </div>
 
       <div className="input-area">
         <label htmlFor="artical_url" className="form-label block text-sm font-medium text-slate-700 mb-1">
@@ -158,13 +171,20 @@ export default function ReformaWebNewsStoryCaptionForm({
         <label className="form-label block text-sm font-medium text-slate-700 mb-1">-OR-</label>
       </div>
       
-      {/* Placeholder for file upload (disabled) */}
+      {/* File upload */}
       <div className="input-area">
         <div className="w-full relative">
-          <label className="cursor-not-allowed">
+          <label className="cursor-pointer">
+            <input 
+              type="file" 
+              name="image" 
+              className="hidden" 
+              onChange={handleFileChange}
+              accept="image/*"
+            />
             <div className="w-full h-[40px] flex items-center border border-slate-300 rounded-md overflow-hidden">
               <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
-                <span className="text-slate-400">Choose a file or drop it here...</span>
+                <span className="text-slate-400">{fileName}</span>
               </span>
               <span className="flex-none border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">Browse</span>
             </div>
