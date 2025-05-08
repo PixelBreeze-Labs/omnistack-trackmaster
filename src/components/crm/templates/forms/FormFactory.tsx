@@ -28,7 +28,15 @@ import ReformaNewQuoteForm from './ReformaNewQuoteForm';
 import ReformaQuotesWritingsForm from './ReformaQuotesWritingsForm';
 import ReformaWebNewsStory1Form from './ReformaWebNewsStory1Form';
 import ReformaWebNewsStory2Form from './ReformaWebNewsStory2Form';
-
+import ReformaFeedSwipeForm from './ReformaFeedSwipeForm';
+import ReformaNewsFeedForm from './ReformaNewsFeedForm';
+import LogoOnlyForm from './LogoOnlyForm';
+import QuotesWritingsArtForm from './QuotesWritingsArtForm';
+import QuotesWritingsMorningForm from './QuotesWritingsMorningForm';
+import QuotesWritingsThonjezaForm from './QuotesWritingsThonjezaForm';
+import QuotesWritingsCitimForm from './QuotesWritingsCitimForm';
+import HighlightForm from './HighlightForm';
+import ReformaWebNewsStoryCaptionForm from './ReformaWebNewsStoryCaptionForm';
 // Props for the FormFactory component
 interface FormFactoryProps {
   templateData: TemplateFormData;
@@ -47,6 +55,42 @@ export default function FormFactory({
   // Render the appropriate form based on template type
   switch (templateData.template_type) {
     // IconStyle Templates
+    case 'feed_basic':
+      return (
+        <FeedBasicForm 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+
+    case 'feed_swipe':
+    return (
+    <FeedSwipeForm 
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting} 
+    />
+    );
+
+    case 'feeds_iconic':
+    return (
+    <FeedsIconicForm 
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting} 
+    />
+    );
+
+    case 'citim':
+    return (
+    <CitimForm 
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting} 
+    />
+    );
+
     case 'web_news_story':
       return (
         <NewsStoryForm 
@@ -56,51 +100,33 @@ export default function FormFactory({
         />
       );
       
-    case 'web_news_story_2':
-      return (
-        <NewsStory2Form 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      );
-      
-    case 'citim':
-      return (
-        <CitimForm 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      );
-      
-    case 'citim_version_2':
-      return (
-        <CitimVersion2Form 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      );
-      
-    case 'feed_basic':
-      return (
-        <FeedBasicForm 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      );
-      
     case 'feed_headline':
-      return (
-        <FeedHeadlineForm 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
+        return (
+          <FeedHeadlineForm 
+            templateData={templateData} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting} 
+          />
+        );
+
+    case 'logo_only':
+        return (
+        <LogoOnlyForm 
+            templateData={templateData} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting} 
         />
-      );
-      
+        );
+
+    case 'web_news':
+        return (
+            <WebNewsForm 
+            templateData={templateData} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting} 
+            />
+        );
+
     case 'feed_location':
       return (
         <FeedLocationForm 
@@ -109,53 +135,63 @@ export default function FormFactory({
           isSubmitting={isSubmitting} 
         />
       );
-      
-    case 'feed_swipe':
+    
+    case 'quotes_writings_art':
+        return (
+          <QuotesWritingsArtForm 
+            templateData={templateData} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting} 
+          />
+        );
+    
+    case 'quotes_writings_morning':
       return (
-        <FeedSwipeForm 
+        <QuotesWritingsMorningForm 
           templateData={templateData} 
           onSubmit={onSubmit} 
           isSubmitting={isSubmitting} 
         />
       );
-      
-    case 'feeds_iconic':
+    
+    case 'quotes_writings_thonjeza':
       return (
-        <FeedsIconicForm 
+        <QuotesWritingsThonjezaForm 
           templateData={templateData} 
           onSubmit={onSubmit} 
           isSubmitting={isSubmitting} 
         />
       );
-      
-    case 'web_news':
+    
+    case 'quotes_writings_citim':
       return (
-        <WebNewsForm 
+        <QuotesWritingsCitimForm 
           templateData={templateData} 
           onSubmit={onSubmit} 
           isSubmitting={isSubmitting} 
         />
       );
+    
+    case 'web_news_story_2':
+      return (
+        <NewsStory2Form 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+       
+    case 'highlight':
+      return (
+        <HighlightForm 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+  
       
     // Reforma Templates
-    case 'reforma_logo_only':
-      return (
-        <ReformaLogoOnlyForm 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      );
-      
-    case 'reforma_new_quote':
-      return (
-        <ReformaNewQuoteForm 
-          templateData={templateData} 
-          onSubmit={onSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      );
-      
     case 'reforma_quotes_writings':
       return (
         <ReformaQuotesWritingsForm 
@@ -164,7 +200,43 @@ export default function FormFactory({
           isSubmitting={isSubmitting} 
         />
       );
-      
+    
+    case 'reforma_new_quote':
+    return (
+        <ReformaNewQuoteForm 
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting} 
+        />
+    );
+
+    case 'reforma_feed_swipe':
+      return (
+        <ReformaFeedSwipeForm
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting}
+        />
+      );
+    
+    case 'citim_version_2':
+      return (
+        <CitimVersion2Form 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+    
+    case 'reforma_news_feed':
+    return (
+        <ReformaNewsFeedForm 
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting}
+    />
+    );  
+
     case 'reforma_web_news_story1':
       return (
         <ReformaWebNewsStory1Form 
@@ -173,16 +245,34 @@ export default function FormFactory({
           isSubmitting={isSubmitting} 
         />
       );
-      
-    case 'reforma_web_news_story2':
+
+    case 'reforma_web_news_story_2':
       return (
-        <ReformaWebNewsStory2Form 
+        <ReformaWebNewsStoryCaptionForm 
           templateData={templateData} 
           onSubmit={onSubmit} 
           isSubmitting={isSubmitting} 
         />
       );
-      
+
+    case 'reforma_web_news_story2':
+    return (
+        <ReformaWebNewsStory2
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting} 
+        />
+    );
+
+    case 'reforma_logo_only':
+    return (
+        <ReformaLogoOnlyForm 
+        templateData={templateData} 
+        onSubmit={onSubmit} 
+        isSubmitting={isSubmitting} 
+        />
+    );
+
     default:
       // Fallback for unsupported template types
       return (

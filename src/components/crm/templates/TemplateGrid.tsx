@@ -89,7 +89,7 @@ export default function TemplateGrid() {
           {
             id: 7,
             name: "Logo Only", // form does not exist
-            image: "/images/templates/logo_only.png",
+            image: "/images/templates/logo_only_image.png",
             template_type: "logo_only",
             description: "Simple template featuring just the logo",
             entity: "iconstyle"
@@ -211,13 +211,21 @@ export default function TemplateGrid() {
           {
             id: 22,
             name: "Reforma Web News Story (Caption)", // form exists
-            image: "/images/templates/reforma_web_news_story2.jpeg",
-            template_type: "reforma_web_news_story2",
-            description: "News article with caption in Reforma style",
+            image: "/images/templates/reforma_web_news_story_2.jpeg",
+            template_type: "reforma_web_news_story_2",
+            description: "News article with caption in Reforma style with caption",
             entity: "reforma"
           },
           {
             id: 23,
+            name: "Reforma Web News Story 2", // form exists
+            image: "/images/templates/reforma_web_news_story2.jpeg",
+            template_type: "reforma_web_news_story2",
+            description: "News article with caption in Reforma style without caption",
+            entity: "reforma"
+          },
+          {
+            id: 24,
             name: "Reforma Logo Only", // form exists
             image: "/images/templates/reforma_logo_only.jpg",
             template_type: "reforma_logo_only",
