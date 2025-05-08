@@ -30,7 +30,6 @@ import ReformaWebNewsStory1Form from './ReformaWebNewsStory1Form';
 import ReformaWebNewsStory2Form from './ReformaWebNewsStory2Form';
 import ReformaFeedSwipeForm from './ReformaFeedSwipeForm';
 import ReformaNewsFeedForm from './ReformaNewsFeedForm';
-import LogoOnlyForm from './LogoOnlyForm';
 import QuotesWritingsArtForm from './QuotesWritingsArtForm';
 import QuotesWritingsMorningForm from './QuotesWritingsMorningForm';
 import QuotesWritingsThonjezaForm from './QuotesWritingsThonjezaForm';
@@ -257,7 +256,7 @@ export default function FormFactory({
 
     case 'reforma_web_news_story2':
     return (
-        <ReformaWebNewsStory2
+        <ReformaWebNewsStory2Form 
         templateData={templateData} 
         onSubmit={onSubmit} 
         isSubmitting={isSubmitting} 
