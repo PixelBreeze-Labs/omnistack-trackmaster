@@ -73,7 +73,7 @@ const TEMPLATE_DATA: Record<number, TemplateData> = {
   7: {
     id: 7,
     name: "Logo Only",
-    image: "/images/templates/logo_only_image.png",
+    image: "/images/templates/logo_only_image.jpg",
     template_type: "logo_only",
     description: "Simple template featuring just the logo",
     entity: "iconstyle"

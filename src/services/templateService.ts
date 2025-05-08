@@ -314,7 +314,7 @@ export class TemplateService {
         }
         break;
         
-      case 'feeds_iconic':
+      case 'iconic_location':
         // For Feeds Iconic template
         apiFormData.append('template_type', templateType);
         

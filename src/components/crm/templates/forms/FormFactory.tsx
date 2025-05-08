@@ -36,6 +36,7 @@ import QuotesWritingsThonjezaForm from './QuotesWritingsThonjezaForm';
 import QuotesWritingsCitimForm from './QuotesWritingsCitimForm';
 import HighlightForm from './HighlightForm';
 import ReformaWebNewsStoryCaptionForm from './ReformaWebNewsStoryCaptionForm';
+import LogoOnlyForm from './LogoOnlyForm';
 // Props for the FormFactory component
 interface FormFactoryProps {
   templateData: TemplateFormData;
@@ -72,7 +73,7 @@ export default function FormFactory({
     />
     );
 
-    case 'feeds_iconic':
+    case 'iconic_location':
     return (
     <FeedsIconicForm 
         templateData={templateData} 
@@ -278,7 +279,7 @@ export default function FormFactory({
         <div className="p-4 bg-red-50 text-red-500 rounded-md">
           <h3 className="font-medium mb-2">Form not available</h3>
           <p>No form component found for template type: {templateData.template_type}</p>
-          <p className="mt-2">Available templates include web_news_story, web_news_story_2, citim, citim_version_2, feed_basic, feed_headline, feed_location, feed_swipe, feeds_iconic, web_news, reforma_logo_only, reforma_new_quote, reforma_quotes_writings, reforma_web_news_story1, reforma_web_news_story2</p>
+          <p className="mt-2">Available templates include web_news_story, web_news_story_2, citim, citim_version_2, feed_basic, feed_headline, feed_location, feed_swipe, iconic_location, web_news, reforma_logo_only, reforma_new_quote, reforma_quotes_writings, reforma_web_news_story1, reforma_web_news_story2</p>
         </div>
       );
   }
