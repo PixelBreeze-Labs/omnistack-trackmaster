@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 type TemplateData = {
   id: number;
@@ -13,25 +15,25 @@ type TemplateData = {
   description?: string;
 };
 
-type ReformaWebNewsStory2FormProps = {
+type ReformaWebNewsStoryCaptionFormProps = {
   templateData: TemplateData;
   onSubmit: (formData: FormData) => Promise<void>;
   isSubmitting: boolean;
 };
 
-export default function ReformaWebNewsStory2Form({
-  templateData,
-  onSubmit,
-  isSubmitting
-}: ReformaWebNewsStory2FormProps) {
-  const router = useRouter();
-  const [customTemplateType, setCustomTemplateType] = useState("story_2");
+export default function ReformaWebNewsStoryCaptionForm({ 
+  templateData, 
+  onSubmit, 
+  isSubmitting 
+}: ReformaWebNewsStoryCaptionFormProps) {
+  const [cropMode, setCropMode] = useState("story");
   const [articleUrl, setArticleUrl] = useState("");
   const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileInputLabel, setFileInputLabel] = useState("Choose a file or drop it here...");
+  const [caption, setCaption] = useState("");
+  const [category, setCategory] = useState("");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  
+  const router = useRouter();
   
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
@@ -40,28 +42,18 @@ export default function ReformaWebNewsStory2Form({
     if (!title.trim()) {
       newErrors.title = "Title is required";
       toast.error("Title is required");
+      return false;
+    }
+    
+    // Caption is required
+    if (!caption.trim()) {
+      newErrors.caption = "Caption is required";
+      toast.error("Caption is required");
+      return false;
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setSelectedFile(files[0]);
-      setFileInputLabel(files[0].name);
-    }
-  };
-  
-  // Handle template type change
-  const handleTemplateTypeChange = (value: string) => {
-    if (value === "web_news_story") {
-      // Redirect to Story 1 template
-      router.push('/crm/platform/template-form/21');
-    } else {
-      setCustomTemplateType(value);
-    }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,14 +66,14 @@ export default function ReformaWebNewsStory2Form({
     
     const formData = new FormData();
     
-    // Add template type
-    formData.append("template_type", templateData.template_type);
-    
-    // Add custom template type
-    formData.append("custom_template_type", customTemplateType);
+    // Add the template type
+    formData.append("template_type", "reforma_web_news_story_2");
     
     // Add entity type
     formData.append("entity", templateData.entity);
+    
+    // Add crop mode
+    formData.append("crop_mode", cropMode);
     
     // Add article URL if provided
     if (articleUrl.trim()) {
@@ -91,24 +83,22 @@ export default function ReformaWebNewsStory2Form({
     // Add title
     formData.append("title", title);
     
-    // Add subtitle as sub_text
-    formData.append("sub_text", subtitle);
+    // Add caption
+    formData.append("sub_text", caption);
     
-    // Add image file if selected
-    if (selectedFile) {
-      formData.append("image", selectedFile);
+    // Add category if provided
+    if (category.trim()) {
+      formData.append("category", category);
     }
     
     try {
       await onSubmit(formData);
       // Reset form on success
       if (!isSubmitting) {
-        setArticleUrl("");
         setTitle("");
-        setSubtitle("");
-        setSelectedFile(null);
-        setFileInputLabel("Choose a file or drop it here...");
-        // Keep the user's preferences for template type
+        setArticleUrl("");
+        setCaption("");
+        setCategory("");
       }
     } catch (error) {
       toast.error("Failed to generate image. Please try again.");
@@ -117,88 +107,79 @@ export default function ReformaWebNewsStory2Form({
 
   return (
     <form onSubmit={handleSubmit} className="card-text h-full space-y-4 text-center">
-      {/* Template Type Selection */}
-      <div className="flex items-center space-x-7 flex-wrap justify-center">
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="custom_template_type" 
-              value="web_news_story" 
-              checked={customTemplateType === "web_news_story"}
-              onChange={() => handleTemplateTypeChange("web_news_story")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story 1</span>
-          </label>
-        </div>
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="custom_template_type" 
-              value="story_2" 
-              checked={customTemplateType === "story_2"}
-              onChange={() => handleTemplateTypeChange("story_2")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story 2</span>
-          </label>
-        </div>
+      
+      {/* Crop Mode Radio Options - Only Story is available/enabled */}
+      <div className="flex justify-center">
+        <RadioGroup 
+          value={cropMode}
+          onValueChange={setCropMode}
+          className="flex items-center space-x-7 flex-wrap"
+        >
+          {/* Commented out options in original template - preserved the functionality */}
+          {/*
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="square" id="square" />
+            <Label htmlFor="square" className="text-secondary-500 text-sm leading-6">Square</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="portrait" id="portrait" />
+            <Label htmlFor="portrait" className="text-secondary-500 text-sm leading-6">Portrait</Label>
+          </div>
+          */}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="story" id="story" checked />
+            <Label htmlFor="story" className="text-secondary-500 text-sm leading-6">Story</Label>
+          </div>
+        </RadioGroup>
       </div>
       
-      {/* Article URL */}
+      {/* Information notice */}
+      <div className="bg-blue-50 p-4 rounded-md text-blue-700 mb-4">
+        <p className="font-medium">Notice: Image upload is temporarily disabled</p>
+        <p className="text-sm mt-1">Currently, only Article URL mode is supported. Please provide an article URL to generate images.</p>
+      </div>
+
       <div className="input-area">
-        <label htmlFor="artical_url" className="form-label">Article URL</label>
+        <label htmlFor="artical_url" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Article URL
+        </label>
         <input 
-          id="artical_url"
-          name="artical_url"
-          type="text"
+          id="artical_url" 
+          name="artical_url" 
+          type="text" 
           className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-          placeholder="Article URL"
+          placeholder="Article URL" 
           value={articleUrl}
           onChange={(e) => setArticleUrl(e.target.value)}
         />
       </div>
       
       <div className="input-area">
-        <label className="form-label">-OR-</label>
+        <label className="form-label block text-sm font-medium text-slate-700 mb-1">-OR-</label>
       </div>
       
-      {/* File Upload */}
+      {/* Placeholder for file upload (disabled) */}
       <div className="input-area">
-        <div className="filegroup">
-          <label>
-            <input 
-              type="file"
-              className="w-full hidden"
-              name="image"
-              onChange={handleFileChange}
-              accept="image/*"
-            />
-            <span className="w-full h-[40px] file-control flex items-center custom-class">
-              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                <span className={selectedFile ? "text-slate-600" : "text-slate-400"}>
-                  {fileInputLabel}
-                </span>
+        <div className="w-full relative">
+          <label className="cursor-not-allowed">
+            <div className="w-full h-[40px] flex items-center border border-slate-300 rounded-md overflow-hidden">
+              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
+                <span className="text-slate-400">Choose a file or drop it here...</span>
               </span>
-              <span className="file-name flex-none cursor-pointer border-l px-4 border-slate-200 dark:border-slate-700 h-full inline-flex items-center bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-sm rounded-tr rounded-br font-normal">
-                Browse
-              </span>
-            </span>
+              <span className="flex-none border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">Browse</span>
+            </div>
           </label>
         </div>
       </div>
       
-      {/* Title */}
       <div className="input-area">
-        <label htmlFor="title" className="form-label">Title *</label>
+        <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Title *
+        </label>
         <textarea 
-          id="title"
-          name="title"
-          rows={5}
+          id="title" 
+          name="title" 
+          rows={5} 
           className={`form-control w-full px-3 py-2 border ${errors.title ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
           placeholder="Title"
           value={title}
@@ -210,29 +191,63 @@ export default function ReformaWebNewsStory2Form({
         )}
       </div>
       
-      {/* Subtitle/Category */}
       <div className="input-area">
-        <label htmlFor="subtitle" className="form-label">Category</label>
+        <label htmlFor="caption" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Caption *
+        </label>
         <input 
-          id="subtitle"
-          name="sub_text"
-          type="text"
+          id="caption" 
+          name="sub_text" 
+          type="text" 
+          className={`form-control w-full px-3 py-2 border ${errors.caption ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
+          placeholder="Caption"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          required
+        />
+        {errors.caption && (
+          <p className="text-red-500 text-xs mt-1">{errors.caption}</p>
+        )}
+      </div>
+      
+      <div className="input-area">
+        <label htmlFor="category" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Category
+        </label>
+        <input 
+          id="category" 
+          name="category" 
+          type="text" 
           className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           placeholder="Category"
-          value={subtitle}
-          onChange={(e) => setSubtitle(e.target.value)}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
         />
       </div>
       
-      <p>Fields marked with * are required!</p>
-      <hr />
+      <p className="text-sm text-slate-500">
+        Fields marked with * are required.
+      </p>
+      
+      <hr className="my-4" />
+      
       <button 
-        type="submit"
-        id="submitBtn"
-        className="btn inline-flex justify-center btn-outline-primary"
+        type="submit" 
+        id="submitBtn" 
+        className="btn inline-flex justify-center bg-primary text-white hover:bg-primary-600 py-2 px-4 rounded-md transition-colors"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Creating..." : "Create Image"}
+        {isSubmitting ? (
+          <>
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+          </>
+        ) : (
+          "Create Image"
+        )}
       </button>
     </form>
   );

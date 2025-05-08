@@ -15,21 +15,19 @@ type TemplateData = {
   description?: string;
 };
 
-type QuotesWritingsCitimFormProps = {
+type LogoOnlyFormProps = {
   templateData: TemplateData;
   onSubmit: (formData: FormData) => Promise<void>;
   isSubmitting: boolean;
 };
 
-export default function QuotesWritingsCitimForm({ 
+export default function LogoOnlyForm({ 
   templateData, 
   onSubmit, 
   isSubmitting 
-}: QuotesWritingsCitimFormProps) {
+}: LogoOnlyFormProps) {
   const [cropMode, setCropMode] = useState("square");
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [showArrow, setShowArrow] = useState("show");
+  const [logoPosition, setLogoPosition] = useState("4");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const router = useRouter();
@@ -37,12 +35,7 @@ export default function QuotesWritingsCitimForm({
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
     
-    // Title is required
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-      toast.error("Title is required");
-      return false;
-    }
+    // No specific validation needed for this form as there are no required text inputs
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -59,7 +52,7 @@ export default function QuotesWritingsCitimForm({
     const formData = new FormData();
     
     // Add the template type
-    formData.append("template_type", "quotes_writings_citim");
+    formData.append("template_type", "logo_only");
     
     // Add entity type
     formData.append("entity", templateData.entity);
@@ -67,16 +60,8 @@ export default function QuotesWritingsCitimForm({
     // Add crop mode
     formData.append("crop_mode", cropMode);
     
-    // Add title
-    formData.append("title", title);
-    
-    // Add author if provided
-    if (author.trim()) {
-      formData.append("sub_text", author);
-    }
-    
-    // Add show arrow option
-    formData.append("show_arrow", showArrow);
+    // Add logo position
+    formData.append("logo_position", logoPosition);
     
     // Get the file input element and check if a file was selected
     const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
@@ -86,12 +71,6 @@ export default function QuotesWritingsCitimForm({
     
     try {
       await onSubmit(formData);
-      // Reset form on success
-      if (!isSubmitting) {
-        setTitle("");
-        setAuthor("");
-        // Do not reset crop mode and show arrow to preserve user's choices
-      }
     } catch (error) {
       toast.error("Failed to generate image. Please try again.");
     }
@@ -143,91 +122,36 @@ export default function QuotesWritingsCitimForm({
         </div>
       </div>
       
-      {/* Title textarea */}
-      <div className="input-area">
-        <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title *
-        </label>
-        <textarea 
-          id="title" 
-          name="title" 
-          rows={5} 
-          className={`form-control w-full px-3 py-2 border ${errors.title ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        ></textarea>
-        {errors.title && (
-          <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-        )}
-      </div>
-      
-      {/* Author input field */}
-      <div className="input-area">
-        <label htmlFor="author" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Author
-        </label>
-        <input 
-          id="author" 
-          name="sub_text" 
-          type="text" 
-          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-          placeholder="Author"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-        />
-      </div>
-      
-      {/* Show Arrow Radio Buttons */}
-      <div className="input-area">
-        <label htmlFor="show_arrow" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Show Arrow?
+      {/* Logo Position Radio Buttons */}
+      <div className="input-area text-center">
+        <label htmlFor="logo_position" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Logo Position *
         </label>
         <div className="flex justify-center">
           <div className="inline-flex flex-wrap gap-1">
-            <div className="radio-button-wrapper">
-              <input
-                type="radio"
-                id="show"
-                name="show_arrow"
-                value="show"
-                checked={showArrow === "show"}
-                onChange={() => setShowArrow("show")}
-                className="hidden"
-              />
-              <label
-                htmlFor="show"
-                className={`min-w-[95px] cursor-pointer inline-block py-1 px-4 m-0.5 rounded-md border border-solid ${
-                  showArrow === "show"
-                    ? 'bg-primary text-white border-white'
-                    : 'bg-transparent text-primary border-primary'
-                }`}
-              >
-                Show
-              </label>
-            </div>
-            <div className="radio-button-wrapper">
-              <input
-                type="radio"
-                id="hide"
-                name="show_arrow"
-                value="hide"
-                checked={showArrow === "hide"}
-                onChange={() => setShowArrow("hide")}
-                className="hidden"
-              />
-              <label
-                htmlFor="hide"
-                className={`min-w-[95px] cursor-pointer inline-block py-1 px-4 m-0.5 rounded-md border border-solid ${
-                  showArrow === "hide"
-                    ? 'bg-primary text-white border-white'
-                    : 'bg-transparent text-primary border-primary'
-                }`}
-              >
-                Hide
-              </label>
-            </div>
+            {[1, 2, 3, 4, 5, 6, 7].map((position) => (
+              <div key={position} className="radio-button-wrapper">
+                <input
+                  type="radio"
+                  id={`position-${position}`}
+                  name="logo_position"
+                  value={position.toString()}
+                  checked={logoPosition === position.toString()}
+                  onChange={() => setLogoPosition(position.toString())}
+                  className="hidden"
+                />
+                <label
+                  htmlFor={`position-${position}`}
+                  className={`min-w-[95px] cursor-pointer inline-block py-1 px-4 m-0.5 rounded-md border border-solid ${
+                    logoPosition === position.toString()
+                      ? 'bg-primary text-white border-white'
+                      : 'bg-transparent text-primary border-primary'
+                  }`}
+                >
+                  {position}
+                </label>
+              </div>
+            ))}
           </div>
         </div>
       </div>
