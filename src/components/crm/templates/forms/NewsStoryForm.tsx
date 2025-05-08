@@ -30,6 +30,7 @@ export default function NewsStoryForm({
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [customTemplateType, setCustomTemplateType] = useState("web_news_story");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const router = useRouter();
@@ -39,13 +40,22 @@ export default function NewsStoryForm({
     console.log("Current template type state:", customTemplateType);
   }, [customTemplateType]);
   
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+      
+      // Clear article URL when file is selected
+      setArticleUrl("");
+    }
+  };
+  
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
     
-    // Article URL is required
-    if (!articleUrl.trim()) {
-      newErrors.articleUrl = "Article URL is required";
-      toast.error("Article URL is required");
+    // Either article URL or file is required
+    if (!articleUrl.trim() && !selectedFile) {
+      newErrors.input = "Please provide either an article URL or an image file";
+      toast.error("Please provide either an article URL or an image file");
       return false;
     }
     
@@ -76,8 +86,15 @@ export default function NewsStoryForm({
     console.log("Sending template type:", customTemplateType);
     console.log("Entity:", templateData.entity);
     
-    // Add article URL
-    formData.append("artical_url", articleUrl);
+    // Add article URL if provided
+    if (articleUrl.trim()) {
+      formData.append("artical_url", articleUrl);
+    }
+    
+    // Add image file if selected
+    if (selectedFile) {
+      formData.append("image", selectedFile);
+    }
     
     // Add title if provided
     if (title.trim()) {
@@ -96,6 +113,14 @@ export default function NewsStoryForm({
         setTitle("");
         setArticleUrl("");
         setCategory("");
+        setSelectedFile(null);
+        
+        // Reset the file input
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = "";
+        }
+        
         // Note: We don't reset customTemplateType here to preserve the user's choice
       }
     } catch (error) {
@@ -123,29 +148,63 @@ export default function NewsStoryForm({
           </div>
         </RadioGroup>
       </div>
-      
-      {/* Information notice */}
-      <div className="bg-blue-50 p-4 rounded-md text-blue-700 mb-4">
-        <p className="font-medium">Notice: Image upload is temporarily disabled</p>
-        <p className="text-sm mt-1">Currently, only Article URL mode is supported. Please provide an article URL to generate images.</p>
-      </div>
 
       <div className="input-area">
         <label htmlFor="artical_url" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Article URL *
+          Article URL
         </label>
         <input 
           id="artical_url" 
           name="artical_url" 
           type="text" 
-          className={`form-control w-full px-3 py-2 border ${errors.articleUrl ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
+          className={`form-control w-full px-3 py-2 border ${errors.input ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 ${selectedFile ? 'bg-slate-100' : ''}`}
           placeholder="Article URL" 
           value={articleUrl}
-          onChange={(e) => setArticleUrl(e.target.value)}
-          required
+          onChange={(e) => {
+            setArticleUrl(e.target.value);
+            if (e.target.value) {
+              setSelectedFile(null);
+              const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+              if (fileInput) {
+                fileInput.value = "";
+              }
+            }
+          }}
+          disabled={!!selectedFile}
         />
-        {errors.articleUrl && (
-          <p className="text-red-500 text-xs mt-1">{errors.articleUrl}</p>
+      </div>
+      
+      <div className="input-area">
+        <label className="form-label block text-sm font-medium text-slate-700 mb-1">-OR-</label>
+      </div>
+      
+      {/* File upload field */}
+      <div className="input-area">
+        <div className="w-full relative">
+          <label className={`cursor-pointer ${articleUrl ? 'opacity-50' : ''}`}>
+            <input 
+              type="file" 
+              name="image" 
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={!!articleUrl}
+            />
+            <div className={`w-full h-[40px] flex items-center border ${errors.input ? 'border-red-500' : 'border-slate-300'} rounded-md overflow-hidden`}>
+              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
+                {selectedFile ? (
+                  <span className="text-slate-700">{selectedFile.name}</span>
+                ) : (
+                  <span className="text-slate-400">Choose a file or drop it here...</span>
+                )}
+              </span>
+              <span className="flex-none border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">
+                Browse
+              </span>
+            </div>
+          </label>
+        </div>
+        {errors.input && (
+          <p className="text-red-500 text-xs mt-1">{errors.input}</p>
         )}
       </div>
       
@@ -180,7 +239,7 @@ export default function NewsStoryForm({
       </div>
       
       <p className="text-sm text-slate-500">
-        Fields marked with * are required.
+        Please provide either an Article URL or upload an image file.
       </p>
       
       <hr className="my-4" />

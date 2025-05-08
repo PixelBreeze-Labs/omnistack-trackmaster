@@ -6,6 +6,7 @@ import Image from "next/image";
 import { toast } from "react-hot-toast";
 import FormFactory from "@/components/crm/templates/forms/FormFactory";
 import { useGeneratedImages } from "@/hooks/useGeneratedImages";
+import { useTemplateSubmission } from "@/hooks/useTemplateSubmission";
 
 // Define template data type
 type TemplateData = {
@@ -17,72 +18,207 @@ type TemplateData = {
   entity: string;
 };
 
-// Use a lookup table for template data
+// Use a complete lookup table for template data extracted from TemplateGrid
 const TEMPLATE_DATA: Record<number, TemplateData> = {
-  // IconStyle templates
+  // IconStyle Templates
   1: {
     id: 1,
     name: "Feed Basic",
-    template_type: "feed_basic",
     image: "/images/templates/feed_basic.png",
+    template_type: "feed_basic",
     description: "Template for basic social media feeds",
     entity: "iconstyle"
   },
   2: {
     id: 2,
     name: "Feed Swipe",
-    template_type: "feed_swipe",
     image: "/images/templates/feed_swipe.png",
+    template_type: "feed_swipe",
     description: "Template for swipeable social media content",
     entity: "iconstyle"
   },
   3: {
     id: 3,
     name: "Iconic Location",
-    template_type: "iconic_location",
     image: "/images/templates/iconic_location.png",
+    template_type: "iconic_location",
     description: "Template highlighting locations with iconic design",
     entity: "iconstyle"
   },
   4: {
     id: 4,
     name: "Citim",
-    template_type: "citim",
     image: "/images/templates/citim.png",
+    template_type: "citim",
     description: "Template for article quotes and citations",
     entity: "iconstyle"
   },
   5: {
     id: 5,
     name: "Web News Story",
-    template_type: "web_news_story",
     image: "/images/templates/web_news_story.png",
+    template_type: "web_news_story",
     description: "Template for news articles with headline and category",
     entity: "iconstyle"
   },
-  // Add all template definitions here
+  6: {
+    id: 6,
+    name: "Feed Headline",
+    image: "/images/templates/feed_headline.png",
+    template_type: "feed_headline",
+    description: "Template for headlines in social feeds",
+    entity: "iconstyle"
+  },
+  7: {
+    id: 7,
+    name: "Logo Only",
+    image: "/images/templates/logo_only_image.png",
+    template_type: "logo_only",
+    description: "Simple template featuring just the logo",
+    entity: "iconstyle"
+  },
+  8: {
+    id: 8,
+    name: "Web News",
+    image: "/images/templates/web_news.png",
+    template_type: "web_news",
+    description: "General template for web news content",
+    entity: "iconstyle"
+  },
+  9: {
+    id: 9,
+    name: "Feed Location",
+    image: "/images/templates/feed_location.png",
+    template_type: "feed_location",
+    description: "Template for location-based social media content",
+    entity: "iconstyle"
+  },
+  10: {
+    id: 10,
+    name: "Quotes & Writings",
+    image: "/images/templates/quotes_writings_art.png",
+    template_type: "quotes_writings_art",
+    description: "Artistic template for quotes and writings",
+    entity: "iconstyle"
+  },
+  11: {
+    id: 11,
+    name: "Morning Quote",
+    image: "/images/templates/quotes_writings_morning.png",
+    template_type: "quotes_writings_morning",
+    description: "Template for morning motivational quotes",
+    entity: "iconstyle"
+  },
+  12: {
+    id: 12,
+    name: "Pa Thonjëza",
+    image: "/images/templates/quotes_writings_thonjeza.png",
+    template_type: "quotes_writings_thonjeza",
+    description: "Template for quotes without quotation marks",
+    entity: "iconstyle"
+  },
+  13: {
+    id: 13,
+    name: "Citim Blank",
+    image: "/images/templates/quotes_writings_citim.png",
+    template_type: "quotes_writings_citim",
+    description: "Clean template for citations and quotes",
+    entity: "iconstyle"
+  },
   14: {
     id: 14,
     name: "Web News Story 2",
-    template_type: "web_news_story_2",
     image: "/images/templates/web_news_story_2.png",
+    template_type: "web_news_story_2",
     description: "Alternative layout for news articles",
     entity: "iconstyle"
+  },
+  15: {
+    id: 15,
+    name: "Highlight",
+    image: "/images/templates/highlight.png",
+    template_type: "highlight",
+    description: "Template for highlighting important content",
+    entity: "iconstyle"
+  },
+  
+  // Reforma Templates
+  16: {
+    id: 16,
+    name: "Reforma Quotes Writing",
+    image: "/images/templates/reforma_quotes_writings.jpeg",
+    template_type: "reforma_quotes_writings",
+    description: "Elegant template for quotes in Reforma style",
+    entity: "reforma"
+  },
+  17: {
+    id: 17,
+    name: "Reforma New Quote",
+    image: "/images/templates/reforma_new_quote.jpeg",
+    template_type: "reforma_new_quote",
+    description: "Fresh design for quotes in Reforma style",
+    entity: "reforma"
+  },
+  18: {
+    id: 18,
+    name: "Reforma Feed Swipe",
+    image: "/images/templates/reforma_feed_swipe.jpeg",
+    template_type: "reforma_feed_swipe",
+    description: "Swipeable feed content in Reforma style",
+    entity: "reforma"
   },
   19: {
     id: 19,
     name: "Citim 2",
-    template_type: "citim_version_2",
     image: "/images/templates/citim_version_2.jpeg",
+    template_type: "citim_version_2",
     description: "Updated citation template for Reforma",
     entity: "reforma"
+  },
+  20: {
+    id: 20,
+    name: "Reforma News Feed",
+    image: "/images/templates/reforma_news_feed.jpeg",
+    template_type: "reforma_news_feed",
+    description: "News feed template in Reforma style",
+    entity: "reforma"
+  },
+  21: {
+    id: 21,
+    name: "Reforma Web News Story",
+    image: "/images/templates/reforma_web_news_story1.jpeg",
+    template_type: "reforma_web_news_story1",
+    description: "News article template for Reforma",
+    entity: "reforma"
+  },
+  22: {
+    id: 22,
+    name: "Reforma Web News Story (Caption)",
+    image: "/images/templates/reforma_web_news_story_2.jpeg",
+    template_type: "reforma_web_news_story_2",
+    description: "News article with caption in Reforma style with caption",
+    entity: "reforma"
+  },
+  23: {
+    id: 23,
+    name: "Reforma Web News Story 2",
+    image: "/images/templates/reforma_web_news_story2.jpeg",
+    template_type: "reforma_web_news_story2",
+    description: "News article with caption in Reforma style without caption",
+    entity: "reforma"
+  },
+  24: {
+    id: 24,
+    name: "Reforma Logo Only",
+    image: "/images/templates/reforma_logo_only.jpg",
+    template_type: "reforma_logo_only",
+    description: "Simple logo template for Reforma",
+    entity: "reforma"
   }
-  // Add more templates as needed
 };
 
 export default function TemplateForm({ templateId }: { templateId: number }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [templateData, setTemplateData] = useState<TemplateData | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -91,13 +227,21 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
   
   const router = useRouter();
   
-  // Initialize the hook
+  // Initialize the hooks
   const { 
     logEvent, 
     createGeneratedImage, 
     recordImageDownload,
     isInitialized 
   } = useGeneratedImages();
+  
+  // Use the template submission hook
+  const { 
+    isSubmitting, 
+    imageUrl, 
+    error,
+    submitTemplate 
+  } = useTemplateSubmission();
 
   // Fetch template data
   const fetchTemplateData = useCallback(async () => {
@@ -140,9 +284,16 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     };
   }, [fetchTemplateData]);
 
+  // Update the generated image when template submission succeeds
+  useEffect(() => {
+    if (imageUrl) {
+      setGeneratedImage(imageUrl);
+      setIsImageLoading(false);
+    }
+  }, [imageUrl]);
+
   // Handle form submission 
   const handleFormSubmit = useCallback(async (formData: FormData) => {
-    setIsSubmitting(true);
     setIsImageLoading(true);
     
     // Log form submission start with the hook
@@ -160,55 +311,20 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     }
     
     try {
-      // Check if we're handling a file upload
-      const fileInput = formData.get("image") as File | null;
+      // Use the template submission hook to submit the form
+      const success = await submitTemplate(formData);
       
-      // If we have a file and it's a real file (not an empty input), we'll need to upload it
-      if (fileInput && fileInput.size > 0) {
-        // For now, we're just passing the file directly to the API
-        // In a production environment, we might upload to Supabase or another storage first
-        
-        // Note: Your server API will need to handle multipart/form-data with files
-        // If you're using Next.js API routes, you'll need formidable or similar
-      }
-      
-      // Make the API call to generate the image
-      const response = await fetch("/api/templates/generate", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (result.status === 1) {
-        // Success
-        setGeneratedImage(result.img);
-        
+      if (success && imageUrl) {
         // If we received an imageId from the API, use it
-        if (result.imageId) {
-          setImageId(result.imageId);
-          
-          // Log success with hook
-          if (isInitialized) {
-            logEvent({
-              type: 'SUCCESS',
-              message: 'Image generated successfully',
-              details: {
-                imageUrl: result.img,
-                imageId: result.imageId
-              },
-              sessionId,
-              imageId: result.imageId,
-              actionType: 'IMAGE_GENERATION_SUCCESS'
-            });
-          }
-        } 
-        // Otherwise, create an image record using the hook
-        else if (isInitialized && templateData) {
+        // Note: This logic would need to be updated based on your API response structure
+        // For now, we're assuming no imageId in the response
+        
+        // Create an image record using the hook
+        if (isInitialized && templateData) {
           try {
             // Create image record with the hook
             const imageRecord = await createGeneratedImage({
-              path: result.img,
+              path: imageUrl,
               sessionId,
               templateType: templateData.template_type,
               subtitle: formData.get("category") as string || formData.get("sub_text") as string,
@@ -224,7 +340,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
                 type: 'SUCCESS',
                 message: 'Image record created successfully',
                 details: {
-                  imageUrl: result.img,
+                  imageUrl: imageUrl,
                   imageId: imageRecord._id
                 },
                 sessionId,
@@ -232,56 +348,55 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
                 actionType: 'IMAGE_RECORD_CREATED'
               });
             }
-          } catch (error) {
+          } catch (recordError) {
             // Log error
             logEvent({
               type: 'ERROR',
               message: 'Failed to create image record',
-              details: error,
+              details: recordError,
               sessionId,
               actionType: 'IMAGE_RECORD_CREATION_ERROR'
             });
           }
         }
-        
-        toast.success("Image generated successfully!");
-      } else {
+      } else if (!success) {
         // Log error with hook
         if (isInitialized) {
           logEvent({
             type: 'ERROR',
             message: 'Image generation failed',
             details: {
-              errorMessage: result.msg || "Failed to generate image",
-              status: result.status
+              errorMessage: error || "Failed to generate image"
             },
             sessionId,
             actionType: 'IMAGE_GENERATION_ERROR'
           });
         }
-        
-        toast.error(result.msg || "Failed to generate image");
       }
-    } catch (error) {
+    } catch (submitError) {
       // Log error with hook
       if (isInitialized) {
         logEvent({
           type: 'ERROR',
-          message: 'API error',
+          message: 'Form submission error',
           details: {
-            error: error instanceof Error ? error.message : String(error)
+            error: submitError instanceof Error ? submitError.message : String(submitError)
           },
           sessionId,
-          actionType: 'API_ERROR'
+          actionType: 'FORM_SUBMISSION_ERROR'
         });
       }
-      
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-      setIsImageLoading(false);
     }
-  }, [createGeneratedImage, isInitialized, logEvent, sessionId, templateData]);
+  }, [
+    createGeneratedImage, 
+    error, 
+    imageUrl, 
+    isInitialized, 
+    logEvent, 
+    sessionId, 
+    submitTemplate, 
+    templateData
+  ]);
 
   // Handle image loading complete
   const handleImageLoaded = useCallback(() => {
@@ -341,7 +456,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             imageId,
             actionType: 'IMAGE_DOWNLOAD'
           });
-          
         }
       } catch (error) {
         // Log error
@@ -413,7 +527,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             </h6>
             <div className="flex justify-center relative" style={{ minHeight: "300px" }}>
               {/* Image loading spinner - shown when isImageLoading is true */}
-              {isImageLoading && (
+              {(isImageLoading || isSubmitting) && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 rounded-md z-10">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
                 </div>
@@ -448,9 +562,9 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
           <br />
           <div className="inline-flex justify-center">
             <button
-              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}`}
               id="NewImgDownload"
-              disabled={!generatedImage || isImageLoading}
+              disabled={!generatedImage || isImageLoading || isSubmitting}
               onClick={handleDownload}
             >
               Download
