@@ -4,9 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
-import NewsStoryForm from "./forms/NewsStoryForm";
-import NewsStory2Form from "./forms/NewsStory2Form";
-import { useGeneratedImages } from "@/hooks/useGeneratedImages"; 
+import FormFactory from "@/components/crm/templates/forms/FormFactory";
+import { useGeneratedImages } from "@/hooks/useGeneratedImages";
 
 // Define template data type
 type TemplateData = {
@@ -18,16 +17,50 @@ type TemplateData = {
   entity: string;
 };
 
-// Use memo to prevent unnecessary re-renders of static template data
+// Use a lookup table for template data
 const TEMPLATE_DATA: Record<number, TemplateData> = {
+  // IconStyle templates
+  1: {
+    id: 1,
+    name: "Feed Basic",
+    template_type: "feed_basic",
+    image: "/images/templates/feed_basic.png",
+    description: "Template for basic social media feeds",
+    entity: "iconstyle"
+  },
+  2: {
+    id: 2,
+    name: "Feed Swipe",
+    template_type: "feed_swipe",
+    image: "/images/templates/feed_swipe.png",
+    description: "Template for swipeable social media content",
+    entity: "iconstyle"
+  },
+  3: {
+    id: 3,
+    name: "Iconic Location",
+    template_type: "iconic_location",
+    image: "/images/templates/iconic_location.png",
+    description: "Template highlighting locations with iconic design",
+    entity: "iconstyle"
+  },
+  4: {
+    id: 4,
+    name: "Citim",
+    template_type: "citim",
+    image: "/images/templates/citim.png",
+    description: "Template for article quotes and citations",
+    entity: "iconstyle"
+  },
   5: {
     id: 5,
-    name: "Web News Story 1",
+    name: "Web News Story",
     template_type: "web_news_story",
     image: "/images/templates/web_news_story.png",
     description: "Template for news articles with headline and category",
     entity: "iconstyle"
   },
+  // Add all template definitions here
   14: {
     id: 14,
     name: "Web News Story 2",
@@ -35,6 +68,14 @@ const TEMPLATE_DATA: Record<number, TemplateData> = {
     image: "/images/templates/web_news_story_2.png",
     description: "Alternative layout for news articles",
     entity: "iconstyle"
+  },
+  19: {
+    id: 19,
+    name: "Citim 2",
+    template_type: "citim_version_2",
+    image: "/images/templates/citim_version_2.jpeg",
+    description: "Updated citation template for Reforma",
+    entity: "reforma"
   }
   // Add more templates as needed
 };
@@ -58,7 +99,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     isInitialized 
   } = useGeneratedImages();
 
-  // Memoize the template data fetching to reduce re-renders
+  // Fetch template data
   const fetchTemplateData = useCallback(async () => {
     try {
       // Get template data from our predefined object for faster access
@@ -99,7 +140,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     };
   }, [fetchTemplateData]);
 
-  // Memoize form submission handler to prevent unnecessary re-renders
+  // Handle form submission 
   const handleFormSubmit = useCallback(async (formData: FormData) => {
     setIsSubmitting(true);
     setIsImageLoading(true);
@@ -119,9 +160,16 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     }
     
     try {
-      // Add entity to the form data
-      if (templateData?.entity) {
-        formData.append("entity", templateData.entity);
+      // Check if we're handling a file upload
+      const fileInput = formData.get("image") as File | null;
+      
+      // If we have a file and it's a real file (not an empty input), we'll need to upload it
+      if (fileInput && fileInput.size > 0) {
+        // For now, we're just passing the file directly to the API
+        // In a production environment, we might upload to Supabase or another storage first
+        
+        // Note: Your server API will need to handle multipart/form-data with files
+        // If you're using Next.js API routes, you'll need formidable or similar
       }
       
       // Make the API call to generate the image
@@ -163,7 +211,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
               path: result.img,
               sessionId,
               templateType: templateData.template_type,
-              subtitle: formData.get("category") as string || formData.get("description") as string,
+              subtitle: formData.get("category") as string || formData.get("sub_text") as string,
               entity: templateData.entity,
               articleUrl: formData.get("artical_url") as string
             });
@@ -185,7 +233,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
               });
             }
           } catch (error) {
-            
             // Log error
             logEvent({
               type: 'ERROR',
@@ -199,7 +246,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         
         toast.success("Image generated successfully!");
       } else {
-       
         // Log error with hook
         if (isInitialized) {
           logEvent({
@@ -215,10 +261,8 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         }
         
         toast.error(result.msg || "Failed to generate image");
-        setIsImageLoading(false);
       }
     } catch (error) {
-     
       // Log error with hook
       if (isInitialized) {
         logEvent({
@@ -233,13 +277,13 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
       }
       
       toast.error("Something went wrong. Please try again.");
-      setIsImageLoading(false);
     } finally {
       setIsSubmitting(false);
+      setIsImageLoading(false);
     }
   }, [createGeneratedImage, isInitialized, logEvent, sessionId, templateData]);
 
-  // Memoize image loading handler
+  // Handle image loading complete
   const handleImageLoaded = useCallback(() => {
     setIsImageLoading(false);
     
@@ -255,7 +299,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     }
   }, [isInitialized, logEvent, sessionId, imageId]);
 
-  // Memoize image error handler
+  // Handle image error
   const handleImageError = useCallback(() => {
     setIsImageLoading(false);
     toast.error("Failed to load the generated image");
@@ -275,7 +319,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     }
   }, [generatedImage, isInitialized, logEvent, sessionId, imageId]);
 
-  // Memoize download handler
+  // Handle download
   const handleDownload = useCallback(async () => {
     // If no image or currently loading, don't do anything
     if (!generatedImage || isImageLoading) {
@@ -300,7 +344,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
           
         }
       } catch (error) {
-        
         // Log error
         if (isInitialized) {
           logEvent({
@@ -336,32 +379,6 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     return <div>Template not found</div>;
   }
 
-  // Render the appropriate form based on template type
-  const renderForm = () => {
-    switch (templateData.id) {
-      case 5:
-        // For Web News Story 1 (ID 5)
-        return (
-          <NewsStoryForm 
-            templateData={templateData} 
-            onSubmit={handleFormSubmit} 
-            isSubmitting={isSubmitting} 
-          />
-        );
-      case 14:
-        // For Web News Story 2 (ID 14)
-        return (
-          <NewsStory2Form 
-            templateData={templateData} 
-            onSubmit={handleFormSubmit} 
-            isSubmitting={isSubmitting} 
-          />
-        );
-      default:
-        return <div>Unsupported template type</div>;
-    }
-  };
-
   return (
     <div className="grid xl:grid-cols-2 grid-cols-1 gap-6">
       {/* Form Section */}
@@ -377,7 +394,13 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
               </div>
             </div>
           </header>
-          {renderForm()}
+          
+          {/* Use FormFactory to render the appropriate form */}
+          <FormFactory
+            templateData={templateData}
+            onSubmit={handleFormSubmit}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
 
