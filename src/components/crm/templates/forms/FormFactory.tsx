@@ -1,4 +1,5 @@
-// components/forms/FormFactory.tsx
+"use client";
+
 import React from 'react';
 import { GeneratedImage, EntityType } from '@/app/api/external/omnigateway/types/generatedImage';
 
@@ -17,6 +18,10 @@ import NewsStory2Form from './NewsStory2Form';
 import CitimForm from './CitimForm';
 import CitimVersion2Form from './CitimVersion2Form';
 import FeedBasicForm from './FeedBasicForm';
+import FeedHeadlineForm from './FeedHeadlineForm';
+import FeedLocationForm from './FeedLocationForm';
+import FeedSwipeForm from './FeedSwipeForm';
+import FeedsIconicForm from './FeedsIconicForm';
 
 // Props for the FormFactory component
 interface FormFactoryProps {
@@ -80,12 +85,49 @@ export default function FormFactory({
         />
       );
       
+    case 'feed_headline':
+      return (
+        <FeedHeadlineForm 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+      
+    case 'feed_location':
+      return (
+        <FeedLocationForm 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+      
+    case 'feed_swipe':
+      return (
+        <FeedSwipeForm 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+      
+    case 'feeds_iconic':
+      return (
+        <FeedsIconicForm 
+          templateData={templateData} 
+          onSubmit={onSubmit} 
+          isSubmitting={isSubmitting} 
+        />
+      );
+      
     default:
       // Fallback for unsupported template types
       return (
         <div className="p-4 bg-red-50 text-red-500 rounded-md">
           <h3 className="font-medium mb-2">Form not available</h3>
           <p>No form component found for template type: {templateData.template_type}</p>
+          <p className="mt-2">Available templates: web_news_story, web_news_story_2, citim, citim_version_2, feed_basic, feed_headline, feed_location, feed_swipe, feeds_iconic</p>
         </div>
       );
   }
