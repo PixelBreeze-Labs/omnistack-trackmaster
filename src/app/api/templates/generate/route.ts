@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const validationData: Record<string, any> = {};
     for (const [key, value] of formData.entries()) {
       // Skip file entries for validation purposes
-      if (value instanceof File) {
+      if (typeof value === 'object' && value !== null && typeof value.name === 'string') {
         validationData[key] = value;
       } else {
         validationData[key] = value;

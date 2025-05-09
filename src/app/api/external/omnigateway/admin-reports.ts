@@ -26,7 +26,7 @@ export const createAdminReportsApi = (apiKey: string) => {
             // Log form data being sent for debugging
             const formDataEntries = Array.from(formData.entries()).map(entry => {
                 const [key, value] = entry;
-                if (value instanceof File) {
+                if (typeof value === 'object' && value !== null && typeof value.name === 'string') {
                     return [key, `File: ${value.name} (${value.size} bytes)`];
                 }
                 return entry;

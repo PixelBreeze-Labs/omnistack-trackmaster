@@ -27,7 +27,7 @@ export type TemplateResponse = {
       const cropMode = formData.get('crop_mode') as string | null;
       const showArrow = formData.get('show_arrow') as string | null;
       const location = formData.get('location') as string | null;
-      const file = formData.get('image') as File | null;
+      const file = formData.get('image') as any;
       const logoPosition = formData.get('logo_position') as string | null;
       const textToHighlight = formData.get('text_to_hl') as string | null;
   
