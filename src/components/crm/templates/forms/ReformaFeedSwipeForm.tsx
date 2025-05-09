@@ -148,22 +148,10 @@ export default function ReformaFeedSwipeForm({
         </label>
         <input 
           id="article_url" 
-          name="artical_url" 
           type="text" 
-          className={`form-control w-full px-3 py-2 border ${errors.image ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 ${selectedFile ? 'bg-slate-100' : ''}`}
+          className="form-control w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 bg-slate-100"
           placeholder="Article URL" 
-          value={articleUrl}
-          onChange={(e) => {
-            setArticleUrl(e.target.value);
-            if (e.target.value) {
-              setSelectedFile(null);
-              const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-              if (fileInput) {
-                fileInput.value = "";
-              }
-            }
-          }}
-          disabled={!!selectedFile}
+          disabled
         />
       </div>
       

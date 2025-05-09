@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TemplateService } from '@/services/TemplateService';
+import { TemplateService } from '@/services/templateService';
 import { getFormValidationRules, validateForm, getArticleValidationRules } from '@/utils/formValidation';
 
 /**

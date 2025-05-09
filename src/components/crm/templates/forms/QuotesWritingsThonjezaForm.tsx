@@ -120,31 +120,7 @@ export default function QuotesWritingsThonjezaForm({
           </div>
         </RadioGroup>
       </div>
-      
-      {/* File upload section */}
-      <div className="input-area">
-        <div className="w-full relative">
-          <label className="cursor-pointer">
-            <input 
-              type="file" 
-              name="image" 
-              className="hidden"
-              onChange={handleFileChange}
-              accept="image/*"
-            />
-            <div className="w-full h-[40px] flex items-center border border-slate-300 rounded-md overflow-hidden">
-              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
-                {selectedFile ? (
-                  <span className="text-slate-700">{fileInputLabel}</span>
-                ) : (
-                  <span className="text-slate-400">{fileInputLabel}</span>
-                )}
-              </span>
-              <span className="flex-none border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">Browse</span>
-            </div>
-          </label>
-        </div>
-      </div>
+     
       
       {/* Title textarea */}
       <div className="input-area">

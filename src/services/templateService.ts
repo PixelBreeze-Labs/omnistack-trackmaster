@@ -282,6 +282,9 @@ export class TemplateService {
         if (subText) {
           apiFormData.append('sub_text', subText);
         }
+        else {
+          apiFormData.append('sub_text', '');
+        }
         
         // Add show arrow if provided
         if (showArrow) {
@@ -398,16 +401,25 @@ export class TemplateService {
         }
         break;
 
-      case 'logo_only':
-      case 'reforma_logo_only':
-        // For Logo Only templates
-        apiFormData.append('template_type', templateType);
+        case 'logo_only':
+          // For IconStyle Logo Only template
+          apiFormData.append('template_type', templateType);
+          
+          // Add logo position with the parameter name logo_position
+          if (logoPosition) {
+            apiFormData.append('logo_position', logoPosition);
+          }
+          break;
         
-        // Add logo position
-        if (logoPosition) {
-          apiFormData.append('pos', logoPosition);
-        }
-        break;
+        case 'reforma_logo_only':
+          // For Reforma Logo Only template
+          apiFormData.append('template_type', templateType);
+          
+          // Add logo position with the parameter name pos
+          if (logoPosition) {
+            apiFormData.append('pos', logoPosition);
+          }
+          break;
 
       case 'reforma_quotes_writings':
       case 'reforma_new_quote':
