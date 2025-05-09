@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TemplateService } from '@/services/templateService';
+import { TemplateService } from '@/services';
+
 import { getFormValidationRules, validateForm, getArticleValidationRules } from '@/utils/formValidation';
 
 /**
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       status: 0,
-      msg: "An error occurred while processing your request"
+      msg: error
     }, { status: 500 });
   }
 }
