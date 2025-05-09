@@ -56,13 +56,6 @@ export default function ReformaWebNewsStory1Form({
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
     
-    // Title is required
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-      toast.error("Title is required");
-      return false;
-    }
-    
     // Either file or article URL must be provided
     if (!selectedFile && !articleUrl.trim()) {
       newErrors.image = "Please provide either an image file or an article URL";
@@ -70,10 +63,16 @@ export default function ReformaWebNewsStory1Form({
       return false;
     }
     
+    // Title is required ONLY if no article URL is provided
+    if (!articleUrl.trim() && !title.trim()) {
+      newErrors.title = "Title is required when not using an article URL";
+      toast.error("Title is required when not using an article URL");
+      return false;
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -213,7 +212,7 @@ export default function ReformaWebNewsStory1Form({
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title *
+          Title (Required if no article URL is provided)
         </label>
         <textarea 
           id="title" 
@@ -223,7 +222,6 @@ export default function ReformaWebNewsStory1Form({
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
         ></textarea>
         {errors.title && (
           <p className="text-red-500 text-xs mt-1">{errors.title}</p>
