@@ -184,7 +184,7 @@ export default function NewsStory2Form({
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title (Optional)
+          Title (Optional when article URL is provided)
         </label>
         <textarea 
           id="title" 
