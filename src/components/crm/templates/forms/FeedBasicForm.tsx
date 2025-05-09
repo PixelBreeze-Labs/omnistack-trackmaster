@@ -236,7 +236,7 @@ export default function FeedBasicForm({
           <p className="text-red-500 text-xs mt-1">{errors.title}</p>
         )}
         
-        <div className="flex space-x-2 mt-2">
+        {/* <div className="flex space-x-2 mt-2">
           <button 
             type="button" 
             className="btn inline-flex justify-center bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 py-1 px-3 rounded-md transition-colors text-sm"
@@ -247,11 +247,11 @@ export default function FeedBasicForm({
               <span className="text-xl ml-2">📝</span>
             </span>
           </button>
-        </div>
+        </div> */}
       </div>
       
       {/* Subtitle */}
-      <div className="input-area">
+      {/* <div className="input-area">
         <label htmlFor="subtitle" className="form-label block text-sm font-medium text-slate-700 mb-1">
           Subtitle
         </label>
@@ -264,7 +264,7 @@ export default function FeedBasicForm({
           value={subtitle}
           onChange={(e) => setSubtitle(e.target.value)}
         ></textarea>
-      </div>
+      </div> */}
       
       {/* Show Arrow */}
       <div className="input-area">
