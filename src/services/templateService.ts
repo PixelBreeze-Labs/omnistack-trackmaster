@@ -323,10 +323,6 @@ export class TemplateService {
           apiFormData.append('text', title);
         }
         
-        // Add category
-        if (category) {
-          apiFormData.append('category', category);
-        }
         break;
 
       case 'highlight':
