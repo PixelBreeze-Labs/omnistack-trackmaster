@@ -282,6 +282,9 @@ export class TemplateService {
         if (subText) {
           apiFormData.append('sub_text', subText);
         }
+        else {
+          apiFormData.append('sub_text', '');
+        }
         
         // Add show arrow if provided
         if (showArrow) {
