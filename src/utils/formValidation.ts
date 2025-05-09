@@ -333,18 +333,17 @@ export type ValidationRules = {
   
     // Special case for web_news_story/web_news_story_2 with article URL
     if ((data.template_type === 'web_news_story' || 
-         data.template_type === 'web_news_story_2' || 
-         data.template_type === 'web_news') && 
-        data.artical_url) {
-      // If article URL is provided, only validate that
-      if (!data.artical_url.trim()) {
-        errors.push('Article URL is required for news templates');
-      }
-      return {
-        isValid: errors.length === 0,
-        errors
-      };
-    }
+        data.template_type === 'web_news_story_2' || 
+        data.template_type === 'web_news')) {
+     // Check if either image or article URL is provided
+     if (!data.image && (!data.artical_url || !data.artical_url.trim())) {
+       errors.push('Please provide either an Article URL or an image file');
+     }
+     return {
+       isValid: errors.length === 0,
+       errors
+     };
+   }
   
     // Process each rule
     Object.entries(rules.rules).forEach(([field, rule]) => {

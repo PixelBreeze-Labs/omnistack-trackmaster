@@ -36,10 +36,10 @@ export class TemplateService {
       const textToHighlight = formData.get('text_to_hl') as string | null;
 
       // Check article URL requirement for news templates
-      if ((templateType === 'web_news_story' || templateType === 'web_news_story_2') && !articleUrl) {
+      if ((templateType === 'web_news_story' || templateType === 'web_news_story_2') && !articleUrl && !file) {
         return {
           status: 0,
-          msg: "Article URL is required for news templates"
+          msg: "Please provide either an Article URL or an image file"
         };
       }
 
@@ -119,6 +119,8 @@ export class TemplateService {
         logoPosition,
         textToHighlight
       );
+
+      console.log('apiFormData', apiFormData);
       
       // Call the Python API
       const response = await fetch(this.API_URL, {
@@ -175,6 +177,8 @@ export class TemplateService {
     logoPosition: string | null,
     textToHighlight: string | null
   ): void {
+    console.log('templateType', templateType);
+    console.log('customTemplateType', customTemplateType);
     // Set base template type
     apiFormData.append('template_type', templateType);
 
@@ -183,7 +187,13 @@ export class TemplateService {
       case 'web_news_story':
         // For Web News Story
         if (customTemplateType) {
+          // First, remove the existing template_type
+          apiFormData.delete('template_type');
+          // Then set the new template_type to the customTemplateType value
           apiFormData.append('template_type', customTemplateType);
+        } else {
+          // If no custom type, keep the original
+          apiFormData.append('template_type', templateType);
         }
         
         // Add title
