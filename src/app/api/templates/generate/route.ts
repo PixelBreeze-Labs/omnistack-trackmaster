@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       status: 0,
-      msg: "An error occurred while processing your request"
+      msg: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
 }
