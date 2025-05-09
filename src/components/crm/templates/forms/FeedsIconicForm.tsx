@@ -27,7 +27,6 @@ export default function FeedsIconicForm({
 }: FeedsIconicFormProps) {
   const [cropMode, setCropMode] = useState("square");
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileInputLabel, setFileInputLabel] = useState("Choose a file or drop it here...");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -37,15 +36,10 @@ export default function FeedsIconicForm({
     
     // Title is required
     if (!title.trim()) {
-      newErrors.title = "Title is required";
-      toast.error("Title is required");
+      newErrors.title = "Location is required";
+      toast.error("Location is required");
     }
-    
-    // Category is required
-    if (!category.trim()) {
-      newErrors.category = "Category is required";
-      toast.error("Category is required");
-    }
+
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -81,8 +75,6 @@ export default function FeedsIconicForm({
     // Add title
     formData.append("title", title);
     
-    // Add category
-    formData.append("category", category);
     
     // Add image file if selected
     if (selectedFile) {
@@ -94,7 +86,6 @@ export default function FeedsIconicForm({
       // Reset form on success
       if (!isSubmitting) {
         setTitle("");
-        setCategory("");
         setSelectedFile(null);
         setFileInputLabel("Choose a file or drop it here...");
         // Keep the user's preferences for crop mode
@@ -176,14 +167,14 @@ export default function FeedsIconicForm({
       {/* Title */}
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title *
+        Location *
         </label>
         <textarea 
           id="title"
           name="title"
           rows={5}
           className={`form-control w-full px-3 py-2 border ${errors.title ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
-          placeholder="Title"
+          placeholder="Location"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -193,25 +184,6 @@ export default function FeedsIconicForm({
         )}
       </div>
       
-      {/* Category */}
-      <div className="input-area">
-        <label htmlFor="category" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Category *
-        </label>
-        <input 
-          id="category"
-          name="category"
-          type="text"
-          className={`form-control w-full px-3 py-2 border ${errors.category ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500`}
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        />
-        {errors.category && (
-          <p className="text-red-500 text-xs mt-1">{errors.category}</p>
-        )}
-      </div>
       
       <p className="text-sm text-slate-500">
         Fields marked with * are required!
