@@ -28,6 +28,8 @@ export default function LogoOnlyForm({
 }: LogoOnlyFormProps) {
   const [cropMode, setCropMode] = useState("square");
   const [logoPosition, setLogoPosition] = useState("4");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileInputLabel, setFileInputLabel] = useState("Choose a file or drop it here...");
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const router = useRouter();
@@ -39,6 +41,14 @@ export default function LogoOnlyForm({
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setSelectedFile(files[0]);
+      setFileInputLabel(files[0].name);
+    }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,14 +73,18 @@ export default function LogoOnlyForm({
     // Add logo position
     formData.append("logo_position", logoPosition);
     
-    // Get the file input element and check if a file was selected
-    const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
-    if (fileInput && fileInput.files && fileInput.files.length > 0) {
-      formData.append("image", fileInput.files[0]);
+    // Add image file if selected
+    if (selectedFile) {
+      formData.append("image", selectedFile);
     }
     
     try {
       await onSubmit(formData);
+      // Reset the file input after successful submission if needed
+      if (!isSubmitting) {
+        setSelectedFile(null);
+        setFileInputLabel("Choose a file or drop it here...");
+      }
     } catch (error) {
       toast.error("Failed to generate image. Please try again.");
     }
@@ -104,17 +118,16 @@ export default function LogoOnlyForm({
               type="file" 
               name="image" 
               className="hidden"
-              onChange={(e) => {
-                // Handle file selection
-                const file = e.target.files?.[0];
-                if (file) {
-                  // You might want to add file preview or validation here
-                }
-              }}
+              onChange={handleFileChange}
+              accept="image/*"
             />
             <div className="w-full h-[40px] flex items-center border border-slate-300 rounded-md overflow-hidden">
               <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
-                <span className="text-slate-400">Choose a file or drop it here...</span>
+                {selectedFile ? (
+                  <span className="text-slate-700">{fileInputLabel}</span>
+                ) : (
+                  <span className="text-slate-400">{fileInputLabel}</span>
+                )}
               </span>
               <span className="flex-none border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">Browse</span>
             </div>
