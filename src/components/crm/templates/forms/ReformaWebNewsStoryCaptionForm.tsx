@@ -39,21 +39,18 @@ export default function ReformaWebNewsStoryCaptionForm({
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
     
-    // Title is required
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-      toast.error("Title is required");
-      return false;
-    }
-    
-    // Caption is required
+    // Caption is always required
     if (!caption.trim()) {
       newErrors.caption = "Caption is required";
       toast.error("Caption is required");
-      return false;
     }
     
-    setErrors(newErrors);
+    // Title is only required if no article URL is provided
+    if (!articleUrl.trim() && !title.trim()) {
+      newErrors.title = "Title is required when not using an article URL";
+      toast.error("Title is required when not using an article URL");
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
   
@@ -194,7 +191,7 @@ export default function ReformaWebNewsStoryCaptionForm({
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title *
+          Title (Required if no article URL is provided)
         </label>
         <textarea 
           id="title" 
@@ -204,7 +201,6 @@ export default function ReformaWebNewsStoryCaptionForm({
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
         ></textarea>
         {errors.title && (
           <p className="text-red-500 text-xs mt-1">{errors.title}</p>
