@@ -56,11 +56,10 @@ export default function ReformaWebNewsStory2Form({
   const validate = (): boolean => {
     const newErrors: {[key: string]: string} = {};
     
-    // Title is required
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-      toast.error("Title is required");
-      return false;
+    // Title is only required if no article URL is provided
+    if (!articleUrl.trim() && !title.trim()) {
+      newErrors.title = "Title is required when not using an article URL";
+      toast.error("Title is required when not using an article URL");
     }
     
     // Either file or article URL should be provided
@@ -70,7 +69,6 @@ export default function ReformaWebNewsStory2Form({
       return false;
     }
     
-    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   
@@ -208,7 +206,7 @@ export default function ReformaWebNewsStory2Form({
       
       <div className="input-area">
         <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
-          Title *
+          Title (Required if no article URL is provided)
         </label>
         <textarea 
           id="title" 
@@ -218,7 +216,6 @@ export default function ReformaWebNewsStory2Form({
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
         ></textarea>
         {errors.title && (
           <p className="text-red-500 text-xs mt-1">{errors.title}</p>
