@@ -2,10 +2,19 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { getFormValidationRules, validateForm, getArticleValidationRules } from '@/utils/formValidation';
 
+interface TemplateResponse {
+  status: number;
+  msg?: string;
+  img?: string;
+  processingTime?: number;
+  processingTimeFormatted?: string;
+}
+
 type SubmissionState = {
   isSubmitting: boolean;
   imageUrl: string | null;
   error: string | null;
+  processingTime: number | null;
 };
 
 type SubmissionResult = SubmissionState & {
@@ -13,22 +22,33 @@ type SubmissionResult = SubmissionState & {
 };
 
 /**
- * Hook for handling template form submission with validation
+ * Hook for handling template form submission with validation and timing
  */
 export function useTemplateSubmission(): SubmissionResult {
   const [state, setState] = useState<SubmissionState>({
     isSubmitting: false,
     imageUrl: null,
-    error: null
+    error: null,
+    processingTime: null
   });
 
   const submitTemplate = async (formData: FormData): Promise<boolean> => {
+    const startTime = Date.now();
+    
     try {
-      setState(prev => ({ ...prev, isSubmitting: true, error: null }));
+      setState(prev => ({ 
+        ...prev, 
+        isSubmitting: true, 
+        error: null, 
+        imageUrl: null,
+        processingTime: null 
+      }));
       
       // Get template type
       const templateType = formData.get('template_type') as string;
       if (!templateType) {
+        // Set submitting to false immediately on validation errors
+        setState(prev => ({ ...prev, isSubmitting: false }));
         throw new Error('Template type is required');
       }
 
@@ -62,7 +82,15 @@ export function useTemplateSubmission(): SubmissionResult {
       if (!isValid) {
         const errorMessage = errors.join('<br />');
         toast.error(errorMessage.replace(/<br \/>/g, ' '));
-        setState(prev => ({ ...prev, isSubmitting: false, error: errorMessage }));
+        
+        // Set submitting to false immediately on validation errors
+        setState(prev => ({ 
+          ...prev, 
+          isSubmitting: false, 
+          error: errorMessage,
+          processingTime: Date.now() - startTime // Record time even for errors
+        }));
+        
         return false;
       }
 
@@ -72,17 +100,33 @@ export function useTemplateSubmission(): SubmissionResult {
         body: formData,
       });
 
-      const result = await response.json();
+      const result: TemplateResponse = await response.json();
       
       if (!response.ok || result.status !== 1) {
-        throw new Error(result.msg || 'Failed to generate image');
+        // Calculate time to failure
+        const endTime = Date.now();
+        const failureTime = endTime - startTime;
+        
+        // Update state with error but include processing time
+        setState(prev => ({ 
+          ...prev, 
+          isSubmitting: false, 
+          error: result.msg || 'Failed to generate image',
+          processingTime: failureTime
+        }));
+        
+        // Show error toast
+        toast.error(result.msg || 'Failed to generate image');
+        
+        return false;
       }
 
       // On success
       setState(prev => ({ 
         ...prev, 
         isSubmitting: false, 
-        imageUrl: result.img || null 
+        imageUrl: result.img || null,
+        processingTime: result.processingTime || (Date.now() - startTime)
       }));
       
       // Log success
@@ -96,11 +140,16 @@ export function useTemplateSubmission(): SubmissionResult {
       // Show error toast
       toast.error(errorMessage);
       
-      // Update state
+      // Calculate time to failure
+      const endTime = Date.now();
+      const failureTime = endTime - startTime;
+      
+      // Update state with error but include processing time
       setState(prev => ({ 
         ...prev, 
         isSubmitting: false, 
-        error: errorMessage 
+        error: errorMessage,
+        processingTime: failureTime
       }));
       
       return false;

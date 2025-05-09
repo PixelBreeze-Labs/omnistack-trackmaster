@@ -1,7 +1,7 @@
 // Entity types for generated images
 export enum EntityType {
     ICONSTYLE = 'iconstyle',
-    GAZETAREFORMA = 'gazetareforma',
+    GAZETAREFORMA = 'reforma',
     OTHER = 'other'
   }
   

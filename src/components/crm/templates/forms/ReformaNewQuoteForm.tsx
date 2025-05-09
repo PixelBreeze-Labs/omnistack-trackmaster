@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 type TemplateData = {
   id: number;
@@ -87,41 +89,29 @@ export default function ReformaNewQuoteForm({
 
   return (
     <form onSubmit={handleSubmit} className="card-text h-full space-y-4 text-center">
-      {/* Crop Mode Selection */}
-      <div className="flex items-center space-x-7 flex-wrap justify-center">
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="crop_mode" 
-              value="square" 
-              checked={cropMode === "square"}
-              onChange={() => setCropMode("square")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Square</span>
-          </label>
-        </div>
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="crop_mode" 
-              value="portrait" 
-              checked={cropMode === "portrait"}
-              onChange={() => setCropMode("portrait")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Portrait</span>
-          </label>
-        </div>
+      {/* Crop Mode Selection - Using Radix UI RadioGroup */}
+      <div className="flex justify-center">
+        <RadioGroup 
+          value={cropMode}
+          onValueChange={setCropMode}
+          className="flex items-center space-x-7 flex-wrap"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="square" id="square" />
+            <Label htmlFor="square" className="text-secondary-500 text-sm leading-6">Square</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="portrait" id="portrait" />
+            <Label htmlFor="portrait" className="text-secondary-500 text-sm leading-6">Portrait</Label>
+          </div>
+        </RadioGroup>
       </div>
       
       {/* Title */}
       <div className="input-area">
-        <label htmlFor="title" className="form-label">Title *</label>
+        <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Title *
+        </label>
         <textarea 
           id="title"
           name="title"
@@ -139,7 +129,9 @@ export default function ReformaNewQuoteForm({
       
       {/* Author */}
       <div className="input-area">
-        <label htmlFor="author" className="form-label">Author *</label>
+        <label htmlFor="author" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Author *
+        </label>
         <input 
           id="author"
           name="sub_text"
@@ -155,15 +147,29 @@ export default function ReformaNewQuoteForm({
         )}
       </div>
       
-      <p>Fields marked with * are required!</p>
-      <hr />
+      <p className="text-sm text-slate-500">
+        Fields marked with * are required!
+      </p>
+      
+      <hr className="my-4" />
+      
       <button 
         type="submit"
         id="submitBtn"
-        className="btn inline-flex justify-center btn-outline-primary"
+        className="btn inline-flex justify-center bg-primary text-white hover:bg-primary-600 py-2 px-4 rounded-md transition-colors"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Creating..." : "Create Image"}
+        {isSubmitting ? (
+          <>
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+          </>
+        ) : (
+          "Create Image"
+        )}
       </button>
     </form>
   );

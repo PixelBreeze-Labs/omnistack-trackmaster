@@ -7,6 +7,9 @@ import { getFormValidationRules, validateForm, getArticleValidationRules } from 
  */
 export async function POST(request: NextRequest) {
   try {
+    // Record start time
+    const startTime = Date.now();
+    
     // Parse the FormData
     const formData = await request.formData();
     
@@ -57,7 +60,18 @@ export async function POST(request: NextRequest) {
     const templateService = new TemplateService();
     const result = await templateService.processTemplate(formData);
     
-    return NextResponse.json(result, { 
+    // Calculate processing time
+    const endTime = Date.now();
+    const processingTime = endTime - startTime;
+    
+    // Add timing information to the response
+    const responseWithTiming = {
+      ...result,
+      processingTime,
+      processingTimeFormatted: `${(processingTime / 1000).toFixed(2)}s`
+    };
+    
+    return NextResponse.json(responseWithTiming, { 
       status: result.status === 1 ? 200 : 400 
     });
     

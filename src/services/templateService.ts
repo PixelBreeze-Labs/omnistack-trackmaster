@@ -86,7 +86,7 @@ export class TemplateService {
           // Add the file path to the API form data
           apiFormData.append('input_img_path', fileUploadPath);
         } catch (uploadError) {
-          console.error('File upload error:', uploadError);
+          console.log('File upload error:', uploadError);
           return {
             status: 0,
             msg: "Failed to upload file"
@@ -314,7 +314,7 @@ export class TemplateService {
         }
         break;
         
-      case 'feeds_iconic':
+      case 'iconic_location':
         // For Feeds Iconic template
         apiFormData.append('template_type', templateType);
         

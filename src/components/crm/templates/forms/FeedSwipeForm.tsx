@@ -94,55 +94,33 @@ export default function FeedSwipeForm({
 
   return (
     <form onSubmit={handleSubmit} className="card-text h-full space-y-4 text-center">
-      {/* Crop Mode Selection */}
-      <div className="flex items-center space-x-7 flex-wrap justify-center">
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="crop_mode" 
-              value="square" 
-              checked={cropMode === "square"}
-              onChange={() => setCropMode("square")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Square</span>
-          </label>
-        </div>
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="crop_mode" 
-              value="portrait" 
-              checked={cropMode === "portrait"}
-              onChange={() => setCropMode("portrait")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Portrait</span>
-          </label>
-        </div>
-        <div className="basicRadio">
-          <label className="flex items-center cursor-pointer">
-            <input 
-              type="radio" 
-              className="hidden" 
-              name="crop_mode" 
-              value="story" 
-              checked={cropMode === "story"}
-              onChange={() => setCropMode("story")}
-            />
-            <span className="flex-none bg-white dark:bg-slate-500 rounded-full border inline-flex ltr:mr-2 rtl:ml-2 relative transition-all duration-150 h-[16px] w-[16px] border-slate-400 dark:border-slate-600 dark:ring-slate-700"></span>
-            <span className="text-secondary-500 text-sm leading-6 capitalize">Story</span>
-          </label>
-        </div>
+      {/* Crop Mode Selection - Using Radix UI RadioGroup */}
+      <div className="flex justify-center">
+        <RadioGroup 
+          value={cropMode}
+          onValueChange={setCropMode}
+          className="flex items-center space-x-7 flex-wrap"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="square" id="square" />
+            <Label htmlFor="square" className="text-secondary-500 text-sm leading-6">Square</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="portrait" id="portrait" />
+            <Label htmlFor="portrait" className="text-secondary-500 text-sm leading-6">Portrait</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="story" id="story" />
+            <Label htmlFor="story" className="text-secondary-500 text-sm leading-6">Story</Label>
+          </div>
+        </RadioGroup>
       </div>
       
       {/* Article URL - Disabled for now */}
       <div className="input-area">
-        <label htmlFor="article_url" className="form-label">Article URL</label>
+        <label htmlFor="article_url" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Article URL
+        </label>
         <input 
           id="article_url" 
           type="text" 
@@ -153,37 +131,41 @@ export default function FeedSwipeForm({
       </div>
       
       <div className="input-area">
-        <label className="form-label">-OR-</label>
+        <label className="form-label block text-sm font-medium text-slate-700 mb-1">-OR-</label>
       </div>
       
       {/* File Upload */}
       <div className="input-area">
-        <div className="filegroup">
-          <label>
+        <div className="w-full relative">
+          <label className="cursor-pointer">
             <input 
               type="file"
-              className="w-full hidden"
+              className="hidden"
               name="image"
               onChange={handleFileChange}
               accept="image/*"
             />
-            <span className="w-full h-[40px] file-control flex items-center custom-class">
-              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                <span className={selectedFile ? "text-slate-600" : "text-slate-400"}>
-                  {fileInputLabel}
-                </span>
+            <div className="w-full h-[40px] flex items-center border border-slate-300 rounded-md overflow-hidden">
+              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
+                {selectedFile ? (
+                  <span className="text-slate-700">{fileInputLabel}</span>
+                ) : (
+                  <span className="text-slate-400">{fileInputLabel}</span>
+                )}
               </span>
-              <span className="file-name flex-none cursor-pointer border-l px-4 border-slate-200 dark:border-slate-700 h-full inline-flex items-center bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-sm rounded-tr rounded-br font-normal">
+              <span className="flex-none border-l px-4 border-slate-200 h-full inline-flex items-center bg-slate-100 text-slate-600 text-sm rounded-tr rounded-br font-normal">
                 Browse
               </span>
-            </span>
+            </div>
           </label>
         </div>
       </div>
       
       {/* Title */}
       <div className="input-area">
-        <label htmlFor="title" className="form-label">Title</label>
+        <label htmlFor="title" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Title
+        </label>
         <textarea 
           id="title"
           name="title"
@@ -195,40 +177,52 @@ export default function FeedSwipeForm({
         ></textarea>
       </div>
       
-      {/* Show Arrow */}
+      {/* Show Arrow - Using Radix UI RadioGroup */}
       <div className="input-area">
-        <label htmlFor="show_arrow" className="form-label">Show Arrow?</label>
-        <div className="radio-group" style={{ margin: 0 }}>
-          <input 
-            type="radio" 
-            value="show" 
-            name="show_arrow" 
-            id="show" 
-            checked={showArrow === "show"}
-            onChange={() => setShowArrow("show")}
-          />
-          <label htmlFor="show">Show</label>
-          <input 
-            type="radio" 
-            value="hide" 
-            name="show_arrow" 
-            id="hide"
-            checked={showArrow === "hide"}
-            onChange={() => setShowArrow("hide")}
-          />
-          <label htmlFor="hide">Hide</label>
+        <label htmlFor="show_arrow" className="form-label block text-sm font-medium text-slate-700 mb-1">
+          Show Arrow?
+        </label>
+        <div className="flex justify-center">
+          <RadioGroup 
+            value={showArrow}
+            onValueChange={setShowArrow}
+            className="flex items-center space-x-7 flex-wrap"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="show" id="show" />
+              <Label htmlFor="show" className="text-secondary-500 text-sm leading-6">Show</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="hide" id="hide" />
+              <Label htmlFor="hide" className="text-secondary-500 text-sm leading-6">Hide</Label>
+            </div>
+          </RadioGroup>
         </div>
       </div>
       
-      <p>Fields marked with * are required!</p>
-      <hr />
+      <p className="text-sm text-slate-500">
+        Fields marked with * are required!
+      </p>
+      
+      <hr className="my-4" />
+      
       <button 
         type="submit"
         id="submitBtn"
-        className="btn inline-flex justify-center btn-outline-primary"
+        className="btn inline-flex justify-center bg-primary text-white hover:bg-primary-600 py-2 px-4 rounded-md transition-colors"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Creating..." : "Create Image"}
+        {isSubmitting ? (
+          <>
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+          </>
+        ) : (
+          "Create Image"
+        )}
       </button>
     </form>
   );

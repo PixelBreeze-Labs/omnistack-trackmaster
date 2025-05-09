@@ -40,7 +40,7 @@ export default function ReformaWebNewsStory2Form({
     
     // Navigate to the appropriate template form
     if (value === "web_news_story") {
-      router.push('/admin/template-form/21');
+      router.push('/crm/platform/template-form/21');
     }
   };
   
