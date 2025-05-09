@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GenerateImageService } from '@/services';
-
 import { getFormValidationRules, validateForm, getArticleValidationRules } from '@/utils/formValidation';
+import { processTemplate } from './service';  // Import from local file
 
-/**
- * API route handler for template generation
- */
 export async function POST(request: NextRequest) {
   try {
     // Record start time
@@ -57,9 +53,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Process the template
-    const templateService = new GenerateImageService();
-    const result = await templateService.processTemplate(formData);
+    // Process the template - now as a function call instead of a class
+    const result = await processTemplate(formData);
     
     // Calculate processing time
     const endTime = Date.now();
@@ -81,7 +76,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       status: 0,
-      msg: error instanceof Error ? error.message : String(error)
+      msg: error instanceof Error ? error.message : "An error occurred while processing your request"
     }, { status: 500 });
   }
 }
