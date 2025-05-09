@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GenerateImageService } from '@/services/GenerateImageService';
+import { GenerateImageService } from '@/services';
+
 import { getFormValidationRules, validateForm, getArticleValidationRules } from '@/utils/formValidation';
 
 /**
