@@ -69,7 +69,7 @@ export function useTemplateSubmission(): SubmissionResult {
       const validationData: Record<string, any> = {};
       for (const [key, value] of formData.entries()) {
         // Handle File entries differently
-        if (value instanceof File) {
+        if (typeof value === 'object' && value !== null && typeof value.name === 'string') {
           validationData[key] = value;
         } else {
           validationData[key] = value;
