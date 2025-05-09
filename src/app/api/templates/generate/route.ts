@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TemplateService } from '@/services';
-
+import { GenerateImageService } from '@/services/GenerateImageService';
 import { getFormValidationRules, validateForm, getArticleValidationRules } from '@/utils/formValidation';
 
 /**
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Process the template
-    const templateService = new TemplateService();
+    const templateService = new GenerateImageService();
     const result = await templateService.processTemplate(formData);
     
     // Calculate processing time
@@ -77,10 +76,11 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
+    console.error('API route error:', error);
     
     return NextResponse.json({
       status: 0,
-      msg: error instanceof Error ? error.message : String(error)
+      msg: "An error occurred while processing your request"
     }, { status: 500 });
   }
 }

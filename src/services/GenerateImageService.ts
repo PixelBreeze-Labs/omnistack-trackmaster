@@ -9,7 +9,7 @@ export type TemplateResponse = {
   img?: string;
 };
 
-export class TemplateService {
+export class GenerateImageService {
   private readonly API_URL = process.env.NEXT_PYTHON_API_URL || 'https://stageapi.pixelbreeze.xyz/generate';
   private readonly PHP_UPLOAD_URL = process.env.PHP_UPLOAD_URL || 'https://stageadmin.pixelbreeze.xyz/upload-file';
   private readonly STORAGE_DOMAIN = 'https://stageadmin.pixelbreeze.xyz';
