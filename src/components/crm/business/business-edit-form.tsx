@@ -53,7 +53,8 @@ import * as z from "zod";
 import { 
   Business, 
   BusinessType,
-  BusinessCapabilities
+  BusinessCapabilities,
+  BusinessOperationType
 } from "@/app/api/external/omnigateway/types/business";
 import InputSelect from "@/components/Common/InputSelect";
 
@@ -68,6 +69,9 @@ const businessFormSchema = z.object({
   phone: z.string().optional(),
   type: z.string({
     required_error: "Please select a business type.",
+  }),
+  operationType: z.string({
+    required_error: "Please select an operation type.",
   }),
   taxId: z.string().optional(),
   vatNumber: z.string().optional(),
@@ -111,6 +115,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
       email: "",
       phone: "",
       type: "",
+      operationType: "",
       taxId: "",
       vatNumber: "",
       address: {
@@ -147,7 +152,8 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
           email: data?.email,
           phone: data?.phone || "",
           type: data?.type,
-          taxId: data?.taxId || "",
+          operationType: data?.operationType,
+          taxId: data?.taxId || "", 
           vatNumber: data?.vatNumber || "",
           address: {
             street: data?.address?.street || "",
@@ -206,6 +212,7 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
           email: result.business.email,
           phone: result.business.phone || "",
           type: result.business.type,
+          operationType: result.business.operationType,
           taxId: result.business.taxId || "",
           vatNumber: result.business.vatNumber || "",
           address: {
@@ -269,6 +276,12 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
 
   // List of business types for the dropdown
   const businessTypes = Object.values(BusinessType).map(type => ({
+    value: type,
+    label: type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  }));
+
+  // List of operation types for the dropdown
+  const operationTypes = Object.values(BusinessOperationType).map(type => ({
     value: type,
     label: type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   }));
@@ -371,6 +384,28 @@ export default function BusinessEditForm({ businessId }: BusinessEditFormProps) 
     </FormItem>
   )}
 />
+
+                      {/* Operation Type */}
+                      <FormField
+                        control={form.control}
+                        name="operationType"
+                        render={({ field }) => (
+                          <FormItem> 
+                            <FormLabel>Operation Type</FormLabel>
+                            <FormControl>
+                              <InputSelect
+                                name="operationType"
+                                label=""
+                                options={operationTypes}  
+                                onChange={(e) => field.onChange(e.target.value)}
+                                value={field.value}
+                                required={true}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
                       {/* Email */}
                       <FormField

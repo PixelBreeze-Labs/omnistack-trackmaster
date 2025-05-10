@@ -151,6 +151,10 @@ useEffect(() => {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
+  const formatOperationType = (type: string) => {
+    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
   // Format currency for display
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -202,7 +206,7 @@ useEffect(() => {
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2 break-words">
               {isLoading ? <Skeleton className="h-4 w-64" /> : (
                 business ? 
-                `${business.email} • ${formatBusinessType(business.type)}` : 
+                `${business.email} • ${formatBusinessType(business.type)} • ${formatOperationType(business.operationType?.toString())}` : 
                 "View and manage business information"
               )}
             </p>
@@ -291,6 +295,18 @@ useEffect(() => {
                         <span className="font-medium">Business Type</span>
                       </div>
                       <span className="ml-7 sm:ml-0 text-sm sm:text-base">{formatBusinessType(business?.type || "")}</span>
+                    </div>
+                    {/* Operation Type */}
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <span className="font-medium">Operation Type</span>
+                      </div>
+                      <span className="ml-7 sm:ml-0 text-sm sm:text-base">
+                        {business?.operationType === 'field_service' ? 'Field Service Business' :
+                        business?.operationType === 'in_house' ? 'In-House Projects Only' : 
+                        'Hybrid (Both Field & In-House)'}
+                      </span>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                       <div className="flex items-center gap-2">
