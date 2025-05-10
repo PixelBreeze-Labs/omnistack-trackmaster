@@ -34,6 +34,12 @@ export enum BusinessType {
   OTHER = 'other'
 }
 
+export enum BusinessOperationType {
+  FIELD_SERVICE = 'field_service',
+  IN_HOUSE = 'in_house',
+  HYBRID = 'hybrid'
+}
+
 export enum SubscriptionStatus {
   ACTIVE = 'active',
   PAST_DUE = 'past_due',
@@ -93,6 +99,7 @@ export interface Business extends BusinessCapabilities {
   adminUserId: string;
   userIds?: string[];
   address?: BusinessAddress;
+  operationType?: BusinessOperationType;
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndDate?: string;
   subscriptionDetails?: SubscriptionDetails;
