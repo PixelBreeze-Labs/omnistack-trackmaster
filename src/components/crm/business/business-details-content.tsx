@@ -22,6 +22,10 @@ import {
   Edit,
   Users,
   Menu,
+  Key,
+  Copy,
+  EyeOffIcon,
+  EyeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +60,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 
+import toast from 'react-hot-toast';
 interface BusinessDetailsContentProps {
   businessId: string;
 }
@@ -72,8 +77,26 @@ const [currentPage, setCurrentPage] = useState(1);
 const [totalEmployeePages, setTotalEmployeePages] = useState(1);
 const [totalEmployees, setTotalEmployees] = useState(0);
 const [activeTab, setActiveTab] = useState("overview");
+const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
 
+const maskApiKey = (apiKey) => {
+  if (!apiKey) return "N/A";
+  const visibleChars = 6;
+  return `•••••••••••${apiKey.slice(-visibleChars)}`;
+};
 
+const copyApiKeyToClipboard = () => {
+  if (business?.apiKey) {
+    navigator.clipboard.writeText(business.apiKey)
+      .then(() => {
+        toast.success("The API key has been copied to your clipboard.");
+      })
+      .catch((error) => {
+        console.error("Failed to copy API key:", error);
+        toast.error("An error occurred while copying the API key.");
+      });
+  }
+};
 
 const loadEmployeeData = async (page = 1) => {
   if (!businessId) return;
@@ -331,6 +354,52 @@ useEffect(() => {
                       </div>
                       <span className="ml-7 sm:ml-0 text-sm sm:text-base">{format(new Date(business?.createdAt || new Date()), 'MMMM d, yyyy')}</span>
                     </div>
+                    {business?.apiKey && (
+  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+    <div className="flex items-center gap-2">
+      <Key className="h-5 w-5 text-muted-foreground shrink-0" />
+      <span className="font-medium">API Key</span>
+    </div>
+    <div className="ml-7 sm:ml-0 flex items-center gap-2 break-all">
+      <span className="text-sm sm:text-base font-mono">
+        {isApiKeyVisible ? business.apiKey : maskApiKey(business.apiKey)}
+      </span>
+      <div className="flex items-center ml-1 space-x-1">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-6 w-6" 
+          onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
+          title={isApiKeyVisible ? "Hide API Key" : "Show API Key"}
+        >
+          {isApiKeyVisible ? 
+            <EyeOffIcon className="h-3 w-3 text-muted-foreground" /> : 
+            <EyeIcon className="h-3 w-3 text-muted-foreground" />
+          }
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-6 w-6" 
+          onClick={copyApiKeyToClipboard}
+          title="Copy API Key"
+        >
+          <Copy className="h-3 w-3 text-muted-foreground" />
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
+                  
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+                          <span className="font-medium">VenueBoost ID</span>
+                        </div>
+                        <span className="ml-7 sm:ml-0 text-sm sm:text-base break-all">{business?.externalIds?.venueboostId} ?? "N/A"}</span>
+                      </div>
+                    
+
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-5 w-5 text-muted-foreground shrink-0" />
