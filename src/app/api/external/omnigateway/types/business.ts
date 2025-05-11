@@ -99,6 +99,11 @@ export interface Business extends BusinessCapabilities {
   adminUserId: string;
   userIds?: string[];
   address?: BusinessAddress;
+  apiKey?: string;
+  externalIds: {
+    venueboostId?: string;
+    [key: string]: string | undefined;
+  };
   operationType?: BusinessOperationType;
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndDate?: string;
