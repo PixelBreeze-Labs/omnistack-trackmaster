@@ -70,8 +70,6 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
   // First try to get client type from session, then from path
   const clientType = session?.user?.clientType || getClientTypeFromPath()
 
-  console.log('clientType', clientType);
-
   const sidebarData = getSidebarDataForType(clientType)
 
   // Determine sidebar props based on client type
