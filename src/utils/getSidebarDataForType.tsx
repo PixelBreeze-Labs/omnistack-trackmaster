@@ -525,10 +525,17 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       settings: [
         {
           id: 10,
+          title: "Sync History",
+          path: `/crm/platform/sync-history`,
+          icon: <Clock className="w-5 h-5"/>,
+        },  
+        {
+          id: 11,
           title: "Settings",
           path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
-        }
+        },
+        
       ]
     }
   }

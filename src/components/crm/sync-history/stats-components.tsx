@@ -14,22 +14,13 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import { AlertCircle, Bot, CheckCircle, XCircle, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import BusinessStatsList from "./business-stats-list";
 
 // Task Assignment Stats Component
 export const TaskAssignmentStats = ({ taskStats }) => {
-  if (!taskStats || !taskStats.businessStats || taskStats.businessStats.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <AlertCircle className="h-12 w-12 text-muted-foreground mb-2" />
-        <p className="text-muted-foreground">No task assignment data available</p>
-      </div>
-    );
-  }
-  
-  // Prepare data for charts
+  // Prepare data for charts directly from API response
   const statusData = [
     { name: 'Unassigned', value: taskStats.unassigned, color: '#94a3b8' },
     { name: 'Assigned', value: taskStats.assigned, color: '#60a5fa' },
@@ -39,16 +30,6 @@ export const TaskAssignmentStats = ({ taskStats }) => {
     { name: 'Pending Approval', value: taskStats.pendingApproval, color: '#8b5cf6' }
   ].filter(item => item.value > 0);
   
-  // If no tasks at all, show empty state
-  if (statusData.length === 0 || taskStats.totalTasks === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <AlertCircle className="h-12 w-12 text-muted-foreground mb-2" />
-        <p className="text-muted-foreground">No tasks have been created yet</p>
-      </div>
-    );
-  }
-  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -56,30 +37,36 @@ export const TaskAssignmentStats = ({ taskStats }) => {
         <div>
           <h3 className="text-sm font-medium mb-4">Task Status Distribution</h3>
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  labelLine={false}
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value) => [`${value} tasks`, 'Count']}
-                  contentStyle={{ borderRadius: '6px', border: '1px solid #e2e8f0' }}
-                />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {statusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => [`${value} tasks`, 'Count']}
+                    contentStyle={{ borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center bg-slate-50 rounded-lg">
+                <p className="text-muted-foreground">No task distribution data to display</p>
+              </div>
+            )}
           </div>
         </div>
         
@@ -118,14 +105,10 @@ export const TaskAssignmentStats = ({ taskStats }) => {
       {/* Business-specific task stats */}
       <div>
         <h3 className="text-sm font-medium mb-4">Task Distribution by Business</h3>
-        {taskStats.businessStats.length > 0 ? (
-          <BusinessStatsList 
-            businessStats={taskStats.businessStats}
-            type="task"
-          />
-        ) : (
-          <div className="text-sm text-muted-foreground">No business-specific task data available</div>
-        )}
+        <BusinessStatsList 
+          businessStats={taskStats.businessStats}
+          type="task"
+        />
       </div>
     </div>
   );
@@ -133,60 +116,67 @@ export const TaskAssignmentStats = ({ taskStats }) => {
 
 // Employee Stats Component
 export const EmployeeStatsComponent = ({ employeeStats }) => {
-  // If we don't have employee data, show no data state
-  if (!employeeStats) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <AlertCircle className="h-12 w-12 text-muted-foreground mb-2" />
-        <p className="text-muted-foreground">No employee data available</p>
-      </div>
-    );
-  }
-  
-  // Empty state when no employee data
   return (
-    <div className="flex flex-col items-center justify-center py-8">
-      <AlertCircle className="h-12 w-12 text-muted-foreground mb-2" />
-      <p className="text-muted-foreground">No employee statistics available yet</p>
-      <p className="text-sm text-muted-foreground mt-2">
-        Employee data will be displayed once available from the backend.
-      </p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <div className="text-sm text-muted-foreground">Total Employees</div>
+          <div className="text-2xl font-bold mt-1">{employeeStats.totalEmployees}</div>
+        </div>
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <div className="text-sm text-muted-foreground">Active Employees</div>
+          <div className="text-2xl font-bold mt-1">{employeeStats.activeEmployees}</div>
+        </div>
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <div className="text-sm text-muted-foreground">Utilization Rate</div>
+          <div className="text-2xl font-bold mt-1">
+            {employeeStats.totalEmployees > 0 
+              ? `${Math.round((employeeStats.activeEmployees / employeeStats.totalEmployees) * 100)}%` 
+              : '0%'}
+          </div>
+        </div>
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <div className="text-sm text-muted-foreground">Businesses</div>
+          <div className="text-2xl font-bold mt-1">{employeeStats.businessStats.length}</div>
+        </div>
+      </div>
+      
+      {/* Businesses */}
+      <div>
+        <h3 className="text-sm font-medium mb-4">Employee Distribution by Business</h3>
+        <div className="overflow-hidden rounded-lg border">
+          <table className="w-full">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium">Business</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Total Employees</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Active Employees</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Specializations</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employeeStats.businessStats.map((business, index) => (
+                <tr key={index} className="border-t">
+                  <td className="px-4 py-3 text-sm">{business.businessName}</td>
+                  <td className="px-4 py-3 text-sm">{business.totalEmployees}</td>
+                  <td className="px-4 py-3 text-sm">{business.activeEmployees}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {Object.keys(business.specializations).length > 0 
+                      ? Object.keys(business.specializations).join(", ")
+                      : "No specializations"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
 
 // AI Auto-Assignment Component
 export const AutoAssignmentStats = ({ autoAssignStats }) => {
-  if (!autoAssignStats) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <AlertCircle className="h-12 w-12 text-muted-foreground mb-2" />
-        <p className="text-muted-foreground">No auto-assignment data available</p>
-      </div>
-    );
-  }
-  
-  // Helper function to get status badge
-  const getStatusBadge = (type) => {
-    switch (type) {
-      case "successful":
-        return <Badge className="bg-green-500 hover:bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> Successful</Badge>;
-      case "failed":
-        return <Badge className="bg-red-500 hover:bg-red-600"><XCircle className="w-3 h-3 mr-1" /> Failed</Badge>;
-      case "pending":
-        return <Badge className="bg-blue-500 hover:bg-blue-600"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
-      default:
-        return <Badge variant="outline">{type}</Badge>;
-    }
-  };
-  
-  // Prepare data for charts
-  const assignmentData = [
-    { name: 'Successful', value: autoAssignStats.successful, color: '#10b981' },
-    { name: 'Failed', value: autoAssignStats.failed, color: '#ef4444' },
-    { name: 'Pending Approval', value: autoAssignStats.pendingApproval, color: '#60a5fa' }
-  ].filter(item => item.value > 0);
-  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -199,7 +189,8 @@ export const AutoAssignmentStats = ({ autoAssignStats }) => {
           <div className="text-2xl font-bold mt-1">{autoAssignStats.businessesWithAutoAssign}</div>
         </div>
         <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="text-sm text-muted-foreground">Total Assignments</div>
+          <div className="text-sm text-muted-foreground">Total Jobs - Process Unassigned Tasks
+          </div>
           <div className="text-2xl font-bold mt-1">{autoAssignStats.totalAutoAssignments}</div>
         </div>
         <div className="bg-slate-50 p-4 rounded-lg">
@@ -213,52 +204,15 @@ export const AutoAssignmentStats = ({ autoAssignStats }) => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Assignment Status Distribution */}
-        <div>
-          <h3 className="text-sm font-medium mb-4">Assignment Status Distribution</h3>
-          {assignmentData.length > 0 ? (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={assignmentData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                  >
-                    {assignmentData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value) => [`${value} assignments`, 'Count']}
-                    contentStyle={{ borderRadius: '6px', border: '1px solid #e2e8f0' }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="h-64 flex items-center justify-center bg-slate-50 rounded-lg">
-              <p className="text-muted-foreground">No assignment data available</p>
-            </div>
-          )}
-        </div>
-        
         {/* Assignment Status Summary */}
         <div>
-          <h3 className="text-sm font-medium mb-4">Assignment Status</h3>
+          <h3 className="text-sm font-medium mb-4"> Process Unassigned Tasks - Jobs Status</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
               <div className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
                 <div>
-                  <div className="font-medium">Successful Assignments</div>
+                  <div className="font-medium">Successful Jobs</div>
                 </div>
               </div>
               <div className="text-xl font-bold">{autoAssignStats.successful}</div>
@@ -268,7 +222,7 @@ export const AutoAssignmentStats = ({ autoAssignStats }) => {
               <div className="flex items-center">
                 <XCircle className="w-5 h-5 text-red-500 mr-2" />
                 <div>
-                  <div className="font-medium">Failed Assignments</div>
+                  <div className="font-medium">Failed Jobs</div>
                 </div>
               </div>
               <div className="text-xl font-bold">{autoAssignStats.failed}</div>
@@ -285,47 +239,88 @@ export const AutoAssignmentStats = ({ autoAssignStats }) => {
             </div>
           </div>
         </div>
+        
+        {/* Assignment Status Distribution */}
+        <div>
+          <h3 className="text-sm font-medium mb-4">Job Status Distribution</h3>
+          <div className="h-64">
+            {autoAssignStats.totalAutoAssignments > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Successful', value: autoAssignStats.successful, color: '#10b981' },
+                      { name: 'Failed', value: autoAssignStats.failed, color: '#ef4444' },
+                      { name: 'Pending Approval', value: autoAssignStats.pendingApproval, color: '#60a5fa' }
+                    ].filter(item => item.value > 0)}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {[
+                      { name: 'Successful', value: autoAssignStats.successful, color: '#10b981' },
+                      { name: 'Failed', value: autoAssignStats.failed, color: '#ef4444' },
+                      { name: 'Pending Approval', value: autoAssignStats.pendingApproval, color: '#60a5fa' }
+                    ].filter(item => item.value > 0).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => [`${value} jobs`, 'Count']}
+                    contentStyle={{ borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center bg-slate-50 rounded-lg">
+                <p className="text-muted-foreground">No job distribution data to display</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       
       {/* Business-specific auto-assign stats */}
       <div>
         <h3 className="text-sm font-medium mb-4">Auto-Assignment by Business</h3>
-        {autoAssignStats.businessStats && autoAssignStats.businessStats.length > 0 ? (
-          <div className="overflow-hidden rounded-lg border">
-            <table className="w-full">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Business</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Total</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Successful</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Failed</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium">Pending</th>
+        <div className="overflow-hidden rounded-lg border">
+          <table className="w-full">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium">Business</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Total Jobs - Process Unassigned Tasks</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Successful</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Failed</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Pending</th>
+              </tr>
+            </thead>
+            <tbody>
+              {autoAssignStats.businessStats.map((business, index) => (
+                <tr key={index} className="border-t">
+                  <td className="px-4 py-3 text-sm">{business.businessName}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {business.enabled ? (
+                      <Badge className="bg-green-500 hover:bg-green-600">Enabled</Badge>
+                    ) : (
+                      <Badge variant="outline">Disabled</Badge>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm">{business.totalAssignments}</td>
+                  <td className="px-4 py-3 text-sm">{business.successful}</td>
+                  <td className="px-4 py-3 text-sm">{business.failed}</td>
+                  <td className="px-4 py-3 text-sm">{business.pendingApproval}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {autoAssignStats.businessStats.map((business, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="px-4 py-3 text-sm">{business.businessName}</td>
-                    <td className="px-4 py-3 text-sm">
-                      {business.enabled ? (
-                        <Badge className="bg-green-500 hover:bg-green-600">Enabled</Badge>
-                      ) : (
-                        <Badge variant="outline">Disabled</Badge>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-sm">{business.totalAssignments}</td>
-                    <td className="px-4 py-3 text-sm">{business.successful}</td>
-                    <td className="px-4 py-3 text-sm">{business.failed}</td>
-                    <td className="px-4 py-3 text-sm">{business.pendingApproval}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">No business-specific auto-assignment data available</div>
-        )}
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
