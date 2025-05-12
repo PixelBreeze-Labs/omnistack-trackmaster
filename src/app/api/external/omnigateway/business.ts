@@ -129,6 +129,17 @@ export const createBusinessApi = (apiKey: string) => {
       return data;
     },
 
+    syncTasksFromVenueBoost: async (businessId: string) => {
+      const { data } = await api.post(`/staffluent-integration/tasks/sync/${businessId}`);
+      return data;
+    },
+    
+    // Sync employees from VenueBoost
+    syncEmployeesFromVenueBoost: async (businessId: string) => {
+      const { data } = await api.post(`/staffluent-integration/employees/sync/${businessId}`);
+      return data;
+    },
+
     // Get business employees
     getBusinessEmployees: async (businessId: string, params = {}) => {
       const queryParams = new URLSearchParams();
