@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/pagination"
 
 import toast from 'react-hot-toast';
+import VenueBoostSyncSection from "./VenueBoostSyncSection";
 interface BusinessDetailsContentProps {
   businessId: string;
 }
@@ -396,7 +397,7 @@ useEffect(() => {
                           <CheckCircle className="h-5 w-5 text-muted-foreground shrink-0" />
                           <span className="font-medium">VenueBoost ID</span>
                         </div>
-                        <span className="ml-7 sm:ml-0 text-sm sm:text-base break-all">{business?.externalIds?.venueboostId} ?? "N/A"}</span>
+                        <span className="ml-7 sm:ml-0 text-sm sm:text-base break-all">{business?.externalIds?.venueboostId ?? "N/A"}</span>
                       </div>
                     
 
@@ -859,6 +860,11 @@ useEffect(() => {
               )}
             </CardContent>
           </Card>
+
+           {/* Add the VenueBoost Sync Section here */}
+  <div className="mt-6">
+    <VenueBoostSyncSection businessId={businessId} />
+  </div>
         </TabsContent>
       </Tabs>
 

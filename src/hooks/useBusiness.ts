@@ -210,6 +210,46 @@ export const useBusiness = () => {
   }
 }, [api, toast]);
 
+const syncTasksFromVenueBoost = useCallback(async (businessId: string) => {
+  if (!api) return null;
+  
+  try {
+    setIsLoading(true);
+    const response = await api.syncTasksFromVenueBoost(businessId);
+    if (response && response.success) {
+      toast.success(response.message || "Tasks synced successfully");
+    }
+    return response;
+  } catch (error) {
+    console.error("Error syncing tasks:", error);
+    toast.error(error.response?.data?.message || error.message || "Failed to sync tasks");
+    return null;
+  } finally {
+    setIsLoading(false);
+  }
+}, [api]);
+
+// Sync employees from VenueBoost
+const syncEmployeesFromVenueBoost = useCallback(async (businessId: string) => {
+  if (!api) return null;
+  
+  try {
+    setIsLoading(true);
+    const response = await api.syncEmployeesFromVenueBoost(businessId);
+    if (response && response.success) {
+      toast.success(response.message || "Employees synced successfully");
+    }
+    return response;
+  } catch (error) {
+    console.error("Error syncing employees:", error);
+    toast.error(error.response?.data?.message || error.message || "Failed to sync employees");
+    return null;
+  } finally {
+    setIsLoading(false);
+  }
+}, [api]);
+
+
   return {
     isLoading,
     businesses,
@@ -225,6 +265,8 @@ export const useBusiness = () => {
     softDeleteBusiness,
     sendMagicLink,
     getBusinessEmployees,
+    syncTasksFromVenueBoost,
+    syncEmployeesFromVenueBoost,
     updateBusiness,
     isInitialized: !!api
   };
