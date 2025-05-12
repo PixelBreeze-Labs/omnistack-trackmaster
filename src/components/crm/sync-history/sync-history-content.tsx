@@ -44,7 +44,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import InputSelect from "@/components/Common/InputSelect";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/new-tab";
 import { useSyncHistory } from "@/hooks/useSyncHistory";
 import { format, formatDistance } from "date-fns";
 import StatisticsOverviewCards from "./statistics-overview";
