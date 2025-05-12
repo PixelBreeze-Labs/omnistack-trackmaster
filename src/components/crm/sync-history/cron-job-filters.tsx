@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   Search,
-  RefreshCcw,
   Filter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
