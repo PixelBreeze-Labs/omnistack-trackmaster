@@ -47,6 +47,11 @@ import StatisticsOverviewCards from "./statistics-overview";
 import CronJobFilters from "./cron-job-filters";
 import { CronJobHistoryItem } from "@/app/api/external/omnigateway/types/cron-history";
 import BusinessStatsList from "./business-stats-list";
+import { 
+    TaskAssignmentTabContent,
+    EmployeeStatsTabContent, 
+    AutoAssignmentTabContent 
+  } from "./tab-content-components";
 
 export default function SyncHistoryContent() {
   const {
@@ -61,6 +66,9 @@ export default function SyncHistoryContent() {
     fetchTaskStats,
     fetchEmployeeStats,
     fetchAutoAssignStats,
+    taskStats,
+    employeeStats,
+    autoAssignStats,
     isInitialized
   } = useSyncHistory();
 
@@ -481,7 +489,7 @@ export default function SyncHistoryContent() {
 
         {/* Statistics Tab */}
         <TabsContent value="statistics" className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pl-2 pr-2">
             <h3 className="text-lg font-medium">System Performance Analytics</h3>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Time Period:</span>
@@ -609,58 +617,42 @@ export default function SyncHistoryContent() {
             </Card>
           </div>
           
-          {/* Additional Statistics Tabs */}
           <Tabs defaultValue="task" className="mt-6">
-            <TabsList>
-              <TabsTrigger value="task"><ClipboardList className="h-4 w-4 mr-2" /> Task Assignment</TabsTrigger>
-              <TabsTrigger value="employee"><Users className="h-4 w-4 mr-2" /> Employee Stats</TabsTrigger>
-              <TabsTrigger value="autoassign"><Bot className="h-4 w-4 mr-2" /> AI Auto-Assignment</TabsTrigger>
-            </TabsList>
-            
-            {/* Task Assignment Stats */}
-            <TabsContent value="task" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Task Assignment Statistics</CardTitle>
-                  <CardDescription>Distribution of task statuses across businesses</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {/* Content will be added in a separate component */}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            {/* Employee Stats */}
-            <TabsContent value="employee" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Employee Statistics</CardTitle>
-                  <CardDescription>Staff specializations and skill levels</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {/* Content will be added in a separate component */}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            {/* Auto-Assignment Stats */}
-            <TabsContent value="autoassign" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI Auto-Assignment Performance</CardTitle>
-                  <CardDescription>AI agent task assignment success metrics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {/* Content will be added in a separate component */}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+  <TabsList>
+    <TabsTrigger value="task"><ClipboardList className="h-4 w-4 mr-2" /> Task Assignment</TabsTrigger>
+    <TabsTrigger value="employee"><Users className="h-4 w-4 mr-2" /> Employee Stats</TabsTrigger>
+    <TabsTrigger value="autoassign"><Bot className="h-4 w-4 mr-2" /> AI Auto-Assignment</TabsTrigger>
+  </TabsList>
+  
+  {/* Task Assignment Stats */}
+  <TabsContent value="task" className="mt-4">
+    <TaskAssignmentTabContent 
+      taskStats={taskStats}
+      isLoading={isLoading}
+    />
+  </TabsContent>
+  
+  {/* Employee Stats */}
+  <TabsContent value="employee" className="mt-4">
+    <EmployeeStatsTabContent 
+      employeeStats={employeeStats}
+      isLoading={isLoading}
+    />
+  </TabsContent>
+  
+  {/* Auto-Assignment Stats */}
+  <TabsContent value="autoassign" className="mt-4">
+    <AutoAssignmentTabContent 
+      autoAssignStats={autoAssignStats}
+      isLoading={isLoading}
+    />
+  </TabsContent>
+</Tabs>
         </TabsContent>
       </Tabs>
 
       {/* Add bottom spacing */}
-      <div className="h-8"></div>
+      <div className="h-10"></div>
     </div>
   );
 }
