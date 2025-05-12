@@ -4,7 +4,6 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Zap,
   BarChart4
 } from "lucide-react";
 import {
