@@ -481,7 +481,7 @@ export default function SyncHistoryContent() {
 
         {/* Statistics Tab */}
         <TabsContent value="statistics" className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pl-2 pr-2">
             <h3 className="text-lg font-medium">System Performance Analytics</h3>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Time Period:</span>
@@ -660,7 +660,7 @@ export default function SyncHistoryContent() {
       </Tabs>
 
       {/* Add bottom spacing */}
-      <div className="h-8"></div>
+      <div className="h-10"></div>
     </div>
   );
 }
