@@ -145,6 +145,8 @@ export default function Sidebar({
     || pathname.includes('/settings')
     || pathname.includes('/users')
     || pathname.includes('/sync-history')
+    || pathname.includes('/chatbot')
+    || pathname.includes('/knowledge')
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = 
