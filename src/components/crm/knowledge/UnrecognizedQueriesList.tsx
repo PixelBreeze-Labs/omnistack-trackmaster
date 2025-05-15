@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -88,12 +87,35 @@ export default function UnrecognizedQueriesList() {
   // Business types (these could be fetched from an API)
   const businessTypes = [
     { value: "all", label: "All Business Types" },
-    { value: "restaurant", label: "Restaurant" },
-    { value: "retail", label: "Retail" },
-    { value: "healthcare", label: "Healthcare" },
-    { value: "professional", label: "Professional Services" },
-    { value: "manufacturing", label: "Manufacturing" },
+    // Companies
+    { value: "corporation", label: "Corporation" },
+    { value: "private_company", label: "Private Company" },
+    { value: "public_company", label: "Public Company" },
+    { value: "llc", label: "LLC" },
+    // Partnerships
+    { value: "partnership", label: "Partnership" },
+    { value: "limited_partnership", label: "Limited Partnership" },
+    { value: "general_partnership", label: "General Partnership" },
+    // Individual Ownership
+    { value: "sole_proprietorship", label: "Sole Proprietorship" },
+    { value: "solo_ownership", label: "Solo Ownership" },
+    { value: "freelancer", label: "Freelancer" },
+    // Special Types
+    { value: "startup", label: "Startup" },
+    { value: "nonprofit", label: "Nonprofit" },
+    { value: "cooperative", label: "Cooperative" },
+    // Regional Types
+    { value: "plc", label: "PLC (Public Limited Company)" },
+    { value: "ltd", label: "LTD (Limited Company)" },
+    { value: "gmbh", label: "GmbH (German Company)" },
+    { value: "sarl", label: "SARL (French Company)" },
+    // Other Categories
+    { value: "franchise", label: "Franchise" },
+    { value: "family_business", label: "Family Business" },
+    { value: "joint_venture", label: "Joint Venture" },
+    { value: "other", label: "Other" }
   ];
+
 
   // Document types
   const documentTypes = [
@@ -425,15 +447,15 @@ export default function UnrecognizedQueriesList() {
 
       {/* Response Dialog */}
       <Dialog open={isResponseDialogOpen} onOpenChange={setIsResponseDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+          <DialogHeader className="shrink-0">
             <DialogTitle>Respond to Query</DialogTitle>
             <DialogDescription>
               Provide a response to the user's query and optionally create a knowledge document
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto space-y-4 px-1">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
             <div className="p-4 bg-muted rounded-md">
               <h4 className="font-medium mb-1">Original Query:</h4>
               <p className="break-words">{selectedQuery?.message || selectedQuery?.query}</p>
@@ -564,7 +586,7 @@ export default function UnrecognizedQueriesList() {
             )}
           </div>
 
-          <DialogFooter className="border-t pt-4">
+          <DialogFooter className="shrink-0 border-t pt-4 mt-4">
             <Button variant="outline" onClick={() => setIsResponseDialogOpen(false)}>
               Cancel
             </Button>
