@@ -27,9 +27,9 @@ export const useKnowledge = () => {
       setDocuments(response.items || response);
       
       // Handle pagination metadata if available
-      if (response.meta) {
-        setTotalItems(response.meta.total || 0);
-        setTotalPages(response.meta.pages || 0);
+      if (response) {
+        setTotalItems(response.total || 0);
+        setTotalPages(response.pages || 0);
       }
       
       return response;
