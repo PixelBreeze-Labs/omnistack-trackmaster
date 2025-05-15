@@ -434,6 +434,20 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
               icon: <XCircle className="w-4 h-4"/>
             }
           ]
+        },
+        {
+          id: 5,
+          title: "ChatBot",
+          path: `/crm/platform/chatbot`,
+          icon: <MessageSquare className="w-4 h-4"/>,
+          children: [
+            {
+              id: "5-1",
+              title: "Knowledge Base",
+              path: `/crm/platform/knowledge`,
+              icon: <BookOpen className="w-4 h-4"/>
+            }
+          ]
         }
       ],
       products: [
