@@ -74,19 +74,19 @@ export default function KnowledgeBaseContent() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="documents" className="mt-6">
+        <TabsContent value="documents" className="mt-2">
           <KnowledgeDocumentsList />
         </TabsContent>
 
-        <TabsContent value="queries" className="mt-6">
+        <TabsContent value="queries" className="mt-2">
           <QueryResponsesList />
         </TabsContent>
 
-        <TabsContent value="unrecognized" className="mt-6">
+        <TabsContent value="unrecognized" className="mt-2">
           <UnrecognizedQueriesList />
         </TabsContent>
 
-        <TabsContent value="statistics" className="mt-6">
+        <TabsContent value="statistics" className="mt-2">
           <KnowledgeBaseStatistics />
         </TabsContent>
       </Tabs>
