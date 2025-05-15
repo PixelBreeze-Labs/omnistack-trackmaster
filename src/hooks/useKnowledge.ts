@@ -24,7 +24,7 @@ export const useKnowledge = () => {
     try {
       setIsLoading(true);
       const response = await api.getDocuments(params);
-      setDocuments(response.data || response);
+      setDocuments(response.items || response);
       
       // Handle pagination metadata if available
       if (response.meta) {
@@ -125,7 +125,7 @@ export const useKnowledge = () => {
     try {
       setIsLoading(true);
       const response = await api.getUnrecognizedQueries(params);
-      setUnrecognizedQueries(response.data || response);
+      setUnrecognizedQueries(response.queries || response);
       
       // Handle pagination metadata if available
       if (response.meta) {
@@ -164,7 +164,7 @@ export const useKnowledge = () => {
     try {
       setIsLoading(true);
       const response = await api.getQueryResponses(params);
-      setQueryResponses(response.data || response);
+      setQueryResponses(response.items || response);
       
       // Handle pagination metadata if available
       if (response.meta) {
