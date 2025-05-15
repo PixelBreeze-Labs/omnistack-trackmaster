@@ -36,6 +36,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+  } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -83,6 +93,9 @@ export default function KnowledgeDocumentsList() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -265,22 +278,59 @@ export default function KnowledgeDocumentsList() {
   };
 
   const handleDeleteDocument = async (documentId) => {
-    if (window.confirm("Are you sure you want to delete this document?")) {
-      try {
+    setDocumentToDelete(documentId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteDocument = async () => {
+    if (!documentToDelete) return;
+    
+    try {
+      await deleteDocument(documentToDelete);
+      toast.success("Document deleted successfully");
+      setShowDeleteConfirm(false);
+      setDocumentToDelete(null);
+      
+      // Refresh the list
+      fetchDocuments({
+        page,
+        limit: pageSize,
+        search: searchTerm || undefined,
+        categories: categoryFilter !== "all" ? [categoryFilter] : undefined,
+        type: typeFilter !== "all" ? typeFilter : undefined,
+      });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast.error("Failed to delete document");
+    }
+  };
+
+  // Bulk delete selected documents
+  const handleBulkDelete = async () => {
+    if (selectedDocuments.length === 0) return;
+    setShowBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    try {
+      for (const documentId of selectedDocuments) {
         await deleteDocument(documentId);
-        toast.success("Document deleted successfully");
-        // Refresh the list
-        fetchDocuments({
-          page,
-          limit: pageSize,
-          search: searchTerm || undefined,
-          categories: categoryFilter !== "all" ? [categoryFilter] : undefined,
-          type: typeFilter !== "all" ? typeFilter : undefined,
-        });
-      } catch (error) {
-        console.error("Error deleting document:", error);
-        toast.error("Failed to delete document");
       }
+      setSelectedDocuments([]);
+      toast.success("Selected documents deleted successfully");
+      setShowBulkDeleteConfirm(false);
+      
+      // Refresh the list
+      fetchDocuments({
+        page,
+        limit: pageSize,
+        search: searchTerm || undefined,
+        categories: categoryFilter !== "all" ? [categoryFilter] : undefined,
+        type: typeFilter !== "all" ? typeFilter : undefined,
+      });
+    } catch (error) {
+      console.error("Error during bulk delete:", error);
+      toast.error("Failed to delete some documents");
     }
   };
 
@@ -351,37 +401,7 @@ export default function KnowledgeDocumentsList() {
     }
   };
 
-  // Bulk delete selected documents
-  const handleBulkDelete = async () => {
-    if (
-      selectedDocuments.length === 0 ||
-      !window.confirm(
-        `Are you sure you want to delete ${selectedDocuments.length} documents?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      for (const documentId of selectedDocuments) {
-        await deleteDocument(documentId);
-      }
-      setSelectedDocuments([]);
-      toast.success("Selected documents deleted successfully");
-      
-      // Refresh the list
-      fetchDocuments({
-        page,
-        limit: pageSize,
-        search: searchTerm || undefined,
-        categories: categoryFilter !== "all" ? [categoryFilter] : undefined,
-        type: typeFilter !== "all" ? typeFilter : undefined,
-      });
-    } catch (error) {
-      console.error("Error during bulk delete:", error);
-      toast.error("Failed to delete some documents");
-    }
-  };
+ 
 
   // Document form modal
   const renderDocumentModal = (isEdit = false) => (
@@ -570,8 +590,10 @@ export default function KnowledgeDocumentsList() {
             </Button>
           </div>
 
-          {/* Actions for selected documents */}
-          {selectedDocuments.length > 0 && (
+          
+
+{/* Actions for selected documents */}
+{selectedDocuments.length > 0 && (
             <div className="bg-muted p-2 rounded-md flex items-center justify-between mb-4">
               <span className="text-sm">
                 {selectedDocuments.length} documents selected
@@ -908,6 +930,49 @@ export default function KnowledgeDocumentsList() {
 
       {/* Edit Document Modal */}
       {renderDocumentModal(true)}
+
+      {/* Delete Confirmation Modal */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this document? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteDocument}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Multiple Documents</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedDocuments.length} document{selectedDocuments.length > 1 ? 's' : ''}? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBulkDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete {selectedDocuments.length} Document{selectedDocuments.length > 1 ? 's' : ''}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
