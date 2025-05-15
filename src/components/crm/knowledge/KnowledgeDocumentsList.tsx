@@ -179,10 +179,10 @@ export default function KnowledgeDocumentsList() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Filters */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-1">
           <CardTitle>Knowledge Documents</CardTitle>
           <CardDescription>
             Create and manage knowledge base documents
