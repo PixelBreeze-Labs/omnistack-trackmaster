@@ -48,6 +48,9 @@ import {
   FileText,
   Clock,
   Calendar,
+  MessageCircle,
+  User,
+  Hash,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useKnowledge } from "@/hooks/useKnowledge";
@@ -59,6 +62,7 @@ export default function UnrecognizedQueriesList() {
     isLoading,
     unrecognizedQueries,
     totalItems,
+    total, // Added total from API
     totalPages,
     fetchUnrecognizedQueries,
     respondToQuery,
@@ -83,12 +87,35 @@ export default function UnrecognizedQueriesList() {
   // Business types (these could be fetched from an API)
   const businessTypes = [
     { value: "all", label: "All Business Types" },
-    { value: "restaurant", label: "Restaurant" },
-    { value: "retail", label: "Retail" },
-    { value: "healthcare", label: "Healthcare" },
-    { value: "professional", label: "Professional Services" },
-    { value: "manufacturing", label: "Manufacturing" },
+    // Companies
+    { value: "corporation", label: "Corporation" },
+    { value: "private_company", label: "Private Company" },
+    { value: "public_company", label: "Public Company" },
+    { value: "llc", label: "LLC" },
+    // Partnerships
+    { value: "partnership", label: "Partnership" },
+    { value: "limited_partnership", label: "Limited Partnership" },
+    { value: "general_partnership", label: "General Partnership" },
+    // Individual Ownership
+    { value: "sole_proprietorship", label: "Sole Proprietorship" },
+    { value: "solo_ownership", label: "Solo Ownership" },
+    { value: "freelancer", label: "Freelancer" },
+    // Special Types
+    { value: "startup", label: "Startup" },
+    { value: "nonprofit", label: "Nonprofit" },
+    { value: "cooperative", label: "Cooperative" },
+    // Regional Types
+    { value: "plc", label: "PLC (Public Limited Company)" },
+    { value: "ltd", label: "LTD (Limited Company)" },
+    { value: "gmbh", label: "GmbH (German Company)" },
+    { value: "sarl", label: "SARL (French Company)" },
+    // Other Categories
+    { value: "franchise", label: "Franchise" },
+    { value: "family_business", label: "Family Business" },
+    { value: "joint_venture", label: "Joint Venture" },
+    { value: "other", label: "Other" }
   ];
+
 
   // Document types
   const documentTypes = [
@@ -107,6 +134,11 @@ export default function UnrecognizedQueriesList() {
     { value: "support", label: "Support" },
   ];
 
+  // Get total count from API response
+  const getTotalItems = () => {
+    return total || totalItems || 0;
+  };
+
   // Load unrecognized queries when component mounts
   useEffect(() => {
     if (isInitialized) {
@@ -121,6 +153,7 @@ export default function UnrecognizedQueriesList() {
   // Reset filters
   const handleResetFilters = () => {
     setBusinessTypeFilter("all");
+    setPage(1);
   };
 
   // Format date
@@ -138,7 +171,7 @@ export default function UnrecognizedQueriesList() {
     setSelectedQuery(query);
     setResponseText("");
     setCreateDocument(false);
-    setDocumentTitle(query.query);
+    setDocumentTitle(query.message || query.query);
     setDocumentType("article");
     setDocumentCategories(["general"]);
     setIsResponseDialogOpen(true);
@@ -230,90 +263,123 @@ export default function UnrecognizedQueriesList() {
 
           {/* Unrecognized Queries Table */}
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Query</TableHead>
-                  <TableHead>Business Type</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Frequency</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      <RefreshCcw className="h-8 w-8 animate-spin mx-auto" />
-                    </TableCell>
+                    <TableHead className="min-w-[300px]">Query</TableHead>
+                    <TableHead className="min-w-[150px]">Business Type</TableHead>
+                    <TableHead className="min-w-[120px]">User ID</TableHead>
+                    <TableHead className="min-w-[120px]">Status</TableHead>
+                    <TableHead className="min-w-[100px]">Date</TableHead>
+                    <TableHead className="min-w-[80px]">Frequency</TableHead>
+                    <TableHead className="min-w-[100px] text-right">Actions</TableHead>
                   </TableRow>
-                ) : unrecognizedQueries.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      <div className="flex flex-col items-center">
-                        <AlertCircle className="h-12 w-12 text-muted-foreground" />
-                        <h3 className="mt-4 text-lg font-medium">
-                          No unrecognized queries found
-                        </h3>
-                        <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-                          All user queries are being handled by the knowledge base.
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  unrecognizedQueries.map((query) => (
-                    <TableRow key={query._id}>
-                      <TableCell>
-                        <div className="font-medium">{query.query}</div>
-                        <div className="text-sm text-muted-foreground">
-                          From user: {query.userId || "Anonymous"}
-                        </div>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <RefreshCcw className="h-8 w-8 animate-spin mx-auto" />
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {query.businessType || "Not specified"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3" />
-                          <span>{formatDate(query.createdAt)}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                          <Clock className="h-3 w-3" />
-                          <span>{formatTime(query.createdAt)}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {query.frequency || 1} {query.frequency === 1 ? "time" : "times"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex justify-end">
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            onClick={() => handleRespond(query)}
-                          >
-                            <Reply className="mr-2 h-4 w-4" />
-                            Respond
-                          </Button>
+                    </TableRow>
+                  ) : unrecognizedQueries.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <div className="flex flex-col items-center">
+                          <AlertCircle className="h-12 w-12 text-muted-foreground" />
+                          <h3 className="mt-4 text-lg font-medium">
+                            No unrecognized queries found
+                          </h3>
+                          <p className="mt-2 text-sm text-muted-foreground max-w-sm">
+                            All user queries are being handled by the knowledge base.
+                          </p>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ) : (
+                    unrecognizedQueries.map((query) => (
+                      <TableRow key={query._id}>
+                        <TableCell className="min-w-[300px]">
+                          <div className="space-y-1">
+                            <div className="font-medium">{query.message || query.query}</div>
+                            <div className="text-sm text-muted-foreground flex items-center">
+                              <MessageCircle className="h-3 w-3 mr-1" />
+                              Messages: {query.context?.sessionData?.messageCount || 'N/A'}
+                            </div>
+                            {query.context?.currentView && (
+                              <div className="text-xs text-muted-foreground">
+                                Current view: {query.context.currentView}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="min-w-[150px]">
+                          <Badge variant="outline">
+                            {query.businessType || "Not specified"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <div className="flex items-center gap-1 text-sm">
+                            <User className="h-3 w-3" />
+                            <span className="truncate" title={query.userId}>
+                              {query.userId ? query.userId.slice(-8) : "Anonymous"}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {query.clientId ? `Client: ${query.clientId.slice(-6)}` : "No client"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <Badge variant={query.status === "pending" ? "destructive" : "success"}>
+                            {query.status}
+                          </Badge>
+                          {query.resolved !== undefined && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {query.resolved ? "Resolved" : "Unresolved"}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="min-w-[100px]">
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="h-3 w-3" />
+                            <span>{formatDate(query.createdAt)}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{formatTime(query.createdAt)}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="min-w-[80px]">
+                          <Badge variant="secondary">
+                            {query.frequency || 1} {query.frequency === 1 ? "time" : "times"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="min-w-[100px]">
+                          <div className="flex justify-end">
+                            <Button 
+                              variant="default" 
+                              size="sm"
+                              onClick={() => handleRespond(query)}
+                            >
+                              <Reply className="mr-2 h-4 w-4" />
+                              Respond
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
 
             {/* Pagination */}
             {unrecognizedQueries.length > 0 && (
               <div className="flex items-center justify-between px-4 py-4 border-t">
                 <div className="flex-1 text-sm text-muted-foreground">
                   Showing <strong>{unrecognizedQueries.length}</strong> of{" "}
-                  <strong>{totalItems}</strong> unrecognized queries
+                  <strong>{getTotalItems()}</strong> unrecognized queries
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-32">
@@ -321,7 +387,10 @@ export default function UnrecognizedQueriesList() {
                       name="pageSize"
                       label=""
                       value={pageSize.toString()}
-                      onChange={(e) => setPageSize(parseInt(e.target.value))}
+                      onChange={(e) => {
+                        setPageSize(parseInt(e.target.value));
+                        setPage(1); // Reset to first page when changing page size
+                      }}
                       options={[
                         { value: "10", label: "10 per page" },
                         { value: "20", label: "20 per page" },
@@ -335,21 +404,23 @@ export default function UnrecognizedQueriesList() {
                       <PaginationItem>
                         <PaginationPrevious 
                           onClick={() => setPage(Math.max(1, page - 1))}
-                          disabled={page === 1}
+                          className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                       
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      {Array.from({ length: Math.min(5, Math.ceil(getTotalItems() / pageSize)) }, (_, i) => {
+                        const totalPagesCount = Math.ceil(getTotalItems() / pageSize);
                         const pageNumber = page <= 3 
                           ? i + 1 
                           : page - 2 + i;
                           
-                        if (pageNumber <= totalPages) {
+                        if (pageNumber <= totalPagesCount && pageNumber > 0) {
                           return (
                             <PaginationItem key={pageNumber}>
                               <PaginationLink
                                 isActive={page === pageNumber}
                                 onClick={() => setPage(pageNumber)}
+                                className="cursor-pointer"
                               >
                                 {pageNumber}
                               </PaginationLink>
@@ -361,8 +432,8 @@ export default function UnrecognizedQueriesList() {
                       
                       <PaginationItem>
                         <PaginationNext 
-                          onClick={() => setPage(Math.min(totalPages, page + 1))}
-                          disabled={page === totalPages}
+                          onClick={() => setPage(Math.min(Math.ceil(getTotalItems() / pageSize), page + 1))}
+                          className={page >= Math.ceil(getTotalItems() / pageSize) ? "pointer-events-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                     </PaginationContent>
@@ -376,25 +447,57 @@ export default function UnrecognizedQueriesList() {
 
       {/* Response Dialog */}
       <Dialog open={isResponseDialogOpen} onOpenChange={setIsResponseDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+          <DialogHeader className="shrink-0">
             <DialogTitle>Respond to Query</DialogTitle>
             <DialogDescription>
               Provide a response to the user's query and optionally create a knowledge document
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 my-4">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
             <div className="p-4 bg-muted rounded-md">
               <h4 className="font-medium mb-1">Original Query:</h4>
-              <p>{selectedQuery?.query}</p>
-              <div className="flex items-center text-sm text-muted-foreground mt-2">
-                <Calendar className="h-3 w-3 mr-1" />
-                {selectedQuery?.createdAt && formatDate(selectedQuery.createdAt)}
-                <Clock className="h-3 w-3 mx-1 ml-3" />
-                {selectedQuery?.createdAt && formatTime(selectedQuery.createdAt)}
+              <p className="break-words">{selectedQuery?.message || selectedQuery?.query}</p>
+              <div className="flex items-center text-sm text-muted-foreground mt-2 gap-4">
+                <div className="flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {selectedQuery?.createdAt && formatDate(selectedQuery.createdAt)}
+                </div>
+                <div className="flex items-center">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {selectedQuery?.createdAt && formatTime(selectedQuery.createdAt)}
+                </div>
+                <div className="flex items-center">
+                  <User className="h-3 w-3 mr-1" />
+                  User: {selectedQuery?.userId ? selectedQuery.userId.slice(-8) : "Anonymous"}
+                </div>
               </div>
+              {selectedQuery?.context?.currentView && (
+                <div className="text-sm text-muted-foreground mt-1">
+                  Current view: {selectedQuery.context.currentView}
+                </div>
+              )}
             </div>
+
+            {/* Show conversation history if available */}
+            {selectedQuery?.context?.conversationHistory && selectedQuery.context.conversationHistory.length > 0 && (
+              <div className="p-4 bg-slate-50 rounded-md">
+                <h4 className="font-medium mb-2">Recent Conversation:</h4>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {selectedQuery.context.conversationHistory.map((msg, index) => (
+                    <div key={index} className={`text-sm p-2 rounded ${
+                      msg.sender === 'bot' ? 'bg-blue-50 border-l-2 border-blue-200' : 'bg-gray-50 border-l-2 border-gray-200'
+                    }`}>
+                      <div className="font-medium text-xs text-muted-foreground mb-1">
+                        {msg.sender === 'bot' ? 'Bot' : 'User'}:
+                      </div>
+                      <div className="break-words">{msg.content}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <Label htmlFor="response">Response</Label>
@@ -427,7 +530,7 @@ export default function UnrecognizedQueriesList() {
             </div>
 
             {createDocument && (
-              <div className="space-y-4 bg-slate-50 p-4 rounded-md mt-4">
+              <div className="space-y-4 bg-slate-50 p-4 rounded-md">
                 <div className="flex items-center">
                   <FileText className="h-5 w-5 mr-2 text-blue-600" />
                   <h4 className="font-medium">Knowledge Document Details</h4>
@@ -483,7 +586,7 @@ export default function UnrecognizedQueriesList() {
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t pt-4 mt-4">
             <Button variant="outline" onClick={() => setIsResponseDialogOpen(false)}>
               Cancel
             </Button>

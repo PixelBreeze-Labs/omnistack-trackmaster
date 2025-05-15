@@ -26,9 +26,7 @@ export default function KnowledgeBaseContent() {
   const [activeTab, setActiveTab] = useState("documents");
   const router = useRouter();
 
-  const handleNewDocument = () => {
-    router.push("/crm/platform/knowledge/documents/new");
-  };
+;
 
   const handleNewQueryResponse = () => {
     router.push("/crm/platform/knowledge/query-responses/new");
@@ -44,12 +42,6 @@ export default function KnowledgeBaseContent() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {activeTab === "documents" && (
-            <Button onClick={handleNewDocument}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Document
-            </Button>
-          )}
           {activeTab === "queries" && (
             <Button onClick={handleNewQueryResponse}>
               <Plus className="mr-2 h-4 w-4" />
@@ -82,19 +74,19 @@ export default function KnowledgeBaseContent() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="documents" className="mt-6">
+        <TabsContent value="documents" className="mt-2">
           <KnowledgeDocumentsList />
         </TabsContent>
 
-        <TabsContent value="queries" className="mt-6">
+        <TabsContent value="queries" className="mt-2">
           <QueryResponsesList />
         </TabsContent>
 
-        <TabsContent value="unrecognized" className="mt-6">
+        <TabsContent value="unrecognized" className="mt-2">
           <UnrecognizedQueriesList />
         </TabsContent>
 
-        <TabsContent value="statistics" className="mt-6">
+        <TabsContent value="statistics" className="mt-2">
           <KnowledgeBaseStatistics />
         </TabsContent>
       </Tabs>
