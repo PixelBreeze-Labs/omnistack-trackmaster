@@ -13,27 +13,27 @@ export const createKnowledgeApi = (apiKey: string) => {
       categories?: string[];
       type?: string;
     }) => {
-      const { data } = await api.get('/documents', { params });
+      const { data } = await api.get('/knowledge-base/documents', { params });
       return data;
     },
 
     getDocumentById: async (id: string) => {
-      const { data } = await api.get(`/documents/${id}`);
+      const { data } = await api.get(`/knowledge-base/documents/${id}`);
       return data;
     },
 
     createDocument: async (documentData: any) => {
-      const { data } = await api.post('/documents', documentData);
+      const { data } = await api.post('/knowledge-base/documents', documentData);
       return data;
     },
 
     updateDocument: async (id: string, documentData: any) => {
-      const { data } = await api.put(`/documents/${id}`, documentData);
+      const { data } = await api.put(`/knowledge-base/documents/${id}`, documentData);
       return data;
     },
 
     deleteDocument: async (id: string) => {
-      const { data } = await api.delete(`/documents/${id}`);
+      const { data } = await api.delete(`/knowledge-base/documents/${id}`);
       return data;
     },
 
@@ -45,7 +45,7 @@ export const createKnowledgeApi = (apiKey: string) => {
       categories?: string[];
       limit?: number;
     }) => {
-      const { data } = await api.get('/search', { params });
+      const { data } = await api.get('/knowledge-base/search', { params });
       return data;
     },
 
@@ -55,7 +55,7 @@ export const createKnowledgeApi = (apiKey: string) => {
       page?: number;
       businessType?: string;
     }) => {
-      const { data } = await api.get('/unrecognized-queries', { params });
+      const { data } = await api.get('/knowledge-base/unrecognized-queries', { params });
       return data;
     },
 
@@ -67,7 +67,7 @@ export const createKnowledgeApi = (apiKey: string) => {
         knowledgeDocData?: any;
       }
     ) => {
-      const { data } = await api.post(`/unrecognized-queries/${id}/respond`, responseData);
+      const { data } = await api.post(`/knowledge-base/unrecognized-queries/${id}/respond`, responseData);
       return data;
     },
 
@@ -80,33 +80,33 @@ export const createKnowledgeApi = (apiKey: string) => {
       sortBy?: string;
       sortDirection?: 'asc' | 'desc';
     }) => {
-      const { data } = await api.get('/query-responses', { params });
+      const { data } = await api.get('/knowledge-base/query-responses', { params });
       return data;
     },
 
     getQueryResponseById: async (id: string) => {
-      const { data } = await api.get(`/query-responses/${id}`);
+      const { data } = await api.get(`/knowledge-base/query-responses/${id}`);
       return data;
     },
 
     createQueryResponse: async (queryResponseData: any) => {
-      const { data } = await api.post('/query-responses', queryResponseData);
+      const { data } = await api.post('/knowledge-base/query-responses', queryResponseData);
       return data;
     },
 
     updateQueryResponse: async (id: string, queryResponseData: any) => {
-      const { data } = await api.put(`/query-responses/${id}`, queryResponseData);
+      const { data } = await api.put(`/knowledge-base/query-responses/${id}`, queryResponseData);
       return data;
     },
 
     deleteQueryResponse: async (id: string) => {
-      const { data } = await api.delete(`/query-responses/${id}`);
+      const { data } = await api.delete(`/knowledge-base/query-responses/${id}`);
       return data;
     },
 
     // Feedback
     submitFeedback: async (id: string, feedbackData: { helpful: boolean; comment?: string }) => {
-      const { data } = await api.post(`/feedback/${id}`, feedbackData);
+      const { data } = await api.post(`/knowledge-base/feedback/${id}`, feedbackData);
       return data;
     },
 
@@ -114,7 +114,7 @@ export const createKnowledgeApi = (apiKey: string) => {
     getQueryResponseStatistics: async (params?: {
       timeframe?: 'day' | 'week' | 'month' | 'year';
     }) => {
-      const { data } = await api.get('/query-responses/statistics', { params });
+      const { data } = await api.get('/knowledge-base/query-responses/statistics', { params });
       return data;
     }
   };
