@@ -397,7 +397,7 @@ useEffect(() => {
                           <CheckCircle className="h-5 w-5 text-muted-foreground shrink-0" />
                           <span className="font-medium">VenueBoost ID</span>
                         </div>
-                        <span className="ml-7 sm:ml-0 text-sm sm:text-base break-all">{business?.externalIds?.venueboostId ?? "N/A"}</span>
+                        <span className="ml-7 sm:ml-0 text-sm sm:text-base break-all">{business?.externalIds?.venueBoostId ?? "N/A"}</span>
                       </div>
                     
 
