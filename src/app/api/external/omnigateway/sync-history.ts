@@ -6,7 +6,8 @@ import {
   TaskStats,
   EmployeeStats,
   AutoAssignStats,
-  BusinessDetailsResponse
+  BusinessDetailsResponse,
+  WeatherMonitoringStats
 } from './types/cron-history';
 
 export const createSyncHistoryApi = (apiKey: string) => {
@@ -82,6 +83,19 @@ export const createSyncHistoryApi = (apiKey: string) => {
       
       const { data } = await api.get(endpoint);
       return data;
+    },
+
+    getWeatherMonitoringStats: async (days?: number): Promise<WeatherMonitoringStats> => {
+      const queryParams = new URLSearchParams();
+      if (days) queryParams.append('days', days.toString());
+      
+      const queryString = queryParams.toString();
+      const endpoint = `/staffluent-superadmin/weather-monitoring${queryString ? `?${queryString}` : ''}`;
+      
+      const { data } = await api.get(endpoint);
+      return data;
     }
   };
+
+  
 };
