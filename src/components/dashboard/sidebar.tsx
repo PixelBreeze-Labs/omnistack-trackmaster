@@ -147,6 +147,8 @@ export default function Sidebar({
     || pathname.includes('/sync-history')
     || pathname.includes('/chatbot')
     || pathname.includes('/knowledge')
+    || pathname.includes('/weather-monitoring')
+    || pathname.includes('/intelligence-hub')
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = 

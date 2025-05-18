@@ -10,7 +10,9 @@ import {
   Clock,
   Bot,
   Users,
-  ClipboardList
+  ClipboardList,
+  Cloud,
+  Link
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -230,9 +232,15 @@ export default function SyncHistoryContent() {
             Monitor system sync operations, task assignments, and automation statistics
           </p>
         </div>
+        <div className="flex items-center gap-2">
         <Button onClick={refreshData} variant="outline">
           <RefreshCcw className="mr-2 h-4 w-4" /> Refresh
         </Button>
+        <Button onClick={() => window.open("/crm/platform/weather-monitoring", "_self")} variant="secondary">
+          <Cloud className="mr-2 h-4 w-4" /> Weather Monitoring
+        </Button>
+        </div>
+        
       </div>
 
       <Tabs 

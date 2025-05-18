@@ -139,3 +139,43 @@ export interface CronJobHistoryItem {
       };
     };
   }
+
+  export interface WeatherBusinessStats {
+    businessId: string;
+    businessName: string;
+    weatherEnabled: boolean;
+    totalJobs: number;
+    successful: number;
+    failed: number;
+    alertCount: number;
+    lastRunStatus: string | null;
+    lastRunDate: string | null;
+  }
+  
+  export interface WeatherJobDetails {
+    id: string;
+    jobName: string;
+    startTime: string;
+    endTime: string;
+    duration: number;
+    status: string;
+    totalBusinesses: number;
+    processedBusinesses: number;
+    failedBusinesses: number;
+    totalAlerts: number;
+    error?: string;
+  }
+  
+  export interface WeatherMonitoringStats {
+    stats: {
+      totalJobs: number;
+      successful: number;
+      failed: number;
+      avgDuration: number;
+      totalAlerts: number;
+      businessesWithAlerts: number;
+      businessesWithWeatherEnabled: number;
+    };
+    businessStats: WeatherBusinessStats[];
+    recentJobs: WeatherJobDetails[];
+  }
