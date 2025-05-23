@@ -289,7 +289,7 @@ useEffect(() => {
       {/* Main content */}
       <Tabs defaultValue="overview" className="w-full" onValueChange={handleTabChange} value={activeTab} >
         {/* Responsive Tabs */}
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
           <TabsTrigger value="subscription" className="text-xs sm:text-sm">Subscription</TabsTrigger>
           <TabsTrigger value="employees" className="text-xs sm:text-sm">Employees</TabsTrigger>
@@ -801,7 +801,7 @@ useEffect(() => {
             <h3 className="font-medium text-amber-800 dark:text-amber-200 text-sm">
               Data Tracking Notice
             </h3>
-            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+            <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
               This onboarding data is collected for basic tracking and analytics purposes only. 
               The actual onboarding logic and user experience is controlled by localStorage on the business device. 
               This server-side data should be considered supplementary and may not always reflect the real-time state of the user's onboarding progress.
@@ -820,7 +820,7 @@ useEffect(() => {
               <Clock className="h-5 w-5" />
               Interactive Walkthrough
             </CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
+            <CardDescription className="text-sm sm:text-sm">
               Guided tour through the application features
             </CardDescription>
           </div>
@@ -853,25 +853,25 @@ useEffect(() => {
                 <div className="text-2xl font-bold text-blue-600">
                   {business.onboarding.walkthrough.currentStep || 0}
                 </div>
-                <div className="text-xs text-muted-foreground">Current Step</div>
+                <div className="text-sm text-muted-foreground">Current Step</div>
               </div>
               <div className="text-center sm:text-left">
                 <div className="text-2xl font-bold text-green-600">
                   {business.onboarding.walkthrough.progressPercentage || 0}%
                 </div>
-                <div className="text-xs text-muted-foreground">Progress</div>
+                <div className="text-sm text-muted-foreground">Progress</div>
               </div>
               <div className="text-center sm:text-left">
                 <div className="text-2xl font-bold text-purple-600">
                   {business.onboarding.walkthrough.completionCount || 0}
                 </div>
-                <div className="text-xs text-muted-foreground">Completion Count</div>
+                <div className="text-sm text-muted-foreground">Completion Count</div>
               </div>
             </div>
 
             {/* Progress Bar */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>Progress</span>
                 <span>{business.onboarding.walkthrough.progressPercentage || 0}%</span>
               </div>
@@ -884,7 +884,7 @@ useEffect(() => {
             </div>
 
             {/* Timing Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               {business.onboarding.walkthrough.startedAt && (
                 <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                   <span className="font-medium">Started:</span>
@@ -922,20 +922,20 @@ useEffect(() => {
             {/* Device Information */}
             {(business.onboarding.walkthrough.deviceType || business.onboarding.walkthrough.isPWA !== undefined) && (
               <div className="border-t pt-3 mt-3">
-                <div className="text-xs text-muted-foreground mb-2">Device Information</div>
+                <div className="text-sm text-muted-foreground mb-2">Device Information</div>
                 <div className="flex flex-wrap gap-2">
                   {business.onboarding.walkthrough.deviceType && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-sm">
                       {business.onboarding.walkthrough.deviceType}
                     </Badge>
                   )}
                   {business.onboarding.walkthrough.isPWA && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-sm">
                       PWA
                     </Badge>
                   )}
                   {business.onboarding.walkthrough.isFirstTime && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-sm">
                       First Time User
                     </Badge>
                   )}
@@ -947,7 +947,7 @@ useEffect(() => {
           <div className="text-center py-6 text-muted-foreground">
             <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No walkthrough data available</p>
-            <p className="text-xs mt-1">The user hasn't started the interactive walkthrough yet</p>
+            <p className="text-sm mt-1">The user hasn't started the interactive walkthrough yet</p>
           </div>
         )}
       </CardContent>
@@ -962,7 +962,7 @@ useEffect(() => {
               <CheckCircle className="h-5 w-5" />
               Business Setup Guide
             </CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
+            <CardDescription className="text-sm sm:text-sm">
               Step-by-step business configuration progress
             </CardDescription>
           </div>
@@ -995,25 +995,25 @@ useEffect(() => {
                 <div className="text-2xl font-bold text-blue-600">
                   {business.onboarding.setupGuide.completedSteps?.length || 0}
                 </div>
-                <div className="text-xs text-muted-foreground">Steps Completed</div>
+                <div className="text-sm text-muted-foreground">Steps Completed</div>
               </div>
               <div className="text-center sm:text-left">
                 <div className="text-2xl font-bold text-green-600">
                   {business.onboarding.setupGuide.progressPercentage || 0}%
                 </div>
-                <div className="text-xs text-muted-foreground">Progress</div>
+                <div className="text-sm text-muted-foreground">Progress</div>
               </div>
               <div className="text-center sm:text-left">
                 <div className="text-2xl font-bold text-orange-600">
                   {business.onboarding.setupGuide.completionCount || 0}
                 </div>
-                <div className="text-xs text-muted-foreground">Completion Count</div>
+                <div className="text-sm text-muted-foreground">Completion Count</div>
               </div>
             </div>
 
             {/* Progress Bar */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>Setup Progress</span>
                 <span>{business.onboarding.setupGuide.progressPercentage || 0}%</span>
               </div>
@@ -1042,12 +1042,12 @@ useEffect(() => {
               </div>
             ) : (
               <div className="text-center py-4 text-muted-foreground border border-dashed rounded-md">
-                <p className="text-xs">No setup steps completed yet</p>
+                <p className="text-sm">No setup steps completed yet</p>
               </div>
             )}
 
             {/* Timing Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border-t pt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t pt-3">
               {business.onboarding.setupGuide.startedAt && (
                 <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                   <span className="font-medium">Started:</span>
@@ -1085,20 +1085,20 @@ useEffect(() => {
             {/* Device Information */}
             {(business.onboarding.setupGuide.deviceType || business.onboarding.setupGuide.isPWA !== undefined) && (
               <div className="border-t pt-3 mt-3">
-                <div className="text-xs text-muted-foreground mb-2">Device Information</div>
+                <div className="text-sm text-muted-foreground mb-2">Device Information</div>
                 <div className="flex flex-wrap gap-2">
                   {business.onboarding.setupGuide.deviceType && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-sm">
                       {business.onboarding.setupGuide.deviceType}
                     </Badge>
                   )}
                   {business.onboarding.setupGuide.isPWA && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-sm">
                       PWA
                     </Badge>
                   )}
                   {business.onboarding.setupGuide.isFirstTime && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-sm">
                       First Time User
                     </Badge>
                   )}
@@ -1110,7 +1110,7 @@ useEffect(() => {
           <div className="text-center py-6 text-muted-foreground">
             <CheckCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No setup guide data available</p>
-            <p className="text-xs mt-1">The user hasn't accessed the business setup guide yet</p>
+            <p className="text-sm mt-1">The user hasn't accessed the business setup guide yet</p>
           </div>
         )}
       </CardContent>
@@ -1120,7 +1120,7 @@ useEffect(() => {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Onboarding Summary</CardTitle>
-        <CardDescription className="text-xs sm:text-sm">
+        <CardDescription className="text-sm sm:text-sm">
           Overview of onboarding engagement and activity
         </CardDescription>
       </CardHeader>
@@ -1128,7 +1128,7 @@ useEffect(() => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-3">
             <h3 className="font-medium text-sm">Activity Overview</h3>
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Walkthrough Sessions:</span>
                 <span className="font-medium">
@@ -1152,7 +1152,7 @@ useEffect(() => {
 
           <div className="space-y-3">
             <h3 className="font-medium text-sm">Device Usage</h3>
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Walkthrough Device:</span>
                 <span className="font-medium capitalize">
