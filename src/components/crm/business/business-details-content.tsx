@@ -289,7 +289,7 @@ useEffect(() => {
       {/* Main content */}
       <Tabs defaultValue="overview" className="w-full" onValueChange={handleTabChange} value={activeTab} >
         {/* Responsive Tabs */}
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
           <TabsTrigger value="subscription" className="text-xs sm:text-sm">Subscription</TabsTrigger>
           <TabsTrigger value="employees" className="text-xs sm:text-sm">Employees</TabsTrigger>
