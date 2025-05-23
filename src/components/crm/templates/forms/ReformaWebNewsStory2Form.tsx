@@ -62,7 +62,7 @@ export default function ReformaWebNewsStory2Form({
       setSelectedFile(e.target.files[0]);
       
       // Clear article URL when file is selected
-      setArticleUrl("");
+      // setArticleUrl("");
     }
   };
   
@@ -176,13 +176,13 @@ export default function ReformaWebNewsStory2Form({
             setArticleUrl(e.target.value);
             
             // Clear file selection when URL is entered
-            if (e.target.value) {
-              setSelectedFile(null);
-              const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-              if (fileInput) fileInput.value = '';
-            }
+            // if (e.target.value) {
+            //   setSelectedFile(null);
+            //   const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+            //   if (fileInput) fileInput.value = '';
+            // }
           }}
-          disabled={!!selectedFile}
+          // disabled={!!selectedFile}
         />
       </div>
       
@@ -193,14 +193,14 @@ export default function ReformaWebNewsStory2Form({
       {/* File upload section */}
       <div className="input-area">
         <div className="w-full relative">
-          <label className={`cursor-pointer ${!!articleUrl ? 'opacity-50' : ''}`}>
+          <label className={`cursor-pointer ${!!articleUrl ? '' : ''}`}>
             <input 
               id="file-upload"
               type="file" 
               name="image" 
               className="hidden"
               onChange={handleFileChange}
-              disabled={!!articleUrl}
+              // disabled={!!articleUrl}
             />
             <div className="w-full h-[40px] flex items-center border border-slate-300 rounded-md overflow-hidden">
               <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
