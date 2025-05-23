@@ -60,7 +60,7 @@ export default function NewsStoryForm({
       setSelectedFile(e.target.files[0]);
       
       // Clear article URL when file is selected
-      setArticleUrl("");
+      // setArticleUrl("");
     }
   };
   
@@ -172,20 +172,20 @@ export default function NewsStoryForm({
           id="artical_url" 
           name="artical_url" 
           type="text" 
-          className={`form-control w-full px-3 py-2 border ${errors.input ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 ${selectedFile ? 'bg-slate-100' : ''}`}
+          className={`form-control w-full px-3 py-2 border ${errors.input ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 ${selectedFile ? '' : ''}`}
           placeholder="Article URL" 
           value={articleUrl}
           onChange={(e) => {
             setArticleUrl(e.target.value);
-            if (e.target.value) {
-              setSelectedFile(null);
-              const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-              if (fileInput) {
-                fileInput.value = "";
-              }
-            }
+            // if (e.target.value) {
+            //   setSelectedFile(null);
+            //   const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+            //   if (fileInput) {
+            //     fileInput.value = "";
+            //   }
+            // }
           }}
-          disabled={!!selectedFile}
+          // disabled={!!selectedFile}
         />
       </div>
       
@@ -196,13 +196,13 @@ export default function NewsStoryForm({
       {/* File upload field */}
       <div className="input-area">
         <div className="w-full relative">
-          <label className={`cursor-pointer ${articleUrl ? 'opacity-50' : ''}`}>
+          <label className={`cursor-pointer ${articleUrl ? '' : ''}`}>
             <input 
               type="file" 
               name="image" 
               className="hidden"
               onChange={handleFileChange}
-              disabled={!!articleUrl}
+              // disabled={!!articleUrl}
             />
             <div className={`w-full h-[40px] flex items-center border ${errors.input ? 'border-red-500' : 'border-slate-300'} rounded-md overflow-hidden`}>
               <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">

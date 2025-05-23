@@ -55,7 +55,7 @@ export default function ReformaFeedSwipeForm({
       setSelectedFile(e.target.files[0]);
       
       // Clear article URL when file is selected
-      setArticleUrl("");
+      // setArticleUrl("");
     }
   };
   
@@ -177,13 +177,13 @@ export default function ReformaFeedSwipeForm({
       {/* File upload field */}
       <div className="input-area">
         <div className="w-full relative">
-          <label className={`cursor-pointer ${articleUrl ? 'opacity-50' : ''}`}>
+          <label className={`cursor-pointer ${articleUrl ? '' : ''}`}>
             <input 
               type="file" 
               name="image" 
               className="hidden"
               onChange={handleFileChange}
-              disabled={!!articleUrl}
+              // disabled={!!articleUrl}
             />
             <div className={`w-full h-[40px] flex items-center border ${errors.image ? 'border-red-500' : 'border-slate-300'} rounded-md overflow-hidden`}>
               <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap px-3">
