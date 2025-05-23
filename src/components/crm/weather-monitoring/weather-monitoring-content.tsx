@@ -105,7 +105,7 @@ export default function WeatherMonitoringContent() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Weather Monitoring</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            Track and manage weather conditions for all construction sites
+            Track and manage weather conditions for all sites
           </p>
         </div>
         <div className="flex items-center gap-4">

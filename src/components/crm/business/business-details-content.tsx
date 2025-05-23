@@ -292,6 +292,7 @@ useEffect(() => {
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
           <TabsTrigger value="subscription" className="text-xs sm:text-sm">Subscription</TabsTrigger>
           <TabsTrigger value="employees" className="text-xs sm:text-sm">Employees</TabsTrigger>
+          <TabsTrigger value="onboarding" className="text-xs sm:text-sm">Onboarding</TabsTrigger>
           <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
         </TabsList>
 
@@ -787,6 +788,396 @@ useEffect(() => {
           </CardContent>
         </Card>
       </TabsContent>
+
+      <TabsContent value="onboarding">
+  <div className="space-y-6">
+    {/* Important Notice */}
+    <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h3 className="font-medium text-amber-800 dark:text-amber-200 text-sm">
+              Data Tracking Notice
+            </h3>
+            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+              This onboarding data is collected for basic tracking and analytics purposes only. 
+              The actual onboarding logic and user experience is controlled by localStorage on the business device. 
+              This server-side data should be considered supplementary and may not always reflect the real-time state of the user's onboarding progress.
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Walkthrough Progress Card */}
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Interactive Walkthrough
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Guided tour through the application features
+            </CardDescription>
+          </div>
+          <Badge 
+            className={
+              business?.onboarding?.walkthrough?.status === 'completed' 
+                ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                : business?.onboarding?.walkthrough?.status === 'in_progress'
+                ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                : business?.onboarding?.walkthrough?.status === 'dismissed'
+                ? "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+            }
+          >
+            {business?.onboarding?.walkthrough?.status?.replace('_', ' ').toUpperCase() || 'NOT STARTED'}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-2 w-full" />
+            <Skeleton className="h-6 w-32" />
+          </div>
+        ) : business?.onboarding?.walkthrough ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="text-center sm:text-left">
+                <div className="text-2xl font-bold text-blue-600">
+                  {business.onboarding.walkthrough.currentStep || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Current Step</div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="text-2xl font-bold text-green-600">
+                  {business.onboarding.walkthrough.progressPercentage || 0}%
+                </div>
+                <div className="text-xs text-muted-foreground">Progress</div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="text-2xl font-bold text-purple-600">
+                  {business.onboarding.walkthrough.completionCount || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Completion Count</div>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Progress</span>
+                <span>{business.onboarding.walkthrough.progressPercentage || 0}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${business.onboarding.walkthrough.progressPercentage || 0}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Timing Information */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              {business.onboarding.walkthrough.startedAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Started:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.walkthrough.startedAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+              {business.onboarding.walkthrough.completedAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Completed:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.walkthrough.completedAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+              {business.onboarding.walkthrough.lastActiveAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Last Active:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.walkthrough.lastActiveAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+              {business.onboarding.walkthrough.createdAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Record Created:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.walkthrough.createdAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Device Information */}
+            {(business.onboarding.walkthrough.deviceType || business.onboarding.walkthrough.isPWA !== undefined) && (
+              <div className="border-t pt-3 mt-3">
+                <div className="text-xs text-muted-foreground mb-2">Device Information</div>
+                <div className="flex flex-wrap gap-2">
+                  {business.onboarding.walkthrough.deviceType && (
+                    <Badge variant="outline" className="text-xs">
+                      {business.onboarding.walkthrough.deviceType}
+                    </Badge>
+                  )}
+                  {business.onboarding.walkthrough.isPWA && (
+                    <Badge variant="outline" className="text-xs">
+                      PWA
+                    </Badge>
+                  )}
+                  {business.onboarding.walkthrough.isFirstTime && (
+                    <Badge variant="outline" className="text-xs">
+                      First Time User
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-6 text-muted-foreground">
+            <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No walkthrough data available</p>
+            <p className="text-xs mt-1">The user hasn't started the interactive walkthrough yet</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+
+    {/* Setup Guide Progress Card */}
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              Business Setup Guide
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Step-by-step business configuration progress
+            </CardDescription>
+          </div>
+          <Badge 
+            className={
+              business?.onboarding?.setupGuide?.status === 'completed' 
+                ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                : business?.onboarding?.setupGuide?.status === 'in_progress'
+                ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                : business?.onboarding?.setupGuide?.status === 'dismissed'
+                ? "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+            }
+          >
+            {business?.onboarding?.setupGuide?.status?.replace('_', ' ').toUpperCase() || 'NOT STARTED'}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-2 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        ) : business?.onboarding?.setupGuide ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="text-center sm:text-left">
+                <div className="text-2xl font-bold text-blue-600">
+                  {business.onboarding.setupGuide.completedSteps?.length || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Steps Completed</div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="text-2xl font-bold text-green-600">
+                  {business.onboarding.setupGuide.progressPercentage || 0}%
+                </div>
+                <div className="text-xs text-muted-foreground">Progress</div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="text-2xl font-bold text-orange-600">
+                  {business.onboarding.setupGuide.completionCount || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Completion Count</div>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Setup Progress</span>
+                <span>{business.onboarding.setupGuide.progressPercentage || 0}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${business.onboarding.setupGuide.progressPercentage || 0}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Completed Steps */}
+            {business.onboarding.setupGuide.completedSteps && business.onboarding.setupGuide.completedSteps.length > 0 ? (
+              <div className="space-y-3">
+                <div className="text-sm font-medium">Completed Steps</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {business.onboarding.setupGuide.completedSteps.map((step, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-green-50 rounded-md border border-green-200">
+                      <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
+                      <span className="text-sm capitalize">
+                        {step.replace('_', ' ')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground border border-dashed rounded-md">
+                <p className="text-xs">No setup steps completed yet</p>
+              </div>
+            )}
+
+            {/* Timing Information */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border-t pt-3">
+              {business.onboarding.setupGuide.startedAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Started:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.setupGuide.startedAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+              {business.onboarding.setupGuide.completedAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Completed:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.setupGuide.completedAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+              {business.onboarding.setupGuide.lastActiveAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Last Active:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.setupGuide.lastActiveAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+              {business.onboarding.setupGuide.createdAt && (
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="font-medium">Record Created:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(business.onboarding.setupGuide.createdAt), 'MMM d, yyyy HH:mm')}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Device Information */}
+            {(business.onboarding.setupGuide.deviceType || business.onboarding.setupGuide.isPWA !== undefined) && (
+              <div className="border-t pt-3 mt-3">
+                <div className="text-xs text-muted-foreground mb-2">Device Information</div>
+                <div className="flex flex-wrap gap-2">
+                  {business.onboarding.setupGuide.deviceType && (
+                    <Badge variant="outline" className="text-xs">
+                      {business.onboarding.setupGuide.deviceType}
+                    </Badge>
+                  )}
+                  {business.onboarding.setupGuide.isPWA && (
+                    <Badge variant="outline" className="text-xs">
+                      PWA
+                    </Badge>
+                  )}
+                  {business.onboarding.setupGuide.isFirstTime && (
+                    <Badge variant="outline" className="text-xs">
+                      First Time User
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-6 text-muted-foreground">
+            <CheckCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No setup guide data available</p>
+            <p className="text-xs mt-1">The user hasn't accessed the business setup guide yet</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+
+    {/* Summary Card */}
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Onboarding Summary</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
+          Overview of onboarding engagement and activity
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <h3 className="font-medium text-sm">Activity Overview</h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span>Walkthrough Sessions:</span>
+                <span className="font-medium">
+                  {business?.onboarding?.walkthrough?.completionCount || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Setup Guide Sessions:</span>
+                <span className="font-medium">
+                  {business?.onboarding?.setupGuide?.completionCount || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Onboarding Records:</span>
+                <span className="font-medium">
+                  {(business?.onboarding?.walkthrough ? 1 : 0) + (business?.onboarding?.setupGuide ? 1 : 0)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="font-medium text-sm">Device Usage</h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span>Walkthrough Device:</span>
+                <span className="font-medium capitalize">
+                  {business?.onboarding?.walkthrough?.deviceType || 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Setup Guide Device:</span>
+                <span className="font-medium capitalize">
+                  {business?.onboarding?.setupGuide?.deviceType || 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>PWA Usage:</span>
+                <span className="font-medium">
+                  {business?.onboarding?.walkthrough?.isPWA || business?.onboarding?.setupGuide?.isPWA ? 'Yes' : 'No'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</TabsContent>
+
         {/* Settings Tab */}
         <TabsContent value="settings">
           <Card>

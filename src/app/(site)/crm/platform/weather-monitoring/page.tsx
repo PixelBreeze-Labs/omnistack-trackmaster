@@ -4,7 +4,7 @@ import WeatherMonitoringContent from "@/components/crm/weather-monitoring/weathe
 
 export const metadata: Metadata = {
   title: "Weather Monitoring - TrackMaster CRM",
-  description: "Track and manage weather monitoring for all construction sites",
+  description: "Track and manage weather monitoring for all sites",
 }
 
 export default function WeatherMonitoringPage() {
