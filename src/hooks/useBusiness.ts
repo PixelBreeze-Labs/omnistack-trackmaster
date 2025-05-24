@@ -208,7 +208,7 @@ export const useBusiness = () => {
   } finally {
     setIsLoading(false);
   }
-}, [api, toast]);
+}, [api]);
 
 const syncTasksFromVenueBoost = useCallback(async (businessId: string) => {
   if (!api) return null;
@@ -249,6 +249,37 @@ const syncEmployeesFromVenueBoost = useCallback(async (businessId: string) => {
   }
 }, [api]);
 
+// Override business storage settings
+const overrideBusinessStorageSettings = useCallback(async (
+  businessId: string, 
+  settings: {
+    enableOverride: boolean;
+    storageLimitMB?: number;
+    maxFileSizeMB?: number;
+  }
+) => {
+  if (!api) return null;
+  
+  try {
+    setIsLoading(true);
+    const response = await api.overrideBusinessStorageSettings(businessId, settings);
+    
+    if (response && response.success) {
+      toast.success(settings.enableOverride 
+        ? 'Storage override enabled successfully' 
+        : 'Storage override disabled successfully');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error("Error overriding storage settings:", error);
+    toast.error(error.response?.data?.message || error.message || "Failed to update storage settings");
+    return null;
+  } finally {
+    setIsLoading(false);
+  }
+}, [api]);
+
 
   return {
     isLoading,
@@ -268,6 +299,7 @@ const syncEmployeesFromVenueBoost = useCallback(async (businessId: string) => {
     syncTasksFromVenueBoost,
     syncEmployeesFromVenueBoost,
     updateBusiness,
+    overrideBusinessStorageSettings,
     isInitialized: !!api
   };
 };

@@ -42,6 +42,15 @@ export const createBusinessApi = (apiKey: string) => {
         return data;
       }
     },
+    
+    overrideBusinessStorageSettings: async (businessId: string, settings: {
+      enableOverride: boolean;
+      storageLimitMB?: number;
+      maxFileSizeMB?: number;
+    }) => {
+      const { data } = await api.patch(`/businesses/${businessId}/storage/override`, settings);
+      return data;
+    },
 
     // Update business capabilities
     updateBusinessCapabilities: async (businessId: string, capabilities: BusinessCapabilitiesUpdate) => {
