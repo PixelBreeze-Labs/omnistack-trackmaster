@@ -32,13 +32,39 @@ import {
   RotateCcw,
   Monitor,
   Calendar,
-  RefreshCw,
+  RefreshCcw,
   Building2
 } from 'lucide-react';
 
 export default function StaffluentAIOverview() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [currentProcess, setCurrentProcess] = useState(0);
+
+  // Navigation handlers
+  const handleNavigateToAgents = () => {
+    // Navigate to AI Agents page
+    window.location.href = '/crm/platform/agents';
+  };
+
+  const handleNavigateToServices = () => {
+    // Navigate to Supporting Services page
+    window.location.href = '/crm/platform/businesses';
+  };
+
+  const handleNavigateToIntelligenceHub = () => {
+    // Navigate to Intelligence Hub page
+    window.location.href = '/crm/platform/intelligence-hub';
+  };
+
+  const handleNavigateToKnowledgeBase = () => {
+    // Navigate to Knowledge Base & Chatbot page
+    window.location.href = '/crm/platform/knowledge';
+  };
+
+  const handleNavigateToCronJobs = () => {
+    // Navigate to Cron Jobs & Scheduling page
+    window.location.href = '/crm/platform/sync-history';
+  };
 
   const processes = [
     "Analyzing task assignments...",
@@ -266,7 +292,10 @@ export default function StaffluentAIOverview() {
             </div>
 
             <div className="mt-6 text-center">
-              <button className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={handleNavigateToAgents}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 <span>Go to AI Agents Section</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -288,7 +317,7 @@ export default function StaffluentAIOverview() {
                 </div>
               </div>
               <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full">
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCcw className="w-4 h-4 animate-spin" />
                 <span className="text-sm font-medium">Syncing Data</span>
               </div>
             </div>
@@ -336,7 +365,10 @@ export default function StaffluentAIOverview() {
             </div>
 
             <div className="mt-6 text-center">
-              <button className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              <button 
+                onClick={handleNavigateToServices}
+                className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
                 <span>Go to Supporting Services</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -406,7 +438,10 @@ export default function StaffluentAIOverview() {
             </div>
 
             <div className="mt-6 text-center">
-              <button className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+              <button 
+                onClick={handleNavigateToIntelligenceHub}
+                className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+              >
                 <span>Go to Intelligence Hub</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -494,7 +529,10 @@ export default function StaffluentAIOverview() {
             </div>
 
             <div className="mt-6 text-center">
-              <button className="inline-flex items-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors">
+              <button 
+                onClick={handleNavigateToKnowledgeBase}
+                className="inline-flex items-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+              >
                 <span>Go to Knowledge Base & Chatbot</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -579,7 +617,10 @@ export default function StaffluentAIOverview() {
             </div>
 
             <div className="mt-6 text-center">
-              <button className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+              <button 
+                onClick={handleNavigateToCronJobs}
+                className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
                 <span>Go to Cron Jobs & Scheduling</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
