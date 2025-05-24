@@ -75,6 +75,7 @@ interface SidebarProps {
   hr?: any[];
   // SAAS props
   business?: any[];
+  ai?: any[];
   products?: any[];
   users?: any[];
   support?: any[];
@@ -109,6 +110,7 @@ export default function Sidebar({
   hr = [],
   // SAAS props
   business = [],
+  ai = [],
   products = [],
   users = [],
   support = [],
@@ -149,6 +151,8 @@ export default function Sidebar({
     || pathname.includes('/knowledge')
     || pathname.includes('/weather-monitoring')
     || pathname.includes('/intelligence-hub')
+    || pathname.includes('/core-engine')
+    || pathname.includes('/agents')
   const isBooking = pathname.includes('/booking') || pathname.includes('/guests')
   const isVenueBoost = pathname.includes('/venueboost') || pathname.includes('/venues')
   const isPixelBreeze = 
@@ -176,6 +180,7 @@ export default function Sidebar({
     allMenuItems = [
       ...mainMenu,
       ...business,
+      ...ai,
       ...products,
       ...users,
       ...support,
@@ -320,6 +325,23 @@ export default function Sidebar({
                 </h3>
                 <nav className="space-y-1">
                   {business.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      openMenus={openMenus}
+                      toggleMenu={toggleMenu}
+                    />
+                  ))}
+                </nav>
+              </div>
+
+              <div>
+                <h3 className="px-2 mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Staffluent AI Engine
+                </h3>
+                <nav className="space-y-1">
+                  {ai.map((item) => (
                     <MenuItem
                       key={item.id}
                       item={item}
