@@ -54,16 +54,14 @@ import {
   Bell,
   FileText,
   Sliders,
-  Filter,
   Mail,
   FolderOpen,
-  FolderClosed,
-  Code,
-  Monitor,
   Briefcase,
-  Network,
-  Globe,
-  PanelLeft
+  Bot,
+  Brain,
+  RefreshCw,
+  Cloud,
+  Network
 } from 'lucide-react'
 
 export const getSidebarDataForType = (clientType: string | undefined) => {
@@ -372,7 +370,7 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
   }
 
   if (clientType === 'SAAS') {
-    // SAAS sidebar items (unchanged)
+    // SAAS sidebar items with new AI section
     return {
       mainMenu: [
         {
@@ -434,20 +432,44 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
               icon: <XCircle className="w-4 h-4"/>
             }
           ]
+        }
+      ],
+      ai: [
+        {
+          id: 12,
+          title: "Core Engine",
+          path: `/crm/platform/core-engine`,
+          icon: <Brain className="w-5 h-5"/>,
+        },
+        {
+          id: 29,
+          title: "Intelligence Hub",
+          path: `/crm/platform/intelligence-hub`,
+          icon: <Network className="w-5 h-5"/>,
+        },
+        {
+          id: 13,
+          title: "AI Agents",
+          path: `/crm/platform/agents`,
+          icon: <Bot className="w-5 h-5"/>,
         },
         {
           id: 5,
-          title: "ChatBot",
-          path: `/crm/platform/chatbot`,
-          icon: <MessageSquare className="w-4 h-4"/>,
-          children: [
-            {
-              id: "5-1",
-              title: "Knowledge Base",
-              path: `/crm/platform/knowledge`,
-              icon: <BookOpen className="w-4 h-4"/>
-            }
-          ]
+          title: "Knowledge Base (Chatbot)",
+          path: `/crm/platform/knowledge`,
+          icon: <MessageSquare className="w-5 h-5"/>,
+        },
+        {
+          id: 10,
+          title: "System Sync",
+          path: `/crm/platform/sync-history`,
+          icon: <RefreshCw className="w-5 h-5"/>,
+        },
+        {
+          id: 14,
+          title: "Weather Service",
+          path: `/crm/platform/weather-monitoring`,
+          icon: <Cloud className="w-5 h-5"/>,
         }
       ],
       products: [
@@ -538,22 +560,14 @@ export const getSidebarDataForType = (clientType: string | undefined) => {
       ],
       settings: [
         {
-          id: 10,
-          title: "Sync History",
-          path: `/crm/platform/sync-history`,
-          icon: <Clock className="w-5 h-5"/>,
-        },  
-        {
           id: 11,
           title: "Settings",
           path: `/crm/platform/settings`,
           icon: <Settings className="w-5 h-5"/>,
-        },
-        
+        }
       ]
     }
   }
-
   if (clientType === 'BOOKING') {
     return {
       mainMenu: [

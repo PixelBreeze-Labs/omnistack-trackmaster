@@ -43,8 +43,14 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
       return 'BOOKING'
     }
     
-    // For SAAS path detection
-    if (pathname.includes('/staffluent-dashboard')) {
+    // For SAAS path detection - updated to include AI paths
+    if (pathname.includes('/staffluent-dashboard') ||
+        pathname.includes('/intelligence-hub') ||
+        pathname.includes('/knowledge') ||
+        pathname.includes('/sync-history') ||
+        pathname.includes('/agents') ||
+        pathname.includes('/core-engine') ||
+        pathname.includes('/weather-monitoring')) {
       return 'SAAS'
     }
     
@@ -79,6 +85,7 @@ const CRMPlatformLayout = ({ children }: { children: React.ReactNode }) => {
     sidebarProps = {
       mainMenu: sidebarData.mainMenu,
       business: sidebarData.business,
+      ai: sidebarData.ai,
       products: sidebarData.products,
       users: sidebarData.users,
       support: sidebarData.support,
