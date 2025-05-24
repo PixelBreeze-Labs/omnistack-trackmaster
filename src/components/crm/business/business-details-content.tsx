@@ -26,7 +26,12 @@ import {
   Copy,
   EyeOffIcon,
   EyeIcon,
-  AlertCircle
+  AlertCircle,
+  HardDrive,
+  FileIcon,
+  Database,
+  Folder,
+  Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +49,7 @@ import { useBusiness } from "@/hooks/useBusiness";
 import { format } from "date-fns";
 import { Business, SubscriptionStatus, BusinessStatus } from "@/app/api/external/omnigateway/types/business";
 import BusinessCapabilitiesModal from "./BusinessCapabilitiesModal";
+import StorageOverrideModal from "./StorageOverrideModal";
 import {
   Table,
   TableBody,
@@ -72,6 +78,7 @@ export default function BusinessDetailsContent({ businessId }: BusinessDetailsCo
   const { getBusinessDetails, getBusinessEmployees, isLoading, isInitialized } = useBusiness();
   const [business, setBusiness] = useState<Business | null>(null);
   const [showCapabilitiesModal, setShowCapabilitiesModal] = useState(false);
+  const [showStorageModal, setShowStorageModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [employees, setEmployees] = useState([]);
 const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
@@ -129,12 +136,9 @@ const handlePageChange = (page) => {
   loadEmployeeData(page);
 };
 
-
-
 const handleTabChange = (value) => {
   setActiveTab(value);
 };
-
 
 useEffect(() => {
   if (businessId) {
@@ -171,6 +175,16 @@ useEffect(() => {
     setBusiness(updatedBusiness);
   };
 
+  const handleStorageUpdated = (updatedStorage: any) => {
+    setBusiness(prev => ({
+      ...prev,
+      storage: {
+        ...prev.storage,
+        ...updatedStorage
+      }
+    }));
+  };
+
   // Format business type display
   const formatBusinessType = (type: string) => {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -186,6 +200,15 @@ useEffect(() => {
       style: 'currency',
       currency: currency.toUpperCase(),
     }).format(amount / 100); // Convert from cents
+  };
+
+  // Format bytes to human readable
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 MB';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes * k) / Math.log(k));
+    return parseFloat((bytes * k / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
   // Get business status badge
@@ -1260,12 +1283,229 @@ useEffect(() => {
         </TabsContent>
       </Tabs>
 
+      {/* Storage Information Section - Below Tabs */}
+      <Card className="mt-6">
+        <CardHeader className="pb-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <HardDrive className="h-5 w-5" />
+                Storage Information
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                File storage usage and limits for this business
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowStorageModal(true)}
+              disabled={!business?.storage}
+              className="self-start sm:self-auto"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Configure Storage
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-2 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ) : business?.storage ? (
+            <div className="space-y-6">
+              {/* Storage Usage Overview */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {business.storage.usage.totalSizeMB}
+                  </div>
+                  <div className="text-sm text-muted-foreground">MB Used</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">
+                    {business.storage.usage.remainingMB}
+                  </div>
+                  <div className="text-sm text-muted-foreground">MB Available</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {business.storage.usage.fileCount}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Files</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {business.storage.usage.percentUsed}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Used</div>
+                </div>
+              </div>
+
+              {/* Usage Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">Storage Usage</span>
+                  <span className="text-muted-foreground">
+                    {business.storage.usage.totalSizeMB} MB / {business.storage.settings.limitMB} MB
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className={`h-3 rounded-full transition-all duration-300 ${
+                      business.storage.usage.percentUsed > 90 ? 'bg-red-500' :
+                      business.storage.usage.percentUsed > 75 ? 'bg-yellow-500' :
+                      'bg-blue-500'
+                    }`}
+                    style={{ width: `${Math.min(business.storage.usage.percentUsed, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Storage Settings and Plan Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Current Settings */}
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Database className="h-5 w-5 text-muted-foreground" />
+                    <h3 className="font-medium">Current Settings</h3>
+                    <Badge variant={business.storage.isOverridden ? "default" : "outline"}>
+                      {business.storage.isOverridden ? "Custom" : "Plan-based"}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Storage Limit:</span>
+                      <span className="font-medium">{business.storage.settings.limitMB} MB</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Max File Size:</span>
+                      <span className="font-medium">{business.storage.settings.maxFileSizeMB} MB</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Subscription Tier:</span>
+                      <span className="font-medium capitalize">{business.subscription?.tier}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Plan-based Limits */}
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <FileIcon className="h-5 w-5 text-muted-foreground" />
+                    <h3 className="font-medium">Plan Information</h3>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Plan Storage:</span>
+                      <span className="font-medium">
+                        {business.storage.planBasedLimits?.storage_gb || 'N/A'} GB
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Plan Users:</span>
+                      <span className="font-medium">
+                        {business.storage.planBasedLimits?.users === -1 ? 'Unlimited' : business.storage.planBasedLimits?.users || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Plan Projects:</span>
+                      <span className="font-medium">
+                        {business.storage.planBasedLimits?.projects === -1 ? 'Unlimited' : business.storage.planBasedLimits?.projects || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Files by Category */}
+              {Object.keys(business.storage.filesByCategory || {}).length > 0 && (
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Folder className="h-5 w-5 text-muted-foreground" />
+                    <h3 className="font-medium">Files by Category</h3>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {Object.entries(business.storage.filesByCategory).map(([category, count]) => (
+                      <div key={category} className="text-center p-2 bg-gray-50 rounded">
+                        <div className="font-medium">{count}</div>
+                        <div className="text-xs text-muted-foreground capitalize">
+                          {category.replace('_', ' ')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Files */}
+              {business.storage.recentFiles && business.storage.recentFiles.length > 0 && (
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                    <h3 className="font-medium">Recent Files</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {business.storage.recentFiles.slice(0, 5).map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                        <div className="flex items-center gap-2">
+                          <FileIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="truncate">{file.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Badge variant="outline" className="text-xs">
+                            {file.category}
+                          </Badge>
+                          <span>{formatBytes(file.size)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Allowed File Types */}
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <FileIcon className="h-5 w-5 text-muted-foreground" />
+                  <h3 className="font-medium">Allowed File Types</h3>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {business.storage.settings.allowedFileTypes?.map((type, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      .{type}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground">
+              <HardDrive className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No storage information available</p>
+              <p className="text-sm mt-1">Storage data could not be loaded for this business</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Capabilities Modal */}
       <BusinessCapabilitiesModal 
         isOpen={showCapabilitiesModal}
         onClose={() => setShowCapabilitiesModal(false)}
         business={business}
         onCapabilitiesUpdated={handleCapabilitiesUpdated}
+      />
+
+      {/* Storage Override Modal */}
+      <StorageOverrideModal 
+        isOpen={showStorageModal}
+        onClose={() => setShowStorageModal(false)}
+        business={business}
+        onStorageUpdated={handleStorageUpdated}
       />
 
       {/* Bottom spacing */}
