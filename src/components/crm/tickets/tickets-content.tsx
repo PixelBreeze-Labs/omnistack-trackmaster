@@ -317,7 +317,7 @@ export function EnhancedTicketsContent() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="list">Ticket List</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
