@@ -54,8 +54,8 @@ export function TicketDetailsDialog({
   isUpdating = false
 }: TicketDetailsDialog) {
   const [newMessage, setNewMessage] = useState("");
-  const [senderName, setSenderName] = useState("");
-  const [senderEmail, setSenderEmail] = useState("");
+  const [senderName, setSenderName] = useState("Staffluent Support Team");
+  const [senderEmail, setSenderEmail] = useState("support@staffluent.co");
 
   if (!ticket) return null;
 
