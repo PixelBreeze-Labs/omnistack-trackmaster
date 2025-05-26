@@ -47,8 +47,6 @@ import InputSelect from "@/components/Common/InputSelect";
 import { useTickets } from "@/hooks/useTickets";
 import { TicketStatus, TicketPriority, TicketCategory, Ticket } from "@/app/api/external/omnigateway/types/tickets";
 import { toast } from "react-hot-toast";
-import { DatePicker } from "@/components/ui/datepicker";
-import { format } from "date-fns";
 import { TicketActionSelect } from "@/components/crm/tickets/TicketActionComponent";
 import { TicketDetailsDialog } from "@/components/crm/tickets/TicketDetailsDialog";
 import { QuickMessageDialog } from "@/components/crm/tickets/QuickMessageDialog";
@@ -81,8 +79,8 @@ export function EnhancedTicketsContent() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [assignedToFilter, setAssignedToFilter] = useState<string>("all");
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
-  const [toDate, setToDate] = useState<Date | undefined>(undefined);
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
   
   // Dialog State
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -104,8 +102,8 @@ export function EnhancedTicketsContent() {
       category: categoryFilter !== 'all' ? categoryFilter as TicketCategory : undefined,
       assignedTo: assignedToFilter !== 'all' ? assignedToFilter : undefined,
       search: searchTerm,
-      fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-      toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined
     });
   }, [fetchTickets, page, pageSize, statusFilter, priorityFilter, categoryFilter, assignedToFilter, searchTerm, fromDate, toDate]);
 
@@ -122,8 +120,8 @@ export function EnhancedTicketsContent() {
       category: categoryFilter !== 'all' ? categoryFilter as TicketCategory : undefined,
       assignedTo: assignedToFilter !== 'all' ? assignedToFilter : undefined,
       search: searchTerm,
-      fromDate: fromDate ? format(fromDate, 'yyyy-MM-dd') : undefined,
-      toDate: toDate ? format(toDate, 'yyyy-MM-dd') : undefined
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined
     });
     fetchTicketStats();
   };
@@ -134,8 +132,8 @@ export function EnhancedTicketsContent() {
     setPriorityFilter("all");
     setCategoryFilter("all");
     setAssignedToFilter("all");
-    setFromDate(undefined);
-    setToDate(undefined);
+    setFromDate("");
+    setToDate("");
     setPage(1);
   };
 
@@ -289,19 +287,19 @@ export function EnhancedTicketsContent() {
 
   return (
     <div className="space-y-6 mb-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Support Tickets</h2>
-          <p className="text-sm text-muted-foreground mt-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex-1">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Support Tickets</h2>
+          <p className="text-sm text-muted-foreground mt-1 sm:mt-2">
             Manage customer support tickets and requests
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+          <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full sm:w-auto">
             <RefreshCcw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -309,6 +307,7 @@ export function EnhancedTicketsContent() {
             variant="outline" 
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
+            className="w-full sm:w-auto"
           >
             <Filter className="mr-2 h-4 w-4" />
             Filters
@@ -329,7 +328,7 @@ export function EnhancedTicketsContent() {
 
         <TabsContent value="list" className="space-y-6">
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
@@ -403,18 +402,20 @@ export function EnhancedTicketsContent() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
-                <div className="p-0 flex flex-col lg:flex-row items-center gap-4">
-                  <div className="relative mt-2 flex-1">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search tickets by title, description, or customer..."
-                      className="pl-8"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+              <CardContent className="p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-6 items-end gap-4">
+                  <div className="sm:col-span-2 lg:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search tickets..."
+                        className="pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div className="w-40 mt-2">
+                  <div>
                     <InputSelect
                       name="status"
                       label=""
@@ -430,7 +431,7 @@ export function EnhancedTicketsContent() {
                       ]}
                     />
                   </div>
-                  <div className="w-40 mt-2">
+                  <div>
                     <InputSelect
                       name="priority"
                       label=""
@@ -445,7 +446,7 @@ export function EnhancedTicketsContent() {
                       ]}
                     />
                   </div>
-                  <div className="w-40 mt-2">
+                  <div>
                     <InputSelect
                       name="category"
                       label=""
@@ -463,19 +464,25 @@ export function EnhancedTicketsContent() {
                       ]}
                     />
                   </div>
-                  <div className="w-40 mt-3">
-                    <DatePicker 
-                      date={fromDate} 
-                      setDate={setFromDate} 
-                      placeholder="From Date"
-                    />
-                  </div>
-                  <div className="w-40 mt-3">
-                    <DatePicker 
-                      date={toDate} 
-                      setDate={setToDate} 
-                      placeholder="To Date"
-                    />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <input
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => setFromDate(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        placeholder="From Date"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => setToDate(e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        placeholder="To Date"
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -485,52 +492,53 @@ export function EnhancedTicketsContent() {
           {/* Tickets Table */}
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleSort('title')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Ticket
-                        {getSortIcon('title')}
-                      </div>
-                    </TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Business</TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleSort('priority')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Priority
-                        {getSortIcon('priority')}
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleSort('status')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Status
-                        {getSortIcon('status')}
-                      </div>
-                    </TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleSort('createdAt')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Created
-                        {getSortIcon('createdAt')}
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50 min-w-[200px]"
+                        onClick={() => handleSort('title')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Ticket
+                          {getSortIcon('title')}
+                        </div>
+                      </TableHead>
+                      <TableHead className="min-w-[150px]">Customer</TableHead>
+                      <TableHead className="min-w-[150px]">Business</TableHead>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50 min-w-[100px]"
+                        onClick={() => handleSort('priority')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Priority
+                          {getSortIcon('priority')}
+                        </div>
+                      </TableHead>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50 min-w-[120px]"
+                        onClick={() => handleSort('status')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Status
+                          {getSortIcon('status')}
+                        </div>
+                      </TableHead>
+                      <TableHead className="min-w-[120px]">Category</TableHead>
+                      <TableHead className="min-w-[120px]">Assigned To</TableHead>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50 min-w-[150px]"
+                        onClick={() => handleSort('createdAt')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Created
+                          {getSortIcon('createdAt')}
+                        </div>
+                      </TableHead>
+                      <TableHead className="text-right min-w-[120px]">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
@@ -664,22 +672,25 @@ export function EnhancedTicketsContent() {
                   )}
                 </TableBody>
               </Table>
+              </div>
 
               {/* Pagination */}
               {sortedTickets && sortedTickets.length > 0 && (
-                <div className="border-t px-4 py-3">
-                  <div className="flex items-center justify-between gap-4">
-                    <InputSelect
-                      name="pageSize"
-                      label=""
-                      value={pageSize.toString()}
-                      onChange={(e) => setPageSize(parseInt(e.target.value))}
-                      options={[
-                        { value: "10", label: "10 rows" },
-                        { value: "20", label: "20 rows" },
-                        { value: "50", label: "50 rows" }
-                      ]}
-                    />
+                <div className="border-t px-3 sm:px-4 py-3">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="w-full sm:w-auto">
+                      <InputSelect
+                        name="pageSize"
+                        label=""
+                        value={pageSize.toString()}
+                        onChange={(e) => setPageSize(parseInt(e.target.value))}
+                        options={[
+                          { value: "10", label: "10 rows" },
+                          { value: "20", label: "20 rows" },
+                          { value: "50", label: "50 rows" }
+                        ]}
+                      />
+                    </div>
                     
                     <div className="flex-1 flex items-center justify-center">
                       <Pagination>
@@ -712,7 +723,7 @@ export function EnhancedTicketsContent() {
                       </Pagination>
                     </div>
 
-                    <p className="text-sm text-muted-foreground min-w-[180px] text-right">
+                    <p className="text-sm text-muted-foreground text-center sm:text-right sm:min-w-[180px]">
                       Showing <span className="font-medium">{sortedTickets?.length}</span> of{" "}
                       <span className="font-medium">{totalItems}</span> tickets
                     </p>
