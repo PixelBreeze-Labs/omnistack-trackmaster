@@ -1,27 +1,17 @@
-import { Metadata } from "next";
-import EmptyPageContent from "@/components/crm/empty/empty-content";
-import { Suspense } from "react";
+// app/support/tickets/page.tsx
+
+import { Metadata } from "next"
+import { EnhancedTicketsContent } from "@/components/crm/tickets/tickets-content"
 
 export const metadata: Metadata = {
-  title: "Empty - TrackMaster CRM",
-  description: "Empty Contnt",
-};
+  title: "Support Tickets - OmniStack Hub",
+  description: "Manage customer support tickets and requests",
+}
 
 export default function TicketsPage() {
   return (
     <div className="px-3">
-      <Suspense fallback={<TicketsLoading />}>
-        <EmptyPageContent />
-      </Suspense>
+      <EnhancedTicketsContent />
     </div>
-  );
-}
-
-// Loading component to show while the page is loading
-function TicketsLoading() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0A0A0A]"></div>
-    </div>
-  );
+  )
 }
