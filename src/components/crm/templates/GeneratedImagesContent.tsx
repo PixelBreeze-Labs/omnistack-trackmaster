@@ -237,7 +237,7 @@ const handleDownload = async (image) => {
 
   return (
     <div className="space-y-6 mb-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Generated Images</h2>
           <p className="text-sm text-muted-foreground mt-2">
@@ -278,8 +278,8 @@ const handleDownload = async (image) => {
 
         {/* Dashboard Tab Content */}
         <TabsContent value="dashboard">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {/* FIXED: Stats Cards with correct data source and better responsivity */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -315,7 +315,8 @@ const handleDownload = async (image) => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{templatesMap.size}</div>
+                {/* FIXED: Use stats data instead of current page data */}
+                <div className="text-3xl font-bold">{stats?.byTemplate?.length || 0}</div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Different template types
                 </p>
@@ -329,7 +330,8 @@ const handleDownload = async (image) => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{entitiesMap.size}</div>
+                {/* FIXED: Use stats data instead of current page data */}
+                <div className="text-3xl font-bold">{stats?.byEntity?.length || 0}</div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Different entities used
                 </p>
@@ -337,8 +339,8 @@ const handleDownload = async (image) => {
             </Card>
           </div>
 
-          {/* Breakdown Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* IMPROVED: Breakdown Charts with better responsivity */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             {/* Entity Breakdown */}
             <Card>
               <CardHeader>
@@ -460,7 +462,7 @@ const handleDownload = async (image) => {
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {images.slice(0, 6).map((image) => (
                     <Card key={image?._id} className="overflow-hidden">
                       <div className="relative h-40 w-full">
@@ -517,7 +519,7 @@ const handleDownload = async (image) => {
 
         {/* Gallery Tab Content */}
         <TabsContent value="gallery">
-          {/* Search and Filters */}
+          {/* IMPROVED: Search and Filters with better responsivity */}
           <Card className="mb-6">
             <CardHeader>
               <div className="mb-0">
@@ -528,17 +530,17 @@ const handleDownload = async (image) => {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="p-0 flex flex-col md:flex-row items-center gap-4">
-                <div className="relative mt-2 flex-1">
+              <div className="p-0 flex flex-col lg:flex-row items-start lg:items-center gap-4">
+                <div className="relative w-full lg:flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by article URL if you have one..."
-                    className="pl-8"
+                    className="pl-8 w-full"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="w-36 mt-1">
+                <div className="w-full sm:w-40 lg:w-36">
                   <InputSelect
                     name="entity"
                     label=""
@@ -547,7 +549,7 @@ const handleDownload = async (image) => {
                     options={entityOptions}
                   />
                 </div>
-                <div className="w-36 mt-1">
+                <div className="w-full sm:w-40 lg:w-36">
                   <InputSelect
                     name="template"
                     label=""
@@ -556,7 +558,7 @@ const handleDownload = async (image) => {
                     options={templateOptions}
                   />
                 </div>
-                <div className="w-36 mt-1">
+                <div className="w-full sm:w-40 lg:w-36">
                   <InputSelect
                     name="status"
                     label=""
@@ -599,7 +601,7 @@ const handleDownload = async (image) => {
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                   {filteredImages.map((image) => (
                     <Card key={image?._id} className="overflow-hidden">
                       <div className="relative h-40 w-full">
@@ -654,7 +656,7 @@ const handleDownload = async (image) => {
               {/* Pagination */}
               {filteredImages.length > 0 && (
                 <div className="mt-6 px-4 py-3 border-t">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <InputSelect
                       name="pageSize"
                       label=""
@@ -711,7 +713,7 @@ const handleDownload = async (image) => {
 
         {/* List View Tab Content */}
         <TabsContent value="list">
-          {/* Search and Filters (Same as Gallery) */}
+          {/* IMPROVED: Search and Filters with better responsivity */}
           <Card className="mb-6">
             <CardHeader>
               <div className="mb-0">
@@ -722,17 +724,17 @@ const handleDownload = async (image) => {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="p-0 flex flex-col md:flex-row items-center gap-4">
-                <div className="relative mt-2 flex-1">
+              <div className="p-0 flex flex-col lg:flex-row items-start lg:items-center gap-4">
+                <div className="relative w-full lg:flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by article URL if you have one..."
-                    className="pl-8"
+                    className="pl-8 w-full"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="w-36 mt-1">
+                <div className="w-full sm:w-40 lg:w-36">
                   <InputSelect
                     name="entity"
                     label=""
@@ -741,7 +743,7 @@ const handleDownload = async (image) => {
                     options={entityOptions}
                   />
                 </div>
-                <div className="w-36 mt-1">
+                <div className="w-full sm:w-40 lg:w-36">
                   <InputSelect
                     name="template"
                     label=""
@@ -750,7 +752,7 @@ const handleDownload = async (image) => {
                     options={templateOptions}
                   />
                 </div>
-                <div className="w-36 mt-1">
+                <div className="w-full sm:w-40 lg:w-36">
                   <InputSelect
                     name="status"
                     label=""
@@ -770,160 +772,162 @@ const handleDownload = async (image) => {
           {/* Images Table */}
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead>Template</TableHead>
-                    <TableHead>Article URL</TableHead>
-                    <TableHead>Generated At</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
-                        <div className="flex items-center justify-center">
-                          <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
-                        </div>
-                      </TableCell>
+                      <TableHead>Image</TableHead>
+                      <TableHead>Details</TableHead>
+                      <TableHead>Template</TableHead>
+                      <TableHead>Article URL</TableHead>
+                      <TableHead>Generated At</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ) : filteredImages.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
-                        <div className="flex flex-col items-center gap-3">
-                          <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                          <h3 className="text-lg font-medium">No Images Found</h3>
-                          <p className="text-sm text-muted-foreground max-w-sm text-center">
-                            {searchTerm || entityFilter !== 'all' || templateFilter !== 'all' || statusFilter !== 'all'
-                              ? "No images match your search criteria. Try adjusting your filters."
-                              : "Start by creating your first image using one of our templates."}
-                          </p>
-                          {!searchTerm && entityFilter === 'all' && templateFilter === 'all' && statusFilter === 'all' && (
-                            <Button 
-                              className="mt-4"
-                              onClick={() => router.push('/crm/platform/templates')}
-                            >
-                              Browse Templates
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredImages.map((image) => (
-                      <TableRow key={image?._id}>
-                        <TableCell>
-                          <div className="relative h-12 w-20 rounded overflow-hidden border">
-                            <Image
-                              src={image.path}
-                              alt={image.templateType}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          
-                          <div className="text-xs text-muted-foreground">
-                            Entity: {image.entity}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="link" 
-                            className="p-0 h-auto text-sm"
-                            onClick={() => navigateToTemplate(getTemplateId(image.templateType))}
-                          >
-                            {image.templateType?.replace(/_/g, ' ').split(' ').map(word => 
-                              word.charAt(0).toUpperCase() + word.slice(1)
-                            ).join(' ')}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          {image.articleUrl ? (
-                            <a 
-                              href={image.articleUrl} 
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline flex items-center"
-                            >
-                              <FileText className="h-3 w-3 mr-1" />
-                              <span className="truncate max-w-xs">
-                                {image.articleUrl.length > 30
-                                  ? image.articleUrl.substring(0, 30) + '...'
-                                  : image.articleUrl}
-                              </span>
-                              <ExternalLink className="h-3 w-3 ml-1" />
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">No URL provided</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
-                            <Calendar className="h-3 w-3" />
-                            <span>{formatDate(image.generationTime)}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                            <Clock className="h-3 w-3" />
-                            <span>
-                              {new Date(image.generationTime).toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {image.downloadTime ? (
-                            <div>
-                              <Badge variant="success" className="flex items-center">
-                                <Download className="mr-1 h-3 w-3" />
-                                Downloaded
-                              </Badge>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                {formatDate(image.downloadTime)}
-                              </div>
-                            </div>
-                          ) : (
-                            <Badge variant="outline" className="flex items-center">
-                              Pending Download
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end space-x-2">
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => handleDownload(image)}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-red-500"
-                              onClick={() => handleDelete(image?._id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8">
+                          <div className="flex items-center justify-center">
+                            <RefreshCcw className="h-6 w-6 animate-spin text-muted-foreground" />
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : filteredImages.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8">
+                          <div className="flex flex-col items-center gap-3">
+                            <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-lg font-medium">No Images Found</h3>
+                            <p className="text-sm text-muted-foreground max-w-sm text-center">
+                              {searchTerm || entityFilter !== 'all' || templateFilter !== 'all' || statusFilter !== 'all'
+                                ? "No images match your search criteria. Try adjusting your filters."
+                                : "Start by creating your first image using one of our templates."}
+                            </p>
+                            {!searchTerm && entityFilter === 'all' && templateFilter === 'all' && statusFilter === 'all' && (
+                              <Button 
+                                className="mt-4"
+                                onClick={() => router.push('/crm/platform/templates')}
+                              >
+                                Browse Templates
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredImages.map((image) => (
+                        <TableRow key={image?._id}>
+                          <TableCell>
+                            <div className="relative h-12 w-20 rounded overflow-hidden border">
+                              <Image
+                                src={image.path}
+                                alt={image.templateType}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            
+                            <div className="text-xs text-muted-foreground">
+                              Entity: {image.entity}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="link" 
+                              className="p-0 h-auto text-sm"
+                              onClick={() => navigateToTemplate(getTemplateId(image.templateType))}
+                            >
+                              {image.templateType?.replace(/_/g, ' ').split(' ').map(word => 
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                              ).join(' ')}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            {image.articleUrl ? (
+                              <a 
+                                href={image.articleUrl} 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:underline flex items-center"
+                              >
+                                <FileText className="h-3 w-3 mr-1" />
+                                <span className="truncate max-w-xs">
+                                  {image.articleUrl.length > 30
+                                    ? image.articleUrl.substring(0, 30) + '...'
+                                    : image.articleUrl}
+                                </span>
+                                <ExternalLink className="h-3 w-3 ml-1" />
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">No URL provided</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-sm">
+                              <Calendar className="h-3 w-3" />
+                              <span>{formatDate(image.generationTime)}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                              <Clock className="h-3 w-3" />
+                              <span>
+                                {new Date(image.generationTime).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {image.downloadTime ? (
+                              <div>
+                                <Badge variant="success" className="flex items-center">
+                                  <Download className="mr-1 h-3 w-3" />
+                                  Downloaded
+                                </Badge>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {formatDate(image.downloadTime)}
+                                </div>
+                              </div>
+                            ) : (
+                              <Badge variant="outline" className="flex items-center">
+                                Pending Download
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex justify-end space-x-2">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleDownload(image)}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-red-500"
+                                onClick={() => handleDelete(image?._id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
               {/* Pagination */}
               {filteredImages.length > 0 && (
                 <div className="border-t px-4 py-3">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <InputSelect
                       name="pageSize"
                       label=""
