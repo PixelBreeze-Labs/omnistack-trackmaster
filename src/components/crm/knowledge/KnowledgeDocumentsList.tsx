@@ -368,6 +368,26 @@ export default function KnowledgeDocumentsList() {
     }
   };
 
+  const getContentExcerpt = (content, maxLength = 110) => {
+    if (!content) return "No description provided";
+    
+    // Remove any markdown formatting or extra whitespace
+    const cleanContent = content
+      .replace(/[#*`]/g, '') // Remove markdown symbols
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
+    
+    if (cleanContent.length <= maxLength) return cleanContent;
+    
+    // Find the last complete word within the limit
+    const truncated = cleanContent.substring(0, maxLength);
+    const lastSpaceIndex = truncated.lastIndexOf(' ');
+    
+    return lastSpaceIndex > 0 
+      ? truncated.substring(0, lastSpaceIndex) + '...'
+      : truncated + '...';
+  };
+
   const handleEditSubmit = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
       toast.error("Please fill in all required fields");
@@ -673,11 +693,11 @@ export default function KnowledgeDocumentsList() {
                           />
                         </TableCell>
                         <TableCell className="min-w-[200px]">
-                          <div className="font-medium">{document.title}</div>
-                          <div className="text-sm text-muted-foreground truncate max-w-xs">
-                            {document.description || "No description provided"}
-                          </div>
-                        </TableCell>
+  <div className="font-bold text-primary">{document.title}</div>
+  <div className="text-sm text-muted-foreground">
+    {getContentExcerpt(document.content)}
+  </div>
+</TableCell>
                         <TableCell className="min-w-[100px]">
                           <Badge variant="outline">
                             {document.type.charAt(0).toUpperCase() + document.type.slice(1)}
