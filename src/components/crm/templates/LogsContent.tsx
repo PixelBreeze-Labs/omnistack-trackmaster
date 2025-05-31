@@ -63,7 +63,8 @@ import {
   BarChart3,
   PieChart,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  AlertTriangle
 } from "lucide-react";
 import { LogType } from "@/app/api/external/omnigateway/types/logs";
 import { useImageLogs } from "@/hooks/useImageLogs";
@@ -185,26 +186,30 @@ export default function LogsContent() {
     });
   };
 
-  // Get badge variant based on log type
+  // UPDATED: Get badge variant based on log type (now includes WARNING)
   const getLogTypeBadgeVariant = (type: LogType) => {
     switch (type) {
       case LogType.SUCCESS:
         return "success";
       case LogType.ERROR:
         return "destructive";
+      case LogType.WARNING:
+        return "warning"; // Orange/yellow warning badge
       case LogType.INFO:
       default:
         return "outline";
     }
   };
 
-  // Get icon based on log type
+  // UPDATED: Get icon based on log type (now includes WARNING)
   const getLogTypeIcon = (type: LogType) => {
     switch (type) {
       case LogType.SUCCESS:
         return <CheckCircle className="mr-1 h-3 w-3" />;
       case LogType.ERROR:
         return <AlertCircle className="mr-1 h-3 w-3" />;
+      case LogType.WARNING:
+        return <AlertTriangle className="mr-1 h-3 w-3" />;
       case LogType.INFO:
       default:
         return <Info className="mr-1 h-3 w-3" />;
@@ -224,6 +229,8 @@ export default function LogsContent() {
         return <Download className="mr-1 h-3 w-3" />;
       case 'IMAGE_LOAD_ERROR':
         return <AlertCircle className="mr-1 h-3 w-3" />;
+      case 'RETRY_ATTEMPT':
+        return <RefreshCcw className="mr-1 h-3 w-3" />;
       default:
         return <ActivityIcon className="mr-1 h-3 w-3" />;
     }
@@ -378,6 +385,7 @@ export default function LogsContent() {
                   {Array.from(groupedLogs.entries()).slice(0, 5).map(([sessionId, logs]) => {
                     const firstLog = logs[0];
                     const hasErrors = logs.some(log => log.type === LogType.ERROR);
+                    const hasWarnings = logs.some(log => log.type === LogType.WARNING);
                     const completedSuccessfully = logs.some(log => log.actionType === 'IMAGE_GENERATION_SUCCESS');
                     const hasDownloaded = logs.some(log => log.actionType === 'IMAGE_DOWNLOAD');
                     
@@ -393,6 +401,12 @@ export default function LogsContent() {
                               <Badge variant="destructive" className="flex items-center mr-2">
                                 <AlertCircle className="mr-1 h-3 w-3" />
                                 Errors
+                              </Badge>
+                            )}
+                            {hasWarnings && !hasErrors && (
+                              <Badge variant="warning" className="flex items-center mr-2">
+                                <AlertTriangle className="mr-1 h-3 w-3" />
+                                Warnings
                               </Badge>
                             )}
                             {completedSuccessfully && (
@@ -450,6 +464,7 @@ export default function LogsContent() {
                   />
                 </div>
                 <div className="w-36 mt-1">
+                  {/* UPDATED: Added WARNING to dropdown options */}
                   <InputSelect
                     name="type"
                     label=""
@@ -459,6 +474,7 @@ export default function LogsContent() {
                       { value: "all", label: "All Types" },
                       { value: LogType.INFO, label: "Info" },
                       { value: LogType.SUCCESS, label: "Success" },
+                      { value: LogType.WARNING, label: "Warning" },
                       { value: LogType.ERROR, label: "Error" }
                     ]}
                   />
@@ -732,10 +748,12 @@ export default function LogsContent() {
                       <div className="space-y-6">
                         {sessionLogs.map((log, index) => (
                           <div key={log._id} className="flex relative">
-                            {/* Timeline dot */}
+                            {/* UPDATED: Timeline dot colors for WARNING */}
                             <div className={`w-5 h-5 rounded-full flex-shrink-0 z-10 ${
                               log.type === LogType.SUCCESS ? 'bg-green-500' : 
-                              log.type === LogType.ERROR ? 'bg-red-500' : 'bg-blue-500'
+                              log.type === LogType.ERROR ? 'bg-red-500' : 
+                              log.type === LogType.WARNING ? 'bg-orange-500' :
+                              'bg-blue-500'
                             }`}></div>
                             
                             {/* Content */}
@@ -841,7 +859,7 @@ export default function LogsContent() {
                         </div>
                       </div>
                       
-                      {/* Status */}
+                      {/* Status - UPDATED to handle WARNING */}
                       <div className="flex justify-between">
                         <div className="text-sm text-muted-foreground">Final Status:</div>
                         <div className="text-sm font-medium">
@@ -859,6 +877,11 @@ export default function LogsContent() {
                             <Badge variant="success" className="flex items-center">
                               <CheckCircle className="mr-1 h-3 w-3" />
                               Generated
+                            </Badge>
+                          ) : sessionLogs.some(log => log.type === LogType.WARNING) ? (
+                            <Badge variant="warning" className="flex items-center">
+                              <AlertTriangle className="mr-1 h-3 w-3" />
+                              With Warnings
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="flex items-center">
@@ -882,6 +905,14 @@ export default function LogsContent() {
                         <div className="text-sm text-muted-foreground">Error Count:</div>
                         <div className="text-sm font-medium">
                           {sessionLogs.filter(log => log.type === LogType.ERROR).length}
+                        </div>
+                      </div>
+                      
+                      {/* Warning Count - NEW */}
+                      <div className="flex justify-between">
+                        <div className="text-sm text-muted-foreground">Warning Count:</div>
+                        <div className="text-sm font-medium">
+                          {sessionLogs.filter(log => log.type === LogType.WARNING).length}
                         </div>
                       </div>
                       

@@ -129,9 +129,9 @@ export const useGeneratedImages = () => {
     }
   }, [api]);
 
-  // Log an event related to image generation
+  // UPDATED: Log an event related to image generation (now supports WARNING)
   const logEvent = useCallback(async (logData: {
-    type: 'ERROR' | 'SUCCESS' | 'INFO';
+    type: 'ERROR' | 'SUCCESS' | 'INFO' | 'WARNING';
     message: string;
     details?: any;
     sessionId: string;
@@ -179,7 +179,6 @@ export const useGeneratedImages = () => {
 
     try {
       const response = await api.getTemplateStats(templateType);
-      console.log('Template stats:', response); // Debug log
       return response;
     } catch (error) {
       console.error(`Error fetching stats for template ${templateType}:`, error);
