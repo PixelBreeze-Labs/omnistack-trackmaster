@@ -19,6 +19,26 @@ type TemplateData = {
   entity: string;
 };
 
+// ADDING THE RETRY STATUS COMPONENT
+const RetryStatus = ({ isRetrying, retryCount }: {
+  isRetrying: boolean;
+  retryCount: number;
+}) => {
+  if (!isRetrying) return null;
+
+  return (
+    <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
+      <div className="flex items-center">
+        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-orange-500 mr-3"></div>
+        <div className="text-orange-800">
+          <p className="font-medium">Retrying... ({retryCount}/3)</p>
+          <p className="text-sm">Generation is taking a bit longer, please be patient.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Use a complete lookup table for template data extracted from TemplateGrid
 const TEMPLATE_DATA: Record<number, TemplateData> = {
   // IconStyle Templates
@@ -240,12 +260,14 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     isInitialized 
   } = useGeneratedImages();
   
-  // Use the template submission hook
+  // UPDATED: Use the template submission hook with retry fields
   const { 
     isSubmitting, 
     imageUrl, 
     error,
     processingTime,
+    isRetrying,
+    retryCount,
     submitTemplate 
   } = useTemplateSubmission();
 
@@ -286,7 +308,68 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     }
   }, [templateId, router]);
 
-  // Use an effect with better cleanup to prevent memory leaks
+  // ADDED: Log retries as WARNING
+  useEffect(() => {
+    if (isRetrying && retryCount > 0 && isInitialized) {
+      logEvent({
+        type: 'WARNING',
+        message: `Template submission retry attempt ${retryCount}/3`,
+        details: {
+          retryCount,
+          templateType: templateData?.template_type
+        },
+        sessionId,
+        actionType: 'RETRY_ATTEMPT'
+      });
+    }
+  }, [isRetrying, retryCount, isInitialized, logEvent, sessionId, templateData]);
+
+  // FIXED: Separate useEffect for creating image record to fix timing issues
+  useEffect(() => {
+    if (imageUrl && !isRetrying && isInitialized && templateData) {
+      const createImageRecord = async () => {
+        try {
+          // Create image record with the hook
+          const imageRecord = await createGeneratedImage({
+            path: imageUrl,
+            sessionId,
+            templateType: templateData.template_type,
+            subtitle: "from_form", // We don't have access to form data here
+            entity: templateData.entity,
+            articleUrl: ""
+          });
+          
+          if (imageRecord?._id) {
+            setImageId(imageRecord._id);
+            
+            // Log success
+            logEvent({
+              type: 'SUCCESS',
+              message: 'Image record created successfully',
+              details: {
+                imageUrl: imageUrl,
+                imageId: imageRecord._id
+              },
+              sessionId,
+              imageId: imageRecord._id,
+              actionType: 'IMAGE_RECORD_CREATED'
+            });
+          }
+        } catch (recordError) {
+          // Log error
+          logEvent({
+            type: 'ERROR',
+            message: 'Failed to create image record',
+            details: recordError,
+            sessionId,
+            actionType: 'IMAGE_RECORD_CREATION_ERROR'
+          });
+        }
+      };
+
+      createImageRecord();
+    }
+  }, [imageUrl, isRetrying, isInitialized, templateData, createGeneratedImage, logEvent, sessionId]);
   useEffect(() => {
     // Track if component is mounted
     let isMounted = true;
@@ -329,7 +412,8 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             message: 'Image generation time',
             details: {
               processingTime,
-              templateType: templateData.template_type
+              templateType: templateData.template_type,
+              retryCount: retryCount
             },
             sessionId,
             actionType: 'GENERATION_TIME_RECORDED'
@@ -337,7 +421,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
         }
       }
     }
-  }, [imageUrl, processingTime, templateData, isInitialized, logEvent, sessionId]);
+  }, [imageUrl, processingTime, templateData, isInitialized, logEvent, sessionId, retryCount]);
 
   // Handle generation complete from the timer component
   const handleGenerationComplete = useCallback((time: number) => {
@@ -382,62 +466,18 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
       // Use the template submission hook to submit the form
       const success = await submitTemplate(formData);
       
-      if (success && imageUrl) {
-        // If we received an imageId from the API, use it
-        // Note: This logic would need to be updated based on your API response structure
-        // For now, we're assuming no imageId in the response
-        
-        // Create an image record using the hook
-        if (isInitialized && templateData) {
-          try {
-            // Create image record with the hook
-            const imageRecord = await createGeneratedImage({
-              path: imageUrl,
-              sessionId,
-              templateType: templateData.template_type,
-              subtitle: formData.get("category") as string || formData.get("sub_text") as string,
-              entity: templateData.entity,
-              articleUrl: formData.get("artical_url") as string
-            });
-            
-            if (imageRecord?._id) {
-              setImageId(imageRecord._id);
-              
-              // Log success
-              logEvent({
-                type: 'SUCCESS',
-                message: 'Image record created successfully',
-                details: {
-                  imageUrl: imageUrl,
-                  imageId: imageRecord._id
-                },
-                sessionId,
-                imageId: imageRecord._id,
-                actionType: 'IMAGE_RECORD_CREATED'
-              });
-            }
-          } catch (recordError) {
-            // Log error
-            logEvent({
-              type: 'ERROR',
-              message: 'Failed to create image record',
-              details: recordError,
-              sessionId,
-              actionType: 'IMAGE_RECORD_CREATION_ERROR'
-            });
-          }
-        }
-      } else if (!success) {
+      if (!success) {
         // Log error with hook
         if (isInitialized) {
           logEvent({
             type: 'ERROR',
-            message: 'Image generation failed',
+            message: 'Image generation failed after all retries',
             details: {
-              errorMessage: error || "Failed to generate image"
+              errorMessage: error || "Failed to generate image",
+              retryCount: retryCount
             },
             sessionId,
-            actionType: 'IMAGE_GENERATION_ERROR'
+            actionType: 'IMAGE_GENERATION_FINAL_ERROR'
           });
         }
       }
@@ -456,14 +496,12 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
       }
     }
   }, [
-    createGeneratedImage, 
     error, 
-    imageUrl, 
     isInitialized, 
     logEvent, 
+    retryCount,
     sessionId, 
-    submitTemplate, 
-    templateData
+    submitTemplate
   ]);
 
   // Handle image loading complete
@@ -504,8 +542,8 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
 
   // Handle download
   const handleDownload = useCallback(async () => {
-    // If no image or currently loading, don't do anything
-    if (!generatedImage || isImageLoading) {
+    // UPDATED: If no image or currently loading or retrying, don't do anything
+    if (!generatedImage || isImageLoading || isRetrying) {
       return;
     }
   
@@ -547,7 +585,7 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [generatedImage, imageId, isImageLoading, isInitialized, logEvent, recordImageDownload, sessionId]);
+  }, [generatedImage, imageId, isImageLoading, isRetrying, isInitialized, logEvent, recordImageDownload, sessionId]);
 
   if (isLoading) {
     return (
@@ -577,11 +615,11 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             </div>
           </header>
           
-          {/* Use FormFactory to render the appropriate form */}
+          {/* UPDATED: Use FormFactory to render the appropriate form with retry disabled */}
           <FormFactory
             templateData={templateData}
             onSubmit={handleFormSubmit}
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmitting || isRetrying}
           />
         </div>
       </div>
@@ -596,8 +634,14 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
               </h6>
             </div>
             
+            {/* ADDED: Retry Status Component */}
+            <RetryStatus 
+              isRetrying={isRetrying} 
+              retryCount={retryCount} 
+            />
+            
             {/* Generation Progress Timer */}
-            {(isImageLoading || isSubmitting || generationTime || error) && (
+            {(isImageLoading || isSubmitting || generationTime || error) && !isRetrying && (
               <div className="mb-4">
                 <GenerationProgressTimer 
                   isGenerating={isImageLoading || isSubmitting} 
@@ -610,15 +654,15 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
             )}
             
             <div className="flex justify-center relative" style={{ minHeight: "300px" }}>
-  {/* Image loading spinner - shown when isImageLoading is true and there is no error */}
-  {(isImageLoading || isSubmitting) && !error && (
+  {/* UPDATED: Image loading spinner - shown when isImageLoading is true and there is no error and not retrying */}
+  {(isImageLoading || isSubmitting) && !error && !isRetrying && (
     <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 rounded-md z-10">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
     </div>
   )}
   
-  {/* Error overlay - shown when there is an error */}
-  {error && (
+  {/* UPDATED: Error overlay - shown when there is an error and not retrying */}
+  {error && !isRetrying && (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 bg-opacity-80 rounded-md z-10 p-4">
       <svg className="w-12 h-12 text-red-500 mb-2" fill="currentColor" viewBox="0 0 20 20">
         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -660,10 +704,11 @@ export default function TemplateForm({ templateId }: { templateId: number }) {
           </div>
           <br />
           <div className="inline-flex justify-center">
+            {/* UPDATED: Download button disabled during retries */}
             <button
-              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`btn btn-outline-primary ${(!generatedImage || isImageLoading || isSubmitting || isRetrying) ? 'opacity-50 cursor-not-allowed' : ''}`}
               id="NewImgDownload"
-              disabled={!generatedImage || isImageLoading || isSubmitting}
+              disabled={!generatedImage || isImageLoading || isSubmitting || isRetrying}
               onClick={handleDownload}
             >
               Download

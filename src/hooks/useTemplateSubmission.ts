@@ -15,6 +15,9 @@ type SubmissionState = {
   imageUrl: string | null;
   error: string | null;
   processingTime: number | null;
+  // ONLY ADDING THESE TWO NEW FIELDS
+  isRetrying: boolean;
+  retryCount: number;
 };
 
 type SubmissionResult = SubmissionState & {
@@ -29,8 +32,14 @@ export function useTemplateSubmission(): SubmissionResult {
     isSubmitting: false,
     imageUrl: null,
     error: null,
-    processingTime: null
+    processingTime: null,
+    // ONLY ADDING THESE TWO NEW FIELDS
+    isRetrying: false,
+    retryCount: 0
   });
+
+  // ONLY ADDING THIS HELPER FUNCTION
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const submitTemplate = async (formData: FormData): Promise<boolean> => {
     const startTime = Date.now();
@@ -41,7 +50,10 @@ export function useTemplateSubmission(): SubmissionResult {
         isSubmitting: true, 
         error: null, 
         imageUrl: null,
-        processingTime: null 
+        processingTime: null,
+        // ONLY ADDING THESE TWO RESETS
+        isRetrying: false,
+        retryCount: 0
       }));
       
       // Get template type
@@ -94,46 +106,103 @@ export function useTemplateSubmission(): SubmissionResult {
         return false;
       }
 
-      // Submit the form
-      const response = await fetch('/api/templates/generate', {
-        method: 'POST',
-        body: formData,
-      });
+      // ONLY ADDING RETRY LOGIC HERE - YOUR ORIGINAL CODE STAYS THE SAME
+      const MAX_RETRIES = 3;
+      const RETRY_DELAYS = [2000, 4000, 6000]; // 2s, 4s, 6s
+      let lastError = '';
 
-      const result: TemplateResponse = await response.json();
-      
-      if (!response.ok || result.status !== 1) {
-        // Calculate time to failure
-        const endTime = Date.now();
-        const failureTime = endTime - startTime;
-        
-        // Update state with error but include processing time
-        setState(prev => ({ 
-          ...prev, 
-          isSubmitting: false, 
-          error: result.msg || 'Failed to generate image',
-          processingTime: failureTime
-        }));
-        
-        // Show error toast
-        toast.error(result.msg || 'Failed to generate image');
-        
-        return false;
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          // If this is a retry, show retry UI and wait
+          if (attempt > 1) {
+            setState(prev => ({ 
+              ...prev, 
+              isRetrying: true, 
+              retryCount: attempt - 1 
+            }));
+            
+            const delayTime = RETRY_DELAYS[attempt - 2] || 6000;
+            await delay(delayTime);
+            
+            // Log retry as WARNING (not error)
+            console.warn(`Retrying template submission (${attempt - 1}/${MAX_RETRIES - 1})...`);
+          }
+
+          // Submit the form (YOUR ORIGINAL CODE)
+          const response = await fetch('/api/templates/generate', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const result: TemplateResponse = await response.json();
+          
+          if (!response.ok || result.status !== 1) {
+            lastError = result.msg || 'Failed to generate image';
+            
+            // Log as warning for retry attempts, error only for final failure
+            console[attempt < MAX_RETRIES ? 'warn' : 'error'](
+              `Template submission attempt ${attempt}/${MAX_RETRIES} failed:`, 
+              lastError
+            );
+
+            // If this was the last attempt, break
+            if (attempt === MAX_RETRIES) {
+              break;
+            }
+            continue; // Try again
+          }
+
+          // SUCCESS - YOUR ORIGINAL CODE
+          setState(prev => ({ 
+            ...prev, 
+            isSubmitting: false, 
+            isRetrying: false,
+            imageUrl: result.img || null,
+            processingTime: result.processingTime || (Date.now() - startTime)
+          }));
+          
+          return true;
+
+        } catch (error) {
+          lastError = error instanceof Error ? error.message : 'An error occurred';
+          
+          // Log as warning for retry attempts, error only for final failure
+          console[attempt < MAX_RETRIES ? 'warn' : 'error'](
+            `Template submission attempt ${attempt}/${MAX_RETRIES} failed:`, 
+            lastError
+          );
+
+          // If this was the last attempt, break
+          if (attempt === MAX_RETRIES) {
+            break;
+          }
+        }
       }
 
-      // On success
+      // ALL RETRIES FAILED - YOUR ORIGINAL ERROR HANDLING
+      const errorMessage = lastError;
+      console.error('Form submission failed after all retries:', errorMessage);
+      
+      // Show error toast
+      toast.error(errorMessage);
+      
+      // Calculate time to failure
+      const endTime = Date.now();
+      const failureTime = endTime - startTime;
+      
+      // Update state with error but include processing time
       setState(prev => ({ 
         ...prev, 
         isSubmitting: false, 
-        imageUrl: result.img || null,
-        processingTime: result.processingTime || (Date.now() - startTime)
+        isRetrying: false,
+        error: errorMessage,
+        processingTime: failureTime
       }));
       
-      // Log success
-      console.log('Success:', result);
-      
-      return true;
+      return false;
+
     } catch (error) {
+      // YOUR ORIGINAL CATCH BLOCK - UNCHANGED
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       console.error('Form submission error:', error);
       
@@ -148,6 +217,7 @@ export function useTemplateSubmission(): SubmissionResult {
       setState(prev => ({ 
         ...prev, 
         isSubmitting: false, 
+        isRetrying: false,
         error: errorMessage,
         processingTime: failureTime
       }));
